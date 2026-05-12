@@ -1,0 +1,4 @@
+Rural Commerce — archivo Figma (referencia de diseño)
+https://www.figma.com/design/XJ5gavyFRhbNKLHNfknZVH/Rural-Commerce?node-id=1-2&t=BgFlqAHRXKRPYklE-1
+
+Para quien implemente el front: sin acceso de edición/Dev Mode en Figma, conviene exportar PNG de frames + anotar tipografías/medidas en una página "Specs" dentro del mismo archivo.

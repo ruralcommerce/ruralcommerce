@@ -1,0 +1,51 @@
+{
+  "id": "blog",
+  "name": "Blog",
+  "title": "Blog",
+  "slug": "blog",
+  "blocks": [
+    {
+      "id": "block-1778572602058-wt1hvfze4",
+      "type": "hero-section",
+      "props": {
+        "title": "Transformamos excedentes en negocios sostenibles.",
+        "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calcule su impacto y lucro",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "Cómo funciona",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778615311988-m3nbpcynd",
+      "type": "segments-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "Segmentos que atendemos",
+        "subtitle": "Conocé cómo acompañamos a cada actor de la cadena.",
+        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#parceiros\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#parceiros\",\"icon\":\"building2\"}]"
+      }
+    },
+    {
+      "id": "block-1778572602058-ne97t37h2",
+      "type": "free-text",
+      "props": {
+        "content": "Seu texto aqui",
+        "fontSize": "16px",
+        "textAlign": "left"
+      }
+    },
+    {
+      "id": "block-1778572602058-lmge9ap6k",
+      "type": "image",
+      "props": {
+        "src": "",
+        "alt": "Imagem"
+      }
+    }
+  ],
+  "createdAt": "2026-05-12T07:56:42.058Z",
+  "updatedAt": "2026-05-12T19:48:32.028Z",
+  "status": "draft"
+}

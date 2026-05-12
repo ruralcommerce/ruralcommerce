@@ -1,0 +1,10 @@
+/* Rural Commerce — paleta (Figma) */
+.rural-commerce {
+  --rc-primary: #071f5e;
+  /* Faixa mais escura (ex.: bloco 3) — abaixo do #071F5E do bloco sistema */
+  --rc-primary-deep: #00071B;
+  --rc-accent: #009179;
+  --rc-text: #1e1e1e;
+  --rc-bg: #f2f2f2; /* bloco tipo “Nuestras soluciones” — off-white */
+  --rc-surface: #ffffff; /* faixas branco puro (ex.: bloco siguiente) */
+}

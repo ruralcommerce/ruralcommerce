@@ -1,0 +1,95 @@
+{
+  "id": "homepage",
+  "name": "Homepage",
+  "title": "Homepage",
+  "slug": "homepage",
+  "blocks": [
+    {
+      "id": "block-1778613416245-zfq1m1onh",
+      "type": "site-header",
+      "props": {
+        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluções\",\"href\":\"/solucoes\"},{\"label\":\"Aliados e Inversores\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contato\",\"href\":\"#contacto\"}]",
+        "logoAlt": "Rural Commerce Logo"
+      }
+    },
+    {
+      "id": "block-1778391185975-s1qmkn6oz",
+      "type": "hero-section",
+      "props": {
+        "title": "Transformamos excedentes en negocios sostenibles. (editado)",
+        "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Saber+",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "Contacto",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778391185975-have0sm2t",
+      "type": "system-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "El campo enfrenta grandes desafíos",
+        "subtitle": "Pérdidas post-cosecha, oscilaciones del mercado y presión por sostenibilidad siguen limitando el crecimiento rural.",
+        "pillarsJson": "[{\"title\":\"Hardware de Precisión\",\"body\":\"Equipos modulares orientados a optimizar procesos, reducir costos y agregar valor a la producción.\"},{\"title\":\"Software de Inteligencia y Gestión\",\"body\":\"Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, entregando indicadores y seguridad para la toma de decisiones.\"},{\"title\":\"Gestión de Rescate y Valorización\",\"body\":\"Procesos comerciales que transforman mermas en productos vendibles con vida útil extendida, evitando emisiones por descarte.\"},{\"title\":\"Metodología de Aceleración\",\"body\":\"Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales.\"}]"
+      }
+    },
+    {
+      "id": "block-1778391185975-r7dhh6mwn",
+      "type": "segments-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "Segmentos que atendemos",
+        "subtitle": "Conocé cómo acompañamos a cada actor de la cadena.",
+        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#parceiros\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#parceiros\",\"icon\":\"building2\"}]"
+      }
+    },
+    {
+      "id": "block-1778391185975-zhs6tr6lf",
+      "type": "solutions-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "Un camino claro para transformar su producción",
+        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiencia\",\"body\":\"Descubra dónde está perdiendo dinero su negocio.\",\"cta\":\"Saber más\",\"variant\":\"navy\"},{\"title\":\"Curso de Procesamiento y Gestión\",\"body\":\"Capacitación técnica para el estándar de retail (comercio minorista).\",\"cta\":\"Saber más\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementación Rápida\",\"body\":\"Tecnología y metodología para comenzar a generar ganancias hoy mismo.\",\"cta\":\"Saber más\",\"variant\":\"royal\"}]"
+      }
+    },
+    {
+      "id": "block-1778391185975-exhsje7jw",
+      "type": "stats-section",
+      "props": {
+        "backgroundColor": "#EEF3F7",
+        "title": "Números que hablan",
+        "subtitle": "Indicativos de impacto y eficiencia en redes acompañadas (valores referenciales)."
+      }
+    },
+    {
+      "id": "block-1778613416245-q7q8bn7wh",
+      "type": "partners-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "Parceiros de Confianza",
+        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+      }
+    },
+    {
+      "id": "block-1778613416245-eustyqqol",
+      "type": "site-footer",
+      "props": {
+        "title": "Rural Commerce",
+        "copyright": "Rural Commerce 2026 — Todos os direitos reservados",
+        "contactTitle": "Contato",
+        "contactAddress": "Uruguay — endereço comercial (completar)",
+        "contactPhone": "+598 · · · · ·",
+        "contactEmail": "contacto@ruralcommerce.com",
+        "socialLabel": "Redes sociais",
+        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://youtube.com\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
+        "footerLinksJson": "[{\"group\":\"Outra parte\",\"items\":[{\"label\":\"Início\",\"href\":\"/#hero\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Segmentos\",\"href\":\"/#segmentos\"}]},{\"group\":\"Sobre\",\"items\":[{\"label\":\"História e propósito\",\"href\":\"/sobre\"},{\"label\":\"Como funciona\",\"href\":\"/#sistema\"},{\"label\":\"Parceiros\",\"href\":\"/#parceiros\"}]}]"
+      }
+    }
+  ],
+  "createdAt": "2026-05-10T05:24:34.069Z",
+  "updatedAt": "2026-05-12T19:16:59.023Z",
+  "status": "draft",
+  "publishedAt": "2026-05-10T06:21:30.348Z"
+}

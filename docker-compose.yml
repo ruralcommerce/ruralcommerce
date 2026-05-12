@@ -1,0 +1,36 @@
+# Rural Commerce — Next.js em desenvolvimento na porta 3001
+#
+# Na pasta RuralCommerce:
+#   docker compose up -d
+# Browser: http://localhost:3001
+#
+# Parar:
+#   docker compose down
+
+services:
+  web:
+    image: node:20-bookworm-slim
+    container_name: rural-commerce-web
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "3001:3001"
+    volumes:
+      # Código no PC (hot reload)
+      - .:/app
+      # node_modules e .next fora do bind mount — menos erros em OneDrive/Windows
+      - rural_web_node_modules:/app/node_modules
+      - rural_web_next:/app/.next
+    environment:
+      NODE_ENV: development
+      HOSTNAME: "0.0.0.0"
+      PORT: "3001"
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+    command: >
+      sh -c "npm install && npm run dev"
+
+volumes:
+  rural_web_node_modules:
+  rural_web_next:

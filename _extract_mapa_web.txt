@@ -1,0 +1,349 @@
+Mapa Pagina Web: Rural Commerce (Versão 2026)
+1. Home (A Vitrine de Impacto)
+a. Hero Section (El Impacto Inmediato)
+Headline: Transformamos excedentes y residuos en negocios sostenibles.Subheadline: La solución sistémica que integra tecnología de precisión, gestión inteligente y acceso a mercados de élite para el agronegocio regenerativo.CTA Principal (Botón): [Calcule su Potencial de Lucro e Impacto] – Dirige a la calculadora de ROI/GEI.CTA Secundario: [Conozca el Ecosistema] – Ancla hacia la sección de Soluciones.
+b. El Problema (El Dolor del Mercado)
+Texto Corto: "Sabemos que el campo enfrenta grandes desafíos: pérdidas post-cosecha, oscilaciones del mercado y la presión por la sostenibilidad. En Rural Commerce, actuamos para eliminar estos cuellos de botella, transformando lo que hoy es perdida y desperdicio en nuevas fuentes de ingresos y seguridad para toda la cadena."
+c. La Solución: El Ecosistema Rural Commerce
+Presentación visual de los 4 pilares:
+Hardware de Precisión: Equipos modulares orientados a optimizar procesos, reducir costos y agregar valor a la producción.
+Software de Inteligencia y Gestión: Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, entregando indicadores y seguridad para la toma de decisiones.
+Metodología de Aceleración: Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales.
+Gestión de Rescate y Valorización: Procesos comerciales que transforman mermas en productos vendibles con vida útil extendida, evitando emisiones por descarte.
+d. Atajos de Valor (Segmentación de Público)
+Para Productores: "Aumente su margen y llegue a las estanterías de los grandes minoristas."
+Para Empresas (ESG/Supply Chain): "Descarbonice su cadena con métricas auditables y seguridad de suministro."
+Para Inversores/Gobiernos: "Escale el impacto social y ambiental con una eficiencia de capital comprobada."
+e. Escaparate de Entrada (Marketplace)
+Carrusel de Productos/Servicios:
+Diagnóstico de Eficiencia: "Descubra dónde está perdiendo dinero su negocio."
+Curso de Procesamiento y Gestión: "Capacitación técnica para el estándar de retail (comercio minorista)."
+Kit de Implementación Rápida: "Tecnología y metodología para comenzar a generar ganancias hoy mismo."
+f. Prueba Social e Impacto Cuantificado
+Números que Hablan (Contador en tiempo real de):
+Toneladas de CO2eevitadas.
+Millones de litros de agua preservados.
+% de aumento promedio en el lucro de los socios.
+Logos de Confianza: IICA, NBC-PUCV, Santarém, etc.
+
+2. Soluciones - Home - (Marketplace de Resultados)
+Objetivo: Mostrar claramente qué puede comprar el cliente, con sus beneficios y resultados.
+i. Banner"Elegí tu camino hacia la rentabilidad sustentable."(Usamos "Elegí" por el voseo uruguayo, que suena mucho más natural que "Elige").
+ii. Sección de Combos (3 Cards)
+Sustentabilidad (o "Sustentabilidad Ambiental")
+Procesamiento
+Gestión
+iii. Sección de Viabilización (El diferencial / "El Pique")Fondo de color fuerte (Verde oscuro o Azul):"¿No tenés presupuesto ahora? Nosotros buscamos los recursos para vos. Sin costo inicial."
+iv. Sección de Add-ons (Complementos)"Complementos" o "Servicios adicionales".
+v. La Calculadora como "Gancho" (Isca)Widget interactivo:"¿Cuánta plata estás dejando arriba de la mesa? [Botón: Simular ahora]"
+
+2.1. Página Combo: 
+Objetivo:Presentar el combo con detalles técnicos, beneficios, casos de éxito y un llamado a la acción (CTA) para contacto.
+Secciones y textos:
+• Cabezal (Título + Subtítulo)Título: Combo Sustentabilidad TransversalSubtítulo: El eje central de tu crecimiento sustentable.(En Uruguay, "espinha dorsal" se entiende, pero "eje central" o "pilar" suena más natural en presentaciones corporativas).
+• Descripción CompletaTexto detallado: "Un enfoque integral que abarca desde el diagnóstico inicial hasta la implementación de soluciones prácticas. Este combo incluye el análisis de procesos, la optimización de recursos y el diseño de estrategias para transformar excedentes en activos rentables. Resultados esperados: mayor eficiencia operativa y una reducción drástica del impacto ambiental."
+• Beneficios (puntos clave)
+Ahorro de costos: Optimizá tus recursos y reducí gastos innecesarios.
+Valor agregado: Diferenciá tu producción en el mercado.
+Certificaciones: Preparate para cumplir con los estándares internacionales más exigentes.
+Impacto ambiental: Generá un cambio positivo y medible en tu entorno.
+• Testimonios / Casos de éxito (Cases)"Lo que dicen nuestros clientes:"
+"Logramos certificar nuestra producción y abrir nuevos mercados que antes eran inalcanzables."
+"La gestión de excedentes pasó de ser un problema a ser una fuente de ingresos genuina."
+• CTA (Llamado a la acción)[Solicitar diagnóstico gratuito] / [Hablar con un especialista](Usamos "Hablar" en lugar de "Falar" y mantenemos el tono directo).
+
+2.2. Pagina de Add-ons y Herramientas (Compra Direta/Self-Service): 
+Objetivo:Listar y explicar los complementos (add-ons) disponibles, organizados por categoría.
+Secciones y textos:
+• Título + SubtítuloTítulo: Complementos para personalizar tu solución.Subtítulo: Elegí los adicionales que mejor se adapten a tus necesidades.
+• Categorías (con tarjetas o listas):
+Gestión:
+RC.MAPA: (Mantenemos el nombre técnico).
+ERP Rural: Sistema de gestión integral para el campo.
+Capacitación Financiera: Entrenamiento práctico para optimizar tus números.
+Producción:
+Riego: Sistemas eficientes para asegurar tu producción.
+Bomba Solar: Energía limpia y ahorro de costos en bombeo.
+Selladora: Terminación profesional para tus productos procesados.
+Mercado:
+Branding: Construcción y posicionamiento de tu marca.
+Etiquetado y Rótulos: Diseño normativo y atractivo para tus productos.
+Campañas Digitales: Estrategias de marketing para llegar a nuevos clientes.
+• Descripción breve para cada complemento (Ejemplos):
+Foco en el beneficio e impacto: 
+Bomba Solar: "Reducí a cero el costo de energía en el movimiento de agua con tecnología de punta."
+Branding: "Transformá tu producto en una marca reconocida que el cliente elija por su valor."
+ERP Rural: "Tomá decisiones basadas en datos reales y tené el control total de tu establecimiento en la palma de la mano."
+• CTA (Llamado a la acción)[Armar mi solución personalizada](En Uruguay usamos "Armar" en lugar de "Montar" para este tipo de configuradores).
+
+2.3. Página: Servicio de Viabilización Financiera
+Objetivo:Explicar el servicio de redacción, búsqueda y gestión de proyectos para financiamiento, destacando el modelo sin costo inicial.
+
+• Título + Subtítulo
+Título: Viabilización Financiera para tu proyecto ruralSubtítulo: Captación y gestión de recursos sin costo inicial
+
+• Descripción Detallada
+Este servicio está pensado para acompañarte en cada paso del proceso de financiamiento. Nos encargamos de redactar el proyecto, buscar las fuentes de financiación adecuadas y gestionar todo el proceso hasta la ejecución.Nuestro modelo comercial es transparente: trabajamos con un porcentaje del monto captado, sin cobros iniciales ni adelantos. Así, podés avanzar sin preocupaciones financieras al principio.
+
+• Beneficios
+Acceso a fondos: Te conectamos con las fuentes de financiación que mejor se ajustan a tu proyecto.
+Seguridad jurídica: Todo el proceso está respaldado por asesoría legal especializada.
+Foco en resultados: Trabajamos para que tu proyecto avance rápido y sin trámites innecesarios.
+
+• Proceso (paso a paso)
+Diagnóstico inicial: Evaluamos tus necesidades y objetivos.
+Redacción del proyecto: Armamos una propuesta sólida y competitiva.
+Búsqueda de financiación: Identificamos y postulamos a las mejores fuentes de fondos.
+Gestión administrativa: Acompañamos todo el proceso burocrático.
+Ejecución y reporte: Te ayudamos a llevar adelante el proyecto y rendir cuentas.
+
+• CTA (Llamado a la acción)
+[Quiero viabilizar mi proyecto]
+
+3. Calculadora de Inversión
+
+Propuesta: Una herramienta interactiva que transforma tus costos actuales en una proyección de rentabilidad real.
+1. Cabezal (Hero)
+Título: Transformá tus datos en decisiones: calculá el ROI y el payback de tu proyecto en minutos.Subtítulo: Descubrí cuánto podés ahorrar en cada costo, cuánto podés valorizar tu producto y en cuántos meses recuperás la inversión. Todo con total transparencia en las premisas técnicas.
+Botón Principal: [Simular mi ROI ahora]
+Link Secundario: [Ver casos reales de éxito]
+
+2. Herramienta Interactiva (El Simulador)
+Un bloque limpio donde el usuario ingresa sus números. Sin vueltas.
+Instrucciones: Completá los campos para obtener una simulación personalizada. Los campos con * son obligatorios.Campos de entrada:
+Producción mensual (kg): Cantidad total que producís por mes.
+Precio de venta actual (USD/kg): Precio promedio en tu canal principal.
+Costo de Energía/Combustible (USD/mes): Luz, gasoil o leña asociados a la producción.
+Costo de Agua (USD/mes): Gastos mensuales en riego o procesos.
+Costo de Mano de Obra (USD/mes): Sueldos y aportes relacionados al proceso.
+Insumos y Empaque (USD/mes): Bolsas, etiquetas, envases y consumibles.
+Pérdida / Desperdicio actual (%): Qué porcentaje del volumen total no lográs vender.
+Inversión prevista (USD): Costo del combo o equipo que tenés en mente.
+Configuración Avanzada:
+Módulos a implementar: (Checkboxes: Deshidratado, Bomba Solar, Gestión, Branding).
+Nivel de Adherencia (Slider 0-100%): ¿Qué tan fiel al plan será la ejecución? (Afecta proporcionalmente los resultados).
+
+3. Premisas y Escenarios (Transparencia)
+En lugar de repetir textos, usamos botones de acción rápida.
+Elegí tu perfil de simulación:
+[Conservador]: Reduce las ganancias un 20% por seguridad.
+[Realista]: Basado en el promedio de nuestros proyectos (Predeterminado).
+[Optimista]: Condiciones ideales y máxima eficiencia (+20%).
+¿Cómo calculamos? (Icono de información): Nuestras fórmulas consideran ahorros específicos (ej. Bomba Solar = hasta 80% ahorro en energía) y valorización del producto final (ej. +40% por producto premium deshidratado).
+
+4. Resultados y Análisis
+Visualización clara de los beneficios.
+Resultados destacados (Cards):
+Ahorro mensual total: USD (Suma de energía, agua, mano de obra y mermas).
+Ganancia por valor agregado: USD (Aumento de ingresos por mejor precio de venta).
+Lucro adicional mensual: USD (Ahorros + Nuevos ingresos).
+Tiempo de retorno (Payback): X meses.
+ROI Anual: X %
+Gráficos sugeridos:
+Barras: Comparativa de costos "Antes vs. Después".
+Línea de tiempo: Curva de recuperación de la inversión mes a mes.
+Interpretación rápida:
+Si el payback es < 12 meses: "Retorno de alta prioridad".
+Si es 12-24 meses: "Proyecto sólido para financiación".
+
+5. Recomendaciones y Próximos Pasos
+Basado en tus números, te sugerimos:
+Si tu mayor pérdida es por desperdicio: Priorizá el Combo de Procesamiento.
+Si tu mayor costo es energético: Priorizá el Combo de Energía (Bomba Solar).
+Si buscás mejorar el precio: Invertí en Branding y Etiquetas.
+
+6. Captura de Lead y Reporte Completo
+Título: Descargá el informe detallado en PDF.Texto: Obtené un documento profesional con todos los gráficos, tablas de sensibilidad y recomendaciones técnicas para presentar ante bancos o inversores.
+Campos: Nombre, Email corporativo, Nombre del establecimiento, WhatsApp (opcional).
+Botón: [Enviar reporte a mi email]
+
+7. Preguntas Frecuentes (FAQ Técnico)
+¿Es exacta la calculadora? Es una estimación técnica robusta. Para un compromiso financiero, realizamos un diagnóstico presencial.
+¿Puedo usar este PDF para pedir un crédito? Sí, el reporte está diseñado como un anexo técnico válido para propuestas de inversión.
+¿Qué pasa si no tengo datos exactos? Usá nuestros presets con promedios del mercado uruguayo para tener una base de conversación.
+
+8. Cierre (CTA Final)
+¿Listo para transformar esta simulación en resultados reales?[Solicitar diagnóstico gratuito] [Agendar reunión con un especialista]
+
+Notas para el desarrollador (Metodología):
+Ahorro Item: Costo_Actual * %_Reducción_Esperada * (Adherencia/100)
+Recuperación de Pérdida: (Volumen * %_Pérdida_Actual - Volumen * %_Pérdida_Post) * Precio_Venta
+ROI Anual: (Lucro_Adicional_Mensual * 12 / Inversión) * 100
+Meta Description (SEO): Calculadora de ROI para proyectos rurales en Uruguay. Estimá ahorros en energía, mano de obra y mermas. Obtené tu reporte de payback y rentabilidad en PDF.
+
+4. Aliados e Inversores
+Alianzas Estratégicas para el Impacto Sustentable y el Crecimiento
+Propuesta: Conectamos grandes empresas, gobiernos e inversores con soluciones que fortalecen las cadenas rurales y generan valor compartido.
+1. Cabezal (Hero)
+Título: Alianzas estratégicas para el impacto sustentable y el crecimiento.Subtítulo: Conectamos a grandes empresas, gobiernos e inversores con soluciones innovadoras que fortalecen las cadenas productivas rurales, promueven criterios ESG y generan valor real en el territorio.
+Botón Principal: [Quiero ser un aliado de impacto]
+
+2. ¿Por qué elegir a Rural Commerce? (Propuesta de Valor)
+En Uruguay, el sector corporativo valora la eficiencia y la trazabilidad. Aquí resumimos el "porqué".
+Fortalecimiento de proveedores: Potenciamos a los pequeños productores con tecnología y gestión, mejorando la calidad y sustentabilidad de sus insumos.
+Cumplimiento de metas ESG: Facilitamos el alcance de objetivos corporativos con resultados medibles en reducción de emisiones, inclusión social y desarrollo local.
+Modelos flexibles: Ofrecemos opciones de White Label (marca blanca), licenciamiento de metodología y co-desarrollo de proyectos a medida.
+Gobernanza y Transparencia: Reportes detallados listos para auditorías, certificaciones internacionales y memorias anuales.
+
+3. Soluciones a medida (Servicios B2B)
+Desarrollo de Proveedores: Programas de capacitación y certificación para asegurar una cadena de suministro confiable y sustentable.
+Proyectos de Impacto Social y Ambiental: Iniciativas enfocadas en la generación de ingresos, equidad y preservación de recursos naturales.
+Licenciamiento y White Label: Adoptá nuestra metodología y tecnología bajo tu propia marca para ampliar tu cartera de soluciones.
+Monitoreo y Reportes ESG: Herramientas de consultoría para medir el impacto con datos reales y auditables.
+
+4. Casos de Éxito (Prueba Social)
+Ejemplos de lo que ya estamos logrando:
+Cooperativa X: Aumento del 30% en los ingresos de los productores y reducción del 25% en la huella de carbono.
+Empresa Y (Programa ESG): Fortalecimiento de la red de proveedores y obtención de certificación internacional.
+Gobierno Z (Licenciamiento): Implementación en 5 departamentos con impacto social y ambiental comprobado.
+
+5. Modelo de Trabajo (El Proceso)
+Diagnóstico: Alineación de objetivos estratégicos y necesidades.
+Definición del Modelo: Elección entre licenciamiento, co-desarrollo o marca blanca.
+Implementación: Capacitación en territorio y puesta en marcha tecnológica.
+Monitoreo: Evaluación continua y entrega de reportes de impacto.
+
+6. Testimonios
+"Rural Commerce nos permitió transformar nuestra cadena de suministro, alineando la sustentabilidad con la rentabilidad del negocio." — Director de ESG, Empresa X.
+"La metodología y el soporte técnico fueron piezas clave para alcanzar nuestras metas de desarrollo territorial." — Gestor de Proyectos, Organismo Público.
+
+7. Cierre y Contacto (CTA)
+¿Querés fortalecer tu cadena productiva y cumplir tus metas ESG con resultados concretos?Hablemos sobre cómo podemos colaborar para generar un impacto real en el campo.
+Botón: [Contactar con el equipo de Alianzas]
+
+5. Blog
+Propuesta: No solo vendemos soluciones, educamos al mercado para que tome mejores decisiones financieras y productivas.
+1. Pilares de Contenido (Estrategia Editorial)
+Dividiremos el contenido en 4 categorías para equilibrar autoridad, educación y ventas:
+Pilar A: "La Rentabilidad Invisible" (Educación Financiera/ROI)
+Blog: "5 lugares donde tu plata se está escapando en el establecimiento (y cómo frenarlo)".
+Redes Sociales: Carrusel con el título "¿Cuánto te cuesta el desperdicio?". Mostramos el cálculo de cuánto representan 20% de pérdidas en pesos/dólares al final del año.
+Objetivo: Probar que Rural Commerce no es un gasto, sino una inversión que se paga sola.
+Pilar B: "Tecnología que Funciona" (Hardware/Software)
+Blog: "Deshidratado Solar vs. Eléctrico: ¿Cuál es la mejor opción para el productor familiar?".
+Redes Sociales: Videos cortos (Reels/TikTok) mostrando la deshidratadora en funcionamiento o la App de gestión siendo usada directamente en el campo.
+Objetivo: Eliminar el miedo a la tecnología y mostrar su facilidad de uso.
+Pilar C: "ESG en la Práctica" (Para Aliados/B2B)
+Blog: "Cómo las empresas líderes usan Rural Commerce para cumplir sus metas de impacto".
+Redes Sociales: Infografías sobre reducción de huella de carbono e inclusión de jóvenes y mujeres en el agro. Etiquetado de empresas aliadas.
+Objetivo: Atraer inversores y socios corporativos.
+Pilar D: "La Voz del Campo" (Prueba Social)
+Blog: Entrevistas a fondo. "Caso de Éxito: De productor de fruta a empresario de snacks gourmet".
+Redes Sociales: Testimonios en video y fotos de "Antes y Después" de la producción.
+Objetivo: Generar confianza e identificación entre pares.
+
+2. Estrategia de Integración (Blog ↔ Redes Sociales)
+El contenido debe circular para maximizar el alcance:
+El Artículo es la Base: Se escribe un post profundo en el blog (ej: "Guía para captar recursos en proyectos rurales").
+Fragmentación: 
+LinkedIn: Resumen ejecutivo enfocado en inversores y gerentes de sustentabilidad.
+Instagram: Carrusel con los "3 pasos clave para conseguir financiamiento".
+WhatsApp: Link directo enviado a la lista de difusión de productores interesados.
+CTA Cruzado: En Instagram siempre cerramos con: "Querés bajar la planilla de costos completa? Link en la Bio (Blog)".
+
+3. Integración Técnica 
+Botón de WhatsApp en el Blog: Fundamental. El productor uruguayo prefiere evacuar dudas por audio o mensaje instantáneo.
+Newsletter "Rentabilidad Rural": Captura de emails simple. Una vez al mes enviamos los mejores artículos y una oferta del "Combo del Mes".
+LinkedIn para B2B: Es el lugar para hablar sobre la Redacción y Gestión de Proyectos. Ahí están los tomadores de decisión de las grandes empresas.
+Instagram Shopping: Etiquetado de productos (como kits de empaque o sensores) directamente en las fotos.
+
+6. Sobre Nós
+Propuesta: Presentar la trayectoria de Rural Commerce y las certificaciones que garantizan que nuestra metodología funciona.
+1. Nuestra Historia y Propósito
+Título: Transformando el excedente rural en desarrollo sostenible.Texto:"Nacimos con la misión de cerrar la brecha entre la producción primaria y el mercado de alto valor. En Rural Commerce, combinamos saberes tradicionales del campo con tecnología para que ningún kilo de producción se pierda.
+Nuestra metodología no solo busca la rentabilidad, sino el arraigo rural: queremos que el productor sea el dueño de su valor agregado, generando empleo y oportunidades en su propia tierra."
+
+2. Metodología Rural Commerce
+Un bloque visual que explique el "Cómo":
+Diagnóstico Preciso: Analizamos el potencial de cada establecimiento.
+Implementación Tecnológica: Instalamos soluciones de energía y procesamiento eficientes.
+Gestión y Mercado: Acompañamos la profesionalización financiera y la apertura de canales comerciales.
+
+3. Certificaciones y Avales Técnicos
+Este bloque es vital para generar confianza. Debe ser una galería de logos con descripciones técnicas claras.
+Título: Respaldo y Certificaciones Internacionales.Subtítulo: Nuestra metodología y equipos están validados por los organismos más exigentes del sector.
+IICA (Instituto Interamericano de Cooperación para la Agricultura): 
+Descripción: Validación de impacto en el desarrollo rural y la seguridad alimentaria en las Américas.
+NBC-PUCV (Núcleo Biotecnología Curauma - Chile): 
+Descripción: Certificación técnica de procesos de deshidratación y eficiencia biotecnológica aplicada al agro.
+
+4. CTA (Llamado a la Acción)
+¿Querés conocer más sobre nuestra metodología y soluciones?[Página Soluciones] [Contactar con un Asesor]
+
+7. Contacto
+Propuesta: Facilitar el diálogo inmediato y mostrar nuestra presencia en el territorio.
+1. Cabezal (Hero de Contacto)
+Título: Hablemos de tu próximo paso hacia la rentabilidad.Subtítulo: Ya seas un productor buscando crecer o una empresa buscando impacto, nuestro equipo está listo para asesorarte.
+
+2. Canales de Comunicación Directa
+Bloques con iconos claros para una acción rápida:
+WhatsApp Business: [Botón: Chatear con un asesor ahora] 
+Microcopy: "Respuesta inmediata en horario comercial."
+Teléfono: [+598 XXX XXX XX]
+Correo Electrónico: [contacto@ruralcommerce.com] 
+Microcopy: "Respondemos tus consultas técnicas en menos de 24 horas."
+
+3. Formulario de Consulta (Segmentado)
+Un formulario inteligente que ayuda a filtrar el interés del lead:
+Nombre completo / Empresa:
+Departamento / Localidad: (Fundamental para logística en Uruguay).
+Tipo de perfil: (Selector: Productor Rural / Empresa B2B / Gobierno / Inversor).
+Interés principal: (Selector: Combo Sustentabilidad / Viabilización Financiera / Alianzas ESG / Otros).
+Mensaje: "Contanos brevemente sobre tu proyecto o necesidad."
+Botón: [Enviar consulta]
+
+4. Mapa de Actuación (Presencia Territorial)
+Un mapa interactivo o estático que muestre dónde está operando Rural Commerce.
+Título: Nuestra huella en el territorio.Texto: "Estamos presentes en los principales polos productivos, llevando tecnología y gestión a cada rincón del país."
+Visual: Mapa de Uruguay con pines en las zonas donde ya hay proyectos implementados o técnicos referentes.
+
+5. Redes Sociales
+Seguinos y sumate a la comunidad:[Iconos de LinkedIn, Instagram, Facebook y YouTube]
+Sugerencias de UX:
+WhatsApp Flotante: Mantener un botón de WhatsApp siempre visible en la esquina inferior derecha de toda la web. Es la herramienta de cierre de ventas número uno en el país.
+Mapa de Actuación: Usar un mapa de la región (America Latina) para mostrar escala y solidez internacional.
+Campos del Formulario: nombre, departamento, correo y WhatsApp 
+8. Área do Cliente
+Propuesta: Un espacio exclusivo para que el productor gestione su conocimiento, sus números y el avance de sus proyectos.
+1. Panel de Control (Dashboard Principal)
+Título: Bienvenido a tu Panel de Gestión.Subtítulo: Todo lo que necesitás para monitorear tu crecimiento sustentable.
+Accesos Rápidos (Cards):
+Mis Cursos y Capacitaciones: Accedé a los módulos de formación que adquiriste (Deshidratado, Gestión Financiera, Buenas Prácticas).
+ERP Rural: Ingresá a tu sistema de gestión para cargar datos, ver costos y proyectar ventas en tiempo real.
+Estado de Proyectos: Consultá el avance de tus instalaciones o trámites de financiación.
+
+2. Mis Cursos (E-Learning)
+Un entorno sencillo para el aprendizaje:
+Título: Centro de Capacitación Rural.
+Lista de contenidos: 
+Módulo 1: Introducción al Deshidratado Solar.
+Módulo 2: Gestión de Costos y Rentabilidad.
+Módulo 3: Marketing y Branding para Productos del Campo.
+Botón: [Continuar donde dejé]
+
+3. Seguimiento de Proyectos e Instalaciones
+Para generar tranquilidad durante la implementación:
+Título: Estado de mis Proyectos en curso.
+Línea de tiempo (Visual): 
+Diagnóstico Técnico: [Completado]
+Gestión de Financiamiento: [En Proceso - 70%]
+Envío de Equipamiento: [Pendiente]
+Instalación y Puesta en Marcha: [Pendiente]
+Documentación: [Botón: Descargar Contratos / Planos / Facturas]
+
+4. Soporte y Asistencia Técnica
+Un canal directo para resolver problemas:
+Título: ¿Necesitás ayuda técnica?
+Opciones: 
+Ticket de Soporte: "Abrir una consulta técnica sobre mi equipo o software."
+WhatsApp de Soporte: "Hablar con un técnico de guardia."
+Biblioteca de Ayuda: "Manuales de usuario y videos tutoriales."
+
+5. Notificaciones y Alertas
+"Tu proyecto de Viabilización Financiera ha avanzado a la etapa de aprobación."
+"Hay un nuevo módulo disponible en tu curso de Gestión Rural."
+"Recordatorio: Es momento de cargar los datos de producción del mes en el ERP."
+
+Sugerencias de UX
+Acceso Simple: Implementar "Ingresar con Google" o un "Código por WhatsApp".
+Lenguaje Claro: Evitá tecnicismos informáticos. Usá términos como "Mis Trámites", "Mis Máquinas" o "Mis Números".

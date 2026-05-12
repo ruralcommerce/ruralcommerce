@@ -1,0 +1,69 @@
+{
+  "id": "aliados",
+  "name": "Aliados",
+  "title": "Aliados e Inversores",
+  "slug": "aliados",
+  "blocks": [
+    {
+      "id": "block-1778615316359-6rar9osxk",
+      "type": "hero-section",
+      "props": {
+        "title": "Transformamos excedentes en negocios sostenibles.",
+        "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calcule su impacto y lucro",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "Cómo funciona",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778615316359-z0icaj4x8",
+      "type": "system-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "El campo enfrenta grandes desafíos",
+        "subtitle": "Pérdidas post-cosecha, oscilaciones del mercado y presión por sostenibilidad siguen limitando el crecimiento rural.",
+        "pillarsJson": "[{\"title\":\"Hardware de Precisión\",\"body\":\"Equipos modulares orientados a optimizar procesos, reducir costos y agregar valor a la producción.\"},{\"title\":\"Software de Inteligencia y Gestión\",\"body\":\"Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, entregando indicadores y seguridad para la toma de decisiones.\"},{\"title\":\"Gestión de Rescate y Valorización\",\"body\":\"Procesos comerciales que transforman mermas en productos vendibles con vida útil extendida, evitando emisiones por descarte.\"},{\"title\":\"Metodología de Aceleración\",\"body\":\"Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales.\"}]"
+      }
+    },
+    {
+      "id": "block-1778615316359-dfp45k449",
+      "type": "solutions-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "Un camino claro para transformar su producción",
+        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiencia\",\"body\":\"Descubra dónde está perdiendo dinero su negocio.\",\"cta\":\"Saber más\",\"variant\":\"navy\"},{\"title\":\"Curso de Procesamiento y Gestión\",\"body\":\"Capacitación técnica para el estándar de retail (comercio minorista).\",\"cta\":\"Saber más\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementación Rápida\",\"body\":\"Tecnología y metodología para comenzar a generar ganancias hoy mismo.\",\"cta\":\"Saber más\",\"variant\":\"royal\"}]"
+      }
+    },
+    {
+      "id": "block-1778615316359-u35k5146j",
+      "type": "stats-section",
+      "props": {
+        "backgroundColor": "#EEF3F7",
+        "title": "Números que hablan",
+        "subtitle": "Indicativos de impacto y eficiencia en redes acompañadas (valores referenciales)."
+      }
+    },
+    {
+      "id": "block-1778615316359-b1i9sibnd",
+      "type": "free-text",
+      "props": {
+        "content": "Seu texto aqui",
+        "fontSize": "16px",
+        "textAlign": "left"
+      }
+    },
+    {
+      "id": "block-1778615316359-dmdozwetn",
+      "type": "image",
+      "props": {
+        "src": "",
+        "alt": "Imagem"
+      }
+    }
+  ],
+  "createdAt": "2026-05-12T19:48:36.359Z",
+  "updatedAt": "2026-05-12T19:48:36.832Z",
+  "status": "draft"
+}
