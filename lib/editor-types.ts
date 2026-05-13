@@ -28,6 +28,7 @@ export interface PageSchema {
   name: string;
   title: string;
   slug: string;
+  locale?: string;
   blocks: BlockData[];
   createdAt: string;
   updatedAt: string;

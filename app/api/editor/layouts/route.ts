@@ -45,10 +45,16 @@ export async function GET() {
   }
 }
 
+function buildLayoutFilename(slug: string, locale?: string): string {
+  const normalizedLocale = locale?.trim();
+  return normalizedLocale ? `${slug}.${normalizedLocale}.json` : `${slug}.json`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     await ensureLayoutsDir();
     const body = await request.json();
+    const locale = request.nextUrl.searchParams.get('locale') || body.locale || undefined;
 
     if (!validatePageSchema(body)) {
       return NextResponse.json({ error: 'Schema inválido' }, { status: 400 });
@@ -56,13 +62,14 @@ export async function POST(request: NextRequest) {
 
     const layout: PageSchema = {
       ...body,
+      locale,
       id: body.id || `layout-${Date.now()}`,
       createdAt: body.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       status: body.status || 'draft',
     };
 
-    const filename = `${layout.slug || layout.id}.json`;
+    const filename = buildLayoutFilename(layout.slug || layout.id, locale);
     const filepath = path.join(LAYOUTS_DIR, filename);
     await fs.writeFile(filepath, JSON.stringify(layout, null, 2));
 

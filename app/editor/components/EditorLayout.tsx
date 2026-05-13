@@ -9,6 +9,7 @@ import { useEditorStore } from '@/lib/editor-store';
 import { BlockPanel } from './BlockPanel';
 import { PropertyEditor } from './PropertyEditor';
 import { PageSelector } from './PageSelector';
+import { LocaleSelector } from './LocaleSelector';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
@@ -35,10 +36,14 @@ function hasInvalidJsonProps(page: PageSchema | null): boolean {
 
 export function EditorLayout({
   currentPageSlug = 'homepage',
+  currentLocale = 'es',
   onPageChange,
+  onLocaleChange,
 }: {
   currentPageSlug?: string;
+  currentLocale?: string;
   onPageChange?: (slug: string) => void;
+  onLocaleChange?: (locale: string) => void;
 } = {}) {
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
@@ -58,7 +63,7 @@ export function EditorLayout({
   const invalidJson = hasInvalidJsonProps(currentPage);
   const pageConfig = getEditorPageConfig(currentPageSlug);
 
-  const previewUrl = `${pageConfig.previewPath}?preview=draft&key=rural-preview&t=${previewTick}`;
+  const previewUrl = `/${currentLocale}${pageConfig.previewPath}?preview=draft&key=rural-preview&t=${previewTick}`;
 
   useEffect(() => {
     const savedWidth = window.localStorage.getItem('editor-sidebar-width');
@@ -113,11 +118,12 @@ export function EditorLayout({
 
     const payload = {
       ...currentPage,
+      locale: currentLocale,
       status,
       publishedAt: status === 'published' ? new Date().toISOString() : currentPage.publishedAt,
     };
 
-    const response = await fetch(`/api/editor/layouts/${currentPage.slug}`, {
+    const response = await fetch(`/api/editor/layouts/${currentPage.slug}?locale=${encodeURIComponent(currentLocale)}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -457,7 +463,7 @@ export function EditorLayout({
 
       <div className="flex-1 flex min-h-0 flex-col overflow-hidden">
         <div className="border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <div>
               <h1 className="font-bold text-lg text-slate-900">
                 {currentPage?.title || 'Editor'}
@@ -468,6 +474,13 @@ export function EditorLayout({
               <PageSelector
                 currentPageSlug={currentPageSlug}
                 onPageChange={onPageChange}
+                disabled={isSaving}
+              />
+            )}
+            {onLocaleChange && (
+              <LocaleSelector
+                currentLocale={currentLocale}
+                onLocaleChange={onLocaleChange}
                 disabled={isSaving}
               />
             )}

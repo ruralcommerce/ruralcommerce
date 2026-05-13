@@ -16,13 +16,19 @@ function sanitizeLayoutJson(raw: string): string {
   return raw.replace(/^\uFEFF/, '');
 }
 
+function buildLayoutFilename(slug: string, locale?: string): string {
+  const normalizedLocale = locale?.trim();
+  return normalizedLocale ? `${slug}.${normalizedLocale}.json` : `${slug}.json`;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     const { slug } = await params;
-    const filename = `${slug}.json`;
+    const locale = request.nextUrl.searchParams.get('locale') || undefined;
+    const filename = buildLayoutFilename(slug, locale);
     const filepath = path.join(LAYOUTS_DIR, filename);
 
     const content = await fs.readFile(filepath, 'utf-8');
@@ -44,20 +50,22 @@ export async function PUT(
 ) {
   try {
     const { slug } = await params;
+    const locale = request.nextUrl.searchParams.get('locale') || undefined;
     const body = await request.json();
 
-    const filename = `${slug}.json`;
+    const filename = buildLayoutFilename(slug, locale);
     const filepath = path.join(LAYOUTS_DIR, filename);
 
     const layout: PageSchema = {
       ...body,
+      locale,
       updatedAt: new Date().toISOString(),
     };
 
     await fs.writeFile(filepath, JSON.stringify(layout, null, 2));
 
     try {
-      await commitAndPushGitFiles([`public/page-layouts/${filename}`], `Editor update: ${slug}`);
+      await commitAndPushGitFiles([`public/page-layouts/${filename}`], `Editor update: ${slug}${locale ? `.${locale}` : ''}`);
     } catch (error) {
       console.error('Git sync failed:', error);
     }
@@ -75,7 +83,8 @@ export async function DELETE(
 ) {
   try {
     const { slug } = await params;
-    const filename = `${slug}.json`;
+    const locale = request.nextUrl.searchParams.get('locale') || undefined;
+    const filename = buildLayoutFilename(slug, locale);
     const filepath = path.join(LAYOUTS_DIR, filename);
 
     await fs.unlink(filepath);
