@@ -198,7 +198,7 @@ export default async function SobrePage({
   const heroProps = getSectionProps(layout, 'hero-section');
   const freeTextContent = getFirstFreeTextContent(layout);
   const heroBackground = String(heroProps.bgImage || HERO_BG);
-  const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as { label: string; href: string }[]);
+  const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as unknown as { label: string; href: string }[]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
   const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
 

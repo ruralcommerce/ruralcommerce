@@ -11,9 +11,11 @@ import { BlockData, PageSchema } from '@/lib/editor-types';
 import { EditorLayout } from './components/EditorLayout';
 import { BLOCK_LIBRARY } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, reconcilePageBlocks } from '@/lib/editor-pages';
+import { locales, type Locale } from '@/i18n/request';
 
 function normalizeLayout(rawLayout: PageSchema): PageSchema {
   const pageSlug = rawLayout.slug || 'homepage';
+  const pageLocale = rawLayout.locale || 'es';
   const hasUnknownBlock = rawLayout.blocks.some((block) => !(block.type in BLOCK_LIBRARY));
 
   const mergeBlockDefaults = (block: BlockData): BlockData => {
@@ -31,6 +33,7 @@ function normalizeLayout(rawLayout: PageSchema): PageSchema {
   if (!hasUnknownBlock) {
     return {
       ...rawLayout,
+      locale: pageLocale,
       blocks: reconcilePageBlocks(pageSlug, rawLayout.blocks.map(mergeBlockDefaults)),
       updatedAt: new Date().toISOString(),
     };
@@ -41,6 +44,7 @@ function normalizeLayout(rawLayout: PageSchema): PageSchema {
     id: rawLayout.id || 'homepage',
     name: rawLayout.name || 'Homepage',
     slug: pageSlug,
+    locale: pageLocale,
     title: rawLayout.title || 'Homepage',
     createdAt: rawLayout.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -59,13 +63,14 @@ export default function EditorPage() {
   const setCurrentPage = useEditorStore((s) => s.setCurrentPage);
   const [loading, setLoading] = useState(true);
   const [currentPageSlug, setCurrentPageSlug] = useState('homepage');
+  const [currentLocale, setCurrentLocale] = useState<Locale>(locales[0]);
 
   // Efeito para carregar página quando slug mudar
   useEffect(() => {
     async function loadPageLayout() {
       try {
         setLoading(true);
-        const response = await fetch(`/api/editor/layouts/${currentPageSlug}`);
+        const response = await fetch(`/api/editor/layouts/${currentPageSlug}?locale=${encodeURIComponent(currentLocale)}`);
 
         if (response.ok) {
           const rawLayout = await response.json();
@@ -73,7 +78,7 @@ export default function EditorPage() {
           setCurrentPage(layout);
 
           if (JSON.stringify(layout.blocks) !== JSON.stringify(rawLayout.blocks)) {
-            await fetch(`/api/editor/layouts/${layout.slug}`, {
+            await fetch(`/api/editor/layouts/${layout.slug}?locale=${encodeURIComponent(currentLocale)}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(layout),
@@ -81,11 +86,14 @@ export default function EditorPage() {
           }
         } else {
           // Criar página padrão
-          const newPage: PageSchema = createDefaultLayoutForPage(currentPageSlug);
+          const newPage: PageSchema = {
+            ...createDefaultLayoutForPage(currentPageSlug),
+            locale: currentLocale,
+          };
           setCurrentPage(newPage);
 
           // Salvar página
-          await fetch('/api/editor/layouts', {
+          await fetch(`/api/editor/layouts?locale=${encodeURIComponent(currentLocale)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newPage),
@@ -93,7 +101,10 @@ export default function EditorPage() {
         }
       } catch (error) {
         console.error('Erro ao carregar página:', error);
-        const fallback: PageSchema = createDefaultLayoutForPage(currentPageSlug);
+        const fallback: PageSchema = {
+          ...createDefaultLayoutForPage(currentPageSlug),
+          locale: currentLocale,
+        };
         setCurrentPage(fallback);
       } finally {
         setLoading(false);
@@ -101,7 +112,7 @@ export default function EditorPage() {
     }
 
     loadPageLayout();
-  }, [currentPageSlug, setCurrentPage]);
+  }, [currentPageSlug, currentLocale, setCurrentPage]);
 
   if (loading) {
     return (
@@ -117,6 +128,8 @@ export default function EditorPage() {
   return (
     <EditorLayout
       currentPageSlug={currentPageSlug}
+      currentLocale={currentLocale}
+      onLocaleChange={(locale) => setCurrentLocale(locale as Locale)}
       onPageChange={setCurrentPageSlug}
     />
   );

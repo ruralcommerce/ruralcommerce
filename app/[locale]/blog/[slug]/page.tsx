@@ -186,7 +186,7 @@ const postMetaByLocale: Record<LocaleKey, Record<PostSlug, PostMeta>> = {
   },
 };
 
-const articleBodyByLocale: Record<LocaleKey, { intro: string; paragraphs: string[]; notFoundTitle: string; notFoundBody: string; navItems: { label: string; href: string }[]; contactTitle: string; socialLabel: string; footerAddress: string; copyright: string }> = {
+const articleBodyByLocale: Record<LocaleKey, { intro: string; paragraphs: string[]; notFoundTitle: string; notFoundBody: string; navItems: { label: string; href: string }[]; contactTitle: string; socialLabel: string; footerAddress: string; copyright: string; footerLinks: { group: string; items: { label: string; href: string }[] }[] }> = {
   es: {
     intro:
       'Un análisis de contexto sobre cómo los ecosistemas productivos conectan territorio, gestión y mercado para capturar valor sostenible.',

@@ -273,7 +273,7 @@ export default async function BlogPage({
   const siteLayout = await getManagedPageLayout('homepage', searchParams, params.locale);
   const headerProps = getBlockProps(siteLayout, 'site-header');
   const footerProps = getBlockProps(siteLayout, 'site-footer');
-  const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as { label: string; href: string }[]);
+  const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as unknown as { label: string; href: string }[]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
   const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
 

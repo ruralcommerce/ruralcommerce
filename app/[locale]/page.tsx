@@ -231,16 +231,19 @@ export default async function HomePage({
     }))
   );
   const segmentDefaultHrefs = ['/solucoes', '/aliados', '/aliados'] as const;
-  const segmentsForRender = segmentItems.map((item, index) => ({
-    ...item,
-    href:
-      typeof item.href === 'string' && item.href.trim().length > 0 && !item.href.trim().startsWith('#')
-        ? item.href
-        : segmentDefaultHrefs[index % segmentDefaultHrefs.length],
-    icon:
-      segmentIconMap[String(item.icon ?? '').toLowerCase() as keyof typeof segmentIconMap] ||
-      segments[index % segments.length].icon,
-  }));
+  const segmentsForRender = segmentItems.map((item, index) => {
+    const defaultSegment = segments[index % segments.length];
+    return {
+      ...item,
+      href:
+        typeof item.href === 'string' && item.href.trim().length > 0 && !item.href.trim().startsWith('#')
+          ? item.href
+          : segmentDefaultHrefs[index % segmentDefaultHrefs.length],
+      icon:
+        segmentIconMap[String('icon' in item ? item.icon : '').toLowerCase() as keyof typeof segmentIconMap] ||
+        ('icon' in defaultSegment ? defaultSegment.icon : undefined),
+    };
+  });
 
   const solutionsForRender = parseJsonArray<{
     title: string;
