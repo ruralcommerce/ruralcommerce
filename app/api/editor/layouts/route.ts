@@ -8,6 +8,7 @@ import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { PageSchema } from '@/lib/editor-types';
 import { validatePageSchema } from '@/lib/editor-utils';
+import { commitAndPushGitFiles } from '@/lib/git-utils';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
@@ -62,7 +63,14 @@ export async function POST(request: NextRequest) {
     };
 
     const filename = `${layout.slug || layout.id}.json`;
-    await fs.writeFile(path.join(LAYOUTS_DIR, filename), JSON.stringify(layout, null, 2));
+    const filepath = path.join(LAYOUTS_DIR, filename);
+    await fs.writeFile(filepath, JSON.stringify(layout, null, 2));
+
+    try {
+      await commitAndPushGitFiles([`public/page-layouts/${filename}`], `Editor created layout: ${layout.slug || layout.id}`);
+    } catch (error) {
+      console.error('Git sync failed:', error);
+    }
 
     return NextResponse.json(layout, { status: 201 });
   } catch (error) {
