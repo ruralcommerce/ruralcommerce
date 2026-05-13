@@ -1,8 +1,6 @@
 /**
- * Utilitários de tradução automática
+ * Utilitários de tradução (diff/apply no cliente; chamada de preview via API).
  */
-
-import translate from 'google-translate-api-x';
 
 export interface TranslationChange {
   field: string;
@@ -17,41 +15,27 @@ export interface TranslationPreview {
 }
 
 /**
- * Traduz um texto para um idioma específico
+ * Detecta mudanças entre dois objetos de layout (caminhos tipo blocks.0.props.title).
  */
-export async function translateText(text: string, targetLang: string): Promise<string> {
-  try {
-    if (!text || text.trim() === '') return text;
-
-    const result = await translate(text, { to: targetLang });
-    return result.text;
-  } catch (error) {
-    console.error('Erro na tradução:', error);
-    return text; // Retorna o texto original em caso de erro
-  }
-}
-
-/**
- * Detecta mudanças entre dois objetos de layout
- */
-export function detectTextChanges(oldLayout: any, newLayout: any): string[] {
+export function detectTextChanges(oldLayout: unknown, newLayout: unknown): string[] {
   const changes: string[] = [];
 
-  function compareObjects(oldObj: any, newObj: any, path = ''): void {
+  function compareObjects(oldObj: unknown, newObj: unknown, path = ''): void {
     if (typeof oldObj !== 'object' || typeof newObj !== 'object' || !oldObj || !newObj) {
       return;
     }
 
-    for (const key in newObj) {
+    for (const key in newObj as Record<string, unknown>) {
       const currentPath = path ? `${path}.${key}` : key;
+      const newVal = (newObj as Record<string, unknown>)[key];
+      const oldVal = (oldObj as Record<string, unknown>)[key];
 
-      if (typeof newObj[key] === 'string' && oldObj[key] !== newObj[key]) {
-        // Verifica se é um campo de texto (não URL, não JSON, etc.)
+      if (typeof newVal === 'string' && oldVal !== newVal) {
         if (!key.includes('Url') && !key.includes('Href') && !key.includes('Json') && !key.includes('Color')) {
           changes.push(currentPath);
         }
-      } else if (typeof newObj[key] === 'object' && newObj[key] !== null) {
-        compareObjects(oldObj[key], newObj[key], currentPath);
+      } else if (typeof newVal === 'object' && newVal !== null) {
+        compareObjects(oldVal, newVal, currentPath);
       }
     }
   }
@@ -61,69 +45,43 @@ export function detectTextChanges(oldLayout: any, newLayout: any): string[] {
 }
 
 /**
- * Gera preview das traduções para aprovação
+ * Gera preview das traduções via API (servidor chama Google Translate).
  */
-export async function generateTranslationPreview(
-  sourceLayout: any,
+export async function fetchTranslationPreview(
+  sourceLayout: unknown,
   targetLocales: string[],
   changedFields: string[]
 ): Promise<TranslationPreview[]> {
-  const previews: TranslationPreview[] = [];
+  const res = await fetch('/api/editor/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sourceLayout, targetLocales, changedFields }),
+  });
 
-  for (const locale of targetLocales) {
-    const changes: TranslationChange[] = [];
-
-    for (const field of changedFields) {
-      const fieldPath = field.split('.');
-      let sourceValue = sourceLayout;
-
-      // Navega até o campo
-      for (const pathPart of fieldPath) {
-        sourceValue = sourceValue?.[pathPart];
-      }
-
-      if (typeof sourceValue === 'string') {
-        const translatedText = await translateText(sourceValue, locale);
-        changes.push({
-          field,
-          originalText: sourceValue,
-          translatedText,
-          targetLocale: locale,
-        });
-      }
-    }
-
-    if (changes.length > 0) {
-      previews.push({
-        locale,
-        changes,
-      });
-    }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(typeof err.error === 'string' ? err.error : 'Falha ao gerar traduções');
   }
 
-  return previews;
+  return res.json();
 }
 
 /**
  * Aplica traduções aprovadas aos layouts
  */
-export function applyApprovedTranslations(
-  targetLayout: any,
-  approvedChanges: TranslationChange[]
-): any {
-  const updatedLayout = JSON.parse(JSON.stringify(targetLayout));
+export function applyApprovedTranslations(targetLayout: unknown, approvedChanges: TranslationChange[]): unknown {
+  const updatedLayout = JSON.parse(JSON.stringify(targetLayout)) as Record<string, unknown>;
 
   for (const change of approvedChanges) {
     const fieldPath = change.field.split('.');
-    let current = updatedLayout;
+    let current: Record<string, unknown> = updatedLayout;
 
-    // Navega até o campo pai
     for (let i = 0; i < fieldPath.length - 1; i++) {
-      if (!current[fieldPath[i]]) current[fieldPath[i]] = {};
-      current = current[fieldPath[i]];
+      const key = fieldPath[i];
+      if (!current[key]) current[key] = {};
+      current = current[key] as Record<string, unknown>;
     }
 
-    // Define o valor traduzido
     current[fieldPath[fieldPath.length - 1]] = change.translatedText;
   }
 

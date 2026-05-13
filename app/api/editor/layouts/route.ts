@@ -8,7 +8,7 @@ import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { PageSchema } from '@/lib/editor-types';
 import { validatePageSchema } from '@/lib/editor-utils';
-import { commitAndPushGitFiles } from '@/lib/git-utils';
+import { commitAndPushGitFiles, shouldGitPushAfterSave } from '@/lib/git-utils';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
@@ -73,13 +73,22 @@ export async function POST(request: NextRequest) {
     const filepath = path.join(LAYOUTS_DIR, filename);
     await fs.writeFile(filepath, JSON.stringify(layout, null, 2));
 
-    try {
-      await commitAndPushGitFiles([`public/page-layouts/${filename}`], `Editor created layout: ${layout.slug || layout.id}`);
-    } catch (error) {
-      console.error('Git sync failed:', error);
+    let _sync: { git: 'ok' | 'skipped' | 'failed'; message?: string } = { git: 'skipped' };
+
+    if (shouldGitPushAfterSave(layout)) {
+      try {
+        await commitAndPushGitFiles(
+          [`public/page-layouts/${filename}`],
+          `Editor created layout: ${layout.slug || layout.id}`
+        );
+        _sync = { git: 'ok' };
+      } catch (error) {
+        console.error('Git sync failed:', error);
+        _sync = { git: 'failed', message: error instanceof Error ? error.message : String(error) };
+      }
     }
 
-    return NextResponse.json(layout, { status: 201 });
+    return NextResponse.json({ ...layout, _sync }, { status: 201 });
   } catch (error) {
     console.error('Erro ao criar layout:', error);
     return NextResponse.json({ error: 'Erro ao criar layout' }, { status: 500 });

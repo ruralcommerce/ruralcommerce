@@ -8,7 +8,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { NextRequest, NextResponse } from 'next/server';
 import { PageSchema } from '@/lib/editor-types';
-import { commitAndPushGitFiles } from '@/lib/git-utils';
+import { commitAndPushGitFiles, shouldGitPushAfterSave } from '@/lib/git-utils';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
@@ -64,13 +64,22 @@ export async function PUT(
 
     await fs.writeFile(filepath, JSON.stringify(layout, null, 2));
 
-    try {
-      await commitAndPushGitFiles([`public/page-layouts/${filename}`], `Editor update: ${slug}${locale ? `.${locale}` : ''}`);
-    } catch (error) {
-      console.error('Git sync failed:', error);
+    let _sync: { git: 'ok' | 'skipped' | 'failed'; message?: string } = { git: 'skipped' };
+
+    if (shouldGitPushAfterSave(layout)) {
+      try {
+        await commitAndPushGitFiles(
+          [`public/page-layouts/${filename}`],
+          `Editor publish: ${slug}${locale ? `.${locale}` : ''}`
+        );
+        _sync = { git: 'ok' };
+      } catch (error) {
+        console.error('Git sync failed:', error);
+        _sync = { git: 'failed', message: error instanceof Error ? error.message : String(error) };
+      }
     }
 
-    return NextResponse.json(layout);
+    return NextResponse.json({ ...layout, _sync });
   } catch (error) {
     console.error('Erro ao atualizar layout:', error);
     return NextResponse.json({ error: 'Erro ao atualizar layout' }, { status: 500 });

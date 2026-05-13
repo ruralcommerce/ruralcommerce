@@ -3,6 +3,18 @@ import { promisify } from 'util';
 
 const execFileAsync = promisify(execFile);
 
+/** `publish-only` (default): só faz push ao publicar. `all-saves`: push em qualquer salvamento. */
+export function shouldGitPushAfterSave(layout: { status?: string }): boolean {
+  if (process.env.GIT_PUSH_ENABLED !== '1') {
+    return false;
+  }
+  const strategy = process.env.GIT_PUSH_STRATEGY || 'publish-only';
+  if (strategy === 'all-saves') {
+    return true;
+  }
+  return layout.status === 'published';
+}
+
 interface GitPushConfig {
   branch: string;
   remoteUrl: string;
@@ -32,7 +44,7 @@ function getGitPushConfig(): GitPushConfig | null {
   };
 }
 
-export async function commitAndPushGitFiles(filePaths: string[], message: string) {
+export async function commitAndPushGitFiles(filePaths: string[], message: string): Promise<void> {
   const config = getGitPushConfig();
   if (!config) {
     return;

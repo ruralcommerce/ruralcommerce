@@ -65,8 +65,12 @@ export default function EditorPage() {
   const [currentPageSlug, setCurrentPageSlug] = useState('homepage');
   const [currentLocale, setCurrentLocale] = useState<Locale>(locales[0]);
 
-  // Efeito para carregar página quando slug mudar
   useEffect(() => {
+    let cancelled = false;
+    const pageKey = `${currentPageSlug}:${currentLocale}`;
+
+    useEditorStore.getState().clearTranslationBaseline();
+
     async function loadPageLayout() {
       try {
         setLoading(true);
@@ -75,29 +79,43 @@ export default function EditorPage() {
         if (response.ok) {
           const rawLayout = await response.json();
           const layout = normalizeLayout(rawLayout);
+          if (cancelled) return;
           setCurrentPage(layout);
+          useEditorStore.getState().setTranslationBaseline(pageKey, JSON.parse(JSON.stringify(layout)));
 
           if (JSON.stringify(layout.blocks) !== JSON.stringify(rawLayout.blocks)) {
-            await fetch(`/api/editor/layouts/${layout.slug}?locale=${encodeURIComponent(currentLocale)}`, {
+            const putRes = await fetch(`/api/editor/layouts/${layout.slug}?locale=${encodeURIComponent(currentLocale)}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(layout),
             });
+            if (putRes.ok) {
+              const body = (await putRes.json()) as PageSchema & { _sync?: unknown };
+              const { _sync: _ignored, ...saved } = body;
+              const normalized = normalizeLayout(saved as PageSchema);
+              if (!cancelled) {
+                setCurrentPage(normalized);
+                useEditorStore.getState().setTranslationBaseline(pageKey, JSON.parse(JSON.stringify(normalized)));
+              }
+            }
           }
         } else {
-          // Criar página padrão
           const newPage: PageSchema = {
             ...createDefaultLayoutForPage(currentPageSlug),
             locale: currentLocale,
           };
+          if (cancelled) return;
           setCurrentPage(newPage);
 
-          // Salvar página
           await fetch(`/api/editor/layouts?locale=${encodeURIComponent(currentLocale)}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(newPage),
           });
+
+          if (!cancelled) {
+            useEditorStore.getState().setTranslationBaseline(pageKey, JSON.parse(JSON.stringify(newPage)));
+          }
         }
       } catch (error) {
         console.error('Erro ao carregar página:', error);
@@ -105,13 +123,21 @@ export default function EditorPage() {
           ...createDefaultLayoutForPage(currentPageSlug),
           locale: currentLocale,
         };
-        setCurrentPage(fallback);
+        if (!cancelled) {
+          setCurrentPage(fallback);
+          useEditorStore.getState().setTranslationBaseline(pageKey, JSON.parse(JSON.stringify(fallback)));
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     loadPageLayout();
+    return () => {
+      cancelled = true;
+    };
   }, [currentPageSlug, currentLocale, setCurrentPage]);
 
   if (loading) {

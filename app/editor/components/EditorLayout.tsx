@@ -11,11 +11,11 @@ import { PropertyEditor } from './PropertyEditor';
 import { PageSelector } from './PageSelector';
 import { LocaleSelector } from './LocaleSelector';
 import { TranslationPreviewModal } from './TranslationPreviewModal';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, GripVertical, Languages } from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
-import { detectTextChanges, generateTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
+import { detectTextChanges, fetchTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
 
 function hasInvalidJsonProps(page: PageSchema | null): boolean {
   if (!page) return false;
@@ -50,6 +50,9 @@ export function EditorLayout({
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const setCurrentPage = useEditorStore((s) => s.setCurrentPage);
+  const translationBaselinePage = useEditorStore((s) => s.translationBaselinePage);
+  const translationBaselineKey = useEditorStore((s) => s.translationBaselineKey);
+  const setTranslationBaseline = useEditorStore((s) => s.setTranslationBaseline);
   const setIsDirty = useEditorStore((s) => s.setIsDirty);
   const isDirty = useEditorStore((s) => s.isDirty);
   const selectBlock = useEditorStore((s) => s.selectBlock);
@@ -61,7 +64,6 @@ export function EditorLayout({
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
   const [previewTick, setPreviewTick] = useState(0);
-  const [originalLayout, setOriginalLayout] = useState<PageSchema | null>(null);
   const [translationModalOpen, setTranslationModalOpen] = useState(false);
   const [translationPreviews, setTranslationPreviews] = useState<TranslationPreview[]>([]);
   const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
@@ -70,6 +72,13 @@ export function EditorLayout({
   const pageConfig = getEditorPageConfig(currentPageSlug);
 
   const previewUrl = `/${currentLocale}${pageConfig.previewPath}?preview=draft&key=rural-preview&t=${previewTick}`;
+
+  const baselineKeyForPage = `${currentPageSlug}:${currentLocale}`;
+  const esTranslationChangeCount = useMemo(() => {
+    if (currentLocale !== 'es' || !translationBaselinePage || !currentPage) return 0;
+    if (translationBaselineKey !== baselineKeyForPage) return 0;
+    return detectTextChanges(translationBaselinePage, currentPage).length;
+  }, [baselineKeyForPage, currentLocale, currentPage, translationBaselineKey, translationBaselinePage]);
 
   useEffect(() => {
     const savedWidth = window.localStorage.getItem('editor-sidebar-width');
@@ -139,41 +148,47 @@ export function EditorLayout({
       throw new Error('Falha ao salvar layout');
     }
 
-    const updated = await response.json();
-    setCurrentPage(updated);
+    const updated = (await response.json()) as PageSchema & {
+      _sync?: { git: string; message?: string };
+    };
+    const { _sync, ...pagePayload } = updated;
+    setCurrentPage(pagePayload as PageSchema);
     setIsDirty(false);
     setPreviewTick((value) => value + 1);
-    return updated;
+    if (_sync?.git === 'failed' && _sync.message) {
+      alert(`Layout salvo no servidor, mas o envio para o Git falhou:\n${_sync.message}`);
+    }
+    return pagePayload as PageSchema;
   };
 
   // Função para gerar preview das traduções
   const generateTranslationPreviews = async () => {
-    if (!currentPage || !originalLayout || currentLocale !== 'es') {
+    const baselineKey = `${currentPageSlug}:${currentLocale}`;
+    if (!currentPage || !translationBaselinePage || translationBaselineKey !== baselineKey || currentLocale !== 'es') {
+      if (currentLocale !== 'es') {
+        alert('Tradução assistida só está disponível com o idioma do editor em Español (ES).');
+      } else if (!translationBaselinePage) {
+        alert('Baseline de tradução ainda não carregou. Recarregue a página do editor.');
+      }
       return;
     }
 
     setIsGeneratingTranslations(true);
     try {
-      // Detecta mudanças nos textos
-      const changedFields = detectTextChanges(originalLayout, currentPage);
+      const changedFields = detectTextChanges(translationBaselinePage, currentPage);
 
       if (changedFields.length === 0) {
-        alert('Nenhuma mudança de texto detectada.');
+        alert('Nenhuma mudança de texto detectada em relação ao último carregamento desta página em ES.');
         return;
       }
 
-      // Gera previews de tradução para PT-BR e EN
-      const previews = await generateTranslationPreview(
-        currentPage,
-        ['pt-BR', 'en'],
-        changedFields
-      );
+      const previews = await fetchTranslationPreview(currentPage, ['pt-BR', 'en'], changedFields);
 
       setTranslationPreviews(previews);
       setTranslationModalOpen(true);
     } catch (error) {
       console.error('Erro ao gerar previews de tradução:', error);
-      alert('Erro ao gerar traduções. Verifique o console.');
+      alert(error instanceof Error ? error.message : 'Erro ao gerar traduções. Verifique o console.');
     } finally {
       setIsGeneratingTranslations(false);
     }
@@ -203,7 +218,7 @@ export function EditorLayout({
           const targetLayout = await response.json();
 
           // Aplica as traduções aprovadas
-          const updatedLayout = applyApprovedTranslations(targetLayout, changes);
+          const updatedLayout = applyApprovedTranslations(targetLayout, changes) as PageSchema;
 
           // Salva o layout atualizado
           const saveResponse = await fetch(`/api/editor/layouts/${currentPage.slug}?locale=${encodeURIComponent(locale)}`, {
@@ -224,6 +239,11 @@ export function EditorLayout({
       }
 
       alert(`Tradução aplicada com sucesso em ${Object.keys(changesByLocale).length} idioma(s)!`);
+
+      const page = useEditorStore.getState().currentPage;
+      if (page && currentLocale === 'es') {
+        setTranslationBaseline(`${currentPageSlug}:${currentLocale}`, JSON.parse(JSON.stringify(page)) as PageSchema);
+      }
     } catch (error) {
       console.error('Erro ao aplicar traduções:', error);
       alert('Erro ao aplicar traduções. Verifique o console.');
@@ -249,13 +269,6 @@ export function EditorLayout({
 
     return () => clearTimeout(timer);
   }, [currentPage, isDirty, invalidJson, isSaving]);
-
-  // Armazena o layout original quando é carregado (para detectar mudanças)
-  useEffect(() => {
-    if (currentPage && !originalLayout) {
-      setOriginalLayout(JSON.parse(JSON.stringify(currentPage)));
-    }
-  }, [currentPage, originalLayout]);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -625,8 +638,15 @@ export function EditorLayout({
         </div>
 
         <div className="border-b border-slate-200 bg-sky-50/60 px-6 py-2 text-xs text-slate-700 flex items-center justify-between gap-4">
-          <span>
-            Modo espelho ativo: o preview central recarrega automaticamente apos cada alteracao salva.
+          <span className="flex flex-wrap items-center gap-2">
+            <span>
+              Modo espelho ativo: o preview central recarrega automaticamente apos cada alteracao salva.
+            </span>
+            {esTranslationChangeCount > 0 ? (
+              <span className="rounded-full bg-purple-100 px-2 py-0.5 font-medium text-purple-800">
+                Texto em ES alterado ({esTranslationChangeCount} campo{esTranslationChangeCount !== 1 ? 's' : ''}) — use Traduzir para PT/EN
+              </span>
+            ) : null}
           </span>
           <span className="text-[11px] text-slate-600">
             {isAutoSaving ? 'Autosave...' : autoSaveError ? autoSaveError : 'Sincronizado'}

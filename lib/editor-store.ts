@@ -12,6 +12,12 @@ interface EditorStore {
   currentPage: PageSchema | null;
   setCurrentPage: (page: PageSchema) => void;
 
+  /** Snapshot para diff de tradução (ES): definido ao carregar slug+idioma no editor; sobrevive a remounts. */
+  translationBaselineKey: string | null;
+  translationBaselinePage: PageSchema | null;
+  setTranslationBaseline: (key: string, page: PageSchema) => void;
+  clearTranslationBaseline: () => void;
+
   // Seleção de blocos
   selectedBlockId: string | null;
   selectBlock: (id: string | null) => void;
@@ -73,7 +79,7 @@ function removeBlockFromTree(blocks: BlockData[], id: string): BlockData[] {
     }));
 }
 
-export const useEditorStore = create<EditorStore>((set, get) => ({
+export const useEditorStore = create<EditorStore>((set) => ({
   currentPage: null,
   setCurrentPage: (page) => {
     set((state) => ({
@@ -83,6 +89,19 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       isDirty: false,
     }));
   },
+
+  translationBaselineKey: null,
+  translationBaselinePage: null,
+  setTranslationBaseline: (key, page) =>
+    set({
+      translationBaselineKey: key,
+      translationBaselinePage: JSON.parse(JSON.stringify(page)) as PageSchema,
+    }),
+  clearTranslationBaseline: () =>
+    set({
+      translationBaselineKey: null,
+      translationBaselinePage: null,
+    }),
 
   selectedBlockId: null,
   selectBlock: (id) => set({ selectedBlockId: id }),
