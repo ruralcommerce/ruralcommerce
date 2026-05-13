@@ -10,10 +10,12 @@ import { BlockPanel } from './BlockPanel';
 import { PropertyEditor } from './PropertyEditor';
 import { PageSelector } from './PageSelector';
 import { LocaleSelector } from './LocaleSelector';
+import { TranslationPreviewModal } from './TranslationPreviewModal';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, GripVertical } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Languages } from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
+import { detectTextChanges, generateTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
 
 function hasInvalidJsonProps(page: PageSchema | null): boolean {
   if (!page) return false;
@@ -59,6 +61,10 @@ export function EditorLayout({
   const [isAutoSaving, setIsAutoSaving] = useState(false);
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
   const [previewTick, setPreviewTick] = useState(0);
+  const [originalLayout, setOriginalLayout] = useState<PageSchema | null>(null);
+  const [translationModalOpen, setTranslationModalOpen] = useState(false);
+  const [translationPreviews, setTranslationPreviews] = useState<TranslationPreview[]>([]);
+  const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const invalidJson = hasInvalidJsonProps(currentPage);
   const pageConfig = getEditorPageConfig(currentPageSlug);
@@ -140,6 +146,90 @@ export function EditorLayout({
     return updated;
   };
 
+  // Função para gerar preview das traduções
+  const generateTranslationPreviews = async () => {
+    if (!currentPage || !originalLayout || currentLocale !== 'es') {
+      return;
+    }
+
+    setIsGeneratingTranslations(true);
+    try {
+      // Detecta mudanças nos textos
+      const changedFields = detectTextChanges(originalLayout, currentPage);
+
+      if (changedFields.length === 0) {
+        alert('Nenhuma mudança de texto detectada.');
+        return;
+      }
+
+      // Gera previews de tradução para PT-BR e EN
+      const previews = await generateTranslationPreview(
+        currentPage,
+        ['pt-BR', 'en'],
+        changedFields
+      );
+
+      setTranslationPreviews(previews);
+      setTranslationModalOpen(true);
+    } catch (error) {
+      console.error('Erro ao gerar previews de tradução:', error);
+      alert('Erro ao gerar traduções. Verifique o console.');
+    } finally {
+      setIsGeneratingTranslations(false);
+    }
+  };
+
+  // Função para aplicar traduções aprovadas
+  const applyApprovedTranslationsToLayouts = async (approvedChanges: TranslationChange[]) => {
+    if (!currentPage) return;
+
+    try {
+      // Agrupa mudanças por locale
+      const changesByLocale: Record<string, TranslationChange[]> = {};
+      approvedChanges.forEach(change => {
+        if (!changesByLocale[change.targetLocale]) {
+          changesByLocale[change.targetLocale] = [];
+        }
+        changesByLocale[change.targetLocale].push(change);
+      });
+
+      // Para cada locale, carrega o layout atual, aplica as mudanças e salva
+      for (const [locale, changes] of Object.entries(changesByLocale)) {
+        try {
+          // Carrega o layout atual do locale
+          const response = await fetch(`/api/editor/layouts/${currentPage.slug}?locale=${encodeURIComponent(locale)}`);
+          if (!response.ok) continue;
+
+          const targetLayout = await response.json();
+
+          // Aplica as traduções aprovadas
+          const updatedLayout = applyApprovedTranslations(targetLayout, changes);
+
+          // Salva o layout atualizado
+          const saveResponse = await fetch(`/api/editor/layouts/${currentPage.slug}?locale=${encodeURIComponent(locale)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              ...updatedLayout,
+              status: 'draft',
+            }),
+          });
+
+          if (!saveResponse.ok) {
+            console.error(`Erro ao salvar layout ${locale}:`, await saveResponse.text());
+          }
+        } catch (error) {
+          console.error(`Erro ao processar traduções para ${locale}:`, error);
+        }
+      }
+
+      alert(`Tradução aplicada com sucesso em ${Object.keys(changesByLocale).length} idioma(s)!`);
+    } catch (error) {
+      console.error('Erro ao aplicar traduções:', error);
+      alert('Erro ao aplicar traduções. Verifique o console.');
+    }
+  };
+
   useEffect(() => {
     if (!currentPage || !isDirty || invalidJson || isSaving) {
       return;
@@ -159,6 +249,13 @@ export function EditorLayout({
 
     return () => clearTimeout(timer);
   }, [currentPage, isDirty, invalidJson, isSaving]);
+
+  // Armazena o layout original quando é carregado (para detectar mudanças)
+  useEffect(() => {
+    if (currentPage && !originalLayout) {
+      setOriginalLayout(JSON.parse(JSON.stringify(currentPage)));
+    }
+  }, [currentPage, originalLayout]);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -502,6 +599,15 @@ export function EditorLayout({
               {isSaving ? 'Salvando...' : 'Salvar'}
             </button>
             <button
+              disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations}
+              onClick={generateTranslationPreviews}
+              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition disabled:opacity-60 flex items-center gap-2"
+              title="Traduzir mudanças para outros idiomas"
+            >
+              <Languages className="h-4 w-4" />
+              {isGeneratingTranslations ? 'Traduzindo...' : 'Traduzir'}
+            </button>
+            <button
               disabled={!currentPage || isSaving || invalidJson}
               onClick={() => saveLayout('published')}
               className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 transition disabled:opacity-60"
@@ -557,6 +663,15 @@ export function EditorLayout({
           </div>
         </div>
       </div>
+
+      {/* Modal de Preview de Traduções */}
+      <TranslationPreviewModal
+        isOpen={translationModalOpen}
+        onClose={() => setTranslationModalOpen(false)}
+        previews={translationPreviews}
+        onApprove={applyApprovedTranslationsToLayouts}
+        isTranslating={isGeneratingTranslations}
+      />
     </div>
   );
 }
