@@ -1,4 +1,4 @@
-import Image from 'next/image';
+﻿import Image from 'next/image';
 import { Facebook, Instagram, Youtube } from 'lucide-react';
 
 type FooterLinkItem = {
@@ -17,6 +17,7 @@ type FooterSocialLink = {
 };
 
 type RuralCommerceFooterProps = {
+  locale?: string;
   title?: string;
   copyright?: string;
   contactTitle?: string;
@@ -30,19 +31,19 @@ type RuralCommerceFooterProps = {
 
 const defaultFooterLinks: FooterLinkGroup[] = [
   {
-    group: 'Outra parte',
+    group: 'Otra seccion',
     items: [
-      { label: 'Início', href: '/#hero' },
-      { label: 'Soluções', href: '/#soluciones' },
+      { label: 'Inicio', href: '/#hero' },
+      { label: 'Soluciones', href: '/#soluciones' },
       { label: 'Segmentos', href: '/#segmentos' },
     ],
   },
   {
     group: 'Sobre',
     items: [
-      { label: 'História e propósito', href: '/sobre' },
+      { label: 'Historia y proposito', href: '/sobre' },
       { label: 'Como funciona', href: '/#sistema' },
-      { label: 'Parceiros', href: '/#parceiros' },
+      { label: 'Socios', href: '/#socios' },
     ],
   },
 ];
@@ -53,17 +54,93 @@ const defaultSocialLinks: FooterSocialLink[] = [
   { label: 'Instagram', href: 'https://instagram.com' },
 ];
 
+function getDefaultFooterLinks(locale: string): FooterLinkGroup[] {
+  if (locale === 'pt-BR') {
+    return [
+      {
+        group: 'Outra secao',
+        items: [
+          { label: 'Inicio', href: '/#hero' },
+          { label: 'Solucoes', href: '/#soluciones' },
+          { label: 'Segmentos', href: '/#segmentos' },
+        ],
+      },
+      {
+        group: 'Sobre',
+        items: [
+          { label: 'Historia e proposito', href: '/sobre' },
+          { label: 'Como funciona', href: '/#sistema' },
+          { label: 'Parceiros', href: '/#socios' },
+        ],
+      },
+    ];
+  }
+
+  if (locale === 'en') {
+    return [
+      {
+        group: 'Other section',
+        items: [
+          { label: 'Home', href: '/#hero' },
+          { label: 'Solutions', href: '/#soluciones' },
+          { label: 'Segments', href: '/#segmentos' },
+        ],
+      },
+      {
+        group: 'About',
+        items: [
+          { label: 'History and purpose', href: '/sobre' },
+          { label: 'How it works', href: '/#sistema' },
+          { label: 'Partners', href: '/#socios' },
+        ],
+      },
+    ];
+  }
+
+  return defaultFooterLinks;
+}
+
+function localizeHref(href: string, locale: string): string {
+  if (!href || href.startsWith('#') || href.startsWith('http://') || href.startsWith('https://') || href.startsWith('mailto:') || href.startsWith('tel:')) {
+    return href;
+  }
+
+  if (!href.startsWith('/')) {
+    return href;
+  }
+
+  const stripped = href.replace(/^\/(es|pt-BR|en)(?=\/|#|$)/, '');
+  const normalizedHref = stripped.length > 0 ? stripped : '/';
+
+  if (normalizedHref.startsWith(`/${locale}`)) {
+    return normalizedHref;
+  }
+
+  if (normalizedHref.startsWith('/#')) {
+    return `/${locale}${normalizedHref.slice(1)}`;
+  }
+
+  if (normalizedHref === '/') {
+    return `/${locale}`;
+  }
+
+  return `/${locale}${normalizedHref}`;
+}
+
 export function RuralCommerceFooter({
+  locale = 'es',
   title = 'Rural Commerce',
-  copyright = `Rural Commerce ${new Date().getFullYear()} — Todos os direitos reservados`,
-  contactTitle = 'Contato',
-  contactAddress = 'Uruguay — endereço comercial (completar)',
+  copyright = `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`,
+  contactTitle = 'Contacto',
+  contactAddress = 'Uruguay - direccion comercial (completar)',
   contactPhone = '+598 · · · · ·',
   contactEmail = 'contacto@ruralcommerce.com',
-  socialLabel = 'Redes sociais',
-  footerLinks = defaultFooterLinks,
+  socialLabel = 'Redes sociales',
+  footerLinks,
   socialLinks = defaultSocialLinks,
 }: RuralCommerceFooterProps) {
+  const resolvedFooterLinks = footerLinks && footerLinks.length > 0 ? footerLinks : getDefaultFooterLinks(locale);
+
   return (
     <footer data-editor-section="site-footer" className="border-t border-[#071F5E]/10 bg-white text-[#1E1E1E]">
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-14">
@@ -105,11 +182,11 @@ export function RuralCommerceFooter({
           </div>
 
           <div>
-            <p className="text-sm font-bold text-[#009179]">{footerLinks[0]?.group || 'Outra parte'}</p>
+            <p className="text-sm font-bold text-[#009179]">{resolvedFooterLinks[0]?.group || getDefaultFooterLinks(locale)[0].group}</p>
             <ul className="mt-4 space-y-3 text-sm">
-              {(footerLinks[0]?.items || []).map((item) => (
+              {(resolvedFooterLinks[0]?.items || []).map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="transition hover:text-[#009179]">
+                  <a href={localizeHref(item.href, locale)} className="transition hover:text-[#009179]">
                     {item.label}
                   </a>
                 </li>
@@ -118,11 +195,11 @@ export function RuralCommerceFooter({
           </div>
 
           <div>
-            <p className="text-sm font-bold text-[#009179]">{footerLinks[1]?.group || 'Sobre'}</p>
+            <p className="text-sm font-bold text-[#009179]">{resolvedFooterLinks[1]?.group || getDefaultFooterLinks(locale)[1].group}</p>
             <ul className="mt-4 space-y-3 text-sm">
-              {(footerLinks[1]?.items || []).map((item) => (
+              {(resolvedFooterLinks[1]?.items || []).map((item) => (
                 <li key={item.label}>
-                  <a href={item.href} className="transition hover:text-[#009179]">
+                  <a href={localizeHref(item.href, locale)} className="transition hover:text-[#009179]">
                     {item.label}
                   </a>
                 </li>
@@ -155,3 +232,4 @@ export function RuralCommerceFooter({
     </footer>
   );
 }
+

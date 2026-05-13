@@ -1,4 +1,4 @@
-{
+﻿{
   "id": "blog",
   "name": "Blog",
   "title": "Blog",
@@ -23,15 +23,15 @@
       "props": {
         "backgroundColor": "#071F5E",
         "title": "Segmentos que atendemos",
-        "subtitle": "Conocé cómo acompañamos a cada actor de la cadena.",
-        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#parceiros\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#parceiros\",\"icon\":\"building2\"}]"
+        "subtitle": "Conoce cómo acompañamos a cada actor de la cadena.",
+        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
       }
     },
     {
       "id": "block-1778572602058-ne97t37h2",
       "type": "free-text",
       "props": {
-        "content": "Seu texto aqui",
+        "content": "Su texto aquí",
         "fontSize": "16px",
         "textAlign": "left"
       }
@@ -41,11 +41,11 @@
       "type": "image",
       "props": {
         "src": "",
-        "alt": "Imagem"
+        "alt": "Imagen"
       }
     }
   ],
   "createdAt": "2026-05-12T07:56:42.058Z",
   "updatedAt": "2026-05-12T19:48:32.028Z",
-  "status": "draft"
+  "status": "published"
 }

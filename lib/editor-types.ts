@@ -1,6 +1,6 @@
-/**
- * Tipos do sistema de editor de blocos
- * Define a estrutura de dados para páginas e componentes editáveis
+﻿/**
+ * Tipos del sistema de editor de bloques
+ * Define la estructura de datos para páginas y componentes editables
  */
 
 export type BlockType =
@@ -50,11 +50,11 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   'site-header': {
     type: 'site-header',
     label: 'Menu (Site)',
-    description: 'Configuração do menu principal do site',
-    icon: '🧭',
+    description: 'Configuración del menú principal del sitio',
+    icon: 'ðŸ§­',
     defaultProps: {
       navItemsJson:
-        '[{"label":"Sobre","href":"/sobre"},{"label":"Soluções","href":"/solucoes"},{"label":"Aliados e Inversores","href":"/aliados"},{"label":"Blog","href":"/blog"},{"label":"Contato","href":"#contacto"}]',
+        '[{"label":"Sobre","href":"/sobre"},{"label":"Soluciones","href":"/solucoes"},{"label":"Aliados e Inversores","href":"/aliados"},{"label":"Blog","href":"/blog"},{"label":"Contacto","href":"#contacto"}]',
       logoAlt: 'Rural Commerce Logo',
     },
     editableProps: ['navItemsJson', 'logoAlt'],
@@ -63,21 +63,21 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   'site-footer': {
     type: 'site-footer',
-    label: 'Rodapé (Site)',
-    description: 'Configuração do rodapé principal do site',
-    icon: '🦶',
+    label: 'Rodapé (Sitio)',
+    description: 'Configuración del rodapé principal del sitio',
+    icon: 'ðŸ¦¶',
     defaultProps: {
       title: 'Rural Commerce',
-      copyright: `Rural Commerce ${new Date().getFullYear()} — Todos os direitos reservados`,
-      contactTitle: 'Contato',
-      contactAddress: 'Uruguay — endereço comercial (completar)',
+      copyright: `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`,
+      contactTitle: 'Contacto',
+      contactAddress: 'Uruguay - dirección comercial (completar)',
       contactPhone: '+598 · · · · ·',
       contactEmail: 'contacto@ruralcommerce.com',
-      socialLabel: 'Redes sociais',
+      socialLabel: 'Redes sociales',
       socialLinksJson:
         '[{"label":"Facebook","href":"https://facebook.com"},{"label":"YouTube","href":"https://youtube.com"},{"label":"Instagram","href":"https://instagram.com"}]',
       footerLinksJson:
-        '[{"group":"Outra parte","items":[{"label":"Início","href":"/#hero"},{"label":"Soluções","href":"/#soluciones"},{"label":"Segmentos","href":"/#segmentos"}]},{"group":"Sobre","items":[{"label":"História e propósito","href":"/sobre"},{"label":"Como funciona","href":"/#sistema"},{"label":"Parceiros","href":"/#parceiros"}]}]',
+        '[{"group":"Otra sección","items":[{"label":"Inicio","href":"/#hero"},{"label":"Soluciones","href":"/#soluciones"},{"label":"Segmentos","href":"/#segmentos"}]},{"group":"Sobre","items":[{"label":"Historia y propósito","href":"/sobre"},{"label":"Cómo funciona","href":"/#sistema"},{"label":"Socios","href":"/#socios"}]}]',
     },
     editableProps: ['title', 'copyright', 'contactTitle', 'contactAddress', 'contactPhone', 'contactEmail', 'socialLabel', 'socialLinksJson', 'footerLinksJson'],
     pageSlugs: ['homepage'],
@@ -85,9 +85,9 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   'hero-section': {
     type: 'hero-section',
-    label: 'Hero (Homepage)',
-    description: 'Seção principal do topo da homepage',
-    icon: '📺',
+    label: 'Hero (Inicio)',
+    description: 'Sección principal de la parte superior de la página de inicio',
+    icon: 'ðŸ“º',
     defaultProps: {
       title: 'Transformamos excedentes en negocios sostenibles.',
       subtitle:
@@ -103,9 +103,9 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   'system-section': {
     type: 'system-section',
-    label: 'Sistema (Homepage)',
-    description: 'Bloco com desafios e ecossistema completo',
-    icon: '📦',
+    label: 'Sistema (Inicio)',
+    description: 'Bloque con desafíos y ecosistema completo',
+    icon: 'ðŸ“¦',
     defaultProps: {
       backgroundColor: '#071F5E',
       title: 'El campo enfrenta grandes desafíos',
@@ -119,24 +119,24 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   'segments-section': {
     type: 'segments-section',
-    label: 'Segmentos (Homepage)',
-    description: 'Seção de segmentos atendidos',
-    icon: '🧩',
+    label: 'Segmentos (Inicio)',
+    description: 'Sección de segmentos atendidos',
+    icon: 'ðŸ§©',
     defaultProps: {
       backgroundColor: '#071F5E',
       title: 'Segmentos que atendemos',
-      subtitle: 'Conocé cómo acompañamos a cada actor de la cadena.',
+      subtitle: 'Conoce cómo acompañamos a cada actor de la cadena.',
       itemsJson:
-        '[{"title":"Productores","subtitle":"Escala tu negocio","href":"#soluciones","icon":"tractor"},{"title":"Empresas ESG / cadena de suministro","subtitle":"Eficiencia y trazabilidad","href":"#parceiros","icon":"leaf"},{"title":"Gobiernos","subtitle":"Desarrollo territorial","href":"#parceiros","icon":"building2"}]',
+        '[{"title":"Productores","subtitle":"Escala tu negocio","href":"#soluciones","icon":"tractor"},{"title":"Empresas ESG / cadena de suministro","subtitle":"Eficiencia y trazabilidad","href":"#socios","icon":"leaf"},{"title":"Gobiernos","subtitle":"Desarrollo territorial","href":"#socios","icon":"building2"}]',
     },
     editableProps: ['backgroundColor', 'title', 'subtitle', 'itemsJson'],
     singleton: true,
   },
   'solutions-section': {
     type: 'solutions-section',
-    label: 'Soluções (Homepage)',
-    description: 'Cards de soluções',
-    icon: '🛠️',
+    label: 'Soluciones (Inicio)',
+    description: 'Tarjetas de soluciones',
+    icon: 'ðŸ› ï¸',
     defaultProps: {
       backgroundColor: '#F5F7FB',
       title: 'Un camino claro para transformar su producción',
@@ -148,25 +148,25 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   'stats-section': {
     type: 'stats-section',
-    label: 'Números (Homepage)',
-    description: 'Seção de indicadores com carrossel',
-    icon: '📊',
+    label: 'Números (Inicio)',
+    description: 'Sección de indicadores con carrusel',
+    icon: 'ðŸ“Š',
     defaultProps: {
       backgroundColor: '#EEF3F7',
       title: 'Números que hablan',
-      subtitle: 'Indicativos de impacto y eficiencia en redes acompañadas (valores referenciales).',
+      subtitle: 'Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales).',
     },
     editableProps: ['backgroundColor', 'title', 'subtitle'],
     singleton: true,
   },
   'partners-section': {
     type: 'partners-section',
-    label: 'Parceiros (Homepage)',
-    description: 'Carrossel de logos de parceiros',
-    icon: '🤝',
+    label: 'Socios (Homepage)',
+    description: 'Carrusel de logos de socios',
+    icon: 'ðŸ¤',
     defaultProps: {
       backgroundColor: '#F5F7FB',
-      title: 'Parceiros de Confianza',
+      title: 'Socios de confianza',
       partnersJson: JSON.stringify([
         { name: 'Slack', src: 'https://cdn.simpleicons.org/slack', href: 'https://slack.com' },
         { name: 'Commerce', src: 'https://cdn.simpleicons.org/shopify', href: 'https://www.shopify.com' },
@@ -182,11 +182,11 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   'free-text': {
     type: 'free-text',
-    label: 'Texto Livre',
-    description: 'Bloco extra de texto para testes locais',
-    icon: '📝',
+    label: 'Texto libre',
+    description: 'Bloque extra de texto para pruebas locales',
+    icon: 'ðŸ“',
     defaultProps: {
-      content: 'Seu texto aqui',
+      content: 'Su texto aquí',
       fontSize: '16px',
       textAlign: 'left',
     },
@@ -194,20 +194,20 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   },
   image: {
     type: 'image',
-    label: 'Imagem',
-    description: 'Bloco de imagem livre',
-    icon: '🖼️',
+    label: 'Imagen',
+    description: 'Bloque de imagen libre',
+    icon: 'ðŸ–¼ï¸',
     defaultProps: {
       src: '',
-      alt: 'Imagem',
+      alt: 'Imagen',
     },
     editableProps: ['src', 'alt'],
   },
   spacer: {
     type: 'spacer',
-    label: 'Espaçador',
-    description: 'Espaço em branco',
-    icon: '⬜',
+    label: 'Espaciador',
+    description: 'Espacio en blanco',
+    icon: 'â¬œ',
     defaultProps: {
       height: '32px',
     },
@@ -216,8 +216,8 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
 };
 
 const DEFAULT_PAGE_LABELS: Record<string, string> = {
-  homepage: 'Homepage',
-  solucoes: 'Soluções',
+  homepage: 'Inicio',
+  solucoes: 'Soluciones',
   sobre: 'Sobre',
   aliados: 'Aliados',
   blog: 'Blog',
@@ -225,57 +225,57 @@ const DEFAULT_PAGE_LABELS: Record<string, string> = {
 
 const PAGE_BLOCK_LABEL_OVERRIDES: Partial<Record<BlockType, Partial<Record<string, string>>>> = {
   'hero-section': {
-    homepage: 'Hero (Homepage)',
-    solucoes: 'Hero (Soluções)',
+    homepage: 'Hero (Inicio)',
+    solucoes: 'Hero (Soluciones)',
     sobre: 'Hero (Sobre)',
     aliados: 'Hero (Aliados)',
     blog: 'Hero (Blog)',
   },
   'system-section': {
-    homepage: 'Sistema (Homepage)',
-    solucoes: 'Seção 2 (Soluções)',
-    sobre: 'Seção 3 (Sobre)',
-    aliados: 'Seção 2 (Aliados)',
+    homepage: 'Sistema (Inicio)',
+    solucoes: 'Sección 2 (Soluciones)',
+    sobre: 'Sección 3 (Sobre)',
+    aliados: 'Sección 2 (Aliados)',
   },
   'segments-section': {
-    homepage: 'Segmentos (Homepage)',
-    sobre: 'Seção 2 (Sobre)',
+    homepage: 'Segmentos (Inicio)',
+    sobre: 'Sección 2 (Sobre)',
     blog: 'Grid de Posts (Blog)',
   },
   'solutions-section': {
-    homepage: 'Soluções (Homepage)',
-    solucoes: 'Seção 3 (Soluções)',
-    aliados: 'Seção 3 (Aliados)',
+    homepage: 'Soluciones (Inicio)',
+    solucoes: 'Sección 3 (Soluciones)',
+    aliados: 'Sección 3 (Aliados)',
   },
   'stats-section': {
-    homepage: 'Números (Homepage)',
-    solucoes: 'Seção 4 (Soluções)',
-    sobre: 'Seção 4 (Sobre)',
-    aliados: 'Seção 4 (Aliados)',
+    homepage: 'Números (Inicio)',
+    solucoes: 'Sección 4 (Soluciones)',
+    sobre: 'Sección 4 (Sobre)',
+    aliados: 'Sección 4 (Aliados)',
   },
   'partners-section': {
-    homepage: 'Parceiros (Homepage)',
+    homepage: 'Socios (Inicio)',
   },
   'free-text': {
-    homepage: 'Texto Livre (Homepage)',
-    solucoes: 'Texto Livre (Soluções)',
-    sobre: 'Texto Livre (Sobre)',
-    aliados: 'Texto Livre (Aliados)',
-    blog: 'Texto Livre (Blog)',
+    homepage: 'Texto libre (Inicio)',
+    solucoes: 'Texto libre (Soluciones)',
+    sobre: 'Texto libre (Sobre)',
+    aliados: 'Texto libre (Aliados)',
+    blog: 'Texto libre (Blog)',
   },
   image: {
-    homepage: 'Imagem (Homepage)',
-    solucoes: 'Imagem (Soluções)',
-    sobre: 'Imagem (Sobre)',
-    aliados: 'Imagem (Aliados)',
-    blog: 'Imagem (Blog)',
+    homepage: 'Imagen (Inicio)',
+    solucoes: 'Imagen (Soluciones)',
+    sobre: 'Imagen (Sobre)',
+    aliados: 'Imagen (Aliados)',
+    blog: 'Imagen (Blog)',
   },
   spacer: {
-    homepage: 'Espaçador (Homepage)',
-    solucoes: 'Espaçador (Soluções)',
-    sobre: 'Espaçador (Sobre)',
-    aliados: 'Espaçador (Aliados)',
-    blog: 'Espaçador (Blog)',
+    homepage: 'Espaciador (Inicio)',
+    solucoes: 'Espaciador (Soluciones)',
+    sobre: 'Espaciador (Sobre)',
+    aliados: 'Espaciador (Aliados)',
+    blog: 'Espaciador (Blog)',
   },
 };
 
@@ -292,7 +292,7 @@ export function getBlockLabelForPage(type: BlockType, pageSlug: string): string 
   }
 
   const suffix = DEFAULT_PAGE_LABELS[pageSlug] || pageSlug;
-  return `${definition.label.replace(/ \(Homepage\)/g, '')} (${suffix})`;
+  return `${definition.label.replace(/ \((Homepage|Inicio)\)/g, '')} (${suffix})`;
 }
 
 export function getAvailableBlockTypesForPage(pageSlug: string): BlockType[] {
@@ -301,3 +301,4 @@ export function getAvailableBlockTypesForPage(pageSlug: string): BlockType[] {
     return !definition.pageSlugs || definition.pageSlugs.includes(pageSlug);
   });
 }
+

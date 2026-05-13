@@ -1,0 +1,51 @@
+{
+  "id": "solucoes",
+  "name": "Solutions",
+  "title": "Solutions",
+  "slug": "solucoes",
+  "blocks": [
+    {
+      "id": "block-1778570034567-ljxs62hh7",
+      "type": "hero-section",
+      "props": {
+        "title": "We turn surplus into sustainable businesses.",
+        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calculate your impact",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "How it works",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778613834591-0xstemawn",
+      "type": "solutions-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "A clear path to transform your production",
+        "itemsJson": "[{\"title\":\"Efficiency Diagnosis\",\"body\":\"Find out where your business is losing money.\",\"cta\":\"Learn more\",\"variant\":\"navy\"},{\"title\":\"Processing and Management Course\",\"body\":\"Technical training for retail-standard operations.\",\"cta\":\"Learn more\",\"variant\":\"sage\"},{\"title\":\"Rapid Implementation Kit\",\"body\":\"Technology and methodology to start generating gains today.\",\"cta\":\"Learn more\",\"variant\":\"royal\"}]"
+      }
+    },
+    {
+      "id": "block-1778613834591-td0zpcg6n",
+      "type": "stats-section",
+      "props": {
+        "backgroundColor": "#EEF3F7",
+        "title": "Numbers that speak",
+        "subtitle": "Impact and efficiency indicators across supported networks (reference values)."
+      }
+    },
+    {
+      "id": "block-1778570034567-as0bbievt",
+      "type": "free-text",
+      "props": {
+        "content": "",
+        "fontSize": "16px",
+        "textAlign": "left"
+      }
+    }
+  ],
+  "createdAt": "2026-05-12T20:45:00.000Z",
+  "updatedAt": "2026-05-12T20:45:00.000Z",
+  "status": "published"
+}

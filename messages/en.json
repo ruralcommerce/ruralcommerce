@@ -1,0 +1,105 @@
+{
+  "nav": {
+    "sobre": "About",
+    "solucoes": "Solutions",
+    "aliados": "Partners & Investors",
+    "blog": "Blog",
+    "contacto": "Contact"
+  },
+  "hero": {
+    "title": "We transform surpluses into sustainable businesses.",
+    "subtitle": "Technology, management and market access to turn losses into new business opportunities.",
+    "ctaText": "Calculate your impact and profit",
+    "secondaryText": "How it works"
+  },
+  "system": {
+    "title": "The countryside faces major challenges",
+    "subtitle": "Post-harvest losses, market fluctuations and sustainability pressure continue to limit rural growth. At Rural Commerce, we transform these bottlenecks into efficiency, revenue and supply chain security.",
+    "heading": "A complete system to transform rural production",
+    "pillars": {
+      "hardwarePrecision": {
+        "title": "Precision Hardware",
+        "body": "Modular equipment designed to optimize processes, reduce costs and add value to production."
+      },
+      "softwareIntelligence": {
+        "title": "Intelligence & Management Software",
+        "body": "Tools that centralize business management and production monitoring, delivering indicators and security for decision-making."
+      },
+      "gestionRescate": {
+        "title": "Waste Recovery & Valorization",
+        "body": "Commercial processes that transform waste into sellable products with extended shelf life, preventing disposal emissions."
+      },
+      "metodologia": {
+        "title": "Acceleration Methodology",
+        "body": "Practical framework to standardize quality, structure margins and open commercial channels."
+      }
+    }
+  },
+  "segments": {
+    "productores": {
+      "title": "Farmers",
+      "subtitle": "Scale your business"
+    },
+    "empresas": {
+      "title": "ESG Companies / Supply Chain",
+      "subtitle": "Efficiency and traceability"
+    },
+    "gobiernos": {
+      "title": "Governments",
+      "subtitle": "Territorial development"
+    }
+  },
+  "solutions": {
+    "diagnostico": {
+      "title": "Efficiency Diagnosis",
+      "body": "Discover where your business is losing money.",
+      "cta": "Learn more"
+    },
+    "curso": {
+      "title": "Processing & Management Course",
+      "body": "Technical training for retail standards.",
+      "cta": "Learn more"
+    },
+    "kit": {
+      "title": "Quick Implementation Kit",
+      "body": "Technology and methodology to start generating profits right now.",
+      "cta": "Learn more"
+    }
+  },
+  "footer": {
+    "title": "Rural Commerce",
+    "copyright": "Rural Commerce {year} — All rights reserved",
+    "contactTitle": "Contact",
+    "contactAddress": "Uruguay — commercial address (complete)",
+    "contactPhone": "+598 · · · · ·",
+    "contactEmail": "contacto@ruralcommerce.com",
+    "socialLabel": "Social networks",
+    "links": {
+      "outraParte": "Other section",
+      "inicio": "Home",
+      "soluciones": "Solutions",
+      "segmentos": "Segments",
+      "sobre": "About",
+      "historiaProposito": "History & Purpose",
+      "comoFunciona": "How it works",
+      "parceiros": "Partners"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Perspectives and analysis on rural technology, sustainability and innovation in agribusiness."
+  },
+  "sobrePage": {
+    "title": "About Us",
+    "questionText": "Want to learn more about our methodology and solutions?"
+  },
+  "aliadosPage": {
+    "title": "Partners & Investors",
+    "quote": "We achieved a 40% reduction in post-harvest losses in accompanied projects, generating new income streams for farmers and supply chain partners."
+  },
+  "common": {
+    "saberMas": "Learn more",
+    "contactar": "Contact",
+    "inicio": "Home"
+  }
+}

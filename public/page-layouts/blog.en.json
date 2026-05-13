@@ -1,0 +1,34 @@
+{
+  "id": "blog",
+  "name": "Blog",
+  "title": "Blog",
+  "slug": "blog",
+  "blocks": [
+    {
+      "id": "block-1778572602058-wt1hvfze4",
+      "type": "hero-section",
+      "props": {
+        "title": "We turn surplus into sustainable businesses.",
+        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calculate your impact",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "How it works",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778615311988-m3nbpcynd",
+      "type": "segments-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "Segments we serve",
+        "subtitle": "See how we support each actor in the value chain.",
+        "itemsJson": "[{\"title\":\"Producers\",\"subtitle\":\"Scale your business\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"ESG / Supply Chain Companies\",\"subtitle\":\"Efficiency and traceability\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governments\",\"subtitle\":\"Territorial development\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+      }
+    }
+  ],
+  "createdAt": "2026-05-12T20:45:00.000Z",
+  "updatedAt": "2026-05-12T20:45:00.000Z",
+  "status": "published"
+}

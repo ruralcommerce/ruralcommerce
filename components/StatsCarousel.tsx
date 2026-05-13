@@ -18,46 +18,139 @@ type StatItem = {
   label: string;
 };
 
-const stats: StatItem[] = [
-  {
-    Icon: Users,
-    digits: '1200',
-    symbol: '+',
-    label: 'Toneladas de CO₂ evitadas en proyectos reales',
-  },
-  {
-    Icon: Droplets,
-    digits: '8,714',
-    symbol: '+',
-    label: 'Millones de litros de agua preservados.',
-  },
-  {
-    Icon: Building2,
-    digits: '1600',
-    symbol: '%',
-    label: 'de aumento promedio en el lucro en redes implementadas',
-  },
-  {
-    Icon: Leaf,
-    digits: '35',
-    symbol: '+',
-    label: 'especies y cultivos asociados a redes de valor sostenible',
-  },
-  {
-    Icon: MapPin,
-    digits: '18',
-    symbol: '+',
-    label: 'territorios con intervenciones coordinadas en campo',
-  },
-  {
-    Icon: Sprout,
-    digits: '240',
-    symbol: '+',
-    label: 'productores vinculados a programas de eficiencia',
-  },
-];
+const statsByLocale: Record<string, StatItem[]> = {
+  es: [
+    {
+      Icon: Users,
+      digits: '1200',
+      symbol: '+',
+      label: 'Toneladas de CO₂ evitadas en proyectos reales',
+    },
+    {
+      Icon: Droplets,
+      digits: '8,714',
+      symbol: '+',
+      label: 'Millones de litros de agua preservados.',
+    },
+    {
+      Icon: Building2,
+      digits: '1600',
+      symbol: '%',
+      label: 'de aumento promedio en la rentabilidad en redes implementadas',
+    },
+    {
+      Icon: Leaf,
+      digits: '35',
+      symbol: '+',
+      label: 'especies y cultivos asociados a redes de valor sostenible',
+    },
+    {
+      Icon: MapPin,
+      digits: '18',
+      symbol: '+',
+      label: 'territorios con intervenciones coordinadas en campo',
+    },
+    {
+      Icon: Sprout,
+      digits: '240',
+      symbol: '+',
+      label: 'productores vinculados a programas de eficiencia',
+    },
+  ],
+  'pt-BR': [
+    {
+      Icon: Users,
+      digits: '1200',
+      symbol: '+',
+      label: 'Toneladas de CO₂ evitadas em projetos reais',
+    },
+    {
+      Icon: Droplets,
+      digits: '8,714',
+      symbol: '+',
+      label: 'Milhões de litros de água preservados.',
+    },
+    {
+      Icon: Building2,
+      digits: '1600',
+      symbol: '%',
+      label: 'de aumento médio na rentabilidade em redes implementadas',
+    },
+    {
+      Icon: Leaf,
+      digits: '35',
+      symbol: '+',
+      label: 'espécies e cultivos associados a redes de valor sustentável',
+    },
+    {
+      Icon: MapPin,
+      digits: '18',
+      symbol: '+',
+      label: 'territórios com intervenções coordenadas em campo',
+    },
+    {
+      Icon: Sprout,
+      digits: '240',
+      symbol: '+',
+      label: 'produtores vinculados a programas de eficiência',
+    },
+  ],
+  en: [
+    {
+      Icon: Users,
+      digits: '1200',
+      symbol: '+',
+      label: 'Tons of CO₂ avoided in real projects',
+    },
+    {
+      Icon: Droplets,
+      digits: '8,714',
+      symbol: '+',
+      label: 'Millions of liters of water preserved.',
+    },
+    {
+      Icon: Building2,
+      digits: '1600',
+      symbol: '%',
+      label: 'average increase in profitability across implemented networks',
+    },
+    {
+      Icon: Leaf,
+      digits: '35',
+      symbol: '+',
+      label: 'species and crops connected to sustainable value networks',
+    },
+    {
+      Icon: MapPin,
+      digits: '18',
+      symbol: '+',
+      label: 'territories with coordinated field interventions',
+    },
+    {
+      Icon: Sprout,
+      digits: '240',
+      symbol: '+',
+      label: 'producers linked to efficiency programs',
+    },
+  ],
+};
 
-export function StatsCarousel() {
+const ariaLabelByLocale: Record<string, string> = {
+  es: 'Indicadores de impacto - arrastre con el mouse o use la rueda para desplazarse',
+  'pt-BR': 'Indicadores de impacto - arraste com o mouse ou use a roda para navegar',
+  en: 'Impact indicators - drag with the mouse or use the wheel to browse',
+};
+
+const fallbackStats = statsByLocale.es;
+
+export type StatsCarouselProps = {
+  locale?: string;
+};
+
+export function StatsCarousel({ locale = 'es' }: StatsCarouselProps) {
+  const stats = statsByLocale[locale] || fallbackStats;
+  const ariaLabel = ariaLabelByLocale[locale] || ariaLabelByLocale.es;
+
   const scrollerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ active: boolean; pointerId: number; startX: number; scroll: number }>({
     active: false,
@@ -93,7 +186,7 @@ export function StatsCarousel() {
     return () => window.clearInterval(id);
   }, [paused, isDragging, advance]);
 
-  /* Roda vertical → desloca horizontalmente (sem passive, para poder preventDefault) */
+  /* Rueda vertical -> desplaza horizontalmente para facilitar la navegación. */
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
@@ -128,7 +221,7 @@ export function StatsCarousel() {
           isDragging ? 'cursor-grabbing scroll-auto select-none' : 'cursor-grab scroll-smooth'
         }`}
         tabIndex={0}
-        aria-label="Indicadores de impacto — arrastre com o rato ou use a roda para percorrer"
+        aria-label={ariaLabel}
         onPointerDown={(e) => {
           if (e.pointerType !== 'mouse' || e.button !== 0) return;
           const el = scrollerRef.current;
@@ -157,7 +250,7 @@ export function StatsCarousel() {
             try {
               el.releasePointerCapture(e.pointerId);
             } catch {
-              /* ignorar se já libertado */
+              /* Ignorar si ya se liberó. */
             }
           }
         }}

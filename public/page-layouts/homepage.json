@@ -1,14 +1,14 @@
-{
+﻿{
   "id": "homepage",
-  "name": "Homepage",
-  "title": "Homepage",
+  "name": "Pagina de inicio",
+  "title": "Pagina de inicio",
   "slug": "homepage",
   "blocks": [
     {
       "id": "block-1778613416245-zfq1m1onh",
       "type": "site-header",
       "props": {
-        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluções\",\"href\":\"/solucoes\"},{\"label\":\"Aliados e Inversores\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contato\",\"href\":\"#contacto\"}]",
+        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluciones\",\"href\":\"/solucoes\"},{\"label\":\"Aliados e Inversores\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contacto\",\"href\":\"#contacto\"}]",
         "logoAlt": "Rural Commerce Logo"
       }
     },
@@ -16,12 +16,12 @@
       "id": "block-1778391185975-s1qmkn6oz",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos excedentes en negocios sostenibles. (editado)",
+        "title": "Transformamos excedentes en negocios sostenibles.",
         "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Saber+",
+        "ctaText": "Calcule su impacto",
         "ctaUrl": "#soluciones",
-        "secondaryText": "Contacto",
+        "secondaryText": "Cómo funciona",
         "secondaryUrl": "#sistema"
       }
     },
@@ -41,8 +41,8 @@
       "props": {
         "backgroundColor": "#071F5E",
         "title": "Segmentos que atendemos",
-        "subtitle": "Conocé cómo acompañamos a cada actor de la cadena.",
-        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#parceiros\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#parceiros\",\"icon\":\"building2\"}]"
+        "subtitle": "Conoce cómo acompañamos a cada actor de la cadena.",
+        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
       }
     },
     {
@@ -60,7 +60,7 @@
       "props": {
         "backgroundColor": "#EEF3F7",
         "title": "Números que hablan",
-        "subtitle": "Indicativos de impacto y eficiencia en redes acompañadas (valores referenciales)."
+        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales)."
       }
     },
     {
@@ -68,7 +68,7 @@
       "type": "partners-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Parceiros de Confianza",
+        "title": "Socios de confianza",
         "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
       }
     },
@@ -77,19 +77,19 @@
       "type": "site-footer",
       "props": {
         "title": "Rural Commerce",
-        "copyright": "Rural Commerce 2026 — Todos os direitos reservados",
-        "contactTitle": "Contato",
-        "contactAddress": "Uruguay — endereço comercial (completar)",
+        "copyright": "Rural Commerce 2026 - Todos los derechos reservados",
+        "contactTitle": "Contacto",
+        "contactAddress": "Uruguay - dirección comercial (completar)",
         "contactPhone": "+598 · · · · ·",
         "contactEmail": "contacto@ruralcommerce.com",
-        "socialLabel": "Redes sociais",
+        "socialLabel": "Redes sociales",
         "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://youtube.com\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
-        "footerLinksJson": "[{\"group\":\"Outra parte\",\"items\":[{\"label\":\"Início\",\"href\":\"/#hero\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Segmentos\",\"href\":\"/#segmentos\"}]},{\"group\":\"Sobre\",\"items\":[{\"label\":\"História e propósito\",\"href\":\"/sobre\"},{\"label\":\"Como funciona\",\"href\":\"/#sistema\"},{\"label\":\"Parceiros\",\"href\":\"/#parceiros\"}]}]"
+        "footerLinksJson": "[{\"group\":\"Otra sección\",\"items\":[{\"label\":\"Inicio\",\"href\":\"/#hero\"},{\"label\":\"Soluciones\",\"href\":\"/#soluciones\"},{\"label\":\"Segmentos\",\"href\":\"/#segmentos\"}]},{\"group\":\"Sobre\",\"items\":[{\"label\":\"Historia y propósito\",\"href\":\"/sobre\"},{\"label\":\"Cómo funciona\",\"href\":\"/#sistema\"},{\"label\":\"Socios\",\"href\":\"/#socios\"}]}]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
   "updatedAt": "2026-05-12T19:16:59.023Z",
-  "status": "draft",
+  "status": "published",
   "publishedAt": "2026-05-10T06:21:30.348Z"
 }

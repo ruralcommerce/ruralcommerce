@@ -1,0 +1,106 @@
+﻿{
+  "nav": {
+    "sobre": "Sobre",
+    "solucoes": "Soluciones",
+    "aliados": "Aliados y Inversores",
+    "blog": "Blog",
+    "contacto": "Contacto"
+  },
+  "hero": {
+    "title": "Transformamos excedentes en negocios sostenibles.",
+    "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio.",
+    "ctaText": "Calcule su impacto y lucro",
+    "secondaryText": "Cómo funciona"
+  },
+  "system": {
+    "title": "El campo enfrenta grandes desafíos",
+    "subtitle": "Pérdidas post-cosecha, oscilaciones del mercado y presión por sostenibilidad siguen limitando el crecimiento rural. En Rural Commerce, transformamos esos cuellos de botella en eficiencia, ingresos y seguridad para la cadena.",
+    "heading": "Un sistema completo para transformar la producción rural",
+    "pillars": {
+      "hardwarePrecision": {
+        "title": "Hardware de Precisión",
+        "body": "Equipos modulares orientados a optimizar procesos, reducir costos y agregar valor a la producción."
+      },
+      "softwareIntelligence": {
+        "title": "Software de Inteligencia y Gestión",
+        "body": "Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, entregando indicadores y seguridad para la toma de decisiones."
+      },
+      "gestionRescate": {
+        "title": "Gestión de Rescate y Valorización",
+        "body": "Procesos comerciales que transforman mermas en productos vendibles con vida útil extendida, evitando emisiones por descarte."
+      },
+      "metodologia": {
+        "title": "Metodología de Aceleración",
+        "body": "Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales."
+      }
+    }
+  },
+  "segments": {
+    "productores": {
+      "title": "Productores",
+      "subtitle": "Escala tu negocio"
+    },
+    "empresas": {
+      "title": "Empresas ESG / cadena de suministro",
+      "subtitle": "Eficiencia y trazabilidad"
+    },
+    "gobiernos": {
+      "title": "Gobiernos",
+      "subtitle": "Desarrollo territorial"
+    }
+  },
+  "solutions": {
+    "diagnostico": {
+      "title": "Diagnóstico de Eficiencia",
+      "body": "Descubra dónde está perdiendo dinero su negocio.",
+      "cta": "Saber más"
+    },
+    "curso": {
+      "title": "Curso de Procesamiento y Gestión",
+      "body": "Capacitación técnica para el estándar de retail (comercio minorista).",
+      "cta": "Saber más"
+    },
+    "kit": {
+      "title": "Kit de Implementación Rápida",
+      "body": "Tecnología y metodología para comenzar a generar ganancias hoy mismo.",
+      "cta": "Saber más"
+    }
+  },
+  "footer": {
+    "title": "Rural Commerce",
+    "copyright": "Rural Commerce {year} - Todos los derechos reservados",
+    "contactTitle": "Contacto",
+    "contactAddress": "Uruguay - dirección comercial (completar)",
+    "contactPhone": "+598 · · · · ·",
+    "contactEmail": "contacto@ruralcommerce.com",
+    "socialLabel": "Redes sociales",
+    "links": {
+      "outraParte": "Otra parte",
+      "inicio": "Inicio",
+      "soluciones": "Soluciones",
+      "segmentos": "Segmentos",
+      "sobre": "Sobre",
+      "historiaProposito": "Historia y propósito",
+      "comoFunciona": "Cómo funciona",
+      "parceiros": "Socios"
+    }
+  },
+  "blog": {
+    "title": "Blog",
+    "description": "Perspectivas y análisis sobre tecnología rural, sostenibilidad e innovación en agronegocio."
+  },
+  "sobrePage": {
+    "title": "Sobre nosotros",
+    "questionText": "¿Querés conocer más sobre nuestra metodología y soluciones?"
+  },
+  "aliadosPage": {
+    "title": "Aliados y Inversores",
+    "quote": "Logramos reducir en un 40% las pérdidas post-cosecha en proyectos acompañados, generando nuevos flujos de ingresos para productores y aliados de la cadena."
+  },
+  "common": {
+    "saberMas": "Saber más",
+    "contactar": "Contactar",
+    "inicio": "Inicio"
+  }
+}
+

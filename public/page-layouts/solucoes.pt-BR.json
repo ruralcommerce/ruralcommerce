@@ -1,0 +1,51 @@
+{
+  "id": "solucoes",
+  "name": "Soluções",
+  "title": "Soluções",
+  "slug": "solucoes",
+  "blocks": [
+    {
+      "id": "block-1778570034567-ljxs62hh7",
+      "type": "hero-section",
+      "props": {
+        "title": "Transformamos excedentes em negócios sustentáveis.",
+        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calcule seu impacto",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "Como funciona",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778613834591-0xstemawn",
+      "type": "solutions-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "Um caminho claro para transformar sua produção",
+        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiência\",\"body\":\"Descubra onde seu negócio está perdendo dinheiro.\",\"cta\":\"Saiba mais\",\"variant\":\"navy\"},{\"title\":\"Curso de Processamento e Gestão\",\"body\":\"Capacitação técnica para o padrão de varejo.\",\"cta\":\"Saiba mais\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementação Rápida\",\"body\":\"Tecnologia e metodologia para começar a gerar ganhos hoje.\",\"cta\":\"Saiba mais\",\"variant\":\"royal\"}]"
+      }
+    },
+    {
+      "id": "block-1778613834591-td0zpcg6n",
+      "type": "stats-section",
+      "props": {
+        "backgroundColor": "#EEF3F7",
+        "title": "Números que falam",
+        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
+      }
+    },
+    {
+      "id": "block-1778570034567-as0bbievt",
+      "type": "free-text",
+      "props": {
+        "content": "",
+        "fontSize": "16px",
+        "textAlign": "left"
+      }
+    }
+  ],
+  "createdAt": "2026-05-12T20:45:00.000Z",
+  "updatedAt": "2026-05-12T20:45:00.000Z",
+  "status": "published"
+}

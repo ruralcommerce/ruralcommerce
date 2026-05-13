@@ -11,6 +11,10 @@ import { PageSchema } from '@/lib/editor-types';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
+function sanitizeLayoutJson(raw: string): string {
+  return raw.replace(/^\uFEFF/, '');
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
@@ -21,7 +25,7 @@ export async function GET(
     const filepath = path.join(LAYOUTS_DIR, filename);
 
     const content = await fs.readFile(filepath, 'utf-8');
-    const layout = JSON.parse(content);
+    const layout = JSON.parse(sanitizeLayoutJson(content));
 
     return NextResponse.json(layout);
   } catch (error: any) {

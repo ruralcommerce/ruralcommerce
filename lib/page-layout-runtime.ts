@@ -4,18 +4,44 @@ import { BlockData, PageSchema } from '@/lib/editor-types';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
+function sanitizeLayoutJson(raw: string): string {
+  return raw.replace(/^\uFEFF/, '');
+}
+
 export type LayoutSearchParams = {
   preview?: string;
   key?: string;
 };
 
+async function readLayoutFile(slug: string, locale?: string): Promise<PageSchema | null> {
+  const normalizedLocale = (locale || '').trim();
+  const candidates = normalizedLocale
+    ? [`${slug}.${normalizedLocale}.json`, `${slug}.json`]
+    : [`${slug}.json`];
+
+  for (const filename of candidates) {
+    try {
+      const content = await fs.readFile(path.join(LAYOUTS_DIR, filename), 'utf-8');
+      return JSON.parse(sanitizeLayoutJson(content)) as PageSchema;
+    } catch (error: any) {
+      if (error?.code === 'ENOENT') {
+        continue;
+      }
+      throw error;
+    }
+  }
+
+  return null;
+}
+
 export async function getManagedPageLayout(
   slug: string,
-  searchParams?: LayoutSearchParams
+  searchParams?: LayoutSearchParams,
+  locale?: string
 ): Promise<PageSchema | null> {
   try {
-    const content = await fs.readFile(path.join(LAYOUTS_DIR, `${slug}.json`), 'utf-8');
-    const layout = JSON.parse(content) as PageSchema;
+    const layout = await readLayoutFile(slug, locale);
+    if (!layout) return null;
 
     const previewEnabled = searchParams?.preview === 'draft';
     const previewKey = searchParams?.key;

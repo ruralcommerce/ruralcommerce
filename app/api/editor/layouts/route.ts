@@ -11,6 +11,10 @@ import { validatePageSchema } from '@/lib/editor-utils';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
+function sanitizeLayoutJson(raw: string): string {
+  return raw.replace(/^\uFEFF/, '');
+}
+
 // Garantir que o diretório existe
 async function ensureLayoutsDir() {
   try {
@@ -29,7 +33,7 @@ export async function GET() {
     for (const file of files) {
       if (file.endsWith('.json')) {
         const content = await fs.readFile(path.join(LAYOUTS_DIR, file), 'utf-8');
-        layouts.push(JSON.parse(content));
+        layouts.push(JSON.parse(sanitizeLayoutJson(content)));
       }
     }
 

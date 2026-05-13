@@ -1,0 +1,95 @@
+{
+  "id": "homepage",
+  "name": "Home page",
+  "title": "Home page",
+  "slug": "homepage",
+  "blocks": [
+    {
+      "id": "block-1778613416245-zfq1m1onh",
+      "type": "site-header",
+      "props": {
+        "navItemsJson": "[{\"label\":\"About\",\"href\":\"/sobre\"},{\"label\":\"Solutions\",\"href\":\"/solucoes\"},{\"label\":\"Allies & Investors\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contact\",\"href\":\"#contacto\"}]",
+        "logoAlt": "Rural Commerce Logo"
+      }
+    },
+    {
+      "id": "block-1778391185975-s1qmkn6oz",
+      "type": "hero-section",
+      "props": {
+        "title": "We turn surplus into sustainable businesses.",
+        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calculate your impact",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "How it works",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778391185975-have0sm2t",
+      "type": "system-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "The field faces major challenges",
+        "subtitle": "Post-harvest losses, market volatility, and sustainability pressure still limit rural growth.",
+        "pillarsJson": "[{\"title\":\"Precision Hardware\",\"body\":\"Modular equipment designed to optimize processes, reduce costs, and add value to production.\"},{\"title\":\"Intelligence & Management Software\",\"body\":\"Tools that centralize business management and production monitoring, delivering indicators and confidence for decision-making.\"},{\"title\":\"Recovery & Value Management\",\"body\":\"Commercial processes that turn losses into sellable products with extended shelf life, avoiding disposal emissions.\"},{\"title\":\"Acceleration Methodology\",\"body\":\"A practical framework to standardize quality, structure margins, and open commercial channels.\"}]"
+      }
+    },
+    {
+      "id": "block-1778391185975-r7dhh6mwn",
+      "type": "segments-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "Segments we serve",
+        "subtitle": "See how we support each actor in the value chain.",
+        "itemsJson": "[{\"title\":\"Producers\",\"subtitle\":\"Scale your business\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"ESG / Supply Chain Companies\",\"subtitle\":\"Efficiency and traceability\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governments\",\"subtitle\":\"Territorial development\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+      }
+    },
+    {
+      "id": "block-1778391185975-zhs6tr6lf",
+      "type": "solutions-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "A clear path to transform your production",
+        "itemsJson": "[{\"title\":\"Efficiency Diagnosis\",\"body\":\"Find out where your business is losing money.\",\"cta\":\"Learn more\",\"variant\":\"navy\"},{\"title\":\"Processing and Management Course\",\"body\":\"Technical training for retail-standard operations.\",\"cta\":\"Learn more\",\"variant\":\"sage\"},{\"title\":\"Rapid Implementation Kit\",\"body\":\"Technology and methodology to start generating gains today.\",\"cta\":\"Learn more\",\"variant\":\"royal\"}]"
+      }
+    },
+    {
+      "id": "block-1778391185975-exhsje7jw",
+      "type": "stats-section",
+      "props": {
+        "backgroundColor": "#EEF3F7",
+        "title": "Numbers that speak",
+        "subtitle": "Impact and efficiency indicators across supported networks (reference values)."
+      }
+    },
+    {
+      "id": "block-1778613416245-q7q8bn7wh",
+      "type": "partners-section",
+      "props": {
+        "backgroundColor": "#F5F7FB",
+        "title": "Trusted partners",
+        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+      }
+    },
+    {
+      "id": "block-1778613416245-eustyqqol",
+      "type": "site-footer",
+      "props": {
+        "title": "Rural Commerce",
+        "copyright": "Rural Commerce 2026 - All rights reserved",
+        "contactTitle": "Contact",
+        "contactAddress": "Uruguay - business address (to be completed)",
+        "contactPhone": "+598 · · · · ·",
+        "contactEmail": "contacto@ruralcommerce.com",
+        "socialLabel": "Social media",
+        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://youtube.com\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
+        "footerLinksJson": "[{\"group\":\"Other section\",\"items\":[{\"label\":\"Home\",\"href\":\"/#hero\"},{\"label\":\"Solutions\",\"href\":\"/#soluciones\"},{\"label\":\"Segments\",\"href\":\"/#segmentos\"}]},{\"group\":\"About\",\"items\":[{\"label\":\"History and purpose\",\"href\":\"/sobre\"},{\"label\":\"How it works\",\"href\":\"/#sistema\"},{\"label\":\"Partners\",\"href\":\"/#socios\"}]}]"
+      }
+    }
+  ],
+  "createdAt": "2026-05-10T05:24:34.069Z",
+  "updatedAt": "2026-05-12T20:25:00.000Z",
+  "status": "published",
+  "publishedAt": "2026-05-10T06:21:30.348Z"
+}

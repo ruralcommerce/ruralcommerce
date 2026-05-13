@@ -11,12 +11,20 @@ type MediaItem = {
 type BlogMediaCarouselProps = {
   items: readonly MediaItem[];
   title: string;
+  locale?: string;
 };
 
-export function BlogMediaCarousel({ items, title }: BlogMediaCarouselProps) {
+const mediaAriaByLocale: Record<string, string> = {
+  es: 'Abrir medio',
+  'pt-BR': 'Abrir midia',
+  en: 'Open media',
+};
+
+export function BlogMediaCarousel({ items, title, locale = 'es' }: BlogMediaCarouselProps) {
   const safeItems = useMemo(() => (items.length > 0 ? items : [{ type: 'image' as const, src: '/images/home/hero-1.png', alt: title }]), [items, title]);
   const [activeIndex, setActiveIndex] = useState(0);
   const active = safeItems[activeIndex] ?? safeItems[0];
+  const mediaAria = mediaAriaByLocale[locale] || mediaAriaByLocale.es;
 
   return (
     <div className="w-full">
@@ -42,7 +50,7 @@ export function BlogMediaCarousel({ items, title }: BlogMediaCarouselProps) {
               type="button"
               onClick={() => setActiveIndex(idx)}
               className={`h-2.5 w-2.5 rounded-full transition ${idx === activeIndex ? 'bg-[#071F5E]' : 'bg-[#071F5E]/25'}`}
-              aria-label={`Abrir mídia ${idx + 1}`}
+              aria-label={`${mediaAria} ${idx + 1}`}
             />
           ))}
         </div>

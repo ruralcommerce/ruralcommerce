@@ -1,7 +1,7 @@
-{
+﻿{
   "id": "aliados",
   "name": "Aliados",
-  "title": "Aliados e Inversores",
+  "title": "Aliados y Inversores",
   "slug": "aliados",
   "blocks": [
     {
@@ -42,14 +42,14 @@
       "props": {
         "backgroundColor": "#EEF3F7",
         "title": "Números que hablan",
-        "subtitle": "Indicativos de impacto y eficiencia en redes acompañadas (valores referenciales)."
+        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales)."
       }
     },
     {
       "id": "block-1778615316359-b1i9sibnd",
       "type": "free-text",
       "props": {
-        "content": "Seu texto aqui",
+        "content": "Su texto aquí",
         "fontSize": "16px",
         "textAlign": "left"
       }
@@ -59,11 +59,11 @@
       "type": "image",
       "props": {
         "src": "",
-        "alt": "Imagem"
+        "alt": "Imagen"
       }
     }
   ],
   "createdAt": "2026-05-12T19:48:36.359Z",
   "updatedAt": "2026-05-12T19:48:36.832Z",
-  "status": "draft"
+  "status": "published"
 }

@@ -1,10 +1,10 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 
 type Partner = {
   name: string;
-  /** SVG (Simple Icons); cores originais só no hover deste logo */
+  /** SVG (Simple Icons); cores originais so no hover deste logo */
   src: string;
   href: string;
 };
@@ -20,9 +20,16 @@ const defaultPartners: Partner[] = [
 
 export type PartnersLogosCarouselProps = {
   partners?: Partner[];
+  locale?: string;
 };
 
-export function PartnersLogosCarousel({ partners = defaultPartners }: PartnersLogosCarouselProps) {
+const partnersAriaByLocale: Record<string, string> = {
+  es: 'Logos de socios',
+  'pt-BR': 'Logotipos de parceiros',
+  en: 'Partner logos',
+};
+
+export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es' }: PartnersLogosCarouselProps) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ active: boolean; pointerId: number; startX: number; scroll: number }>({
     active: false,
@@ -63,7 +70,7 @@ export function PartnersLogosCarousel({ partners = defaultPartners }: PartnersLo
         className={`flex touch-pan-x gap-10 overflow-x-auto pb-2 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-14 ${
           isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab scroll-smooth'
         }`}
-        aria-label="Logos de parceiros"
+        aria-label={partnersAriaByLocale[locale] || partnersAriaByLocale.es}
         onPointerDown={(e) => {
           if (e.pointerType !== 'mouse' || e.button !== 0) return;
           const el = scrollerRef.current;
@@ -110,7 +117,7 @@ export function PartnersLogosCarousel({ partners = defaultPartners }: PartnersLo
             rel="noopener noreferrer"
             className="group flex h-14 shrink-0 items-center justify-center rounded-md px-2 outline-none ring-offset-2 ring-offset-[var(--rc-bg)] focus-visible:ring-2 focus-visible:ring-[#071F5E]/35 sm:h-16 sm:px-4"
           >
-            {/* Estado base: acinzentado; só este logo ganha cor no hover/foco */}
+            {/* Estado base: acinzentado; so este logo ganha cor no hover/foco */}
             <img
               src={p.src}
               alt={p.name}
@@ -126,3 +133,4 @@ export function PartnersLogosCarousel({ partners = defaultPartners }: PartnersLo
     </div>
   );
 }
+
