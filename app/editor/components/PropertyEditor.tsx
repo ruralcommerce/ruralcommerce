@@ -147,6 +147,167 @@ function stringifyJsonArray(items: Record<string, string>[]): string {
   return JSON.stringify(items, null, 2);
 }
 
+const PARTNER_FIELD_LABELS: Record<string, string> = {
+  name: 'Nome do parceiro',
+  src: 'URL da imagem do logo',
+  href: 'Site do parceiro (link)',
+};
+
+function PartnersArrayEditor({
+  value,
+  onChange,
+  mediaImages,
+  mediaSearch,
+  setMediaSearch,
+  filteredMediaImages,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  mediaImages: string[];
+  mediaSearch: string;
+  setMediaSearch: (s: string) => void;
+  filteredMediaImages: string[];
+}) {
+  const rows = parseJsonArray(value) ?? [];
+  const keys =
+    rows.length > 0
+      ? Object.keys(rows[0])
+      : ['name', 'src', 'href'];
+
+  const commit = (next: Record<string, string>[]) => {
+    onChange(stringifyJsonArray(next));
+  };
+
+  const updateRow = (idx: number, key: string, v: string) => {
+    const parsed = parseJsonArray(value) ?? [];
+    const next = parsed.map((row, i) => (i === idx ? { ...row, [key]: v } : row));
+    commit(next);
+  };
+
+  const addRow = () => {
+    const parsed = parseJsonArray(value) ?? [];
+    const empty = Object.fromEntries(keys.map((k) => [k, ''])) as Record<string, string>;
+    commit([...parsed, empty]);
+  };
+
+  const removeRow = (idx: number) => {
+    const parsed = parseJsonArray(value) ?? [];
+    commit(parsed.filter((_, i) => i !== idx));
+  };
+
+  const moveRow = (from: number, to: number) => {
+    const parsed = parseJsonArray(value) ?? [];
+    if (to < 0 || to >= parsed.length || from < 0 || from >= parsed.length) return;
+    const c = [...parsed];
+    const [m] = c.splice(from, 1);
+    c.splice(to, 0, m);
+    commit(c);
+  };
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs leading-relaxed text-slate-600">
+        Cada card é um logo no carrossel. Cole a <strong>URL da imagem</strong> ou clique numa miniatura da biblioteca
+        para preencher o logo. O <strong>link</strong> é o site do parceiro.
+      </p>
+      {rows.length === 0 ? (
+        <button
+          type="button"
+          onClick={addRow}
+          className="rounded border border-dashed border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+        >
+          + Adicionar primeiro parceiro
+        </button>
+      ) : null}
+      {rows.map((row, idx) => (
+        <div key={idx} className="space-y-2 rounded border border-slate-200 bg-slate-50/90 p-3">
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
+              Parceiro {idx + 1}
+            </span>
+            <div className="flex gap-1">
+              <button
+                type="button"
+                disabled={idx === 0}
+                onClick={() => moveRow(idx, idx - 1)}
+                className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700 disabled:opacity-40"
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                disabled={idx === rows.length - 1}
+                onClick={() => moveRow(idx, idx + 1)}
+                className="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700 disabled:opacity-40"
+              >
+                ↓
+              </button>
+              <button
+                type="button"
+                onClick={() => removeRow(idx)}
+                className="rounded border border-red-200 px-2 py-1 text-xs text-red-600"
+              >
+                Remover
+              </button>
+            </div>
+          </div>
+          {keys.map((k) => (
+            <div key={k} className="space-y-1">
+              <label className="block text-[11px] font-medium text-slate-600">
+                {PARTNER_FIELD_LABELS[k] ?? k}
+              </label>
+              <input
+                type="text"
+                value={row[k] ?? ''}
+                onChange={(e) => updateRow(idx, k, e.target.value)}
+                className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"
+              />
+            </div>
+          ))}
+          {mediaImages.length > 0 ? (
+            <div className="space-y-2 border-t border-slate-200 pt-2">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+                  Biblioteca (logo)
+                </span>
+                <span className="text-[10px] text-slate-400">{filteredMediaImages.length} itens</span>
+              </div>
+              <input
+                type="text"
+                value={mediaSearch}
+                onChange={(e) => setMediaSearch(e.target.value)}
+                placeholder="Buscar imagem..."
+                className="w-full rounded border border-slate-300 bg-white p-2 text-xs text-slate-900"
+              />
+              <div className="grid max-h-40 grid-cols-4 gap-1.5 overflow-y-auto">
+                {filteredMediaImages.map((imagePath) => {
+                  const active = row.src === imagePath;
+                  return (
+                    <div key={`${idx}-${imagePath}`} className={`overflow-hidden rounded border ${active ? 'border-emerald-500 ring-1 ring-emerald-200' : 'border-slate-200'}`}>
+                      <button type="button" onClick={() => updateRow(idx, 'src', imagePath)} className="block w-full text-left">
+                        <img src={imagePath} alt="" className="h-12 w-full object-cover" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ))}
+      {rows.length > 0 ? (
+        <button
+          type="button"
+          onClick={addRow}
+          className="rounded border border-dashed border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50"
+        >
+          + Adicionar parceiro
+        </button>
+      ) : null}
+    </div>
+  );
+}
+
 export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}) {
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
@@ -378,7 +539,18 @@ export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}
                 <>
                   {propName.endsWith('Json') && !hasJsonError && parsedJsonValue ? (
                     <div className="space-y-3 rounded border border-slate-200 bg-white p-3">
-                      {renderJsonField(propName, parsedJsonValue, parsedJsonValue, [], propName)}
+                      {blockDef.type === 'partners-section' && propName === 'partnersJson' ? (
+                        <PartnersArrayEditor
+                          value={value}
+                          onChange={(v) => handlePropChange(propName, v)}
+                          mediaImages={mediaImages}
+                          mediaSearch={mediaSearch}
+                          setMediaSearch={setMediaSearch}
+                          filteredMediaImages={filteredMediaImages}
+                        />
+                      ) : (
+                        renderJsonField(propName, parsedJsonValue, parsedJsonValue, [], propName)
+                      )}
 
                       <details className="pt-1">
                         <summary className="cursor-pointer text-xs text-slate-500">Editar JSON bruto</summary>

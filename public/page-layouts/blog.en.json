@@ -8,12 +8,12 @@
       "id": "block-1778572602058-wt1hvfze4",
       "type": "hero-section",
       "props": {
-        "title": "We turn surplus into sustainable businesses.",
-        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
+        "title": "Transformamos excedentes em negócios sustentáveis.",
+        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calculate your impact",
+        "ctaText": "Calcule seu impacto",
         "ctaUrl": "#soluciones",
-        "secondaryText": "How it works",
+        "secondaryText": "Como funciona",
         "secondaryUrl": "#sistema"
       }
     },
@@ -22,14 +22,14 @@
       "type": "segments-section",
       "props": {
         "backgroundColor": "#071F5E",
-        "title": "Segments we serve",
-        "subtitle": "See how we support each actor in the value chain.",
-        "itemsJson": "[{\"title\":\"Producers\",\"subtitle\":\"Scale your business\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"ESG / Supply Chain Companies\",\"subtitle\":\"Efficiency and traceability\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governments\",\"subtitle\":\"Territorial development\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+        "title": "Segmentos que atendemos",
+        "subtitle": "Veja como apoiamos cada ator da cadeia.",
+        "itemsJson": "[{\"title\":\"Produtores\",\"subtitle\":\"Escalone seu negócio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadeia de suprimentos\",\"subtitle\":\"Eficiência e rastreabilidade\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governos\",\"subtitle\":\"Desenvolvimento territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
       }
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T03:40:11.119Z",
+  "updatedAt": "2026-05-14T03:51:18.261Z",
   "status": "published",
   "locale": "en",
   "publishedAt": "2026-05-14T03:39:46.270Z"

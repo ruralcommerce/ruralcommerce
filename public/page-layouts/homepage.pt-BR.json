@@ -5,92 +5,92 @@
   "slug": "homepage",
   "blocks": [
     {
-      "id": "block-1778613416245-zfq1m1onh",
+      "id": "block-1778723332533-a5rz8dcsw",
       "type": "site-header",
       "props": {
-        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluções\",\"href\":\"/solucoes\"},{\"label\":\"Aliados e Investidores\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contato\",\"href\":\"#contacto\"}]",
+        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluciones\",\"href\":\"/solucoes\"},{\"label\":\"Aliados e Inversores\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contacto\",\"href\":\"#contacto\"}]",
         "logoAlt": "Rural Commerce Logo"
       }
     },
     {
-      "id": "block-1778391185975-s1qmkn6oz",
+      "id": "block-1778723332533-xyjh8r6b7",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos perdas em negócios sustentáveis.",
-        "subtitle": "Convertemos excedentes em oportunidades reais. Integramos tecnologia, inovação e conhecimento para profissionalizar a gestão rural e potencializar o crescimento.",
+        "title": "Transformamos pérdidas en negocios sostenibles.",
+        "subtitle": "Convertimos excedentes en oportunidades reales. Integramos tecnología, innovación y conocimientos  para profesionalizar  la gestión rural y potencialr el crecimiento.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Saiba+",
+        "ctaText": "Saber+",
         "ctaUrl": "#soluciones",
-        "secondaryText": "Contato",
+        "secondaryText": "Contacto",
         "secondaryUrl": "#contacto"
       }
     },
     {
-      "id": "block-1778391185975-have0sm2t",
+      "id": "block-1778723332533-qu03frbdm",
       "type": "system-section",
       "props": {
         "backgroundColor": "#071F5E",
-        "title": "O campo enfrenta grandes desafios",
-        "subtitle": "Perdas pós-colheita, oscilações de mercado e pressão por sustentabilidade continuam limitando o crescimento rural.",
-        "pillarsJson": "[{\"title\":\"Hardware de Precisão\",\"body\":\"Equipamentos modulares para otimizar processos, reduzir custos e agregar valor à produção.\"},{\"title\":\"Software de Inteligência e Gestão\",\"body\":\"Ferramentas que centralizam a gestão do negócio e o monitoramento da produção, oferecendo indicadores e segurança para decisão.\"},{\"title\":\"Gestão de Resgate e Valorização\",\"body\":\"Processos comerciais que transformam perdas em produtos vendáveis com vida útil estendida, evitando emissões por descarte.\"},{\"title\":\"Metodologia de Aceleração\",\"body\":\"Estrutura prática para padronizar qualidade, estruturar margens e abrir canais comerciais.\"}]"
+        "title": "El campo enfrenta grandes desafíos",
+        "subtitle": "Pérdidas post-cosecha, oscilaciones del mercado y presión por sostenibilidad siguen limitando el crecimiento rural.",
+        "pillarsJson": "[{\"title\":\"Hardware de Precisión\",\"body\":\"Equipos modulares orientados a optimizar procesos, reducir costos y agregar valor a la producción.\"},{\"title\":\"Software de Inteligencia y Gestión\",\"body\":\"Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, entregando indicadores y seguridad para la toma de decisiones.\"},{\"title\":\"Gestión de Rescate y Valorización\",\"body\":\"Procesos comerciales que transforman mermas en productos vendibles con vida útil extendida, evitando emisiones por descarte.\"},{\"title\":\"Metodología de Aceleración\",\"body\":\"Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales.\"}]"
       }
     },
     {
-      "id": "block-1778391185975-r7dhh6mwn",
+      "id": "block-1778723332533-6esars78p",
       "type": "segments-section",
       "props": {
-        "backgroundColor": "#071F5E",
+        "backgroundColor": "#00071B",
         "title": "Segmentos que atendemos",
-        "subtitle": "Veja como apoiamos cada ator da cadeia.",
-        "itemsJson": "[{\"title\":\"Produtores\",\"subtitle\":\"Escalone seu negócio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadeia de suprimentos\",\"subtitle\":\"Eficiência e rastreabilidade\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governos\",\"subtitle\":\"Desenvolvimento territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+        "subtitle": "Conoce cómo acompañamos a cada actor de la cadena.",
+        "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
       }
     },
     {
-      "id": "block-1778391185975-zhs6tr6lf",
+      "id": "block-1778723332533-leuzdxg66",
       "type": "solutions-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Um caminho claro para transformar sua produção",
-        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiência\",\"body\":\"Descubra onde seu negócio está perdendo dinheiro.\",\"cta\":\"Saiba mais\",\"variant\":\"navy\"},{\"title\":\"Curso de Processamento e Gestão\",\"body\":\"Capacitação técnica para o padrão de varejo.\",\"cta\":\"Saiba mais\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementação Rápida\",\"body\":\"Tecnologia e metodologia para começar a gerar ganhos hoje.\",\"cta\":\"Saiba mais\",\"variant\":\"royal\"}]"
+        "title": "Un camino claro para transformar su producción",
+        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiencia\",\"body\":\"Descubra dónde está perdiendo dinero su negocio.\",\"cta\":\"Saber más\",\"variant\":\"navy\"},{\"title\":\"Curso de Procesamiento y Gestión\",\"body\":\"Capacitación técnica para el estándar de retail (comercio minorista).\",\"cta\":\"Saber más\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementación Rápida\",\"body\":\"Tecnología y metodología para comenzar a generar ganancias hoy mismo.\",\"cta\":\"Saber más\",\"variant\":\"royal\"}]"
       }
     },
     {
-      "id": "block-1778391185975-exhsje7jw",
+      "id": "block-1778723332533-tn9fj15zg",
       "type": "stats-section",
       "props": {
         "backgroundColor": "#EEF3F7",
-        "title": "Números que falam",
-        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
+        "title": "Números que hablan",
+        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales)."
       }
     },
     {
-      "id": "block-1778613416245-q7q8bn7wh",
+      "id": "block-1778723332533-nrqo55i0m",
       "type": "partners-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Parceiros de confiança",
+        "title": "Socios de confianza",
         "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
       }
     },
     {
-      "id": "block-1778613416245-eustyqqol",
+      "id": "block-1778723332533-e9x2w99v9",
       "type": "site-footer",
       "props": {
         "title": "Rural Commerce",
-        "copyright": "Rural Commerce 2026 - Todos os direitos reservados",
-        "contactTitle": "Contato",
+        "copyright": "Rural Commerce 2026 - Todos los derechos reservados",
+        "contactTitle": "Contacto",
         "contactAddress": "525 Randall Avenue, Ste 100, Cheyenne WY",
         "contactPhone": "+1 (307) 212-6747",
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
-        "socialLabel": "Redes sociais",
-        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"YouTube\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
-        "footerLinksJson": "[{\"group\":\"Outra seção\",\"items\":[{\"label\":\"Início\",\"href\":\"/#sobre\"},{\"label\":\"Soluções\",\"href\":\"/#souciones\"},{\"label\":\"Segmentos\",\"href\":\"/#aliados\"}]},{\"group\":\"Sobre\",\"items\":[{\"label\":\"História e propósito\",\"href\":\"\"},{\"label\":\"Como funciona\",\"href\":\"\"},{\"label\":\"Parceiros\",\"href\":\"\"}]}]"
+        "socialLabel": "Redes sociales",
+        "socialLinksJson": "[\n  {\n    \"label\": \"YouTube\",\n    \"href\": \"https://www.youtube.com/@ruralcommerce\"\n  },\n  {\n    \"label\": \"Instagram\",\n    \"href\": \"https://www.instagram.com/ruralcommerce/\"\n  }\n]",
+        "footerLinksJson": "[\n  {\n    \"group\": \"Página Web\",\n    \"items\": [\n      {\n        \"label\": \"Sobre\",\n        \"href\": \"/#sobre\"\n      },\n      {\n        \"label\": \"Soluciones\",\n        \"href\": \"/#soluciones\"\n      },\n      {\n        \"label\": \"Aliados\",\n        \"href\": \"/#aliados\"\n      }\n    ]\n  },\n  {\n    \"group\": \"Termos\",\n    \"items\": [\n      {\n        \"label\": \"Termos de Uso\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de rivacidad\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Cookies\",\n        \"href\": \"\"\n      }\n    ]\n  }\n]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T03:39:48.491Z",
+  "updatedAt": "2026-05-14T03:51:18.264Z",
   "status": "published",
-  "publishedAt": "2026-05-14T03:39:46.270Z",
-  "locale": "pt-BR"
+  "locale": "pt-BR",
+  "publishedAt": "2026-05-14T03:39:46.270Z"
 }

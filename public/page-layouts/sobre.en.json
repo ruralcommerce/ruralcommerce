@@ -5,18 +5,18 @@
   "slug": "sobre",
   "blocks": [
     {
-      "id": "block-sobre-hero-en",
+      "id": "block-sobre-hero-ptbr",
       "type": "hero-section",
       "props": {
-        "title": "Systemic intelligence for regenerative and profitable supply chains",
-        "subtitle": "Rural Commerce combines precision technology, data intelligence, and acceleration methodologies to transform structural rural challenges into high-value assets.",
+        "title": "Inteligência sistêmica para cadeias regenerativas e rentáveis",
+        "subtitle": "A Rural Commerce integra tecnologia de precisão, inteligência de dados e metodologias de aceleração para transformar desafios estruturais do campo em ativos de alto valor.",
         "bgImage": "/images/sobre/sobre-hero.png",
-        "ctaText": "See solutions",
+        "ctaText": "Conhecer soluções",
         "ctaUrl": "/solucoes"
       }
     },
     {
-      "id": "block-sobre-freetext-en",
+      "id": "block-sobre-freetext-ptbr",
       "type": "free-text",
       "props": {
         "content": "",
@@ -26,7 +26,7 @@
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T03:40:00.598Z",
+  "updatedAt": "2026-05-14T03:51:18.269Z",
   "status": "published",
   "locale": "en",
   "publishedAt": "2026-05-14T03:39:46.270Z"

@@ -9,6 +9,7 @@
     "lint": "next lint",
     "sync:entrada": "node scripts/sync-entrada.mjs",
     "sync:saida": "node scripts/sync-saida.mjs",
+    "sync:layouts-from-es": "node scripts/sync-layouts-from-es.mjs",
     "deploy:servidor": "node scripts/deploy-servidor.mjs"
   },
   "dependencies": {
