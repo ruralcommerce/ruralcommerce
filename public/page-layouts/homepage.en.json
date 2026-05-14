@@ -22,7 +22,7 @@
         "ctaText": "Know+",
         "ctaUrl": "#soluciones",
         "secondaryText": "Contact",
-        "secondaryUrl": "#sistema"
+        "secondaryUrl": "#contact"
       }
     },
     {
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T02:48:45.331Z",
+  "updatedAt": "2026-05-14T02:50:45.411Z",
   "status": "published",
-  "publishedAt": "2026-05-14T02:48:41.724Z",
+  "publishedAt": "2026-05-14T02:50:41.777Z",
   "locale": "en"
 }
