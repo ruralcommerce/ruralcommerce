@@ -44,6 +44,13 @@ function getGitPushConfig(): GitPushConfig | null {
   };
 }
 
+/** Identidade usada só em `git commit` (evita "Author identity unknown" no servidor). */
+function gitIdentityArgs(): string[] {
+  const name = (process.env.GIT_COMMIT_NAME || 'Rural Commerce Editor').trim() || 'Rural Commerce Editor';
+  const email = (process.env.GIT_COMMIT_EMAIL || 'editor@ruralcommerceglobal.com').trim() || 'editor@ruralcommerceglobal.com';
+  return ['-c', `user.name=${name}`, '-c', `user.email=${email}`];
+}
+
 export async function commitAndPushGitFiles(filePaths: string[], message: string): Promise<void> {
   const config = getGitPushConfig();
   if (!config) {
@@ -61,7 +68,7 @@ export async function commitAndPushGitFiles(filePaths: string[], message: string
   });
 
   try {
-    await execFileAsync('git', ['commit', '-m', message], {
+    await execFileAsync('git', [...gitIdentityArgs(), 'commit', '-m', message], {
       cwd: process.cwd(),
       env,
     });
