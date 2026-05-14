@@ -6,7 +6,7 @@ if errorlevel 1 (
   echo [ERRO] O script terminou com falha. Veja as mensagens acima.
 ) else (
   echo.
-  echo Tudo certo — você pode fechar esta janela.
+  echo Tudo certo. Pode fechar esta janela.
 )
 echo.
 pause
