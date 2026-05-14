@@ -8,7 +8,7 @@
       "id": "block-1778613416245-zfq1m1onh",
       "type": "site-header",
       "props": {
-        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluções\",\"href\":\"/solucoes\"},{\"label\":\"Aliados e Investidores\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contato\",\"href\":\"#contacto\"}]",
+        "navItemsJson": "[\n  {\n    \"label\": \"Sobre\",\n    \"href\": \"/sobre\"\n  },\n  {\n    \"label\": \"Soluções\",\n    \"href\": \"/solucoes\"\n  },\n  {\n    \"label\": \"Parceiros\",\n    \"href\": \"/aliados\"\n  },\n  {\n    \"label\": \"Blog\",\n    \"href\": \"/blog\"\n  },\n  {\n    \"label\": \"Contato\",\n    \"href\": \"#contacto\"\n  }\n]",
         "logoAlt": "Rural Commerce Logo"
       }
     },
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T19:32:17.370Z",
+  "updatedAt": "2026-05-14T19:44:33.880Z",
   "status": "published",
-  "publishedAt": "2026-05-14T19:32:15.367Z",
+  "publishedAt": "2026-05-14T19:44:31.981Z",
   "locale": "pt-BR"
 }
