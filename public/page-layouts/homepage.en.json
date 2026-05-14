@@ -16,8 +16,8 @@
       "id": "block-1778391185975-s1qmkn6oz",
       "type": "hero-section",
       "props": {
-        "title": "We turn surplus into sustainable businesses.",
-        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
+        "title": "We transform losses into sustainable businesses.",
+        "subtitle": "We convert surpluses into real opportunities. We integrate technology, innovation and knowledge to professionalize rural management and enhance growth.",
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Know+",
         "ctaUrl": "#soluciones",
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T02:18:51.310Z",
+  "updatedAt": "2026-05-14T02:48:45.331Z",
   "status": "published",
-  "publishedAt": "2026-05-14T02:18:51.160Z",
+  "publishedAt": "2026-05-14T02:48:41.724Z",
   "locale": "en"
 }
