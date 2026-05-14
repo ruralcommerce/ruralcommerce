@@ -22,7 +22,7 @@
         "ctaText": "Know+",
         "ctaUrl": "#soluciones",
         "secondaryText": "Contact",
-        "secondaryUrl": "#contact"
+        "secondaryUrl": "#contacto"
       }
     },
     {
@@ -79,18 +79,18 @@
         "title": "Rural Commerce",
         "copyright": "Rural Commerce 2026 - All rights reserved",
         "contactTitle": "Contact",
-        "contactAddress": "Uruguay - business address (to be completed)",
-        "contactPhone": "+598 · · · · ·",
-        "contactEmail": "contacto@ruralcommerce.com",
+        "contactAddress": "525 Randall Avenue, Ste 100, Cheyenne WY",
+        "contactPhone": "+1 (307) 212-6747",
+        "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Social media",
-        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://youtube.com\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
-        "footerLinksJson": "[{\"group\":\"Other section\",\"items\":[{\"label\":\"Home\",\"href\":\"/#hero\"},{\"label\":\"Solutions\",\"href\":\"/#soluciones\"},{\"label\":\"Segments\",\"href\":\"/#segmentos\"}]},{\"group\":\"About\",\"items\":[{\"label\":\"History and purpose\",\"href\":\"/sobre\"},{\"label\":\"How it works\",\"href\":\"/#sistema\"},{\"label\":\"Partners\",\"href\":\"/#socios\"}]}]"
+        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"YouTube\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
+        "footerLinksJson": "[{\"group\":\"Other section\",\"items\":[{\"label\":\"Home\",\"href\":\"/#sobre\"},{\"label\":\"Solutions\",\"href\":\"/#souciones\"},{\"label\":\"Segments\",\"href\":\"/#aliados\"}]},{\"group\":\"About\",\"items\":[{\"label\":\"History and purpose\",\"href\":\"\"},{\"label\":\"How it works\",\"href\":\"\"},{\"label\":\"Partners\",\"href\":\"\"}]}]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T02:52:47.583Z",
+  "updatedAt": "2026-05-14T03:39:50.330Z",
   "status": "published",
-  "publishedAt": "2026-05-14T02:52:44.131Z",
+  "publishedAt": "2026-05-14T03:39:46.270Z",
   "locale": "en"
 }
