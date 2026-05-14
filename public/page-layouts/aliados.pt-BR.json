@@ -8,11 +8,11 @@
       "id": "block-1778615316359-6rar9osxk",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos excedentes em negócios sustentáveis.",
-        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
+        "title": "Arquitetura empresarial: Co-criação de um ecossistema rural sustentável e rentável.",
+        "subtitle": "Combinamos capital, tecnologia própria e visão estratégica para transformar unidades produtivas em ativos de alto desempenho. Somos o parceiro operacional que garante eficiência e rastreabilidade em cada etapa do ecossistema.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calcule seu impacto",
-        "ctaUrl": "#soluciones",
+        "ctaText": "Contato",
+        "ctaUrl": "#contacto",
         "secondaryText": "Como funciona",
         "secondaryUrl": "#sistema"
       }
@@ -47,8 +47,8 @@
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T05:15:26.385Z",
+  "updatedAt": "2026-05-14T19:32:32.003Z",
   "status": "published",
   "locale": "pt-BR",
-  "publishedAt": "2026-05-14T05:15:09.215Z"
+  "publishedAt": "2026-05-14T19:32:15.367Z"
 }
