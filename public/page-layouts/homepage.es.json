@@ -19,10 +19,10 @@
         "title": "Transformamos excedentes en negocios sostenibles.",
         "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calcule su impacto y lucro",
+        "ctaText": "Saber+",
         "ctaUrl": "#soluciones",
-        "secondaryText": "Cómo funciona",
-        "secondaryUrl": "#sistema"
+        "secondaryText": "Contacto",
+        "secondaryUrl": "#contacto"
       }
     },
     {
@@ -89,7 +89,8 @@
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-14T01:50:14.688Z",
-  "status": "draft",
-  "locale": "es"
+  "updatedAt": "2026-05-14T02:13:34.566Z",
+  "status": "published",
+  "locale": "es",
+  "publishedAt": "2026-05-14T02:13:34.389Z"
 }
