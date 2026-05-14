@@ -68,8 +68,8 @@
       "type": "partners-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Socios de confianza",
-        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+        "title": "Clientes y Aliados",
+        "partnersJson": "[\n  {\n    \"name\": \"NBC\",\n    \"src\": \"/images/home/aliados/NBC Color.png\",\n    \"href\": \"https://nbcpucv.cl/\"\n  },\n  {\n    \"name\": \"Incubacoop\",\n    \"src\": \"/images/home/aliados/Incubacoop.jpg\",\n    \"href\": \"https://incubacoop.org.uy/\"\n  }\n]"
       }
     },
     {
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-14T19:44:32.413Z",
+  "updatedAt": "2026-05-14T21:24:26.517Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-14T19:44:31.981Z"
+  "publishedAt": "2026-05-14T21:24:26.370Z"
 }
