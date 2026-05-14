@@ -39,7 +39,7 @@
       "id": "block-1778723332533-6esars78p",
       "type": "segments-section",
       "props": {
-        "backgroundColor": "#071F5E",
+        "backgroundColor": "#00071B",
         "title": "Segmentos que atendemos",
         "subtitle": "Conoce cómo acompañamos a cada actor de la cadena.",
         "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
@@ -79,18 +79,18 @@
         "title": "Rural Commerce",
         "copyright": "Rural Commerce 2026 - Todos los derechos reservados",
         "contactTitle": "Contacto",
-        "contactAddress": "Uruguay - dirección comercial (completar)",
-        "contactPhone": "+598 · · · · ·",
-        "contactEmail": "contacto@ruralcommerce.com",
+        "contactAddress": "525 Randall Avenue, Ste 100, Cheyenne WY",
+        "contactPhone": "+1 (307) 212-6747",
+        "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Redes sociales",
-        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://youtube.com\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
-        "footerLinksJson": "[{\"group\":\"Otra sección\",\"items\":[{\"label\":\"Inicio\",\"href\":\"/#hero\"},{\"label\":\"Soluciones\",\"href\":\"/#soluciones\"},{\"label\":\"Segmentos\",\"href\":\"/#segmentos\"}]},{\"group\":\"Sobre\",\"items\":[{\"label\":\"Historia y propósito\",\"href\":\"/sobre\"},{\"label\":\"Cómo funciona\",\"href\":\"/#sistema\"},{\"label\":\"Socios\",\"href\":\"/#socios\"}]}]"
+        "socialLinksJson": "[\n  {\n    \"label\": \"YouTube\",\n    \"href\": \"https://www.youtube.com/@ruralcommerce\"\n  },\n  {\n    \"label\": \"Instagram\",\n    \"href\": \"https://www.instagram.com/ruralcommerce/\"\n  }\n]",
+        "footerLinksJson": "[\n  {\n    \"group\": \"Página Web\",\n    \"items\": [\n      {\n        \"label\": \"Sobre\",\n        \"href\": \"/#sobre\"\n      },\n      {\n        \"label\": \"Soluciones\",\n        \"href\": \"/#souciones\"\n      },\n      {\n        \"label\": \"Aliados\",\n        \"href\": \"/#aliados\"\n      }\n    ]\n  },\n  {\n    \"group\": \"Termos\",\n    \"items\": [\n      {\n        \"label\": \"Termos de Uso\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de rivacidad\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Cookies\",\n        \"href\": \"\"\n      }\n    ]\n  }\n]"
       }
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-14T02:52:44.551Z",
+  "updatedAt": "2026-05-14T03:39:46.442Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-14T02:52:44.131Z"
+  "publishedAt": "2026-05-14T03:39:46.270Z"
 }
