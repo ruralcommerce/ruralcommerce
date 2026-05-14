@@ -44,10 +44,27 @@
         "title": "Números que falam",
         "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
       }
+    },
+    {
+      "id": "block-1778736192768-a8mfsmlkf",
+      "type": "free-text",
+      "props": {
+        "content": "Su texto aquí",
+        "fontSize": "16px",
+        "textAlign": "left"
+      }
+    },
+    {
+      "id": "block-1778736192768-b64oh82rk",
+      "type": "image",
+      "props": {
+        "src": "",
+        "alt": "Imagen"
+      }
     }
   ],
   "createdAt": "2026-05-14T02:48:58.461Z",
-  "updatedAt": "2026-05-14T05:15:24.724Z",
+  "updatedAt": "2026-05-14T05:23:12.918Z",
   "status": "published",
   "locale": "es",
   "publishedAt": "2026-05-14T05:15:09.215Z"
