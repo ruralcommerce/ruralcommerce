@@ -16,8 +16,8 @@
       "id": "block-1778391185975-s1qmkn6oz",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos excedentes em negócios sustentáveis.",
-        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
+        "title": "Transformamos perdas em negócios sustentáveis.",
+        "subtitle": "Convertemos excedentes em oportunidades reais. Integramos tecnologia, inovação e conhecimento para profissionalizar a gestão rural e potencializar o crescimento.",
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Saiba+",
         "ctaUrl": "#soluciones",
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T02:18:45.158Z",
+  "updatedAt": "2026-05-14T02:48:43.661Z",
   "status": "published",
-  "publishedAt": "2026-05-14T02:18:44.977Z",
+  "publishedAt": "2026-05-14T02:48:41.724Z",
   "locale": "pt-BR"
 }
