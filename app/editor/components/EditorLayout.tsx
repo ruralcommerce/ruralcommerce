@@ -13,10 +13,12 @@ import { LocaleSelector } from './LocaleSelector';
 import { TranslationPreviewModal } from './TranslationPreviewModal';
 import { PublishScopeModal, type PublishScopeSelection } from './PublishScopeModal';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, GripVertical, Languages } from 'lucide-react';
+import { ChevronLeft, ChevronRight, GripVertical, Languages, Link2 } from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
 import { detectTextChanges, fetchTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
+import { applyLinkSyncFromSource } from '@/lib/link-sync-utils';
+import { locales as editorLocales } from '@/i18n/request';
 import { toast } from 'sonner';
 
 function hasInvalidJsonProps(page: PageSchema | null): boolean {
@@ -69,6 +71,7 @@ export function EditorLayout({
   const [translationModalOpen, setTranslationModalOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isPublishingBulk, setIsPublishingBulk] = useState(false);
+  const [isSyncingLinks, setIsSyncingLinks] = useState(false);
   const [translationPreviews, setTranslationPreviews] = useState<TranslationPreview[]>([]);
   const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -166,6 +169,137 @@ export function EditorLayout({
       });
     }
     return pagePayload as PageSchema;
+  };
+
+  const syncLinksToOtherLocales = async () => {
+    if (!currentPage) return;
+    if (invalidJson) {
+      toast.error('JSON inválido', { description: 'Corrija antes de sincronizar links.' });
+      return;
+    }
+
+    const slug = currentPage.slug || currentPageSlug;
+    const targets = editorLocales.filter((l) => l !== currentLocale);
+    if (targets.length === 0) {
+      toast.message('Nada a sincronizar', { description: 'Só há um idioma na configuração.' });
+      return;
+    }
+
+    setIsSyncingLinks(true);
+    const savedOk: string[] = [];
+    const errors: string[] = [];
+    const allWarnings: string[] = [];
+
+    try {
+      for (const loc of targets) {
+        try {
+          const res = await fetch(
+            `/api/editor/layouts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(loc)}`
+          );
+          let target: PageSchema;
+          if (res.ok) {
+            const raw = (await res.json()) as PageSchema & { _sync?: unknown };
+            const { _sync: _r, ...rest } = raw;
+            void _r;
+            target = rest as PageSchema;
+          } else if (res.status === 404) {
+            const postRes = await fetch(
+              `/api/editor/layouts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(loc)}`,
+              { method: 'POST' }
+            );
+            const postText = await postRes.text();
+            if (!postRes.ok) {
+              let detail = postText.slice(0, 180);
+              try {
+                const j = JSON.parse(postText) as { error?: string };
+                if (typeof j.error === 'string') detail = j.error;
+              } catch {
+                /* manter detail */
+              }
+              errors.push(`${loc}: ${detail}`);
+              continue;
+            }
+            let created: PageSchema & { _sync?: { git: string; message?: string } };
+            try {
+              created = JSON.parse(postText) as PageSchema & { _sync?: { git: string; message?: string } };
+            } catch {
+              errors.push(`${loc}: resposta inválida ao criar layout`);
+              continue;
+            }
+            if (created._sync?.git === 'failed' && created._sync.message) {
+              errors.push(`${loc} — Git (criação): ${created._sync.message}`);
+            }
+            const { _sync: _ig, ...crest } = created;
+            void _ig;
+            target = crest as PageSchema;
+          } else {
+            errors.push(`${loc}: leitura falhou (HTTP ${res.status})`);
+            continue;
+          }
+
+          const statusBefore = target.status;
+          const publishedAtBefore = target.publishedAt;
+          const createdAtBefore = target.createdAt;
+
+          const { page: merged, warnings } = applyLinkSyncFromSource(currentPage, target);
+          allWarnings.push(...warnings.map((w) => `${loc}: ${w}`));
+
+          const putBody = {
+            ...merged,
+            locale: loc,
+            status: statusBefore,
+            publishedAt: publishedAtBefore,
+            createdAt: createdAtBefore,
+          };
+
+          const put = await fetch(
+            `/api/editor/layouts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(loc)}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(putBody),
+            }
+          );
+          if (!put.ok) {
+            errors.push(`${loc}: ${(await put.text()).slice(0, 160)}`);
+            continue;
+          }
+          const updated = (await put.json()) as PageSchema & {
+            _sync?: { git: string; message?: string };
+          };
+          if (updated._sync?.git === 'failed' && updated._sync.message) {
+            errors.push(`${loc} — Git: ${updated._sync.message}`);
+          }
+          savedOk.push(loc);
+        } catch (e) {
+          errors.push(`${loc}: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+
+      if (savedOk.length > 0) {
+        toast.success(`Links sincronizados: ${savedOk.join(', ')}.`, {
+          description:
+            'Copiados só URLs e hrefs (menu, rodapé, botões, imagens, parceiros). Textos de cada idioma foram mantidos.',
+          duration: 9000,
+        });
+      }
+      if (allWarnings.length > 0) {
+        toast.warning('Avisos na sincronização', {
+          description: allWarnings.slice(0, 8).join('\n') + (allWarnings.length > 8 ? '\n…' : ''),
+          duration: 14000,
+        });
+      }
+      if (errors.length > 0) {
+        toast.error('Alguns idiomas falharam', {
+          description: errors.slice(0, 8).join('\n'),
+          duration: 16000,
+        });
+      } else if (savedOk.length === 0 && allWarnings.length === 0) {
+        toast.message('Nada foi salvo.');
+      }
+    } finally {
+      setIsSyncingLinks(false);
+    }
   };
 
   const runBulkPublish = async (scope: PublishScopeSelection) => {
@@ -424,7 +558,7 @@ export function EditorLayout({
   };
 
   useEffect(() => {
-    if (!currentPage || !isDirty || invalidJson || isSaving) {
+    if (!currentPage || !isDirty || invalidJson || isSaving || isSyncingLinks) {
       return;
     }
 
@@ -441,7 +575,7 @@ export function EditorLayout({
     }, 700);
 
     return () => clearTimeout(timer);
-  }, [currentPage, isDirty, invalidJson, isSaving]);
+  }, [currentPage, isDirty, invalidJson, isSaving, isSyncingLinks]);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -757,14 +891,14 @@ export function EditorLayout({
               <PageSelector
                 currentPageSlug={currentPageSlug}
                 onPageChange={onPageChange}
-                disabled={isSaving || isPublishingBulk}
+                disabled={isSaving || isPublishingBulk || isSyncingLinks}
               />
             )}
             {onLocaleChange && (
               <LocaleSelector
                 currentLocale={currentLocale}
                 onLocaleChange={onLocaleChange}
-                disabled={isSaving || isPublishingBulk}
+                disabled={isSaving || isPublishingBulk || isSyncingLinks}
               />
             )}
           </div>
@@ -778,14 +912,14 @@ export function EditorLayout({
               Visualizar
             </button>
             <button
-              disabled={!currentPage || isSaving || invalidJson || isPublishingBulk}
+              disabled={!currentPage || isSaving || invalidJson || isPublishingBulk || isSyncingLinks}
               onClick={() => saveLayout('draft')}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition disabled:opacity-60"
             >
               {isSaving ? 'Salvando...' : 'Salvar'}
             </button>
             <button
-              disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations || isPublishingBulk}
+              disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations || isPublishingBulk || isSyncingLinks}
               onClick={generateTranslationPreviews}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition disabled:opacity-60 flex items-center gap-2"
               title="Traduzir mudanças para outros idiomas"
@@ -794,14 +928,30 @@ export function EditorLayout({
               {isGeneratingTranslations ? 'Traduzindo...' : 'Traduzir'}
             </button>
             <button
-              disabled={!currentPage || isSaving || invalidJson || isPublishingBulk}
+              disabled={
+                !currentPage ||
+                isSaving ||
+                invalidJson ||
+                isGeneratingTranslations ||
+                isPublishingBulk ||
+                isSyncingLinks
+              }
+              onClick={syncLinksToOtherLocales}
+              className="px-4 py-2 text-sm font-medium text-cyan-900 bg-cyan-100 border border-cyan-300 rounded hover:bg-cyan-200 transition disabled:opacity-60 flex items-center gap-2"
+              title="Copia só URLs e hrefs da página aberta para os outros idiomas desta mesma página (mantém textos e labels)."
+            >
+              <Link2 className="h-4 w-4" />
+              {isSyncingLinks ? 'Sincronizando...' : 'Sincronizar links'}
+            </button>
+            <button
+              disabled={!currentPage || isSaving || invalidJson || isPublishingBulk || isSyncingLinks}
               onClick={() => setPublishModalOpen(true)}
               className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 transition disabled:opacity-60"
             >
               Publicar
             </button>
             <button
-              disabled={!currentPage || isSaving || isPublishingBulk}
+              disabled={!currentPage || isSaving || isPublishingBulk || isSyncingLinks}
               onClick={restoreDefaultLayout}
               className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-50 transition disabled:opacity-60"
             >
@@ -820,6 +970,9 @@ export function EditorLayout({
                 Texto em ES alterado ({esTranslationChangeCount} campo{esTranslationChangeCount !== 1 ? 's' : ''}) — use Traduzir para PT/EN
               </span>
             ) : null}
+            <span className="rounded-full bg-cyan-100 px-2 py-0.5 font-medium text-cyan-900">
+              URLs e botões: use <strong>Sincronizar links</strong> para copiar só hrefs para os outros idiomas desta página.
+            </span>
           </span>
           <span className="text-[11px] text-slate-600">
             {isAutoSaving ? 'Autosave...' : autoSaveError ? autoSaveError : 'Sincronizado'}
@@ -860,7 +1013,7 @@ export function EditorLayout({
       <PublishScopeModal
         isOpen={publishModalOpen}
         onClose={() => {
-          if (!isPublishingBulk) setPublishModalOpen(false);
+          if (!isPublishingBulk && !isSyncingLinks) setPublishModalOpen(false);
         }}
         currentPageSlug={currentPageSlug}
         currentLocale={currentLocale}
