@@ -17,7 +17,7 @@ import { ChevronLeft, ChevronRight, GripVertical, Languages, LayoutTemplate } fr
 import { PageSchema } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
 import { detectTextChanges, fetchTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
-import { applyFullLayoutBlocksFromSource } from '@/lib/layout-sync-utils';
+import { applyStructureSyncFromSource } from '@/lib/structure-sync-utils';
 import { locales as editorLocales } from '@/i18n/request';
 import { toast } from 'sonner';
 
@@ -171,7 +171,7 @@ export function EditorLayout({
     return pagePayload as PageSchema;
   };
 
-  const syncFullLayoutToOtherLocales = async () => {
+  const syncStructureToOtherLocales = async () => {
     if (!currentPage) return;
     if (invalidJson) {
       toast.error('JSON inválido', { description: 'Corrija antes de sincronizar o layout.' });
@@ -186,8 +186,9 @@ export function EditorLayout({
     }
 
     const ok = window.confirm(
-      `Substituir TODOS os blocos desta página em ${targets.join(' e ')} pelo conteúdo da página aberta (${currentLocale})?\n\n` +
-        'Isso inclui textos, cores, menu, rodapé e carrosséis — o mesmo que está no editor agora. Os títulos "name/title" do arquivo de cada idioma são mantidos.'
+      `Atualizar estrutura desta página em ${targets.join(' e ')} a partir do idioma aberto (${currentLocale})?\n\n` +
+        'Serão copiados: cores, imagens, URLs de botões, hrefs do menu/rodapé (sem trocar os textos já traduzidos nos outros idiomas). ' +
+        'Links internos com /es/... no JSON serão normalizados para rota sem prefixo de idioma.'
     );
     if (!ok) return;
 
@@ -249,7 +250,7 @@ export function EditorLayout({
           const nameBefore = target.name;
           const titleBefore = target.title;
 
-          const { page: merged, warnings } = applyFullLayoutBlocksFromSource(currentPage, target);
+          const { page: merged, warnings } = applyStructureSyncFromSource(currentPage, target);
           allWarnings.push(...warnings.map((w) => `${loc}: ${w}`));
 
           const putBody = {
@@ -287,9 +288,9 @@ export function EditorLayout({
       }
 
       if (savedOk.length > 0) {
-        toast.success(`Layout sincronizado: ${savedOk.join(', ')}.`, {
+        toast.success(`Estrutura sincronizada: ${savedOk.join(', ')}.`, {
           description:
-            'Todos os blocos da página aberta foram gravados nos outros idiomas (mesmo slug). Name/title do arquivo de cada idioma foram preservados.',
+            'Cores, imagens e rotas internas alinhadas; textos e labels dos outros idiomas foram preservados nos JSON.',
           duration: 10000,
         });
       }
@@ -946,12 +947,12 @@ export function EditorLayout({
                 isPublishingBulk ||
                 isSyncingLayout
               }
-              onClick={syncFullLayoutToOtherLocales}
+              onClick={syncStructureToOtherLocales}
               className="px-4 py-2 text-sm font-medium text-cyan-900 bg-cyan-100 border border-cyan-300 rounded hover:bg-cyan-200 transition disabled:opacity-60 flex items-center gap-2"
-              title="Copia todos os blocos desta página (textos, cores, links, menu, rodapé) para os outros idiomas do mesmo slug. Pede confirmação antes."
+              title="Copia cores, imagens e hrefs internos da página aberta para os outros idiomas do mesmo slug, mantendo textos traduzidos. Pede confirmação."
             >
               <LayoutTemplate className="h-4 w-4" />
-              {isSyncingLayout ? 'Sincronizando...' : 'Sincronizar layout'}
+              {isSyncingLayout ? 'Sincronizando...' : 'Sincronizar estrutura'}
             </button>
             <button
               disabled={!currentPage || isSaving || invalidJson || isPublishingBulk || isSyncingLayout}
@@ -981,7 +982,7 @@ export function EditorLayout({
               </span>
             ) : null}
             <span className="rounded-full bg-cyan-100 px-2 py-0.5 font-medium text-cyan-900">
-              Mesmo slug em vários idiomas? Use <strong>Sincronizar layout</strong> para copiar todos os blocos do idioma aberto para os outros (confirma antes).
+              Estrutura em vários idiomas? Use <strong>Sincronizar estrutura</strong> (mantém textos PT/EN; alinha cores, imagens e hrefs).
             </span>
           </span>
           <span className="text-[11px] text-slate-600">

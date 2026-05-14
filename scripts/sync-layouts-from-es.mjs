@@ -2,6 +2,10 @@
  * Copia `blocks` de cada `*.es.json` para `*.pt-BR.json` e `*.en.json` no mesmo diretório.
  * Preserva em cada destino: name, title, status, publishedAt, createdAt, locale, id, slug.
  *
+ * ATENÇÃO: o conteúdo textual dentro dos blocos (hero, rodapé, etc.) fica IGUAL ao espanhol
+ * nos ficheiros PT e EN. Só use se quiser mesmo essa cópia total; senão use o editor
+ * "Sincronizar layout" com cuidado ou tradução assistida.
+ *
  * Uso: node scripts/sync-layouts-from-es.mjs
  */
 

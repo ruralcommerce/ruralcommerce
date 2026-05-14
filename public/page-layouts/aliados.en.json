@@ -8,12 +8,12 @@
       "id": "block-1778615316359-6rar9osxk",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos excedentes em negócios sustentáveis.",
-        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
+        "title": "We turn surplus into sustainable businesses.",
+        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calcule seu impacto",
+        "ctaText": "Calculate your impact",
         "ctaUrl": "#soluciones",
-        "secondaryText": "Como funciona",
+        "secondaryText": "How it works",
         "secondaryUrl": "#sistema"
       }
     },
@@ -22,9 +22,9 @@
       "type": "system-section",
       "props": {
         "backgroundColor": "#071F5E",
-        "title": "O campo enfrenta grandes desafios",
-        "subtitle": "Perdas pós-colheita, oscilações de mercado e pressão por sustentabilidade continuam limitando o crescimento rural.",
-        "pillarsJson": "[{\"title\":\"Hardware de Precisão\",\"body\":\"Equipamentos modulares para otimizar processos, reduzir custos e agregar valor à produção.\"},{\"title\":\"Software de Inteligência e Gestão\",\"body\":\"Ferramentas que centralizam a gestão do negócio e o monitoramento da produção, oferecendo indicadores e segurança para decisão.\"},{\"title\":\"Gestão de Resgate e Valorização\",\"body\":\"Processos comerciais que transformam perdas em produtos vendáveis com vida útil estendida, evitando emissões por descarte.\"},{\"title\":\"Metodologia de Aceleração\",\"body\":\"Estrutura prática para padronizar qualidade, estruturar margens e abrir canais comerciais.\"}]"
+        "title": "The field faces major challenges",
+        "subtitle": "Post-harvest losses, market volatility, and sustainability pressure still limit rural growth.",
+        "pillarsJson": "[{\"title\":\"Precision Hardware\",\"body\":\"Modular equipment designed to optimize processes, reduce costs, and add value to production.\"},{\"title\":\"Intelligence & Management Software\",\"body\":\"Tools that centralize business management and production monitoring, delivering indicators and confidence for decision-making.\"},{\"title\":\"Recovery & Value Management\",\"body\":\"Commercial processes that turn losses into sellable products with extended shelf life, avoiding disposal emissions.\"},{\"title\":\"Acceleration Methodology\",\"body\":\"A practical framework to standardize quality, structure margins, and open commercial channels.\"}]"
       }
     },
     {
@@ -32,8 +32,8 @@
       "type": "solutions-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Um caminho claro para transformar sua produção",
-        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiência\",\"body\":\"Descubra onde seu negócio está perdendo dinheiro.\",\"cta\":\"Saiba mais\",\"variant\":\"navy\"},{\"title\":\"Curso de Processamento e Gestão\",\"body\":\"Capacitação técnica para o padrão de varejo.\",\"cta\":\"Saiba mais\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementação Rápida\",\"body\":\"Tecnologia e metodologia para começar a gerar ganhos hoje.\",\"cta\":\"Saiba mais\",\"variant\":\"royal\"}]"
+        "title": "A clear path to transform your production",
+        "itemsJson": "[{\"title\":\"Efficiency Diagnosis\",\"body\":\"Find out where your business is losing money.\",\"cta\":\"Learn more\",\"variant\":\"navy\"},{\"title\":\"Processing and Management Course\",\"body\":\"Technical training for retail-standard operations.\",\"cta\":\"Learn more\",\"variant\":\"sage\"},{\"title\":\"Rapid Implementation Kit\",\"body\":\"Technology and methodology to start generating gains today.\",\"cta\":\"Learn more\",\"variant\":\"royal\"}]"
       }
     },
     {
@@ -41,13 +41,13 @@
       "type": "stats-section",
       "props": {
         "backgroundColor": "#EEF3F7",
-        "title": "Números que falam",
-        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
+        "title": "Numbers that speak",
+        "subtitle": "Impact and efficiency indicators across supported networks (reference values)."
       }
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T03:51:18.257Z",
+  "updatedAt": "2026-05-14T03:40:05.714Z",
   "status": "published",
   "locale": "en",
   "publishedAt": "2026-05-14T03:39:46.270Z"
