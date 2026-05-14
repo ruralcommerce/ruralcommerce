@@ -68,8 +68,8 @@
       "type": "partners-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Trusted partners",
-        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+        "title": "Clients and Partners",
+        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Commerce\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
       }
     },
     {
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T19:44:35.490Z",
+  "updatedAt": "2026-05-14T21:24:29.728Z",
   "status": "published",
-  "publishedAt": "2026-05-14T19:44:31.981Z",
+  "publishedAt": "2026-05-14T21:24:26.370Z",
   "locale": "en"
 }
