@@ -8,11 +8,11 @@
       "id": "block-1778615316359-6rar9osxk",
       "type": "hero-section",
       "props": {
-        "title": "We turn surplus into sustainable businesses.",
-        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
+        "title": "Business architecture: Co-creating a sustainable and profitable rural ecosystem.",
+        "subtitle": "We combine capital, proprietary technology and strategic vision to transform productive units into high-performance assets. We are the operating partner that guarantees efficiency and traceability at each stage of the ecosystem.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calculate your impact",
-        "ctaUrl": "#soluciones",
+        "ctaText": "Contact",
+        "ctaUrl": "#contacto",
         "secondaryText": "How it works",
         "secondaryUrl": "#sistema"
       }
@@ -47,8 +47,8 @@
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T05:15:28.103Z",
+  "updatedAt": "2026-05-14T19:32:33.660Z",
   "status": "published",
   "locale": "en",
-  "publishedAt": "2026-05-14T05:15:09.215Z"
+  "publishedAt": "2026-05-14T19:32:15.367Z"
 }
