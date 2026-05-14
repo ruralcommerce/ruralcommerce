@@ -83,14 +83,14 @@
         "contactPhone": "+1 (307) 212-6747",
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Redes sociais",
-        "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"YouTube\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
-        "footerLinksJson": "[{\"group\":\"Outra seção\",\"items\":[{\"label\":\"Início\",\"href\":\"/#sobre\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Segmentos\",\"href\":\"/#aliados\"}]},{\"group\":\"Sobre\",\"items\":[{\"label\":\"História e propósito\",\"href\":\"\"},{\"label\":\"Como funciona\",\"href\":\"\"},{\"label\":\"Parceiros\",\"href\":\"\"}]}]"
+        "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"}]",
+        "footerLinksJson": "[{\"group\":\"Outra seção\",\"items\":[{\"label\":\"Sobre\",\"href\":\"/#sobre\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Aliados\",\"href\":\"/#aliados\"}]},{\"group\":\"Termos\",\"items\":[{\"label\":\"Términos de Uso\",\"href\":\"\"},{\"label\":\"Política de Privacidad\",\"href\":\"\"},{\"label\":\"Política de Cookies\",\"href\":\"\"}]}]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T05:01:30.339Z",
+  "updatedAt": "2026-05-14T05:15:11.033Z",
   "status": "published",
-  "publishedAt": "2026-05-14T03:39:46.270Z",
+  "publishedAt": "2026-05-14T05:15:09.215Z",
   "locale": "pt-BR"
 }
