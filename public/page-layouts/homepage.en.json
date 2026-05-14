@@ -19,9 +19,9 @@
         "title": "We turn surplus into sustainable businesses.",
         "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
         "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calculate your impact",
+        "ctaText": "Know+",
         "ctaUrl": "#soluciones",
-        "secondaryText": "How it works",
+        "secondaryText": "Contact",
         "secondaryUrl": "#sistema"
       }
     },
@@ -89,7 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-12T20:25:00.000Z",
+  "updatedAt": "2026-05-14T02:18:51.310Z",
   "status": "published",
-  "publishedAt": "2026-05-10T06:21:30.348Z"
+  "publishedAt": "2026-05-14T02:18:51.160Z",
+  "locale": "en"
 }
