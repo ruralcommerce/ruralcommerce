@@ -8,7 +8,7 @@
       "id": "block-1778613416245-zfq1m1onh",
       "type": "site-header",
       "props": {
-        "navItemsJson": "[\n  {\n    \"label\": \"Sobre\",\n    \"href\": \"/sobre\"\n  },\n  {\n    \"label\": \"Soluções\",\n    \"href\": \"/solucoes\"\n  },\n  {\n    \"label\": \"Parceiros\",\n    \"href\": \"/aliados\"\n  },\n  {\n    \"label\": \"Blog\",\n    \"href\": \"/blog\"\n  },\n  {\n    \"label\": \"Contato\",\n    \"href\": \"#contacto\"\n  }\n]",
+        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluções\",\"href\":\"/solucoes\"},{\"label\":\"Parceiros\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contato\",\"href\":\"#contacto\"}]",
         "logoAlt": "Rural Commerce Logo"
       }
     },
@@ -68,8 +68,8 @@
       "type": "partners-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Parceiros de confiança",
-        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"https://cdn.simpleicons.org/slack\",\"href\":\"https://slack.com\"},{\"name\":\"Commerce\",\"src\":\"https://cdn.simpleicons.org/shopify\",\"href\":\"https://www.shopify.com\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+        "title": "Clientes e Parceiros",
+        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Commerce\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
       }
     },
     {
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T19:44:33.880Z",
+  "updatedAt": "2026-05-14T21:24:28.146Z",
   "status": "published",
-  "publishedAt": "2026-05-14T19:44:31.981Z",
+  "publishedAt": "2026-05-14T21:24:26.370Z",
   "locale": "pt-BR"
 }
