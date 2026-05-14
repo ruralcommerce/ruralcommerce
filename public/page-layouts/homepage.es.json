@@ -16,8 +16,8 @@
       "id": "block-1778723332533-xyjh8r6b7",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos excedentes en negocios sostenibles.",
-        "subtitle": "Tecnología, gestión y acceso a mercados para convertir pérdidas en nuevas oportunidades de negocio",
+        "title": "Transformamos pérdidas en negocios sostenibles.",
+        "subtitle": "Convertimos excedentes en oportunidades reales. Integramos tecnología, innovación y conocimientos  para profesionalizar  la gestión rural y potencialr el crecimiento.",
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Saber+",
         "ctaUrl": "#soluciones",
@@ -89,8 +89,8 @@
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-14T02:13:46.800Z",
+  "updatedAt": "2026-05-14T02:48:41.884Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-14T02:13:46.648Z"
+  "publishedAt": "2026-05-14T02:48:41.724Z"
 }
