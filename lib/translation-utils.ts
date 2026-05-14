@@ -7,6 +7,8 @@ export interface TranslationChange {
   originalText: string;
   translatedText: string;
   targetLocale: string;
+  /** Preenchido quando a API de tradução falhou (texto repetido = edite manualmente). */
+  translationError?: string;
 }
 
 export interface TranslationPreview {
@@ -31,6 +33,10 @@ export function detectTextChanges(oldLayout: unknown, newLayout: unknown): strin
       const oldVal = (oldObj as Record<string, unknown>)[key];
 
       if (typeof newVal === 'string' && oldVal !== newVal) {
+        const skipMeta = new Set(['updatedAt', 'status', 'publishedAt', 'createdAt', 'locale']);
+        if (skipMeta.has(key)) {
+          continue;
+        }
         if (!key.includes('Url') && !key.includes('Href') && !key.includes('Json') && !key.includes('Color')) {
           changes.push(currentPath);
         }
