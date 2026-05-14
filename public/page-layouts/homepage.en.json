@@ -39,7 +39,7 @@
       "id": "block-1778391185975-r7dhh6mwn",
       "type": "segments-section",
       "props": {
-        "backgroundColor": "#071F5E",
+        "backgroundColor": "#00071B",
         "title": "Segments we serve",
         "subtitle": "See how we support each actor in the value chain.",
         "itemsJson": "[{\"title\":\"Producers\",\"subtitle\":\"Scale your business\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"ESG / Supply Chain Companies\",\"subtitle\":\"Efficiency and traceability\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governments\",\"subtitle\":\"Territorial development\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
@@ -84,12 +84,12 @@
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Social media",
         "socialLinksJson": "[{\"label\":\"Facebook\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"YouTube\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Instagram\",\"href\":\"https://instagram.com\"}]",
-        "footerLinksJson": "[{\"group\":\"Other section\",\"items\":[{\"label\":\"Home\",\"href\":\"/#sobre\"},{\"label\":\"Solutions\",\"href\":\"/#souciones\"},{\"label\":\"Segments\",\"href\":\"/#aliados\"}]},{\"group\":\"About\",\"items\":[{\"label\":\"History and purpose\",\"href\":\"\"},{\"label\":\"How it works\",\"href\":\"\"},{\"label\":\"Partners\",\"href\":\"\"}]}]"
+        "footerLinksJson": "[{\"group\":\"Other section\",\"items\":[{\"label\":\"Home\",\"href\":\"/#sobre\"},{\"label\":\"Solutions\",\"href\":\"/#soluciones\"},{\"label\":\"Segments\",\"href\":\"/#aliados\"}]},{\"group\":\"About\",\"items\":[{\"label\":\"History and purpose\",\"href\":\"\"},{\"label\":\"How it works\",\"href\":\"\"},{\"label\":\"Partners\",\"href\":\"\"}]}]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-14T03:39:50.330Z",
+  "updatedAt": "2026-05-14T05:01:31.882Z",
   "status": "published",
   "publishedAt": "2026-05-14T03:39:46.270Z",
   "locale": "en"
