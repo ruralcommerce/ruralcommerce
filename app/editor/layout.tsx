@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { EditorToaster } from './EditorToaster';
 
 export const metadata: Metadata = {
   title: 'Editor Visual - Rural Commerce',
@@ -10,5 +11,10 @@ export const metadata: Metadata = {
 };
 
 export default function EditorRootLayout({ children }: { children: React.ReactNode }) {
-  return <div className="h-screen overflow-hidden">{children}</div>;
+  return (
+    <div className="h-screen overflow-hidden">
+      {children}
+      <EditorToaster />
+    </div>
+  );
 }

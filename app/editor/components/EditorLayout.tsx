@@ -11,11 +11,13 @@ import { PropertyEditor } from './PropertyEditor';
 import { PageSelector } from './PageSelector';
 import { LocaleSelector } from './LocaleSelector';
 import { TranslationPreviewModal } from './TranslationPreviewModal';
+import { PublishScopeModal, type PublishScopeSelection } from './PublishScopeModal';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, GripVertical, Languages } from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
 import { detectTextChanges, fetchTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
+import { toast } from 'sonner';
 
 function hasInvalidJsonProps(page: PageSchema | null): boolean {
   if (!page) return false;
@@ -65,6 +67,8 @@ export function EditorLayout({
   const [autoSaveError, setAutoSaveError] = useState<string | null>(null);
   const [previewTick, setPreviewTick] = useState(0);
   const [translationModalOpen, setTranslationModalOpen] = useState(false);
+  const [publishModalOpen, setPublishModalOpen] = useState(false);
+  const [isPublishingBulk, setIsPublishingBulk] = useState(false);
   const [translationPreviews, setTranslationPreviews] = useState<TranslationPreview[]>([]);
   const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -156,9 +160,174 @@ export function EditorLayout({
     setIsDirty(false);
     setPreviewTick((value) => value + 1);
     if (_sync?.git === 'failed' && _sync.message) {
-      alert(`Layout salvo no servidor, mas o envio para o Git falhou:\n${_sync.message}`);
+      toast.warning('Layout salvo no servidor, mas o envio para o Git falhou.', {
+        description: _sync.message,
+        duration: 20000,
+      });
     }
     return pagePayload as PageSchema;
+  };
+
+  const runBulkPublish = async (scope: PublishScopeSelection) => {
+    const pairs: { slug: string; locale: string }[] = [];
+    for (const slug of scope.pageSlugs) {
+      for (const locale of scope.locales) {
+        pairs.push({ slug, locale });
+      }
+    }
+
+    const touchesCurrent =
+      currentPage &&
+      pairs.some((p) => p.slug === (currentPage.slug || currentPageSlug) && p.locale === currentLocale);
+
+    if (touchesCurrent && invalidJson) {
+      toast.error('JSON inválido', {
+        description: 'Corrija os campos na página atual antes de publicar.',
+      });
+      return;
+    }
+
+    setIsPublishingBulk(true);
+    const failures: string[] = [];
+    const successes: string[] = [];
+    let autoCreatedLayouts = 0;
+    let lastCurrentPayload: PageSchema | null = null;
+    const publishedAt = new Date().toISOString();
+
+    try {
+      for (const { slug, locale } of pairs) {
+        try {
+          const isCurrent = currentPage && slug === (currentPage.slug || currentPageSlug) && locale === currentLocale;
+
+          let payload: PageSchema;
+          if (isCurrent && currentPage) {
+            payload = {
+              ...currentPage,
+              locale,
+              status: 'published',
+              publishedAt,
+              updatedAt: new Date().toISOString(),
+            };
+          } else {
+            const res = await fetch(
+              `/api/editor/layouts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`
+            );
+            let source: PageSchema;
+
+            if (res.ok) {
+              source = (await res.json()) as PageSchema;
+            } else if (res.status === 404) {
+              const postRes = await fetch(
+                `/api/editor/layouts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`,
+                { method: 'POST' }
+              );
+              const postText = await postRes.text();
+              if (!postRes.ok) {
+                let detail = postText.slice(0, 200);
+                try {
+                  const errJson = JSON.parse(postText) as { error?: string };
+                  if (typeof errJson.error === 'string') detail = errJson.error;
+                } catch {
+                  /* usar postText */
+                }
+                failures.push(`${slug} / ${locale}: criar layout — ${detail}`);
+                continue;
+              }
+              let created: PageSchema & { _sync?: { git: string; message?: string } };
+              try {
+                created = JSON.parse(postText) as PageSchema & { _sync?: { git: string; message?: string } };
+              } catch {
+                failures.push(`${slug} / ${locale}: resposta inválida ao criar layout.`);
+                continue;
+              }
+              if (created._sync?.git === 'failed' && created._sync.message) {
+                failures.push(`${slug} / ${locale} — Git (criação): ${created._sync.message}`);
+              }
+              const { _sync: _ignored, ...rest } = created;
+              void _ignored;
+              source = rest as PageSchema;
+              autoCreatedLayouts += 1;
+            } else {
+              failures.push(`${slug} / ${locale}: leitura falhou (HTTP ${res.status}).`);
+              continue;
+            }
+
+            payload = {
+              ...source,
+              locale,
+              status: 'published',
+              publishedAt,
+              updatedAt: new Date().toISOString(),
+            };
+          }
+
+          const put = await fetch(
+            `/api/editor/layouts/${encodeURIComponent(slug)}?locale=${encodeURIComponent(locale)}`,
+            {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
+            }
+          );
+
+          if (!put.ok) {
+            const txt = await put.text();
+            failures.push(`${slug} / ${locale}: ${txt.slice(0, 120)}`);
+            continue;
+          }
+
+          const updated = (await put.json()) as PageSchema & {
+            _sync?: { git: string; message?: string };
+          };
+          const { _sync, ...pagePayload } = updated;
+          successes.push(`${slug} (${locale})`);
+          if (_sync?.git === 'failed' && _sync.message) {
+            failures.push(`${slug} / ${locale} — Git: ${_sync.message}`);
+          }
+          if (slug === currentPageSlug && locale === currentLocale) {
+            lastCurrentPayload = pagePayload as PageSchema;
+          }
+        } catch (e) {
+          failures.push(`${slug} / ${locale}: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+
+      if (lastCurrentPayload) {
+        setCurrentPage(lastCurrentPayload);
+        setIsDirty(false);
+        setPreviewTick((t) => t + 1);
+      }
+
+      if (successes.length === 0) {
+        toast.error('Nenhuma publicação concluída.', {
+          description: failures.length
+            ? failures.slice(0, 16).join('\n') + (failures.length > 16 ? '\n…' : '')
+            : 'Verifique a consola e tente novamente.',
+          duration: 22000,
+        });
+      } else {
+        toast.success(`Publicado(s): ${successes.length} de ${pairs.length}.`, {
+          description: [
+            autoCreatedLayouts > 0
+              ? `${autoCreatedLayouts} ficheiro(s) criado(s) a partir de outro idioma/modelo.`
+              : null,
+            successes.length <= 8 ? `OK: ${successes.join(', ')}` : null,
+          ]
+            .filter(Boolean)
+            .join(' ') || undefined,
+          duration: 9000,
+        });
+        if (failures.length > 0) {
+          toast.warning(`Avisos ou falhas: ${failures.length}`, {
+            description: failures.slice(0, 14).join('\n') + (failures.length > 14 ? '\n…' : ''),
+            duration: 22000,
+          });
+        }
+      }
+    } finally {
+      setIsPublishingBulk(false);
+      setPublishModalOpen(false);
+    }
   };
 
   // Função para gerar preview das traduções
@@ -166,9 +335,11 @@ export function EditorLayout({
     const baselineKey = `${currentPageSlug}:${currentLocale}`;
     if (!currentPage || !translationBaselinePage || translationBaselineKey !== baselineKey || currentLocale !== 'es') {
       if (currentLocale !== 'es') {
-        alert('Tradução assistida só está disponível com o idioma do editor em Español (ES).');
+        toast.info('Tradução assistida só está disponível com o idioma do editor em Español (ES).');
       } else if (!translationBaselinePage) {
-        alert('Baseline de tradução ainda não carregou. Recarregue a página do editor.');
+        toast.warning('Baseline de tradução ainda não carregou.', {
+          description: 'Recarregue a página do editor.',
+        });
       }
       return;
     }
@@ -178,7 +349,9 @@ export function EditorLayout({
       const changedFields = detectTextChanges(translationBaselinePage, currentPage);
 
       if (changedFields.length === 0) {
-        alert('Nenhuma mudança de texto detectada em relação ao último carregamento desta página em ES.');
+        toast.message('Sem alterações de texto', {
+          description: 'Nada mudou em relação ao último carregamento desta página em ES.',
+        });
         return;
       }
 
@@ -188,7 +361,7 @@ export function EditorLayout({
       setTranslationModalOpen(true);
     } catch (error) {
       console.error('Erro ao gerar previews de tradução:', error);
-      alert(error instanceof Error ? error.message : 'Erro ao gerar traduções. Verifique o console.');
+      toast.error(error instanceof Error ? error.message : 'Erro ao gerar traduções. Verifique o console.');
     } finally {
       setIsGeneratingTranslations(false);
     }
@@ -238,7 +411,7 @@ export function EditorLayout({
         }
       }
 
-      alert(`Tradução aplicada com sucesso em ${Object.keys(changesByLocale).length} idioma(s)!`);
+      toast.success(`Tradução aplicada em ${Object.keys(changesByLocale).length} idioma(s).`);
 
       const page = useEditorStore.getState().currentPage;
       if (page && currentLocale === 'es') {
@@ -246,7 +419,7 @@ export function EditorLayout({
       }
     } catch (error) {
       console.error('Erro ao aplicar traduções:', error);
-      alert('Erro ao aplicar traduções. Verifique o console.');
+      toast.error('Erro ao aplicar traduções. Verifique o console.');
     }
   };
 
@@ -440,7 +613,7 @@ export function EditorLayout({
   const saveLayout = async (status: 'draft' | 'published') => {
     if (!currentPage) return;
     if (invalidJson) {
-      alert('Existem campos JSON invalidos. Corrija antes de salvar/publicar.');
+      toast.error('JSON inválido', { description: 'Corrija antes de salvar ou publicar.' });
       return;
     }
 
@@ -449,7 +622,7 @@ export function EditorLayout({
       await persistLayout(status);
     } catch (error) {
       console.error(error);
-      alert('Erro ao salvar layout. Verifique o console.');
+      toast.error('Erro ao salvar layout. Verifique o console.');
     } finally {
       setIsSaving(false);
     }
@@ -584,14 +757,14 @@ export function EditorLayout({
               <PageSelector
                 currentPageSlug={currentPageSlug}
                 onPageChange={onPageChange}
-                disabled={isSaving}
+                disabled={isSaving || isPublishingBulk}
               />
             )}
             {onLocaleChange && (
               <LocaleSelector
                 currentLocale={currentLocale}
                 onLocaleChange={onLocaleChange}
-                disabled={isSaving}
+                disabled={isSaving || isPublishingBulk}
               />
             )}
           </div>
@@ -605,14 +778,14 @@ export function EditorLayout({
               Visualizar
             </button>
             <button
-              disabled={!currentPage || isSaving || invalidJson}
+              disabled={!currentPage || isSaving || invalidJson || isPublishingBulk}
               onClick={() => saveLayout('draft')}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition disabled:opacity-60"
             >
               {isSaving ? 'Salvando...' : 'Salvar'}
             </button>
             <button
-              disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations}
+              disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations || isPublishingBulk}
               onClick={generateTranslationPreviews}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition disabled:opacity-60 flex items-center gap-2"
               title="Traduzir mudanças para outros idiomas"
@@ -621,14 +794,14 @@ export function EditorLayout({
               {isGeneratingTranslations ? 'Traduzindo...' : 'Traduzir'}
             </button>
             <button
-              disabled={!currentPage || isSaving || invalidJson}
-              onClick={() => saveLayout('published')}
+              disabled={!currentPage || isSaving || invalidJson || isPublishingBulk}
+              onClick={() => setPublishModalOpen(true)}
               className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 transition disabled:opacity-60"
             >
               Publicar
             </button>
             <button
-              disabled={!currentPage || isSaving}
+              disabled={!currentPage || isSaving || isPublishingBulk}
               onClick={restoreDefaultLayout}
               className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-50 transition disabled:opacity-60"
             >
@@ -683,6 +856,17 @@ export function EditorLayout({
           </div>
         </div>
       </div>
+
+      <PublishScopeModal
+        isOpen={publishModalOpen}
+        onClose={() => {
+          if (!isPublishingBulk) setPublishModalOpen(false);
+        }}
+        currentPageSlug={currentPageSlug}
+        currentLocale={currentLocale}
+        onConfirm={runBulkPublish}
+        isPublishing={isPublishingBulk}
+      />
 
       {/* Modal de Preview de Traduções */}
       <TranslationPreviewModal
