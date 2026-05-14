@@ -1,0 +1,36 @@
+{
+  "id": "blog",
+  "name": "Blog",
+  "title": "Blog",
+  "slug": "blog",
+  "blocks": [
+    {
+      "id": "block-1778572602058-wt1hvfze4",
+      "type": "hero-section",
+      "props": {
+        "title": "Transformamos excedentes em negócios sustentáveis.",
+        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
+        "bgImage": "/images/home/hero-1.png",
+        "ctaText": "Calcule seu impacto",
+        "ctaUrl": "#soluciones",
+        "secondaryText": "Como funciona",
+        "secondaryUrl": "#sistema"
+      }
+    },
+    {
+      "id": "block-1778615311988-m3nbpcynd",
+      "type": "segments-section",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "Segmentos que atendemos",
+        "subtitle": "Veja como apoiamos cada ator da cadeia.",
+        "itemsJson": "[{\"title\":\"Produtores\",\"subtitle\":\"Escalone seu negócio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadeia de suprimentos\",\"subtitle\":\"Eficiência e rastreabilidade\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governos\",\"subtitle\":\"Desenvolvimento territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+      }
+    }
+  ],
+  "createdAt": "2026-05-14T02:49:03.946Z",
+  "updatedAt": "2026-05-14T02:49:04.154Z",
+  "status": "published",
+  "locale": "es",
+  "publishedAt": "2026-05-14T02:48:41.724Z"
+}
