@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getMessages } from 'next-intl/server';
 import { NextIntlClientProvider } from 'next-intl';
 import { locales, type Locale } from '@/i18n/request';
+import { ScrollToTopButton } from '@/components/ScrollToTopButton';
 
 export const metadata: Metadata = {
   title: 'Rural Commerce — Excedentes en negocios sostenibles',
@@ -35,6 +36,9 @@ export default async function RootLayout({ children, params: { locale } }: RootL
   const messages = await getMessages({ locale });
 
   return (
-    <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
+    <NextIntlClientProvider messages={messages}>
+      {children}
+      <ScrollToTopButton />
+    </NextIntlClientProvider>
   );
 }

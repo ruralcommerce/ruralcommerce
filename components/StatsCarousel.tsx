@@ -207,15 +207,6 @@ export function StatsCarousel({ locale = 'es' }: StatsCarouselProps) {
       onMouseLeave={() => setPaused(false)}
     >
       <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-10 bg-gradient-to-r from-white to-transparent md:block"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-10 bg-gradient-to-l from-white to-transparent md:block"
-        aria-hidden
-      />
-
-      <div
         ref={scrollerRef}
         className={`flex touch-pan-x snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
           isDragging ? 'cursor-grabbing scroll-auto select-none' : 'cursor-grab scroll-smooth'

@@ -22,3 +22,9 @@
 	border-radius: 999px;
 	border: 2px solid #cbd5e1;
 }
+
+/* Botão em stream: cores de hover definidas no editor */
+.rc-stream-btn--hover-colors:hover {
+	background-color: var(--rc-btn-h-bg) !important;
+	color: var(--rc-btn-h-fg) !important;
+}

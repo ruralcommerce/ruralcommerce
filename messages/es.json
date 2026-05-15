@@ -100,7 +100,52 @@
   "common": {
     "saberMas": "Saber más",
     "contactar": "Contactar",
-    "inicio": "Inicio"
+    "inicio": "Inicio",
+    "scrollToTop": "Volver arriba"
+  },
+  "contactForm": {
+    "leftTitle": "Información de contacto",
+    "leftSubtitle": "Escribinos para iniciar una conversación.",
+    "labelSubject": "Asunto",
+    "placeholderSubject": "Ej.: Consulta sobre el kit de implementación",
+    "labelName": "Nombre completo",
+    "placeholderName": "Nombre y apellido",
+    "labelOrganization": "Organización",
+    "placeholderOrganization": "Empresa u organización",
+    "labelEmail": "Email",
+    "placeholderEmail": "email@ejemplo.com",
+    "labelWhatsApp": "WhatsApp / Celular",
+    "placeholderWhatsApp": "+598 99 123 456",
+    "labelCountry": "País",
+    "placeholderCountry": "Uruguay",
+    "labelRegion": "Región",
+    "placeholderRegion": "Departamento o región",
+    "profileLabel": "Tipo de perfil",
+    "messageLabel": "Mensaje",
+    "messagePlaceholder": "Contanos brevemente sobre tu proyecto o necesidad...",
+    "submitLabel": "Enviar consulta",
+    "submitSending": "Enviando…",
+    "submitSuccess": "Gracias. Hemos recibido tu mensaje y te responderemos pronto.",
+    "errors": {
+      "missingFields": "Completá asunto, nombre, email y mensaje.",
+      "invalidEmail": "Revisá el formato del email.",
+      "invalidPayload": "No se pudo leer el formulario. Probá de nuevo.",
+      "config": "El envío no está configurado en el servidor (falta RESEND).",
+      "sendFailed": "No pudimos enviar ahora. Probá más tarde o escribinos por email.",
+      "network": "Sin conexión o error de red. Probá de nuevo."
+    },
+    "profiles": {
+      "productor": "Productor Rural",
+      "b2b": "Empresa B2B",
+      "gobierno": "Gobierno",
+      "inversor": "Inversor"
+    }
+  },
+  "contactMap": {
+    "legendAtendimento": "Cobertura / donde atendemos",
+    "legendIntervencion": "Proyectos (en curso o completados)",
+    "emptyMap": "Mapa",
+    "iframeTitle": "Mapa"
   }
 }
 

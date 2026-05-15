@@ -21,6 +21,40 @@ const STRUCTURE_PROP_KEYS = new Set<string>([
   'fontSize',
   'textAlign',
   'height',
+  'heroImage',
+  'image',
+  'sideImage',
+  'accentCircleColor',
+  'mapEmbedUrl',
+  'territoriesGeoJson',
+  'leftPanelBg',
+  'pageBg',
+  'titleColor',
+  'maxWidth',
+  'padding',
+  'marginY',
+  'thickness',
+  'color',
+  'gap',
+  'layout',
+  'showBorder',
+  'level',
+  'align',
+  'linkUrl',
+  'href',
+  'borderRadius',
+  'barColor',
+  'url',
+  'embedSrc',
+  'hoverBackgroundColor',
+  'hoverTextColor',
+  'variant',
+  'marginTop',
+  'marginBottom',
+  'gridTemplateColumns',
+  'iconChar',
+  'opacity',
+  'boxShadow',
 ]);
 
 export function canonicalizeInternalHref(href: string): string {
@@ -168,7 +202,7 @@ function syncPropsForBlock(
   for (const key of STRUCTURE_PROP_KEYS) {
     if (key in sourceProps && typeof sourceProps[key] === 'string') {
       const v = sourceProps[key] as string;
-      if (key === 'ctaUrl' || key === 'secondaryUrl') {
+      if (key === 'ctaUrl' || key === 'secondaryUrl' || key === 'href') {
         out[key] = v.startsWith('#') || v.startsWith('http') ? v : canonicalizeInternalHref(v);
       } else {
         out[key] = v;

@@ -10,7 +10,8 @@
     "sync:entrada": "node scripts/sync-entrada.mjs",
     "sync:saida": "node scripts/sync-saida.mjs",
     "sync:layouts-from-es": "node scripts/sync-layouts-from-es.mjs",
-    "deploy:servidor": "node scripts/deploy-servidor.mjs"
+    "deploy:servidor": "node scripts/deploy-servidor.mjs",
+    "push:resend-env": "node scripts/push-resend-env.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -22,10 +23,12 @@
     "next-intl": "^4.11.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "resend": "^6.12.3",
     "sonner": "^2.0.7",
     "zustand": "^5.0.13"
   },
   "devDependencies": {
+    "@types/geojson": "^7946.0.14",
     "@types/node": "20.6.2",
     "@types/react": "18.2.22",
     "@types/react-dom": "18.2.7",

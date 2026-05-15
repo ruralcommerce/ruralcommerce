@@ -11,8 +11,10 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="es">
-      <body className={`rural-commerce min-h-screen bg-[var(--rc-bg)] text-[#1E1E1E] antialiased ${lexend.variable}`}>
+    <html lang="es" className="overflow-x-hidden">
+      <body
+        className={`rural-commerce min-h-screen overflow-x-hidden bg-[var(--rc-bg)] text-[#1E1E1E] antialiased ${lexend.variable}`}
+      >
         {children}
       </body>
     </html>

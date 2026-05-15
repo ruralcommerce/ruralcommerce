@@ -1,0 +1,58 @@
+{
+  "id": "contacto",
+  "name": "Contacto",
+  "title": "Contacto",
+  "slug": "contacto",
+  "locale": "es",
+  "status": "published",
+  "createdAt": "2026-05-14T12:00:00.000Z",
+  "updatedAt": "2026-05-15T07:49:24.088Z",
+  "publishedAt": "2026-05-15T07:49:09.679Z",
+  "blocks": [
+    {
+      "id": "block-contact-hero-es",
+      "type": "contact-hero-split",
+      "props": {
+        "titleLine1": "Soluciones de alto impacto para",
+        "titleLine2": " quienes producen y quienes invierten",
+        "description": "Sea un productor enfocado en eficiencia o un inversor buscando impacto real, nuestro equipo está listo para ejecutar la arquitectura de negocios que su proyecto necesita.",
+        "ctaText": "Mandanos un mensaje",
+        "ctaUrl": "#",
+        "ctaSubtext": "",
+        "heroImage": "/images/uploads/out-0__3_-1778830276065.png",
+        "accentCircleColor": "#071F5E"
+      }
+    },
+    {
+      "id": "block-contact-form-es",
+      "type": "contact-form-split",
+      "props": {
+        "leftPanelBg": "#071F5E",
+        "phone": "+1 (307) 212-6747",
+        "email": "info@ruralcommerceglobal.com",
+        "formCopyJson": ""
+      }
+    },
+    {
+      "id": "block-contact-map-es",
+      "type": "contact-map-split",
+      "props": {
+        "backgroundColor": "#071F5E",
+        "title": "Nuestra huella en el territorio",
+        "body": "Estamos presentes en los principales polos productivos, llevando tecnología y gestión a cada rincón del país.",
+        "territoriesGeoJson": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"category\":\"atendimento\",\"name\":\"Cobertura sur y litoral\"},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-57.12,-34.52],[-55.82,-34.52],[-55.82,-35.18],[-57.12,-35.18],[-57.12,-34.52]]]}},{\"type\":\"Feature\",\"properties\":{\"category\":\"intervencao\",\"name\":\"Montevideo\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-56.1881,-34.9011]}},{\"type\":\"Feature\",\"properties\":{\"category\":\"intervencao\",\"name\":\"Salto\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-57.9625,-31.3833]}}]}",
+        "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=-56.25%2C-34.95%2C-56.05%2C-34.80&layer=mapnik"
+      }
+    },
+    {
+      "id": "block-contact-social-es",
+      "type": "contact-social-strip",
+      "props": {
+        "pageBg": "#F5F7FA",
+        "title": "Seguinos y sumate a la comunidad",
+        "titleColor": "#009179",
+        "socialLinksJson": "[{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"LinkedIn\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"},{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"}]"
+      }
+    }
+  ]
+}

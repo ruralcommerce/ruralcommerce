@@ -8,7 +8,7 @@
       "id": "block-1778723332533-a5rz8dcsw",
       "type": "site-header",
       "props": {
-        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluciones\",\"href\":\"/solucoes\"},{\"label\":\"Aliados\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contacto\",\"href\":\"#contacto\"}]",
+        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluciones\",\"href\":\"/solucoes\"},{\"label\":\"Aliados\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contacto\",\"href\":\"/contacto\"}]",
         "logoAlt": "Rural Commerce Logo"
       }
     },
@@ -22,7 +22,7 @@
         "ctaText": "Saber+",
         "ctaUrl": "#soluciones",
         "secondaryText": "Contacto",
-        "secondaryUrl": "#contacto"
+        "secondaryUrl": "/contacto"
       }
     },
     {
@@ -32,6 +32,7 @@
         "backgroundColor": "#071F5E",
         "title": "El campo enfrenta grandes desafíos",
         "subtitle": "Pérdidas post-cosecha, oscilaciones del mercado y presión por sostenibilidad siguen limitando el crecimiento rural.",
+        "sideImage": "/images/home/home-pic2.png",
         "pillarsJson": "[{\"title\":\"Hardware de Precisión\",\"body\":\"Equipos modulares orientados a optimizar procesos, reducir costos y agregar valor a la producción.\"},{\"title\":\"Software de Inteligencia y Gestión\",\"body\":\"Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, entregando indicadores y seguridad para la toma de decisiones.\"},{\"title\":\"Gestión de Rescate y Valorización\",\"body\":\"Procesos comerciales que transforman mermas en productos vendibles con vida útil extendida, evitando emisiones por descarte.\"},{\"title\":\"Metodología de Aceleración\",\"body\":\"Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales.\"}]"
       }
     },
@@ -43,15 +44,6 @@
         "title": "Segmentos que atendemos",
         "subtitle": "Conoce cómo acompañamos a cada actor de la cadena.",
         "itemsJson": "[{\"title\":\"Productores\",\"subtitle\":\"Escala tu negocio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadena de suministro\",\"subtitle\":\"Eficiencia y trazabilidad\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Gobiernos\",\"subtitle\":\"Desarrollo territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
-      }
-    },
-    {
-      "id": "block-1778723332533-leuzdxg66",
-      "type": "solutions-section",
-      "props": {
-        "backgroundColor": "#F5F7FB",
-        "title": "Un camino claro para transformar su producción",
-        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiencia\",\"body\":\"Descubra dónde está perdiendo dinero su negocio.\",\"cta\":\"Saber más\",\"variant\":\"navy\"},{\"title\":\"Curso de Procesamiento y Gestión\",\"body\":\"Capacitación técnica para el estándar de retail (comercio minorista).\",\"cta\":\"Saber más\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementación Rápida\",\"body\":\"Tecnología y metodología para comenzar a generar ganancias hoy mismo.\",\"cta\":\"Saber más\",\"variant\":\"royal\"}]"
       }
     },
     {
@@ -69,7 +61,7 @@
       "props": {
         "backgroundColor": "#F5F7FB",
         "title": "Clientes y Aliados",
-        "partnersJson": "[\n  {\n    \"name\": \"NBC\",\n    \"src\": \"/images/home/aliados/NBC Color.png\",\n    \"href\": \"https://nbcpucv.cl/\"\n  },\n  {\n    \"name\": \"Incubacoop\",\n    \"src\": \"/images/home/aliados/Incubacoop.jpg\",\n    \"href\": \"https://incubacoop.org.uy/\"\n  }\n]"
+        "partnersJson": "[\n  {\n    \"name\": \"NBC\",\n    \"src\": \"/images/home/aliados/NBC Color.png\",\n    \"href\": \"https://nbcpucv.cl/\"\n  },\n  {\n    \"name\": \"Incubacoop\",\n    \"src\": \"/images/home/aliados/Incubacoop.jpg\",\n    \"href\": \"https://incubacoop.org.uy/\"\n  },\n  {\n    \"name\": \"La red de innovacion e impacto\",\n    \"src\": \"/images/home/aliados/la red de innovacion e impacto.png\",\n    \"href\": \"https://laredinnovacionimpacto.com/\"\n  }\n]"
       }
     },
     {
@@ -89,8 +81,8 @@
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-14T21:24:26.517Z",
+  "updatedAt": "2026-05-15T07:49:10.816Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-14T21:24:26.370Z"
+  "publishedAt": "2026-05-15T07:49:09.679Z"
 }

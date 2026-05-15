@@ -6,38 +6,42 @@
  */
 
 import { useEditorStore } from '@/lib/editor-store';
+import { BlockNavigatorSelect } from './BlockNavigatorSelect';
 import { BlockPanel } from './BlockPanel';
+import { Canvas } from './Canvas';
+import { CanvasListChrome } from './CanvasListChrome';
+import { SelectionDesignBar } from './SelectionDesignBar';
 import { PropertyEditor } from './PropertyEditor';
 import { PageSelector } from './PageSelector';
 import { LocaleSelector } from './LocaleSelector';
 import { TranslationPreviewModal } from './TranslationPreviewModal';
 import { PublishScopeModal, type PublishScopeSelection } from './PublishScopeModal';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, GripVertical, Languages, LayoutTemplate } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Languages,
+  LayoutGrid,
+  LayoutTemplate,
+  Redo2,
+  SlidersHorizontal,
+  Undo2,
+} from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
+import { isInvalidJsonProp } from '@/lib/json-prop-validation';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
 import { detectTextChanges, fetchTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
 import { applyStructureSyncFromSource } from '@/lib/structure-sync-utils';
 import { locales as editorLocales } from '@/i18n/request';
 import { toast } from 'sonner';
+import { useEditorCanvasShortcuts } from '../hooks/useEditorCanvasShortcuts';
 
 function hasInvalidJsonProps(page: PageSchema | null): boolean {
   if (!page) return false;
 
-  return page.blocks.some((block) => {
-    return Object.entries(block.props).some(([key, value]) => {
-      if (!key.endsWith('Json') || typeof value !== 'string') {
-        return false;
-      }
-
-      try {
-        const parsed = JSON.parse(value);
-        return !Array.isArray(parsed);
-      } catch {
-        return true;
-      }
-    });
-  });
+  return page.blocks.some((block) =>
+    Object.entries(block.props).some(([key, value]) => isInvalidJsonProp(key, value))
+  );
 }
 
 export function EditorLayout({
@@ -54,12 +58,19 @@ export function EditorLayout({
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const setCurrentPage = useEditorStore((s) => s.setCurrentPage);
+  const syncPageFromPersist = useEditorStore((s) => s.syncPageFromPersist);
+  const undo = useEditorStore((s) => s.undo);
+  const redo = useEditorStore((s) => s.redo);
+  const historyIndex = useEditorStore((s) => s.historyIndex);
+  const historyLength = useEditorStore((s) => s.history.length);
   const translationBaselinePage = useEditorStore((s) => s.translationBaselinePage);
   const translationBaselineKey = useEditorStore((s) => s.translationBaselineKey);
   const setTranslationBaseline = useEditorStore((s) => s.setTranslationBaseline);
   const setIsDirty = useEditorStore((s) => s.setIsDirty);
   const isDirty = useEditorStore((s) => s.isDirty);
   const selectBlock = useEditorStore((s) => s.selectBlock);
+  const canvasDirectEdit = useEditorStore((s) => s.canvasDirectEdit);
+  const setCanvasDirectEdit = useEditorStore((s) => s.setCanvasDirectEdit);
   const [isSaving, setIsSaving] = useState(false);
   const [sidebarMode, setSidebarMode] = useState<'blocks' | 'properties'>('blocks');
   const [sidebarWidth, setSidebarWidth] = useState(360);
@@ -74,8 +85,14 @@ export function EditorLayout({
   const [isSyncingLayout, setIsSyncingLayout] = useState(false);
   const [translationPreviews, setTranslationPreviews] = useState<TranslationPreview[]>([]);
   const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
+  const [centerTab, setCenterTab] = useState<'preview' | 'blocks'>('preview');
+  const [previewFrame, setPreviewFrame] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  useEditorCanvasShortcuts(centerTab === 'blocks');
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+  const maisMenuRef = useRef<HTMLDetailsElement>(null);
   const invalidJson = hasInvalidJsonProps(currentPage);
+  const canUndo = historyIndex > 0;
+  const canRedo = historyLength > 0 && historyIndex < historyLength - 1;
   const pageConfig = getEditorPageConfig(currentPageSlug);
 
   const previewUrl = `/${currentLocale}${pageConfig.previewPath}?preview=draft&key=rural-preview&t=${previewTick}`;
@@ -159,8 +176,7 @@ export function EditorLayout({
       _sync?: { git: string; message?: string };
     };
     const { _sync, ...pagePayload } = updated;
-    setCurrentPage(pagePayload as PageSchema);
-    setIsDirty(false);
+    syncPageFromPersist(pagePayload as PageSchema);
     setPreviewTick((value) => value + 1);
     if (_sync?.git === 'failed' && _sync.message) {
       toast.warning('Layout salvo no servidor, mas o envio para o Git falhou.', {
@@ -438,8 +454,7 @@ export function EditorLayout({
       }
 
       if (lastCurrentPayload) {
-        setCurrentPage(lastCurrentPayload);
-        setIsDirty(false);
+        syncPageFromPersist(lastCurrentPayload);
         setPreviewTick((t) => t + 1);
       }
 
@@ -569,7 +584,7 @@ export function EditorLayout({
   };
 
   useEffect(() => {
-    if (!currentPage || !isDirty || invalidJson || isSaving || isSyncingLayout) {
+    if (!currentPage || !isDirty || invalidJson || isSaving || isSyncingLayout || isPublishingBulk) {
       return;
     }
 
@@ -583,10 +598,40 @@ export function EditorLayout({
       } finally {
         setIsAutoSaving(false);
       }
-    }, 700);
+    }, 2000);
 
     return () => clearTimeout(timer);
-  }, [currentPage, isDirty, invalidJson, isSaving, isSyncingLayout]);
+  }, [currentPage, isDirty, invalidJson, isSaving, isSyncingLayout, isPublishingBulk]);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (!el) return;
+      if (
+        el.closest('[contenteditable="true"]') ||
+        el.tagName === 'INPUT' ||
+        el.tagName === 'TEXTAREA' ||
+        el.tagName === 'SELECT'
+      ) {
+        return;
+      }
+      const mod = e.ctrlKey || e.metaKey;
+      if (!mod) return;
+      const key = e.key.toLowerCase();
+      if (key === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) redo();
+        else undo();
+        return;
+      }
+      if (key === 'y') {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [undo, redo]);
 
   useEffect(() => {
     const iframe = iframeRef.current;
@@ -612,6 +657,13 @@ export function EditorLayout({
         partners: 'partners-section',
         'site-header': 'site-header',
         'site-footer': 'site-footer',
+        'contact-hero': 'contact-hero-split',
+        'contact-form': 'contact-form-split',
+        'contact-map': 'contact-map-split',
+        'contact-social': 'contact-social-strip',
+        'blog-featured': 'blog-featured',
+        'blog-posts': 'blog-posts-grid',
+        'blog-posts-grid': 'blog-posts-grid',
       };
 
       if (normalized in aliases) {
@@ -622,7 +674,9 @@ export function EditorLayout({
     };
 
     const getInspectableAreas = (doc: Document): HTMLElement[] => {
-      return Array.from(doc.querySelectorAll('[data-editor-section], main section')) as HTMLElement[];
+      return Array.from(
+        doc.querySelectorAll('[data-editor-block-id], [data-editor-section], main section')
+      ) as HTMLElement[];
     };
 
     const bindInspector = () => {
@@ -640,11 +694,23 @@ export function EditorLayout({
           const target = event.target as HTMLElement | null;
           if (!target) return;
 
-          const sectionEl = target.closest('[data-editor-section], section[id], header, footer') as HTMLElement | null;
+          const sectionEl = target.closest(
+            '[data-editor-block-id], [data-editor-section], section[id], header, footer'
+          ) as HTMLElement | null;
           if (!sectionEl) return;
 
           event.preventDefault();
           event.stopPropagation();
+
+          const blockIdAttr = sectionEl.getAttribute('data-editor-block-id');
+          if (blockIdAttr) {
+            const byId = currentPage.blocks.find((b) => b.id === blockIdAttr);
+            if (byId) {
+              selectBlock(byId.id);
+              setSidebarMode('properties');
+              return;
+            }
+          }
 
           const explicit = sectionEl.getAttribute('data-editor-section');
           const fallback = sectionEl.getAttribute('id');
@@ -703,14 +769,29 @@ export function EditorLayout({
       'stats-section': '[data-editor-section="stats-section"]',
       'partners-section': '[data-editor-section="partners-section"]',
       'site-footer': '[data-editor-section="site-footer"]',
+      'contact-hero-split': '[data-editor-section="contact-hero"]',
+      'contact-form-split': '[data-editor-section="contact-form"]',
+      'contact-map-split': '[data-editor-section="contact-map"]',
+      'contact-social-strip': '[data-editor-section="contact-social"]',
+      'blog-featured': '[data-editor-section="blog-featured"]',
+      'blog-posts-grid': '[data-editor-section="blog-posts-grid"]',
     };
 
-    const sections = Array.from(doc.querySelectorAll('[data-editor-section], main section')) as HTMLElement[];
+    const sections = Array.from(
+      doc.querySelectorAll('[data-editor-block-id], [data-editor-section], main section')
+    ) as HTMLElement[];
     sections.forEach((section) => {
       section.removeAttribute('data-editor-selected');
     });
 
     if (!selectedBlockId) {
+      return;
+    }
+
+    const byBlockId = doc.querySelector(`[data-editor-block-id="${CSS.escape(selectedBlockId)}"]`) as HTMLElement | null;
+    if (byBlockId) {
+      byBlockId.setAttribute('data-editor-selected', 'true');
+      byBlockId.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
 
@@ -765,6 +846,13 @@ export function EditorLayout({
     setIsSaving(true);
     try {
       await persistLayout(status);
+      if (status === 'draft') {
+        toast.success('Rascunho guardado no servidor.');
+      } else {
+        toast.success('Página publicada com sucesso.', {
+          description: currentPage.title || currentPage.slug,
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error('Erro ao salvar layout. Verifique o console.');
@@ -776,47 +864,40 @@ export function EditorLayout({
   return (
     <div className="flex h-full min-h-0 bg-white">
       <div
-        className="relative flex min-h-0 flex-col overflow-hidden bg-slate-50 border-r border-slate-200 transition-[width] duration-200"
+        className={`flex shrink-0 transition-[width] duration-200 ${sidebarCollapsed ? '' : 'min-w-0'}`}
         style={{ width: sidebarCollapsed ? 56 : sidebarWidth }}
       >
-        <div className="border-b border-slate-200 px-4 py-3">
-          <div className="mb-2 flex items-center justify-between">
-            {!sidebarCollapsed ? (
-              <>
-                <h2 className="text-sm font-semibold text-slate-900">Painel</h2>
-                <span className="text-[11px] text-slate-500">{pageConfig.name}</span>
-              </>
-            ) : (
-              <div className="flex w-full items-center justify-center text-[11px] font-semibold text-slate-500">RC</div>
-            )}
-          </div>
-          {!sidebarCollapsed ? (
-            <div className="grid grid-cols-2 gap-2">
+        <div
+          className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-r border-slate-200/90 bg-gradient-to-b from-slate-100/90 via-white to-slate-50 shadow-[inset_-1px_0_0_rgba(15,23,42,0.04)]"
+        >
+        {!sidebarCollapsed ? (
+          <div className="border-b border-slate-200/80 bg-white/70 px-3 py-2.5 backdrop-blur-sm">
+            <div className="flex rounded-xl bg-slate-100/80 p-1 shadow-inner">
               <button
                 type="button"
                 onClick={() => setSidebarMode('blocks')}
-                className={`rounded border px-3 py-2 text-xs font-semibold transition ${
+                className={`relative flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition ${
                   sidebarMode === 'blocks'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'bg-white text-violet-700 shadow-sm ring-1 ring-slate-200/80'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Blocos
+                Widgets
               </button>
               <button
                 type="button"
                 onClick={() => setSidebarMode('properties')}
-                className={`rounded border px-3 py-2 text-xs font-semibold transition ${
+                className={`relative flex-1 rounded-lg px-2 py-2 text-xs font-semibold transition ${
                   sidebarMode === 'properties'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'bg-white text-violet-700 shadow-sm ring-1 ring-slate-200/80'
+                    : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
                 Propriedades
               </button>
             </div>
-          ) : null}
-        </div>
+          </div>
+        ) : null}
 
         <div className="min-h-0 flex-1 overflow-hidden">
           {sidebarCollapsed ? (
@@ -827,13 +908,14 @@ export function EditorLayout({
                   setSidebarCollapsed(false);
                   setSidebarMode('blocks');
                 }}
-                className={`rounded-lg border px-2 py-3 text-[11px] font-semibold transition ${
+                className={`rounded-xl border p-2.5 transition ${
                   sidebarMode === 'blocks'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'border-violet-400 bg-violet-50 text-violet-700 shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 }`}
+                title="Widgets"
               >
-                B
+                <LayoutGrid className="h-4 w-4" strokeWidth={2} />
               </button>
               <button
                 type="button"
@@ -841,13 +923,14 @@ export function EditorLayout({
                   setSidebarCollapsed(false);
                   setSidebarMode('properties');
                 }}
-                className={`rounded-lg border px-2 py-3 text-[11px] font-semibold transition ${
+                className={`rounded-xl border p-2.5 transition ${
                   sidebarMode === 'properties'
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                    ? 'border-violet-400 bg-violet-50 text-violet-700 shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 }`}
+                title="Propriedades"
               >
-                P
+                <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
               </button>
             </div>
           ) : sidebarMode === 'blocks' ? (
@@ -858,24 +941,15 @@ export function EditorLayout({
         </div>
 
         {!sidebarCollapsed ? (
-          <>
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed(true)}
-              className="absolute right-2 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-600 shadow-sm hover:bg-slate-50"
-              aria-label="Minimizar sidebar"
-              title="Minimizar sidebar"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <div
-              role="separator"
-              aria-orientation="vertical"
-              onMouseDown={() => setIsResizingSidebar(true)}
-              className="absolute right-0 top-0 h-full w-2 cursor-col-resize bg-transparent hover:bg-blue-400/30"
-              title="Arraste para redimensionar"
-            />
-          </>
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed(true)}
+            className="absolute right-2 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/90 bg-white text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50/80 hover:text-violet-700"
+            aria-label="Minimizar sidebar"
+            title="Minimizar sidebar"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
         ) : (
           <button
             type="button"
@@ -887,136 +961,243 @@ export function EditorLayout({
             <ChevronRight className="h-4 w-4" />
           </button>
         )}
+        </div>
+        {!sidebarCollapsed ? (
+          <div
+            role="separator"
+            aria-orientation="vertical"
+            aria-label="Redimensionar painel"
+            onMouseDown={() => setIsResizingSidebar(true)}
+            className="w-2.5 shrink-0 cursor-col-resize self-stretch border-l border-slate-200/80 bg-slate-100/90 hover:bg-violet-200/35 active:bg-violet-300/45"
+            title="Arraste para redimensionar (não sobrepõe o scroll)"
+          />
+        ) : null}
       </div>
 
-      <div className="flex-1 flex min-h-0 flex-col overflow-hidden">
-        <div className="border-b border-slate-200 bg-white px-6 py-4 flex items-center justify-between">
-          <div className="flex flex-wrap items-center gap-4">
-            <div>
-              <h1 className="font-bold text-lg text-slate-900">
-                {currentPage?.title || 'Editor'}
-              </h1>
-              {isDirty && <span className="text-xs text-orange-500 ml-2">• Não salvo</span>}
-            </div>
-            {onPageChange && (
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        <div className="flex flex-shrink-0 flex-wrap items-center gap-x-2 gap-y-1 border-b border-slate-200/90 bg-[#f8fafc] px-3 py-1.5">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            {onPageChange ? (
               <PageSelector
+                compact
                 currentPageSlug={currentPageSlug}
                 onPageChange={onPageChange}
                 disabled={isSaving || isPublishingBulk || isSyncingLayout}
               />
+            ) : (
+              <span className="max-w-[12rem] truncate text-xs font-semibold text-slate-900">
+                {currentPage?.title || 'Editor'}
+              </span>
             )}
-            {onLocaleChange && (
+            {isDirty ? (
+              <span className="text-[10px] font-medium text-orange-600" title="Alterações não guardadas">
+                •
+              </span>
+            ) : null}
+            {onLocaleChange ? (
               <LocaleSelector
+                compact
                 currentLocale={currentLocale}
                 onLocaleChange={onLocaleChange}
                 disabled={isSaving || isPublishingBulk || isSyncingLayout}
               />
-            )}
+            ) : null}
+            <span className="hidden h-4 w-px bg-slate-200 sm:inline-block" aria-hidden />
+            <BlockNavigatorSelect
+              currentPageSlug={currentPageSlug}
+              onPickBlock={() => setSidebarMode('properties')}
+            />
+            {esTranslationChangeCount > 0 ? (
+              <span className="hidden rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium text-purple-900 sm:inline">
+                ES {esTranslationChangeCount}
+              </span>
+            ) : null}
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => {
-                window.open(previewUrl, '_blank', 'noopener,noreferrer');
-              }}
-              className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-50 transition"
+
+          <div className="flex flex-wrap items-center gap-1.5 sm:ml-auto">
+            <div className="inline-flex rounded-md border border-slate-200 bg-white p-px shadow-sm">
+              <button
+                type="button"
+                onClick={() => setCenterTab('preview')}
+                className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
+                  centerTab === 'preview' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Preview
+              </button>
+              <button
+                type="button"
+                onClick={() => setCenterTab('blocks')}
+                className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
+                  centerTab === 'blocks' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                Lista
+              </button>
+            </div>
+            {centerTab === 'blocks' ? (
+              <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50/90 px-2 py-0.5 text-[10px] font-semibold text-violet-900 shadow-sm hover:bg-violet-100">
+                <input
+                  type="checkbox"
+                  className="h-3 w-3 shrink-0 rounded border-violet-400 text-violet-600 focus:ring-violet-400"
+                  checked={canvasDirectEdit}
+                  onChange={(e) => setCanvasDirectEdit(e.target.checked)}
+                />
+                Editar na lista
+              </label>
+            ) : null}
+            {centerTab === 'preview' ? (
+              <label className="inline-flex items-center gap-1">
+                <span className="sr-only">Largura do preview</span>
+                <select
+                  value={previewFrame}
+                  onChange={(e) => setPreviewFrame(e.target.value as 'desktop' | 'tablet' | 'mobile')}
+                  className="rounded-md border border-slate-200 bg-white py-1 pl-2 pr-6 text-[10px] font-semibold text-slate-800 shadow-sm outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-200"
+                >
+                  <option value="desktop">Desktop</option>
+                  <option value="tablet">Tablet</option>
+                  <option value="mobile">Mobile</option>
+                </select>
+              </label>
+            ) : null}
+            <span
+              className="text-[10px] text-slate-400"
+              title={autoSaveError || undefined}
             >
-              Visualizar
-            </button>
+              {isAutoSaving ? '…' : autoSaveError ? '!' : '✓'}
+            </span>
+            <details ref={maisMenuRef} className="relative">
+              <summary className="cursor-pointer list-none rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
+                Mais
+              </summary>
+              <div className="absolute right-0 top-full z-[70] mt-1 min-w-[12rem] rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+                <button
+                  type="button"
+                  disabled={!canUndo || isSaving || isPublishingBulk || isSyncingLayout}
+                  onClick={() => {
+                    undo();
+                    if (maisMenuRef.current) maisMenuRef.current.open = false;
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  <Undo2 className="h-3.5 w-3.5 shrink-0" />
+                  Desfazer
+                </button>
+                <button
+                  type="button"
+                  disabled={!canRedo || isSaving || isPublishingBulk || isSyncingLayout}
+                  onClick={() => {
+                    redo();
+                    if (maisMenuRef.current) maisMenuRef.current.open = false;
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  <Redo2 className="h-3.5 w-3.5 shrink-0" />
+                  Refazer
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    window.open(previewUrl, '_blank', 'noopener,noreferrer');
+                    if (maisMenuRef.current) maisMenuRef.current.open = false;
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50"
+                >
+                  Visualizar (nova aba)
+                </button>
+                <button
+                  type="button"
+                  disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations || isPublishingBulk || isSyncingLayout}
+                  onClick={() => {
+                    generateTranslationPreviews();
+                    if (maisMenuRef.current) maisMenuRef.current.open = false;
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  <Languages className="h-3.5 w-3.5 shrink-0" />
+                  Traduzir
+                </button>
+                <button
+                  type="button"
+                  disabled={
+                    !currentPage ||
+                    isSaving ||
+                    invalidJson ||
+                    isGeneratingTranslations ||
+                    isPublishingBulk ||
+                    isSyncingLayout
+                  }
+                  onClick={() => {
+                    syncStructureToOtherLocales();
+                    if (maisMenuRef.current) maisMenuRef.current.open = false;
+                  }}
+                  className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  <LayoutTemplate className="h-3.5 w-3.5 shrink-0" />
+                  Sincronizar estrutura
+                </button>
+                <button
+                  type="button"
+                  disabled={!currentPage || isSaving || isPublishingBulk || isSyncingLayout}
+                  onClick={() => {
+                    restoreDefaultLayout();
+                    if (maisMenuRef.current) maisMenuRef.current.open = false;
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
+                >
+                  Restaurar padrão
+                </button>
+              </div>
+            </details>
             <button
+              type="button"
               disabled={!currentPage || isSaving || invalidJson || isPublishingBulk || isSyncingLayout}
               onClick={() => saveLayout('draft')}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition disabled:opacity-60"
+              className="rounded-md bg-blue-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSaving ? 'Salvando...' : 'Salvar'}
+              {isSaving ? '…' : 'Salvar'}
             </button>
             <button
-              disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations || isPublishingBulk || isSyncingLayout}
-              onClick={generateTranslationPreviews}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded hover:bg-purple-700 transition disabled:opacity-60 flex items-center gap-2"
-              title="Traduzir mudanças para outros idiomas"
-            >
-              <Languages className="h-4 w-4" />
-              {isGeneratingTranslations ? 'Traduzindo...' : 'Traduzir'}
-            </button>
-            <button
-              disabled={
-                !currentPage ||
-                isSaving ||
-                invalidJson ||
-                isGeneratingTranslations ||
-                isPublishingBulk ||
-                isSyncingLayout
-              }
-              onClick={syncStructureToOtherLocales}
-              className="px-4 py-2 text-sm font-medium text-cyan-900 bg-cyan-100 border border-cyan-300 rounded hover:bg-cyan-200 transition disabled:opacity-60 flex items-center gap-2"
-              title="Copia cores, imagens e hrefs internos da página aberta para os outros idiomas do mesmo slug, mantendo textos traduzidos. Pede confirmação."
-            >
-              <LayoutTemplate className="h-4 w-4" />
-              {isSyncingLayout ? 'Sincronizando...' : 'Sincronizar estrutura'}
-            </button>
-            <button
+              type="button"
               disabled={!currentPage || isSaving || invalidJson || isPublishingBulk || isSyncingLayout}
               onClick={() => setPublishModalOpen(true)}
-              className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 transition disabled:opacity-60"
+              className="rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
             >
               Publicar
             </button>
-            <button
-              disabled={!currentPage || isSaving || isPublishingBulk || isSyncingLayout}
-              onClick={restoreDefaultLayout}
-              className="px-4 py-2 text-sm font-medium text-slate-700 border border-slate-300 rounded hover:bg-slate-50 transition disabled:opacity-60"
-            >
-              Restaurar padrao
-            </button>
           </div>
         </div>
 
-        <div className="border-b border-slate-200 bg-sky-50/60 px-6 py-2 text-xs text-slate-700 flex items-center justify-between gap-4">
-          <span className="flex flex-wrap items-center gap-2">
-            <span>
-              Modo espelho ativo: o preview central recarrega automaticamente apos cada alteracao salva.
-            </span>
-            {esTranslationChangeCount > 0 ? (
-              <span className="rounded-full bg-purple-100 px-2 py-0.5 font-medium text-purple-800">
-                Texto em ES alterado ({esTranslationChangeCount} campo{esTranslationChangeCount !== 1 ? 's' : ''}) — use Traduzir para PT/EN
-              </span>
-            ) : null}
-            <span className="rounded-full bg-cyan-100 px-2 py-0.5 font-medium text-cyan-900">
-              Estrutura em vários idiomas? Use <strong>Sincronizar estrutura</strong> (mantém textos PT/EN; alinha cores, imagens e hrefs).
-            </span>
-          </span>
-          <span className="text-[11px] text-slate-600">
-            {isAutoSaving ? 'Autosave...' : autoSaveError ? autoSaveError : 'Sincronizado'}
-          </span>
-        </div>
-
-        <div className="border-b border-slate-200 bg-white px-6 py-3">
-          <div className="editor-scroll flex gap-2 overflow-x-auto">
-            {currentPage?.blocks.map((block, index) => (
-              <button
-                key={block.id}
-                type="button"
-                onClick={() => {
-                  selectBlock(block.id);
-                  setSidebarMode('properties');
-                }}
-                className="rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50"
-              >
-                <GripVertical className="mr-1 inline h-3.5 w-3.5 opacity-60" />
-                #{index + 1} {block.type}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex-1 min-h-0 bg-slate-100 p-4">
-          <div className="h-full overflow-hidden rounded-xl border border-slate-300 bg-white shadow-sm">
-            <iframe
-              ref={iframeRef}
-              title="Espelho do site"
-              src={previewUrl}
-              className="h-full w-full border-0"
-            />
+        <div className="flex min-h-0 flex-1 flex-col gap-2 bg-slate-100/80 p-2">
+          <div className="min-h-0 flex-1 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+            {centerTab === 'blocks' ? (
+              <div className="flex h-full min-h-[420px] min-h-0 flex-col">
+                <CanvasListChrome />
+                <SelectionDesignBar onOpenPanel={() => setSidebarMode('properties')} />
+                <div className="min-h-0 flex-1">
+                  <Canvas />
+                </div>
+              </div>
+            ) : (
+              <div className="flex h-full min-h-[420px] justify-center overflow-auto bg-slate-200/30 p-2">
+                <div
+                  className={`h-full min-h-0 transition-[max-width] duration-200 ${
+                    previewFrame === 'desktop'
+                      ? 'w-full max-w-none'
+                      : previewFrame === 'tablet'
+                        ? 'w-full max-w-[834px] shadow-lg'
+                        : 'w-full max-w-[390px] shadow-lg'
+                  }`}
+                >
+                  <iframe
+                    ref={iframeRef}
+                    title="Espelho do site"
+                    src={previewUrl}
+                    className="h-full min-h-[480px] w-full rounded-md border-0 bg-white"
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

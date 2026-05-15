@@ -5,32 +5,29 @@
   "slug": "blog",
   "blocks": [
     {
-      "id": "block-1778572602058-wt1hvfze4",
-      "type": "hero-section",
+      "id": "block-1778829980278-qhjz1w4yb",
+      "type": "blog-featured",
       "props": {
-        "title": "We turn surplus into sustainable businesses.",
-        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
-        "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calculate your impact",
-        "ctaUrl": "#soluciones",
-        "secondaryText": "How it works",
-        "secondaryUrl": "#sistema"
+        "slug": "japan-house-london-creativity",
+        "image": "/images/home/hero-1.png",
+        "category": "ILLUSTRATION",
+        "title": "JAPAN HOUSE OPENS IN LONDON TO FOSTER JAPANESE CREATIVITY IN THE UK",
+        "excerpt": "A look at how creative ecosystems connect culture, territory, and innovation to unlock new market opportunities.",
+        "author": "BY RETA TORPHY",
+        "featuredImageAlt": "Featured post"
       }
     },
     {
-      "id": "block-1778615311988-m3nbpcynd",
-      "type": "segments-section",
+      "id": "block-1778829980278-ftt5qc3n1",
+      "type": "blog-posts-grid",
       "props": {
-        "backgroundColor": "#071F5E",
-        "title": "Segments we serve",
-        "subtitle": "See how we support each actor in the value chain.",
-        "itemsJson": "[{\"title\":\"Producers\",\"subtitle\":\"Scale your business\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"ESG / Supply Chain Companies\",\"subtitle\":\"Efficiency and traceability\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governments\",\"subtitle\":\"Territorial development\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+        "postsJson": "[\n  {\n    \"slug\": \"japan-house-london-creativity\",\n    \"image\": \"/images/home/hero-1.png\",\n    \"category\": \"ILLUSTRATION\",\n    \"title\": \"JAPAN HOUSE OPENS IN LONDON TO FOSTER JAPANESE CREATIVITY IN THE UK\",\n    \"author\": \"BY RETA TORPHY\"\n  },\n  {\n    \"slug\": \"helmut-lang-taxi-drivers\",\n    \"image\": \"/images/home/home-pic2.png\",\n    \"category\": \"PHOTOGRAPHY\",\n    \"title\": \"HELMUT LANG CELEBRATES TAXI DRIVERS WORLDWIDE IN LATEST CAMPAIGN\",\n    \"author\": \"BY ALESSANDRA ORTIZ\"\n  },\n  {\n    \"slug\": \"bowlcut-uk-legends\",\n    \"image\": \"/images/home/home-ils2.png\",\n    \"category\": \"PHOTOGRAPHY\",\n    \"title\": \"BOWLCUT LAUNCHES A SUMMER COLLECTION THAT PAYS HOMAGE TO UK LEGENDS\",\n    \"author\": \"BY ROSANNA ONDRICKA\"\n  },\n  {\n    \"slug\": \"andy-warhol-unseen-photos\",\n    \"image\": \"/images/home/home-ils3.png\",\n    \"category\": \"PHOTOGRAPHY\",\n    \"title\": \"THOUSANDS OF PREVIOUSLY UNSEEN PHOTOGRAPHS BY ANDY WARHOL WILL BE MADE PUBLIC THIS AUTUMN\",\n    \"author\": \"BY ANNIE LUELWITZ\"\n  },\n  {\n    \"slug\": \"vinka-iloris-storytelling-furniture\",\n    \"image\": \"/images/home/home-pic2.png\",\n    \"category\": \"INTERACTIVE DESIGN\",\n    \"title\": \"LONDON-BASED VINKA ILORIS BUILDS STORYTELLING FURNITURE\",\n    \"author\": \"BY ANNIE LUELWITZ\"\n  },\n  {\n    \"slug\": \"broken-fingaz-u2-beck\",\n    \"image\": \"/images/home/hero-1.png\",\n    \"category\": \"GRAPHIC DESIGN\",\n    \"title\": \"ANONYMOUS ART COLLECTIVE BROKEN FINGAZ DIRECTS MUSIC VIDEO FOR U2 AND BECK\",\n    \"author\": \"BY SIMEON BREKKE\"\n  },\n  {\n    \"slug\": \"suzanne-saroff-photographs\",\n    \"image\": \"/images/home/home-ils2.png\",\n    \"category\": \"ARCHITECTURE\",\n    \"title\": \"SUZANNE SAROFF'S METICULOUSLY ARRANGED PHOTOGRAPHS ALTER PERCEPTIONS\",\n    \"author\": \"BY SIMEON BREKKE\"\n  },\n  {\n    \"slug\": \"ani-jalasvinas-illustrations\",\n    \"image\": \"/images/home/home-ils3.png\",\n    \"category\": \"GRAPHIC DESIGN\",\n    \"title\": \"ANI JALASVINAS' PLAYFUL ILLUSTRATIONS CELEBRATE CLUB CULTURE AND BODILY DIVERSITY\",\n    \"author\": \"BY ANNIE LUELWITZ\"\n  }\n]"
       }
     }
   ],
-  "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T21:24:49.725Z",
+  "createdAt": "2026-05-15T00:00:00.000Z",
+  "updatedAt": "2026-05-15T07:49:23.261Z",
   "status": "published",
   "locale": "en",
-  "publishedAt": "2026-05-14T21:24:26.370Z"
+  "publishedAt": "2026-05-15T07:49:09.679Z"
 }

@@ -12,7 +12,7 @@
         "subtitle": "Unimos capital, tecnología propietaria y visión estratégica para transformar unidades productivas en activos de alto rendimiento. Somos el socio operativo que garantiza la eficiencia y la trazabilidad en cada etapa del ecosistema.",
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Contactar",
-        "ctaUrl": "#contacto",
+        "ctaUrl": "/contacto",
         "secondaryText": "Como funciona",
         "secondaryUrl": "#sistema"
       }
@@ -44,28 +44,11 @@
         "title": "Números que falam",
         "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
       }
-    },
-    {
-      "id": "block-1778736192768-a8mfsmlkf",
-      "type": "free-text",
-      "props": {
-        "content": "Su texto aquí",
-        "fontSize": "16px",
-        "textAlign": "left"
-      }
-    },
-    {
-      "id": "block-1778736192768-b64oh82rk",
-      "type": "image",
-      "props": {
-        "src": "",
-        "alt": "Imagen"
-      }
     }
   ],
   "createdAt": "2026-05-14T02:48:58.461Z",
-  "updatedAt": "2026-05-14T21:24:41.568Z",
+  "updatedAt": "2026-05-15T07:49:19.148Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-14T21:24:26.370Z"
+  "publishedAt": "2026-05-15T07:49:09.679Z"
 }

@@ -70,6 +70,10 @@ export function getBlockProps(layout: PageSchema | null, blockType: string): Rec
   return block?.props ?? {};
 }
 
+export function getBlockIdByType(layout: PageSchema | null, blockType: string): string | undefined {
+  return layout?.blocks.find((item) => item.type === blockType)?.id;
+}
+
 export function parseJsonArray<T>(raw: unknown, fallback: T[]): T[] {
   if (typeof raw !== 'string' || raw.trim().length === 0) {
     return fallback;

@@ -100,6 +100,51 @@
   "common": {
     "saberMas": "Saber mais",
     "contactar": "Contatar",
-    "inicio": "Início"
+    "inicio": "Início",
+    "scrollToTop": "Voltar ao topo"
+  },
+  "contactForm": {
+    "leftTitle": "Informações de contato",
+    "leftSubtitle": "Escreva para iniciar uma conversa.",
+    "labelSubject": "Assunto",
+    "placeholderSubject": "Ex.: Dúvida sobre o kit de implementação",
+    "labelName": "Nome completo",
+    "placeholderName": "Nome e sobrenome",
+    "labelOrganization": "Organização",
+    "placeholderOrganization": "Empresa ou organização",
+    "labelEmail": "E-mail",
+    "placeholderEmail": "email@exemplo.com",
+    "labelWhatsApp": "WhatsApp / Celular",
+    "placeholderWhatsApp": "+598 99 123 456",
+    "labelCountry": "País",
+    "placeholderCountry": "Uruguai",
+    "labelRegion": "Região",
+    "placeholderRegion": "Departamento ou região",
+    "profileLabel": "Tipo de perfil",
+    "messageLabel": "Mensagem",
+    "messagePlaceholder": "Conte brevemente sobre o seu projeto ou necessidade...",
+    "submitLabel": "Enviar consulta",
+    "submitSending": "Enviando…",
+    "submitSuccess": "Obrigado — recebemos sua mensagem e responderemos em breve.",
+    "errors": {
+      "missingFields": "Preencha assunto, nome, e-mail e mensagem.",
+      "invalidEmail": "Verifique o formato do e-mail.",
+      "invalidPayload": "Não foi possível ler o formulário. Tente novamente.",
+      "config": "O envio não está configurado no servidor (falta RESEND).",
+      "sendFailed": "Não foi possível enviar agora. Tente mais tarde ou envie um e-mail.",
+      "network": "Erro de rede. Tente novamente."
+    },
+    "profiles": {
+      "productor": "Produtor Rural",
+      "b2b": "Empresa B2B",
+      "gobierno": "Governo",
+      "inversor": "Investidor"
+    }
+  },
+  "contactMap": {
+    "legendAtendimento": "Cobertura / onde atendemos",
+    "legendIntervencion": "Projetos (em curso ou concluídos)",
+    "emptyMap": "Mapa",
+    "iframeTitle": "Mapa"
   }
 }

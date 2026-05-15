@@ -12,7 +12,7 @@
         "subtitle": "Combinamos capital, tecnologia própria e visão estratégica para transformar unidades produtivas em ativos de alto desempenho. Somos o parceiro operacional que garante eficiência e rastreabilidade em cada etapa do ecossistema.",
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Contato",
-        "ctaUrl": "#contacto",
+        "ctaUrl": "/contacto",
         "secondaryText": "Como funciona",
         "secondaryUrl": "#sistema"
       }
@@ -47,8 +47,8 @@
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-14T21:24:43.174Z",
+  "updatedAt": "2026-05-15T07:49:20.024Z",
   "status": "published",
   "locale": "pt-BR",
-  "publishedAt": "2026-05-14T21:24:26.370Z"
+  "publishedAt": "2026-05-15T07:49:09.679Z"
 }

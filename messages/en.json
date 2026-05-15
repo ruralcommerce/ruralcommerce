@@ -100,6 +100,51 @@
   "common": {
     "saberMas": "Learn more",
     "contactar": "Contact",
-    "inicio": "Home"
+    "inicio": "Home",
+    "scrollToTop": "Back to top"
+  },
+  "contactForm": {
+    "leftTitle": "Contact information",
+    "leftSubtitle": "Say something to start a conversation.",
+    "labelSubject": "Subject",
+    "placeholderSubject": "E.g.: Question about the rapid implementation kit",
+    "labelName": "Full name",
+    "placeholderName": "First and last name",
+    "labelOrganization": "Organization",
+    "placeholderOrganization": "Company or organization",
+    "labelEmail": "Email",
+    "placeholderEmail": "you@example.com",
+    "labelWhatsApp": "WhatsApp / Mobile",
+    "placeholderWhatsApp": "+598 99 123 456",
+    "labelCountry": "Country",
+    "placeholderCountry": "Uruguay",
+    "labelRegion": "Region",
+    "placeholderRegion": "Department or region",
+    "profileLabel": "Profile type",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us briefly about your project or need...",
+    "submitLabel": "Send inquiry",
+    "submitSending": "Sending…",
+    "submitSuccess": "Thanks — we received your message and will get back to you soon.",
+    "errors": {
+      "missingFields": "Please fill in subject, name, email, and message.",
+      "invalidEmail": "Please check the email format.",
+      "invalidPayload": "We could not read the form. Please try again.",
+      "config": "Sending is not configured on the server (missing RESEND).",
+      "sendFailed": "We could not send right now. Please try again later or email us.",
+      "network": "Network error. Please try again."
+    },
+    "profiles": {
+      "productor": "Rural producer",
+      "b2b": "B2B company",
+      "gobierno": "Government",
+      "inversor": "Investor"
+    }
+  },
+  "contactMap": {
+    "legendAtendimento": "Coverage / where we operate",
+    "legendIntervencion": "Projects (ongoing or completed)",
+    "emptyMap": "Map",
+    "iframeTitle": "Map"
   }
 }

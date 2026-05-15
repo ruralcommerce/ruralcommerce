@@ -5,32 +5,29 @@
   "slug": "blog",
   "blocks": [
     {
-      "id": "block-1778572602058-wt1hvfze4",
-      "type": "hero-section",
+      "id": "block-1778829980274-uve73k9xv",
+      "type": "blog-featured",
       "props": {
-        "title": "Transformamos excedentes em negócios sustentáveis.",
-        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
-        "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calcule seu impacto",
-        "ctaUrl": "#soluciones",
-        "secondaryText": "Como funciona",
-        "secondaryUrl": "#sistema"
+        "slug": "japan-house-london-creativity",
+        "image": "/images/home/hero-1.png",
+        "category": "ILUSTRACIÓN",
+        "title": "JAPAN HOUSE ABRE EN LONDRES PARA IMPULSAR LA CREATIVIDAD JAPONESA EN EL REINO UNIDO",
+        "excerpt": "Una mirada sobre cómo los ecosistemas creativos conectan cultura, territorio e innovación para abrir nuevas oportunidades de mercado.",
+        "author": "POR RETA TORPHY",
+        "featuredImageAlt": "Publicación destacada"
       }
     },
     {
-      "id": "block-1778615311988-m3nbpcynd",
-      "type": "segments-section",
+      "id": "block-1778829980274-fjqacee0t",
+      "type": "blog-posts-grid",
       "props": {
-        "backgroundColor": "#071F5E",
-        "title": "Segmentos que atendemos",
-        "subtitle": "Veja como apoiamos cada ator da cadeia.",
-        "itemsJson": "[{\"title\":\"Produtores\",\"subtitle\":\"Escalone seu negócio\",\"href\":\"#soluciones\",\"icon\":\"tractor\"},{\"title\":\"Empresas ESG / cadeia de suprimentos\",\"subtitle\":\"Eficiência e rastreabilidade\",\"href\":\"#socios\",\"icon\":\"leaf\"},{\"title\":\"Governos\",\"subtitle\":\"Desenvolvimento territorial\",\"href\":\"#socios\",\"icon\":\"building2\"}]"
+        "postsJson": "[\n  {\n    \"slug\": \"japan-house-london-creativity\",\n    \"image\": \"/images/home/hero-1.png\",\n    \"category\": \"ILUSTRACIÓN\",\n    \"title\": \"JAPAN HOUSE ABRE EN LONDRES PARA IMPULSAR LA CREATIVIDAD JAPONESA EN EL REINO UNIDO\",\n    \"author\": \"POR RETA TORPHY\"\n  },\n  {\n    \"slug\": \"helmut-lang-taxi-drivers\",\n    \"image\": \"/images/home/home-pic2.png\",\n    \"category\": \"FOTOGRAFÍA\",\n    \"title\": \"HELMUT LANG CELEBRA A TAXISTAS DE TODO EL MUNDO EN SU NUEVA CAMPAÑA\",\n    \"author\": \"POR ALESSANDRA ORTIZ\"\n  },\n  {\n    \"slug\": \"bowlcut-uk-legends\",\n    \"image\": \"/images/home/home-ils2.png\",\n    \"category\": \"FOTOGRAFÍA\",\n    \"title\": \"BOWLCUT LANZA SU NUEVA COLECCIÓN DE VERANO EN HOMENAJE A LEYENDAS DEL REINO UNIDO\",\n    \"author\": \"POR ROSANNA ONDRICKA\"\n  },\n  {\n    \"slug\": \"andy-warhol-unseen-photos\",\n    \"image\": \"/images/home/home-ils3.png\",\n    \"category\": \"FOTOGRAFÍA\",\n    \"title\": \"MILES DE FOTOS INÉDITAS DE ANDY WARHOL SERÁN PUBLICADAS ESTE OTOÑO\",\n    \"author\": \"POR ANNIE LUELWITZ\"\n  },\n  {\n    \"slug\": \"vinka-iloris-storytelling-furniture\",\n    \"image\": \"/images/home/home-pic2.png\",\n    \"category\": \"DISEÑO INTERACTIVO\",\n    \"title\": \"VINKA ILORIS, DESDE LONDRES, CREA MOBILIARIO CON ENFOQUE NARRATIVO\",\n    \"author\": \"POR ANNIE LUELWITZ\"\n  },\n  {\n    \"slug\": \"broken-fingaz-u2-beck\",\n    \"image\": \"/images/home/hero-1.png\",\n    \"category\": \"DISEÑO GRÁFICO\",\n    \"title\": \"EL COLECTIVO BROKEN FINGAZ DIRIGE VIDEO MUSICAL PARA U2 Y BECK\",\n    \"author\": \"POR SIMEON BREKKE\"\n  },\n  {\n    \"slug\": \"suzanne-saroff-photographs\",\n    \"image\": \"/images/home/home-ils2.png\",\n    \"category\": \"ARQUITECTURA\",\n    \"title\": \"LAS FOTOGRAFÍAS METICULOSAMENTE COMPUESTAS DE SUZANNE SAROFF ALTERAN LA PERCEPCIÓN\",\n    \"author\": \"POR SIMEON BREKKE\"\n  },\n  {\n    \"slug\": \"ani-jalasvinas-illustrations\",\n    \"image\": \"/images/home/home-ils3.png\",\n    \"category\": \"DISEÑO GRÁFICO\",\n    \"title\": \"LAS ILUSTRACIONES DE ANI JALASVINAS CELEBRAN LA CULTURA CLUB Y LOS CUERPOS REALES\",\n    \"author\": \"POR ANNIE LUELWITZ\"\n  }\n]"
       }
     }
   ],
-  "createdAt": "2026-05-14T02:49:03.946Z",
-  "updatedAt": "2026-05-14T21:24:46.258Z",
+  "createdAt": "2026-05-15T00:00:00.000Z",
+  "updatedAt": "2026-05-15T07:49:21.267Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-14T21:24:26.370Z"
+  "publishedAt": "2026-05-15T07:49:09.679Z"
 }

@@ -52,19 +52,8 @@ export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es
     return () => el.removeEventListener('wheel', onWheel);
   }, []);
 
-  const slides = [...partners, ...partners];
-
   return (
     <div className="relative mt-10">
-      <div
-        className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-12 bg-gradient-to-r from-[var(--rc-bg)] to-transparent md:block"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-12 bg-gradient-to-l from-[var(--rc-bg)] to-transparent md:block"
-        aria-hidden
-      />
-
       <div
         ref={scrollerRef}
         className={`flex touch-pan-x gap-10 overflow-x-auto pb-2 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-14 ${
@@ -109,21 +98,20 @@ export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es
           setIsDragging(false);
         }}
       >
-        {slides.map((p, i) => (
+        {partners.map((p) => (
           <a
-            key={`${p.name}-${i}`}
+            key={`${p.name}-${p.href}`}
             href={p.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="group flex h-14 shrink-0 items-center justify-center rounded-md px-2 outline-none ring-offset-2 ring-offset-[var(--rc-bg)] focus-visible:ring-2 focus-visible:ring-[#071F5E]/35 sm:h-16 sm:px-4"
+            className="group flex h-20 shrink-0 items-center justify-center rounded-md px-3 outline-none ring-offset-2 ring-offset-[var(--rc-bg)] focus-visible:ring-2 focus-visible:ring-[#071F5E]/35 sm:h-24 sm:px-5"
           >
-            {/* Estado base: acinzentado; so este logo ganha cor no hover/foco */}
             <img
               src={p.src}
               alt={p.name}
-              width={140}
-              height={40}
-              className="h-7 w-auto max-w-[120px] object-contain object-center transition-[filter,opacity] duration-300 ease-out motion-reduce:transition-none sm:h-8 sm:max-w-[140px] [filter:grayscale(1)_brightness(0.94)_saturate(0.42)_opacity(0.68)] group-hover:[filter:grayscale(0)_brightness(1)_saturate(1)_opacity(1)] group-focus-visible:[filter:grayscale(0)_brightness(1)_saturate(1)_opacity(1)]"
+              width={220}
+              height={64}
+              className="h-11 w-auto max-w-[180px] object-contain object-center transition-[filter,opacity] duration-300 ease-out motion-reduce:transition-none sm:h-14 sm:max-w-[220px] [filter:grayscale(1)_brightness(0.94)_saturate(0.42)_opacity(0.68)] group-hover:[filter:grayscale(0)_brightness(1)_saturate(1)_opacity(1)] group-focus-visible:[filter:grayscale(0)_brightness(1)_saturate(1)_opacity(1)]"
               loading="lazy"
               decoding="async"
             />
@@ -133,4 +121,3 @@ export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es
     </div>
   );
 }
-

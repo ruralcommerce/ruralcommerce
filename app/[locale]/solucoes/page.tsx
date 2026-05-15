@@ -1,5 +1,6 @@
 ﻿import Image from 'next/image';
 import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
+import { LayoutBlocksRenderer } from '@/components/LayoutBlocksRenderer';
 import { RuralCommerceFooter } from '@/components/RuralCommerceFooter';
 import { CalcSection } from '@/components/CalcSection';
 import {
@@ -198,7 +199,7 @@ export default async function SolucoesPage({
   const heroProps = getSectionProps(layout, 'hero-section');
   const freeTextContent = getFirstFreeTextContent(layout);
   const locale = params.locale === 'pt-BR' || params.locale === 'en' ? params.locale : 'es';
-  const contactHref = `/${locale}#contacto`;
+  const contactHref = `/${locale}/contacto`;
   const localizedCombos = combosByLocale[locale];
   const routesTitle =
     locale === 'pt-BR' ? 'Nossas Rotas' : locale === 'en' ? 'Our Paths' : 'Nuestras Rutas';
@@ -235,7 +236,7 @@ export default async function SolucoesPage({
     { label: 'Soluciones', href: '/solucoes' },
     { label: 'Aliados y Inversores', href: '/aliados' },
     { label: 'Blog', href: '/blog' },
-    { label: 'Contacto', href: '#contacto' },
+    { label: 'Contacto', href: '/contacto' },
   ]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
   const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
@@ -367,6 +368,7 @@ export default async function SolucoesPage({
         <section data-editor-section="partners-section">
           <CalcSection locale={locale} />
         </section>
+        <LayoutBlocksRenderer blocks={layout?.blocks ?? []} locale={locale} />
       </main>
 
       <RuralCommerceFooter

@@ -1,4 +1,5 @@
 import { BlockData, BLOCK_LIBRARY, BlockType, PageSchema } from '@/lib/editor-types';
+import { getBlogDefaultBlocks, getBlogLocaleKey } from '@/lib/blog-defaults';
 import { createBlock } from '@/lib/editor-utils';
 
 export type EditorPageConfig = {
@@ -15,6 +16,7 @@ export const EDITOR_PAGES: EditorPageConfig[] = [
   { slug: 'sobre', name: 'Sobre', title: 'Sobre Nos', icon: 'ℹ️', previewPath: '/sobre' },
   { slug: 'aliados', name: 'Aliados', title: 'Aliados e Inversores', icon: '🤝', previewPath: '/aliados' },
   { slug: 'blog', name: 'Blog', title: 'Blog', icon: '📰', previewPath: '/blog' },
+  { slug: 'contacto', name: 'Contacto', title: 'Contacto', icon: '📬', previewPath: '/contacto' },
 ];
 
 const PAGE_BLOCK_TEMPLATES: Record<string, BlockType[]> = {
@@ -31,19 +33,18 @@ const PAGE_BLOCK_TEMPLATES: Record<string, BlockType[]> = {
   solucoes: ['hero-section', 'solutions-section', 'stats-section', 'free-text', 'image'],
   sobre: ['hero-section', 'segments-section', 'system-section', 'stats-section', 'free-text', 'image'],
   aliados: ['hero-section', 'system-section', 'solutions-section', 'stats-section', 'free-text', 'image'],
-  blog: ['hero-section', 'segments-section'],
+  blog: ['blog-featured', 'blog-posts-grid'],
+  contacto: ['contact-hero-split', 'contact-form-split', 'contact-map-split', 'contact-social-strip'],
 };
 
-function getTemplateBlockTypes(slug: string): BlockType[] {
+export function getTemplateBlockTypes(slug: string): BlockType[] {
   return PAGE_BLOCK_TEMPLATES[slug] || PAGE_BLOCK_TEMPLATES.homepage;
 }
 
-export function getPaletteBlockTypesForPage(slug: string): BlockType[] {
-  const genericExtras: BlockType[] = ['free-text', 'image', 'spacer'];
-  return Array.from(new Set([...getTemplateBlockTypes(slug), ...genericExtras]));
-}
-
-function createDefaultBlocksForPage(slug: string): BlockData[] {
+function createDefaultBlocksForPage(slug: string, locale?: string): BlockData[] {
+  if (slug === 'blog') {
+    return getBlogDefaultBlocks(getBlogLocaleKey(locale || 'es'));
+  }
   return getTemplateBlockTypes(slug).map((type) => createBlock(type));
 }
 
@@ -51,52 +52,28 @@ export function getEditorPageConfig(slug: string): EditorPageConfig {
   return EDITOR_PAGES.find((page) => page.slug === slug) || EDITOR_PAGES[0];
 }
 
+/** Preserva el orden del JSON; filtra tipos inválidos o no permitidos en la página; singletons: conserva la primera aparición. */
 export function reconcilePageBlocks(slug: string, blocks: BlockData[]): BlockData[] {
-  const templateTypes = getTemplateBlockTypes(slug);
   const seenSingletons = new Set<BlockType>();
+  const out: BlockData[] = [];
 
-  const filteredBlocks = blocks.filter((block) => {
+  for (const block of blocks) {
     const definition = BLOCK_LIBRARY[block.type];
-    if (!definition) {
-      return false;
-    }
+    if (!definition) continue;
 
     if (definition.pageSlugs && !definition.pageSlugs.includes(slug)) {
-      return false;
+      continue;
     }
 
     if (definition.singleton) {
-      if (seenSingletons.has(block.type)) {
-        return false;
-      }
+      if (seenSingletons.has(block.type)) continue;
       seenSingletons.add(block.type);
     }
 
-    return true;
-  });
-
-  const blockByType = new Map<BlockType, BlockData>();
-  for (const block of filteredBlocks) {
-    if (!blockByType.has(block.type)) {
-      blockByType.set(block.type, block);
-    }
+    out.push(block);
   }
 
-  const ordered: BlockData[] = [];
-
-  for (const type of templateTypes) {
-    ordered.push(blockByType.get(type) || createBlock(type));
-    blockByType.delete(type);
-  }
-
-  for (const block of filteredBlocks) {
-    if (blockByType.has(block.type) || !templateTypes.includes(block.type)) {
-      ordered.push(block);
-      blockByType.delete(block.type);
-    }
-  }
-
-  return ordered;
+  return out;
 }
 
 export function createDefaultLayoutForPage(slug: string): PageSchema {
@@ -107,7 +84,7 @@ export function createDefaultLayoutForPage(slug: string): PageSchema {
     name: page.name,
     title: page.title,
     slug: page.slug,
-    blocks: createDefaultBlocksForPage(page.slug),
+    blocks: createDefaultBlocksForPage(page.slug, 'es'),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     status: 'draft',
