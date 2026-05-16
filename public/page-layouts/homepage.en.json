@@ -32,6 +32,7 @@
         "backgroundColor": "#071F5E",
         "title": "The field faces major challenges",
         "subtitle": "Post-harvest losses, market volatility, and sustainability pressure still limit rural growth.",
+        "sideImage": "/images/home/home-pic2.png",
         "pillarsJson": "[{\"title\":\"Precision Hardware\",\"body\":\"Modular equipment designed to optimize processes, reduce costs, and add value to production.\"},{\"title\":\"Intelligence & Management Software\",\"body\":\"Tools that centralize business management and production monitoring, delivering indicators and confidence for decision-making.\"},{\"title\":\"Recovery & Value Management\",\"body\":\"Commercial processes that turn losses into sellable products with extended shelf life, avoiding disposal emissions.\"},{\"title\":\"Acceleration Methodology\",\"body\":\"A practical framework to standardize quality, structure margins, and open commercial channels.\"}]"
       }
     },
@@ -46,21 +47,13 @@
       }
     },
     {
-      "id": "block-1778391185975-zhs6tr6lf",
-      "type": "solutions-section",
-      "props": {
-        "backgroundColor": "#F5F7FB",
-        "title": "A clear path to transform your production",
-        "itemsJson": "[{\"title\":\"Efficiency Diagnosis\",\"body\":\"Find out where your business is losing money.\",\"cta\":\"Learn more\",\"variant\":\"navy\"},{\"title\":\"Processing and Management Course\",\"body\":\"Technical training for retail-standard operations.\",\"cta\":\"Learn more\",\"variant\":\"sage\"},{\"title\":\"Rapid Implementation Kit\",\"body\":\"Technology and methodology to start generating gains today.\",\"cta\":\"Learn more\",\"variant\":\"royal\"}]"
-      }
-    },
-    {
       "id": "block-1778391185975-exhsje7jw",
       "type": "stats-section",
       "props": {
         "backgroundColor": "#EEF3F7",
         "title": "Numbers that speak",
-        "subtitle": "Impact and efficiency indicators across supported networks (reference values)."
+        "subtitle": "Impact and efficiency indicators across supported networks (reference values).",
+        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Emprendimientos atendidos por nuestro ecosistema.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"de CO2e evitados a cada 5kg de alimentos rescatados.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"de AGUA virtual preservadas a cada 5kg de alimento rescatados.\"}]"
       }
     },
     {
@@ -69,7 +62,7 @@
       "props": {
         "backgroundColor": "#F5F7FB",
         "title": "Clients and Partners",
-        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Commerce\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Commerce\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"La red de innovacion e impacto\",\"src\":\"/images/home/aliados/la red de innovacion e impacto.png\",\"href\":\"https://laredinnovacionimpacto.com/\"}]"
       }
     },
     {
@@ -83,14 +76,14 @@
         "contactPhone": "+1 (307) 212-6747",
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Social media",
-        "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"}]",
+        "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Linkedin\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"}]",
         "footerLinksJson": "[{\"group\":\"Website\",\"items\":[{\"label\":\"About\",\"href\":\"/#sobre\"},{\"label\":\"rivacy Policy\",\"href\":\"/#soluciones\"},{\"label\":\"Cookies Policy\",\"href\":\"/#aliados\"}]},{\"group\":\"Terms\",\"items\":[{\"label\":\"Terms and Conditions\",\"href\":\"\"},{\"label\":\"rivacy Policy\",\"href\":\"\"},{\"label\":\"Cookies Policy\",\"href\":\"\"}]}]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-16T04:48:54.025Z",
+  "updatedAt": "2026-05-16T06:55:12.048Z",
   "status": "published",
-  "publishedAt": "2026-05-16T04:48:52.894Z",
+  "publishedAt": "2026-05-16T06:55:10.644Z",
   "locale": "en"
 }

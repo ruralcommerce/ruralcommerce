@@ -10,27 +10,16 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
+import { isRenderableStatSymbol, resolveStatIndicatorVisual, statSymbolForDisplay } from '@/lib/stats-indicator-icons';
 
 type StatItem = {
+  iconKey: string;
   Icon: LucideIcon;
+  emoji?: string;
   digits: string;
-  symbol: '+' | '%';
+  symbol: string;
   label: string;
 };
-
-const STAT_ICONS: Record<string, LucideIcon> = {
-  users: Users,
-  droplets: Droplets,
-  building2: Building2,
-  leaf: Leaf,
-  mappin: MapPin,
-  sprout: Sprout,
-};
-
-function iconFromKey(raw: string): LucideIcon {
-  const k = raw.toLowerCase().replace(/-/g, '');
-  return STAT_ICONS[k] || Users;
-}
 
 function parseStatsFromJson(json: string | null | undefined, locale: string): StatItem[] {
   const fallback = statsByLocale[locale] || fallbackStats;
@@ -45,12 +34,14 @@ function parseStatsFromJson(json: string | null | undefined, locale: string): St
       const o = row as Record<string, unknown>;
       const iconKey = String(o.icon ?? 'users');
       const digits = String(o.digits ?? '').trim();
-      const symRaw = String(o.symbol ?? '+').trim();
-      const symbol: '+' | '%' = symRaw === '%' ? '%' : '+';
+      const symbol = String(o.symbol ?? '+');
       const label = String(o.label ?? '').trim();
       if (!label) continue;
+      const visual = resolveStatIndicatorVisual(iconKey);
       out.push({
-        Icon: iconFromKey(iconKey),
+        iconKey,
+        Icon: visual.kind === 'lucide' ? visual.Icon : Users,
+        emoji: visual.kind === 'emoji' ? visual.emoji : undefined,
         digits: digits || '0',
         symbol,
         label,
@@ -65,36 +56,42 @@ function parseStatsFromJson(json: string | null | undefined, locale: string): St
 const statsByLocale: Record<string, StatItem[]> = {
   es: [
     {
+      iconKey: 'users',
       Icon: Users,
       digits: '1200',
       symbol: '+',
       label: 'Toneladas de CO₂ evitadas en proyectos reales',
     },
     {
+      iconKey: 'droplets',
       Icon: Droplets,
       digits: '8,714',
       symbol: '+',
       label: 'Millones de litros de agua preservados.',
     },
     {
+      iconKey: 'building2',
       Icon: Building2,
       digits: '1600',
       symbol: '%',
       label: 'de aumento promedio en la rentabilidad en redes implementadas',
     },
     {
+      iconKey: 'leaf',
       Icon: Leaf,
       digits: '35',
       symbol: '+',
       label: 'especies y cultivos asociados a redes de valor sostenible',
     },
     {
+      iconKey: 'mapPin',
       Icon: MapPin,
       digits: '18',
       symbol: '+',
       label: 'territorios con intervenciones coordinadas en campo',
     },
     {
+      iconKey: 'sprout',
       Icon: Sprout,
       digits: '240',
       symbol: '+',
@@ -103,36 +100,42 @@ const statsByLocale: Record<string, StatItem[]> = {
   ],
   'pt-BR': [
     {
+      iconKey: 'users',
       Icon: Users,
       digits: '1200',
       symbol: '+',
       label: 'Toneladas de CO₂ evitadas em projetos reais',
     },
     {
+      iconKey: 'droplets',
       Icon: Droplets,
       digits: '8,714',
       symbol: '+',
       label: 'Milhões de litros de água preservados.',
     },
     {
+      iconKey: 'building2',
       Icon: Building2,
       digits: '1600',
       symbol: '%',
       label: 'de aumento médio na rentabilidade em redes implementadas',
     },
     {
+      iconKey: 'leaf',
       Icon: Leaf,
       digits: '35',
       symbol: '+',
       label: 'espécies e cultivos associados a redes de valor sustentável',
     },
     {
+      iconKey: 'mapPin',
       Icon: MapPin,
       digits: '18',
       symbol: '+',
       label: 'territórios com intervenções coordenadas em campo',
     },
     {
+      iconKey: 'sprout',
       Icon: Sprout,
       digits: '240',
       symbol: '+',
@@ -141,36 +144,42 @@ const statsByLocale: Record<string, StatItem[]> = {
   ],
   en: [
     {
+      iconKey: 'users',
       Icon: Users,
       digits: '1200',
       symbol: '+',
       label: 'Tons of CO₂ avoided in real projects',
     },
     {
+      iconKey: 'droplets',
       Icon: Droplets,
       digits: '8,714',
       symbol: '+',
       label: 'Millions of liters of water preserved.',
     },
     {
+      iconKey: 'building2',
       Icon: Building2,
       digits: '1600',
       symbol: '%',
       label: 'average increase in profitability across implemented networks',
     },
     {
+      iconKey: 'leaf',
       Icon: Leaf,
       digits: '35',
       symbol: '+',
       label: 'species and crops connected to sustainable value networks',
     },
     {
+      iconKey: 'mapPin',
       Icon: MapPin,
       digits: '18',
       symbol: '+',
       label: 'territories with coordinated field interventions',
     },
     {
+      iconKey: 'sprout',
       Icon: Sprout,
       digits: '240',
       symbol: '+',
@@ -313,21 +322,33 @@ export function StatsCarousel({ locale = 'es', statsJson }: StatsCarouselProps) 
       >
         {stats.map((s, i) => {
           const Icon = s.Icon;
+          const emoji = s.emoji;
           return (
             <div
               key={`${s.label}-${i}`}
               data-stat-slide
               className="flex w-[min(85vw,300px)] shrink-0 snap-start gap-4 text-left sm:w-[300px] lg:w-[320px]"
             >
-              <Icon
-                className="mt-1 h-12 w-12 shrink-0 text-[#071F5E]"
-                strokeWidth={1.35}
-                aria-hidden
-              />
+              {emoji ? (
+                <span
+                  className="mt-1 flex h-12 w-12 shrink-0 items-center justify-center text-4xl leading-none"
+                  aria-hidden
+                >
+                  {emoji}
+                </span>
+              ) : (
+                <Icon
+                  className="mt-1 h-12 w-12 shrink-0 text-[#071F5E]"
+                  strokeWidth={1.35}
+                  aria-hidden
+                />
+              )}
               <div className="min-w-0">
                 <p className="text-3xl font-bold tabular-nums sm:text-4xl">
                   <span className="text-[#1E1E1E]">{s.digits}</span>
-                  <span className="text-[#071F5E]">{s.symbol}</span>
+                  {isRenderableStatSymbol(s.symbol) ? (
+                    <span className="text-[#071F5E]">{statSymbolForDisplay(s.symbol)}</span>
+                  ) : null}
                 </p>
                 <p className="mt-2 text-sm font-bold leading-snug text-[#1E1E1E] sm:text-base">{s.label}</p>
               </div>

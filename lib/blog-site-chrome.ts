@@ -7,6 +7,7 @@ import {
   LayoutSearchParams,
   parseJsonArray,
 } from '@/lib/page-layout-runtime';
+import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 
 const fallbackNav = {
   es: [
@@ -51,7 +52,7 @@ export async function loadBlogSiteChrome(localeParam: string, searchParams?: Lay
     footerProps.footerLinksJson,
     []
   );
-  const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
+  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
 
   const header = createElement(RuralCommerceHeader, {
     navItems: headerNavItems,

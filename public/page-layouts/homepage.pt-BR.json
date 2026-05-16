@@ -47,21 +47,13 @@
       }
     },
     {
-      "id": "block-1778391185975-zhs6tr6lf",
-      "type": "solutions-section",
-      "props": {
-        "backgroundColor": "#F5F7FB",
-        "title": "Um caminho claro para transformar sua produção",
-        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiência\",\"body\":\"Descubra onde seu negócio está perdendo dinheiro.\",\"cta\":\"Saiba mais\",\"variant\":\"navy\"},{\"title\":\"Curso de Processamento e Gestão\",\"body\":\"Capacitação técnica para o padrão de varejo.\",\"cta\":\"Saiba mais\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementação Rápida\",\"body\":\"Tecnologia e metodologia para começar a gerar ganhos hoje.\",\"cta\":\"Saiba mais\",\"variant\":\"royal\"}]"
-      }
-    },
-    {
       "id": "block-1778391185975-exhsje7jw",
       "type": "stats-section",
       "props": {
         "backgroundColor": "#EEF3F7",
         "title": "Números que falam",
-        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
+        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais).",
+        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Emprendimientos atendidos por nuestro ecosistema.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"de CO2e evitados a cada 5kg de alimentos rescatados.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"de AGUA virtual preservadas a cada 5kg de alimento rescatados.\"}]"
       }
     },
     {
@@ -70,7 +62,7 @@
       "props": {
         "backgroundColor": "#F5F7FB",
         "title": "Clientes e Parceiros",
-        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Commerce\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"Medium\",\"src\":\"https://cdn.simpleicons.org/medium\",\"href\":\"https://medium.com\"},{\"name\":\"SitePoint\",\"src\":\"https://cdn.simpleicons.org/sitepoint\",\"href\":\"https://www.sitepoint.com\"},{\"name\":\"Microsoft\",\"src\":\"https://cdn.simpleicons.org/microsoft\",\"href\":\"https://www.microsoft.com\"},{\"name\":\"GitHub\",\"src\":\"https://cdn.simpleicons.org/github\",\"href\":\"https://github.com\"}]"
+        "partnersJson": "[{\"name\":\"Slack\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Commerce\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"La red de innovacion e impacto\",\"src\":\"/images/home/aliados/la red de innovacion e impacto.png\",\"href\":\"https://laredinnovacionimpacto.com/\"}]"
       }
     },
     {
@@ -84,14 +76,14 @@
         "contactPhone": "+1 (307) 212-6747",
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Redes sociais",
-        "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"}]",
+        "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Linkedin\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"}]",
         "footerLinksJson": "[{\"group\":\"Outra seção\",\"items\":[{\"label\":\"Sobre\",\"href\":\"/#sobre\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Aliados\",\"href\":\"/#aliados\"}]},{\"group\":\"Termos\",\"items\":[{\"label\":\"Términos de Uso\",\"href\":\"\"},{\"label\":\"Política de Privacidad\",\"href\":\"\"},{\"label\":\"Política de Cookies\",\"href\":\"\"}]}]"
       }
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-16T04:48:53.537Z",
+  "updatedAt": "2026-05-16T06:55:11.443Z",
   "status": "published",
-  "publishedAt": "2026-05-16T04:48:52.894Z",
+  "publishedAt": "2026-05-16T06:55:10.644Z",
   "locale": "pt-BR"
 }

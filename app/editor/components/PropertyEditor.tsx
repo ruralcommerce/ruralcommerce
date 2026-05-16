@@ -13,8 +13,10 @@ import { EditorColorField } from './EditorColorField';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MediaLibraryModal } from './MediaLibraryModal';
 import { BlogTranslateModal } from './BlogTranslateModal';
+import { BlockTranslateModal } from './BlockTranslateModal';
 import { getJsonValidationMessage as getSharedJsonValidationMessage } from '@/lib/json-prop-validation';
 import { StatsIndicatorsEditor } from './StatsIndicatorsEditor';
+import { SocialLinksArrayEditor } from './SocialLinksArrayEditor';
 
 type JsonEditorValue = string | number | boolean | null | JsonEditorValue[] | { [key: string]: JsonEditorValue };
 
@@ -342,17 +344,21 @@ export function PropertyEditor({
   embedded = false,
   editorLocale = 'es',
   onBlogFilesChanged,
+  onBlockLayoutTranslationsApplied,
 }: {
   embedded?: boolean;
   /** Locale do editor (para tradução / comparar blog). */
   editorLocale?: string;
   /** Chamado após tradução automática dos ficheiros `posts.*.json`. */
   onBlogFilesChanged?: () => void;
+  /** Após gravar traduções de um bloco nos layouts em disco (locales afetados). */
+  onBlockLayoutTranslationsApplied?: (locales: string[]) => void;
 } = {}) {
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const updateBlock = useEditorStore((s) => s.updateBlock);
   const [blogTranslateOpen, setBlogTranslateOpen] = useState(false);
+  const [blockTranslateOpen, setBlockTranslateOpen] = useState(false);
   const [mediaImages, setMediaImages] = useState<string[]>([]);
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const mediaPickRef = useRef<((path: string) => void) | null>(null);
@@ -398,6 +404,10 @@ export function PropertyEditor({
 
   useEffect(() => {
     setPropTab('content');
+  }, [selectedBlockId]);
+
+  useEffect(() => {
+    if (!selectedBlockId) setBlockTranslateOpen(false);
   }, [selectedBlockId]);
 
   const propsByTab = useMemo(() => {
@@ -623,6 +633,22 @@ export function PropertyEditor({
         </div>
       ) : null}
 
+      <div className="border-b border-emerald-200/80 bg-emerald-50/90 px-4 py-3">
+        <p className="text-[11px] font-semibold text-emerald-950">Tradução do layout (este bloco)</p>
+        <p className="mt-1 text-[10px] leading-snug text-emerald-900/90">
+          Inclui títulos, subtítulos, HTML, menus/listas em JSON (indicadores, segmentos, rodapé, etc.). Não usa o
+          histórico «Traduzir» global. Grava neste bloco nos ficheiros{' '}
+          <code className="rounded bg-white/80 px-1">page-layouts</code>.
+        </p>
+        <button
+          type="button"
+          onClick={() => setBlockTranslateOpen(true)}
+          className="mt-2 w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-[11px] font-semibold text-emerald-950 shadow-sm hover:bg-emerald-50"
+        >
+          Tradução e comparar (layout)…
+        </button>
+      </div>
+
       <div className="editor-scroll flex-1 space-y-4 p-4">
         {visiblePropKeys.length === 0 ? <p className="text-xs text-slate-500">Nenhum campo nesta aba.</p> : null}
         {visiblePropKeys.map((propKey) => {
@@ -697,7 +723,12 @@ export function PropertyEditor({
                     />
                   ) : propName.endsWith('Json') && !hasJsonError && parsedJsonValue ? (
                     <div className="space-y-3 rounded border border-slate-200 bg-white p-3">
-                      {blockDef.type === 'partners-section' && propName === 'partnersJson' ? (
+                      {propName === 'socialLinksJson' ? (
+                        <SocialLinksArrayEditor
+                          value={value}
+                          onChange={(v) => handlePropChange(propName, v)}
+                        />
+                      ) : blockDef.type === 'partners-section' && propName === 'partnersJson' ? (
                         <PartnersArrayEditor
                           value={value}
                           onChange={(v) => handlePropChange(propName, v)}
@@ -819,6 +850,17 @@ export function PropertyEditor({
         onClose={() => setBlogTranslateOpen(false)}
         defaultSourceLocale={editorLocale}
         onApplied={() => onBlogFilesChanged?.()}
+      />
+
+      <BlockTranslateModal
+        open={blockTranslateOpen}
+        onClose={() => setBlockTranslateOpen(false)}
+        pageSlug={currentPage.slug}
+        blockId={selectedBlockId}
+        blockType={selectedBlock.type}
+        editorLocale={editorLocale}
+        currentPage={currentPage}
+        onApplied={onBlockLayoutTranslationsApplied}
       />
     </div>
   );

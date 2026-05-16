@@ -7,6 +7,7 @@ import type { BlockType, PageSchema } from '@/lib/editor-types';
 import { reconcilePageBlocks } from '@/lib/editor-pages';
 import { createBlock } from '@/lib/editor-utils';
 import { getBlockProps, parseJsonArray } from '@/lib/page-layout-runtime';
+import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 
 const LAYOUTS_DIR = path.join(process.cwd(), 'public', 'page-layouts');
 
@@ -120,14 +121,11 @@ export default async function HomePage({
     ]
   );
 
-  const socialLinks = parseJsonArray<{ label: string; href: string }>(
-    footerProps.socialLinksJson,
-    [
-      { label: 'Facebook', href: 'https://facebook.com' },
-      { label: 'YouTube', href: 'https://youtube.com' },
-      { label: 'Instagram', href: 'https://instagram.com' },
-    ]
-  );
+  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, [
+    { label: 'Facebook', href: 'https://facebook.com' },
+    { label: 'YouTube', href: 'https://youtube.com' },
+    { label: 'Instagram', href: 'https://instagram.com' },
+  ]);
 
   return (
     <div className="flex min-h-screen flex-col">

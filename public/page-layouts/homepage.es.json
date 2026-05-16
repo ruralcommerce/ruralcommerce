@@ -52,8 +52,8 @@
       "props": {
         "backgroundColor": "#EEF3F7",
         "title": "Números que hablan",
-        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales).",
-        "statsJson": "[{\"icon\":\"users\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Personas\"},{\"icon\":\"droplets\",\"digits\":\"8,714\",\"symbol\":\"+\",\"label\":\"Millones de litros de agua preservados.\"},{\"icon\":\"building2\",\"digits\":\"1600\",\"symbol\":\"%\",\"label\":\"de aumento promedio en la rentabilidad en redes implementadas\"},{\"icon\":\"leaf\",\"digits\":\"35\",\"symbol\":\"+\",\"label\":\"especies y cultivos asociados a redes de valor sostenible\"},{\"icon\":\"mapPin\",\"digits\":\"18\",\"symbol\":\"+\",\"label\":\"territorios con intervenciones coordinadas en campo\"},{\"icon\":\"sprout\",\"digits\":\"240\",\"symbol\":\"+\",\"label\":\"productores vinculados a programas de eficiencia\"}]"
+        "subtitle": "Indicadores de impacto y eficiencia.",
+        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Emprendimientos atendidos por nuestro ecosistema.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"de CO2e evitados a cada 5kg de alimentos rescatados.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"de AGUA virtual preservadas a cada 5kg de alimento rescatados.\"}]"
       }
     },
     {
@@ -62,7 +62,7 @@
       "props": {
         "backgroundColor": "#F5F7FB",
         "title": "Clientes y Aliados",
-        "partnersJson": "[\n  {\n    \"name\": \"NBC\",\n    \"src\": \"/images/home/aliados/NBC Color.png\",\n    \"href\": \"https://nbcpucv.cl/\"\n  },\n  {\n    \"name\": \"Incubacoop\",\n    \"src\": \"/images/home/aliados/Incubacoop.jpg\",\n    \"href\": \"https://incubacoop.org.uy/\"\n  },\n  {\n    \"name\": \"La red de innovacion e impacto\",\n    \"src\": \"/images/home/aliados/la red de innovacion e impacto.png\",\n    \"href\": \"https://laredinnovacionimpacto.com/\"\n  }\n]"
+        "partnersJson": "[{\"name\":\"NBC\",\"src\":\"/images/home/aliados/NBC Color.png\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Incubacoop\",\"src\":\"/images/home/aliados/Incubacoop.jpg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"La red de innovacion e impacto\",\"src\":\"/images/home/aliados/la red de innovacion e impacto.png\",\"href\":\"https://laredinnovacionimpacto.com/\"}]"
       }
     },
     {
@@ -76,14 +76,14 @@
         "contactPhone": "+1 (307) 212-6747",
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Redes sociales",
-        "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"}]",
-        "footerLinksJson": "[{\"group\":\"Página Web\",\"items\":[{\"label\":\"Sobre\",\"href\":\"/#sobre\"},{\"label\":\"Soluciones\",\"href\":\"/#soluciones\"},{\"label\":\"Aliados\",\"href\":\"/#aliados\"}]},{\"group\":\"Termos\",\"items\":[{\"label\":\"Termos de Uso\",\"href\":\"\"},{\"label\":\"Política de rivacidad\",\"href\":\"\"},{\"label\":\"Política de Cookies\",\"href\":\"\"}]}]"
+        "socialLinksJson": "[\n  {\n    \"label\": \"YouTube\",\n    \"href\": \"https://www.youtube.com/@ruralcommerce\"\n  },\n  {\n    \"label\": \"Instagram\",\n    \"href\": \"https://www.instagram.com/ruralcommerce/\"\n  },\n  {\n    \"label\": \"Linkedin\",\n    \"href\": \"https://www.linkedin.com/company/ruralcommerce\"\n  }\n]",
+        "footerLinksJson": "[\n  {\n    \"group\": \"Página Web\",\n    \"items\": [\n      {\n        \"label\": \"Sobre\",\n        \"href\": \"/#sobre\"\n      },\n      {\n        \"label\": \"Soluciones\",\n        \"href\": \"/#soluciones\"\n      },\n      {\n        \"label\": \"Aliados\",\n        \"href\": \"/#aliados\"\n      }\n    ]\n  },\n  {\n    \"group\": \"Termos\",\n    \"items\": [\n      {\n        \"label\": \"Termos de Uso\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Privacidad\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Cookies\",\n        \"href\": \"\"\n      }\n    ]\n  }\n]"
       }
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-16T04:48:53.111Z",
+  "updatedAt": "2026-05-16T06:55:10.901Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-16T04:48:52.894Z"
+  "publishedAt": "2026-05-16T06:55:10.644Z"
 }

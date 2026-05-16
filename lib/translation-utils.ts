@@ -2,6 +2,13 @@
  * Utilitários de tradução (diff/apply no cliente; chamada de preview via API).
  */
 
+import {
+  getTranslationTextAt,
+  listPageTranslationFieldPaths,
+  setTranslationTextAt,
+} from './translation-field-paths';
+import type { PageSchema } from './editor-types';
+
 export interface TranslationChange {
   field: string;
   originalText: string;
@@ -17,37 +24,26 @@ export interface TranslationPreview {
 }
 
 /**
- * Detecta mudanças entre dois objetos de layout (caminhos tipo blocks.0.props.title).
+ * Detecta campos de cópia alterados (títulos, HTML, strings em JSON).
  */
 export function detectTextChanges(oldLayout: unknown, newLayout: unknown): string[] {
-  const changes: string[] = [];
+  const oldPage = oldLayout as PageSchema;
+  const newPage = newLayout as PageSchema;
+  if (!oldPage?.blocks || !newPage?.blocks) return [];
 
-  function compareObjects(oldObj: unknown, newObj: unknown, path = ''): void {
-    if (typeof oldObj !== 'object' || typeof newObj !== 'object' || !oldObj || !newObj) {
-      return;
-    }
+  const fields = listPageTranslationFieldPaths(newPage);
+  const changed: string[] = [];
 
-    for (const key in newObj as Record<string, unknown>) {
-      const currentPath = path ? `${path}.${key}` : key;
-      const newVal = (newObj as Record<string, unknown>)[key];
-      const oldVal = (oldObj as Record<string, unknown>)[key];
-
-      if (typeof newVal === 'string' && oldVal !== newVal) {
-        const skipMeta = new Set(['updatedAt', 'status', 'publishedAt', 'createdAt', 'locale']);
-        if (skipMeta.has(key)) {
-          continue;
-        }
-        if (!key.includes('Url') && !key.includes('Href') && !key.includes('Json') && !key.includes('Color')) {
-          changes.push(currentPath);
-        }
-      } else if (typeof newVal === 'object' && newVal !== null) {
-        compareObjects(oldVal, newVal, currentPath);
-      }
+  for (const field of fields) {
+    const oldText = getTranslationTextAt(oldPage, field);
+    const newText = getTranslationTextAt(newPage, field);
+    if (oldText === null || newText === null) continue;
+    if (oldText !== newText) {
+      changed.push(field);
     }
   }
 
-  compareObjects(oldLayout, newLayout);
-  return changes;
+  return changed;
 }
 
 /**
@@ -56,12 +52,13 @@ export function detectTextChanges(oldLayout: unknown, newLayout: unknown): strin
 export async function fetchTranslationPreview(
   sourceLayout: unknown,
   targetLocales: string[],
-  changedFields: string[]
+  changedFields: string[],
+  sourceLocale = 'es'
 ): Promise<TranslationPreview[]> {
   const res = await fetch('/api/editor/translate', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ sourceLayout, targetLocales, changedFields }),
+    body: JSON.stringify({ sourceLayout, targetLocales, changedFields, sourceLocale }),
   });
 
   if (!res.ok) {
@@ -79,16 +76,7 @@ export function applyApprovedTranslations(targetLayout: unknown, approvedChanges
   const updatedLayout = JSON.parse(JSON.stringify(targetLayout)) as Record<string, unknown>;
 
   for (const change of approvedChanges) {
-    const fieldPath = change.field.split('.');
-    let current: Record<string, unknown> = updatedLayout;
-
-    for (let i = 0; i < fieldPath.length - 1; i++) {
-      const key = fieldPath[i];
-      if (!current[key]) current[key] = {};
-      current = current[key] as Record<string, unknown>;
-    }
-
-    current[fieldPath[fieldPath.length - 1]] = change.translatedText;
+    setTranslationTextAt(updatedLayout, change.field, change.translatedText);
   }
 
   return updatedLayout;

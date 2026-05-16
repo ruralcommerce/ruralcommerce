@@ -1,5 +1,5 @@
 ﻿import Image from 'next/image';
-import { Facebook, Instagram, Youtube } from 'lucide-react';
+import { SocialLinkIcon } from '@/components/SocialLinkIcon';
 
 type FooterLinkItem = {
   label: string;
@@ -157,27 +157,20 @@ export function RuralCommerceFooter({
             </div>
             <p className="sr-only">{socialLabel}</p>
             <div className="mt-5 flex items-center gap-4 text-[#071F5E]">
-              {socialLinks.map((link) => {
-                const iconMap = {
-                  Facebook,
-                  YouTube: Youtube,
-                  Instagram,
-                } as const;
-                const Icon = iconMap[link.label as keyof typeof iconMap] || Facebook;
-
-                return (
+              {socialLinks
+                .filter((link) => link.href.trim())
+                .map((link) => (
                   <a
-                    key={link.label}
+                    key={`${link.label}-${link.href}`}
                     href={link.href}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="transition hover:text-[#009179]"
                     aria-label={link.label}
                   >
-                    <Icon className="h-5 w-5" strokeWidth={1.75} />
+                    <SocialLinkIcon label={link.label} className="h-5 w-5" strokeWidth={1.75} />
                   </a>
-                );
-              })}
+                ))}
             </div>
           </div>
 

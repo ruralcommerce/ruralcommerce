@@ -9,6 +9,7 @@ import {
   LayoutSearchParams,
   parseJsonArray,
 } from '@/lib/page-layout-runtime';
+import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 import { BLOCK_LIBRARY } from '@/lib/editor-types';
 import type { Metadata } from 'next';
 
@@ -75,7 +76,7 @@ export default async function ContactoPage({
     footerProps.footerLinksJson,
     []
   );
-  const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
+  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
 
   const hero = {
     ...BLOCK_LIBRARY['contact-hero-split'].defaultProps,

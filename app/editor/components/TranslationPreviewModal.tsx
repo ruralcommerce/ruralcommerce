@@ -6,6 +6,7 @@
 
 import { useEffect, useState } from 'react';
 import { TranslationPreview, TranslationChange } from '@/lib/translation-utils';
+import { formatTranslationFieldLabel } from '@/lib/translation-field-paths';
 import { X, Loader2, AlertTriangle } from 'lucide-react';
 
 interface TranslationPreviewModalProps {
@@ -14,6 +15,10 @@ interface TranslationPreviewModalProps {
   previews: TranslationPreview[];
   onApprove: (approvedChanges: TranslationChange[]) => void;
   isTranslating?: boolean;
+  /** Código de locale do texto mostrado como «Original» (ex.: es, pt-BR). */
+  sourceLocale?: string;
+  /** Classes Tailwind para z-index da camada (ex. `z-[95]` sobre outro modal). */
+  overlayClassName?: string;
 }
 
 function changeKey(c: TranslationChange): string {
@@ -26,6 +31,8 @@ export function TranslationPreviewModal({
   previews,
   onApprove,
   isTranslating = false,
+  sourceLocale = 'es',
+  overlayClassName = 'z-50',
 }: TranslationPreviewModalProps) {
   const [selectedChanges, setSelectedChanges] = useState<Set<string>>(new Set());
   /** Texto traduzido editável por item (chave = targetLocale-field). */
@@ -88,8 +95,10 @@ export function TranslationPreviewModal({
     }
   };
 
+  const sourceLocaleShort = sourceLocale === 'pt-BR' ? 'PT' : sourceLocale === 'en' ? 'EN' : 'ES';
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className={`fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 ${overlayClassName}`}>
       <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <div>
@@ -153,7 +162,7 @@ export function TranslationPreviewModal({
                               className="h-4 w-4 text-blue-600 focus:ring-blue-500"
                             />
                             <span className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                              {change.field}
+                              {formatTranslationFieldLabel(change.field)}
                             </span>
                           </div>
 
@@ -166,7 +175,9 @@ export function TranslationPreviewModal({
 
                           <div className="grid gap-3 md:grid-cols-2">
                             <div>
-                              <p className="mb-1 text-xs font-medium text-gray-700">Original (ES)</p>
+                              <p className="mb-1 text-xs font-medium text-gray-700">
+                                Original ({sourceLocaleShort} · {sourceLocale})
+                              </p>
                               <p className="rounded border border-gray-200 bg-gray-50 p-2 text-sm text-gray-900">
                                 {change.originalText}
                               </p>

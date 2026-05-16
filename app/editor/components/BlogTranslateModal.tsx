@@ -13,12 +13,6 @@ const LOCALES = [
 
 type Tab = 'translate' | 'compare';
 
-function stripHtmlPreview(html: string, maxLen: number): string {
-  const t = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-  if (t.length <= maxLen) return t;
-  return `${t.slice(0, maxLen)}…`;
-}
-
 export function BlogTranslateModal({
   open,
   onClose,
@@ -43,9 +37,14 @@ export function BlogTranslateModal({
   const [postsByLocale, setPostsByLocale] = useState<Record<string, BlogPostRecord[]>>({});
   const [compareSlug, setCompareSlug] = useState('');
   const [loadingCompare, setLoadingCompare] = useState(false);
+  const [dirtyBlogLocales, setDirtyBlogLocales] = useState<Set<string>>(() => new Set());
+  const [savingCompare, setSavingCompare] = useState(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setDirtyBlogLocales(new Set());
+      return;
+    }
     const key =
       defaultSourceLocale === 'pt-BR' || defaultSourceLocale === 'en' ? defaultSourceLocale : 'es';
     setSourceLocale(key);
@@ -74,12 +73,70 @@ export function BlogTranslateModal({
         })
       );
       setPostsByLocale(Object.fromEntries(entries));
+      setDirtyBlogLocales(new Set());
       const first = entries[0][1][0]?.slug ?? '';
       setCompareSlug((s) => s || first);
     } finally {
       setLoadingCompare(false);
     }
   }, []);
+
+  const updateComparePost = (
+    localeId: string,
+    slug: string,
+    patch: Partial<Pick<BlogPostRecord, 'title' | 'excerpt' | 'body'>>
+  ) => {
+    setPostsByLocale((prev) => {
+      const list = prev[localeId] ?? [];
+      const idx = list.findIndex((p) => p.slug === slug);
+      if (idx === -1) return prev;
+      const next = [...list];
+      next[idx] = { ...next[idx], ...patch };
+      return { ...prev, [localeId]: next };
+    });
+    setDirtyBlogLocales((prev) => {
+      const n = new Set(prev);
+      n.add(localeId);
+      return n;
+    });
+  };
+
+  const saveCompareBlogEdits = async () => {
+    if (dirtyBlogLocales.size === 0) return;
+    setSavingCompare(true);
+    const saved: string[] = [];
+    try {
+      for (const locale of dirtyBlogLocales) {
+        const posts = postsByLocale[locale];
+        if (!posts?.length) continue;
+        const res = await fetch(`/api/editor/blog-posts?locale=${encodeURIComponent(locale)}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ posts, status: 'draft' }),
+        });
+        if (!res.ok) {
+          const data = (await res.json().catch(() => ({}))) as { error?: string };
+          toast.error(data.error || `Não foi possível guardar ${locale}`);
+          continue;
+        }
+        saved.push(locale);
+      }
+      if (saved.length > 0) {
+        toast.success(`Artigo guardado em ${saved.join(', ')}.`);
+        setDirtyBlogLocales((prev) => {
+          const n = new Set(prev);
+          for (const loc of saved) n.delete(loc);
+          return n;
+        });
+        onApplied?.();
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao guardar');
+    } finally {
+      setSavingCompare(false);
+    }
+  };
 
   useEffect(() => {
     if (!open || tab !== 'compare') return;
@@ -140,7 +197,11 @@ export function BlogTranslateModal({
 
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/45 p-3" role="dialog" aria-modal>
-      <div className="flex max-h-[90vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl">
+      <div
+        className={`flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl ${
+          tab === 'compare' ? 'max-w-[min(96vw,1280px)]' : 'max-w-3xl'
+        }`}
+      >
         <div className="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-4 py-3">
           <div className="flex items-center gap-2">
             <Languages className="h-5 w-5 text-violet-600" />
@@ -254,6 +315,10 @@ export function BlogTranslateModal({
             </div>
           ) : (
             <div className="space-y-3 text-sm">
+              <p className="text-xs text-slate-600">
+                Edite título, resumo e corpo em cada idioma. <strong>Guardar alterações</strong> grava o ficheiro do
+                blog (rascunho).
+              </p>
               <div className="flex flex-wrap items-center gap-2">
                 <button
                   type="button"
@@ -262,6 +327,18 @@ export function BlogTranslateModal({
                   className="rounded border border-slate-300 bg-white px-2 py-1 text-xs font-semibold text-slate-800"
                 >
                   {loadingCompare ? 'A carregar…' : 'Recarregar'}
+                </button>
+                <button
+                  type="button"
+                  disabled={savingCompare || dirtyBlogLocales.size === 0}
+                  onClick={() => void saveCompareBlogEdits()}
+                  className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                >
+                  {savingCompare
+                    ? 'A guardar…'
+                    : dirtyBlogLocales.size > 0
+                      ? `Guardar alterações (${dirtyBlogLocales.size})`
+                      : 'Guardar alterações'}
                 </button>
                 <span className="text-xs text-slate-500">Artigo (slug)</span>
                 <select
@@ -281,25 +358,58 @@ export function BlogTranslateModal({
                 <div className="grid gap-3 md:grid-cols-3">
                   {LOCALES.map((l) => {
                     const p = compareRow[l.id];
+                    const dirty = dirtyBlogLocales.has(l.id);
                     return (
-                      <div key={l.id} className="rounded-lg border border-slate-200 bg-slate-50/80 p-3">
-                        <p className="text-[10px] font-bold uppercase text-violet-700">{l.label}</p>
+                      <div
+                        key={l.id}
+                        className={`rounded-lg border bg-slate-50/80 p-3 ${
+                          dirty ? 'border-amber-300 ring-1 ring-amber-100' : 'border-slate-200'
+                        }`}
+                      >
+                        <p className="text-[10px] font-bold uppercase text-violet-700">
+                          {l.label}
+                          {dirty ? <span className="ml-1 text-amber-700">•</span> : null}
+                        </p>
                         {!p ? (
                           <p className="mt-2 text-xs text-amber-800">Sem dados (guarde ou traduza para este idioma).</p>
                         ) : (
-                          <div className="mt-2 space-y-2 text-xs">
-                            <div>
+                          <div className="mt-2 space-y-3 text-xs">
+                            <label className="block space-y-1">
                               <span className="font-semibold text-slate-600">Título</span>
-                              <p className="mt-0.5 whitespace-pre-wrap text-slate-900">{p.title || '—'}</p>
-                            </div>
-                            <div>
+                              <input
+                                type="text"
+                                value={p.title}
+                                onChange={(e) =>
+                                  updateComparePost(l.id, compareSlug, { title: e.target.value })
+                                }
+                                onKeyDown={(e) => e.stopPropagation()}
+                                className="w-full rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"
+                              />
+                            </label>
+                            <label className="block space-y-1">
                               <span className="font-semibold text-slate-600">Resumo</span>
-                              <p className="mt-0.5 whitespace-pre-wrap text-slate-800">{p.excerpt || '—'}</p>
-                            </div>
-                            <div>
-                              <span className="font-semibold text-slate-600">Corpo (pré-visualização)</span>
-                              <p className="mt-0.5 text-slate-700">{stripHtmlPreview(p.body || '', 280)}</p>
-                            </div>
+                              <textarea
+                                value={p.excerpt}
+                                rows={3}
+                                onChange={(e) =>
+                                  updateComparePost(l.id, compareSlug, { excerpt: e.target.value })
+                                }
+                                onKeyDown={(e) => e.stopPropagation()}
+                                className="w-full resize-y rounded border border-slate-300 bg-white p-2 text-sm text-slate-900"
+                              />
+                            </label>
+                            <label className="block space-y-1">
+                              <span className="font-semibold text-slate-600">Corpo (HTML)</span>
+                              <textarea
+                                value={p.body}
+                                rows={8}
+                                onChange={(e) =>
+                                  updateComparePost(l.id, compareSlug, { body: e.target.value })
+                                }
+                                onKeyDown={(e) => e.stopPropagation()}
+                                className="w-full resize-y rounded border border-slate-300 bg-white p-2 font-mono text-[11px] leading-snug text-slate-900"
+                              />
+                            </label>
                           </div>
                         )}
                       </div>

@@ -232,8 +232,11 @@ export function EditorLayout({
 
     const ok = window.confirm(
       `Atualizar estrutura desta página em ${targets.join(' e ')} a partir do idioma aberto (${currentLocale})?\n\n` +
-        'Serão copiados: cores, imagens, URLs de botões, hrefs do menu/rodapé (sem trocar os textos já traduzidos nos outros idiomas). ' +
-        'Links internos com /es/... no JSON serão normalizados para rota sem prefixo de idioma.'
+        'Alinha cada bloco pelo tipo (ex.: Parceiros, Menu, Indicadores), não só pela ordem na lista. ' +
+        'Copia cores, imagens, logos, listas JSON completas (número de parceiros, ícones, links…) e preserva textos já traduzidos nos outros idiomas. ' +
+        'Guarde a página em ' +
+        currentLocale +
+        ' antes se editou sem salvar.'
     );
     if (!ok) return;
 
@@ -335,7 +338,7 @@ export function EditorLayout({
       if (savedOk.length > 0) {
         toast.success(`Estrutura sincronizada: ${savedOk.join(', ')}.`, {
           description:
-            'Cores, imagens e rotas internas alinhadas; textos e labels dos outros idiomas foram preservados nos JSON.',
+            'Blocos e listas JSON alinhados à página aberta; títulos/descrições traduzidos nos destinos foram mantidos quando existiam.',
           duration: 10000,
         });
       }
@@ -1060,6 +1063,23 @@ export function EditorLayout({
               onBlogFilesChanged={() => {
                 if (currentPageSlug === 'blog' && currentLocale === 'es') {
                   void refreshBlogEnvelopeBaselineEs();
+                }
+              }}
+              onBlockLayoutTranslationsApplied={async (locales) => {
+                if (!currentPage?.slug || !locales.includes(currentLocale)) return;
+                try {
+                  const res = await fetch(
+                    `/api/editor/layouts/${encodeURIComponent(currentPage.slug)}?locale=${encodeURIComponent(currentLocale)}`,
+                    { credentials: 'include', cache: 'no-store' }
+                  );
+                  if (!res.ok) return;
+                  const raw = (await res.json()) as PageSchema & { _sync?: unknown };
+                  const { _sync: _ignored, ...pagePayload } = raw;
+                  void _ignored;
+                  syncPageFromPersist(pagePayload as PageSchema);
+                  setPreviewTick((t) => t + 1);
+                } catch {
+                  /* ignore */
                 }
               }}
             />

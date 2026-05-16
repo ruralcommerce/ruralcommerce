@@ -3,6 +3,7 @@
  */
 
 import translate from 'google-translate-api-x';
+import { getTranslationTextAt } from './translation-field-paths';
 import type { TranslationChange, TranslationPreview } from './translation-utils';
 
 function mapLocaleForGoogle(targetLocale: string): string {
@@ -79,7 +80,8 @@ export async function translateTextServer(text: string, targetLang: string): Pro
 export async function generateTranslationPreviewServer(
   sourceLayout: unknown,
   targetLocales: string[],
-  changedFields: string[]
+  changedFields: string[],
+  sourceLocale = 'es'
 ): Promise<TranslationPreview[]> {
   const previews: TranslationPreview[] = [];
 
@@ -87,18 +89,12 @@ export async function generateTranslationPreviewServer(
     const changes: TranslationChange[] = [];
 
     for (const field of changedFields) {
-      const fieldPath = field.split('.');
-      let sourceValue: unknown = sourceLayout;
-
-      for (const pathPart of fieldPath) {
-        sourceValue = (sourceValue as Record<string, unknown>)?.[pathPart];
-      }
-
-      if (typeof sourceValue !== 'string') continue;
+      const sourceValue = getTranslationTextAt(sourceLayout, field);
+      if (sourceValue === null) continue;
       if (isSkippableNonCopyValue(sourceValue)) continue;
 
       try {
-        const translatedText = await translateTextServer(sourceValue, locale);
+        const translatedText = await translateTextBetween(sourceValue, sourceLocale, locale);
         changes.push({
           field,
           originalText: sourceValue,

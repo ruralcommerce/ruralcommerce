@@ -7,6 +7,8 @@ import dynamic from 'next/dynamic';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useMemo, useState } from 'react';
+import { parseSocialLinksJson } from '@/lib/social-links';
+import { SocialLinkIcon } from '@/components/SocialLinkIcon';
 
 const ContactTerritoryMap = dynamic(() => import('@/components/ContactTerritoryMap'), {
   ssr: false,
@@ -539,31 +541,8 @@ export type ContactSocialStripProps = {
   socialLinksJson?: string;
 };
 
-function SocialIcon({ label }: { label: string }) {
-  const l = label.toLowerCase();
-  if (l.includes('linkedin')) return <Linkedin className="h-9 w-9" strokeWidth={1.25} />;
-  if (l.includes('facebook')) return <Facebook className="h-9 w-9" strokeWidth={1.25} />;
-  if (l.includes('youtube')) return <Youtube className="h-9 w-9" strokeWidth={1.25} />;
-  return <Instagram className="h-9 w-9" strokeWidth={1.25} />;
-}
-
-type SocialLink = { label: string; href: string };
-
-function parseSocialLinks(raw: unknown): SocialLink[] {
-  if (typeof raw !== 'string' || !raw.trim()) return [];
-  try {
-    const p = JSON.parse(raw);
-    if (!Array.isArray(p)) return [];
-    return p
-      .map((x) => (x && typeof x === 'object' ? (x as SocialLink) : null))
-      .filter((x): x is SocialLink => Boolean(x && typeof x.href === 'string' && typeof x.label === 'string'));
-  } catch {
-    return [];
-  }
-}
-
 export function ContactSocialStrip(props: ContactSocialStripProps) {
-  const links = parseSocialLinks(props.socialLinksJson);
+  const links = parseSocialLinksJson(props.socialLinksJson);
   const color = props.titleColor || '#009179';
 
   return (
@@ -578,20 +557,22 @@ export function ContactSocialStrip(props: ContactSocialStripProps) {
           {props.title}
         </h2>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-8 md:gap-10">
-          {links.map((item) => (
-            <a
-              key={item.href + item.label}
-              href={item.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-full border-2 p-3 transition hover:opacity-80"
-              style={{ borderColor: color, color }}
-              aria-label={item.label}
-              title={item.label}
-            >
-              <SocialIcon label={item.label} />
-            </a>
-          ))}
+          {links
+            .filter((item) => item.href.trim())
+            .map((item) => (
+              <a
+                key={item.href + item.label}
+                href={item.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border-2 p-3 transition hover:opacity-80"
+                style={{ borderColor: color, color }}
+                aria-label={item.label}
+                title={item.label}
+              >
+                <SocialLinkIcon label={item.label} className="h-9 w-9" strokeWidth={1.25} />
+              </a>
+            ))}
         </div>
       </div>
     </section>

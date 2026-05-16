@@ -3,6 +3,7 @@ import { LayoutBlocksRenderer } from '@/components/LayoutBlocksRenderer';
 import Image from 'next/image';
 import { Cpu, DollarSign, GraduationCap, Leaf } from 'lucide-react';
 import { getBlockProps, getFirstFreeTextContent, getManagedPageLayout, getSectionProps, LayoutSearchParams, parseJsonArray } from '@/lib/page-layout-runtime';
+import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 import { RuralCommerceFooter as SiteFooter } from '@/components/RuralCommerceFooter';
 import type { Metadata } from 'next';
 
@@ -201,7 +202,7 @@ export default async function SobrePage({
   const heroBackground = String(heroProps.bgImage || HERO_BG);
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as unknown as { label: string; href: string }[]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
-  const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
+  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
 
   return (
     <div className="flex min-h-screen flex-col">

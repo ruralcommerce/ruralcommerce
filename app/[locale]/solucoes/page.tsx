@@ -16,6 +16,7 @@ import {
   Tag,
 } from 'lucide-react';
 import { getBlockProps, getFirstFreeTextContent, getManagedPageLayout, getSectionProps, LayoutSearchParams, parseJsonArray } from '@/lib/page-layout-runtime';
+import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 
 export const metadata = {
   title: 'Soluciones - Rural Commerce',
@@ -239,7 +240,7 @@ export default async function SolucoesPage({
     { label: 'Contacto', href: '/contacto' },
   ]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
-  const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
+  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
 
   return (
     <div className="flex min-h-screen flex-col">
