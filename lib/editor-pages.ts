@@ -34,7 +34,7 @@ const PAGE_BLOCK_TEMPLATES: Record<string, BlockType[]> = {
   sobre: ['hero-section', 'segments-section', 'system-section', 'stats-section', 'free-text', 'image'],
   aliados: ['hero-section', 'system-section', 'solutions-section', 'stats-section', 'free-text', 'image'],
   blog: ['blog-featured', 'blog-posts-grid'],
-  contacto: ['contact-hero-split', 'contact-form-split', 'contact-map-split', 'contact-social-strip'],
+  contacto: ['contact-hero-split', 'contact-form-split', 'contact-social-strip'],
 };
 
 export function getTemplateBlockTypes(slug: string): BlockType[] {

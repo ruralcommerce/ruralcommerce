@@ -12,7 +12,9 @@ import { EditorHtmlTextarea } from './EditorHtmlTextarea';
 import { EditorColorField } from './EditorColorField';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MediaLibraryModal } from './MediaLibraryModal';
+import { BlogTranslateModal } from './BlogTranslateModal';
 import { getJsonValidationMessage as getSharedJsonValidationMessage } from '@/lib/json-prop-validation';
+import { StatsIndicatorsEditor } from './StatsIndicatorsEditor';
 
 type JsonEditorValue = string | number | boolean | null | JsonEditorValue[] | { [key: string]: JsonEditorValue };
 
@@ -336,17 +338,28 @@ function PartnersArrayEditor({
   );
 }
 
-export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}) {
+export function PropertyEditor({
+  embedded = false,
+  editorLocale = 'es',
+  onBlogFilesChanged,
+}: {
+  embedded?: boolean;
+  /** Locale do editor (para tradução / comparar blog). */
+  editorLocale?: string;
+  /** Chamado após tradução automática dos ficheiros `posts.*.json`. */
+  onBlogFilesChanged?: () => void;
+} = {}) {
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const updateBlock = useEditorStore((s) => s.updateBlock);
+  const [blogTranslateOpen, setBlogTranslateOpen] = useState(false);
   const [mediaImages, setMediaImages] = useState<string[]>([]);
   const [mediaModalOpen, setMediaModalOpen] = useState(false);
   const mediaPickRef = useRef<((path: string) => void) | null>(null);
 
   const loadMediaImages = useCallback(async () => {
     try {
-      const response = await fetch('/api/editor/media', { cache: 'no-store' });
+      const response = await fetch(`/api/editor/media?_=${Date.now()}`, { cache: 'no-store', credentials: 'include' });
       if (!response.ok) return;
       const data = (await response.json()) as { images?: string[] };
       if (Array.isArray(data.images)) {
@@ -593,6 +606,23 @@ export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}
         </div>
       </div>
 
+      {selectedBlock.type === 'blog-featured' || selectedBlock.type === 'blog-posts-grid' ? (
+        <div className="border-b border-violet-200/80 bg-violet-50/90 px-4 py-3">
+          <p className="text-[11px] font-semibold text-violet-900">Conteúdo real dos artigos</p>
+          <p className="mt-1 text-[10px] leading-snug text-violet-800/90">
+            O texto dos posts está em <code className="rounded bg-white/80 px-1">public/blog-posts</code>. Traduzir
+            ou comparar os três idiomas aqui — não depende do histórico «Traduzir» do layout.
+          </p>
+          <button
+            type="button"
+            onClick={() => setBlogTranslateOpen(true)}
+            className="mt-2 w-full rounded-lg border border-violet-300 bg-white px-3 py-2 text-[11px] font-semibold text-violet-900 shadow-sm hover:bg-violet-50"
+          >
+            Tradução e comparar (ES / PT / EN)…
+          </button>
+        </div>
+      ) : null}
+
       <div className="editor-scroll flex-1 space-y-4 p-4">
         {visiblePropKeys.length === 0 ? <p className="text-xs text-slate-500">Nenhum campo nesta aba.</p> : null}
         {visiblePropKeys.map((propKey) => {
@@ -659,6 +689,12 @@ export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}
                         </p>
                       ) : null}
                     </>
+                  ) : blockDef.type === 'stats-section' && propName === 'statsJson' ? (
+                    <StatsIndicatorsEditor
+                      value={String(value ?? '')}
+                      onChange={(v) => handlePropChange(propName, v)}
+                      jsonError={hasJsonError ? jsonMessage : null}
+                    />
                   ) : propName.endsWith('Json') && !hasJsonError && parsedJsonValue ? (
                     <div className="space-y-3 rounded border border-slate-200 bg-white p-3">
                       {blockDef.type === 'partners-section' && propName === 'partnersJson' ? (
@@ -708,7 +744,8 @@ export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}
                 </>
               )}
 
-              {jsonMessage ? (
+              {jsonMessage &&
+              !(blockDef.type === 'stats-section' && propName === 'statsJson') ? (
                 <p className={`text-xs ${hasJsonError ? 'text-red-600' : 'text-amber-600'}`}>{jsonMessage}</p>
               ) : null}
 
@@ -775,6 +812,13 @@ export function PropertyEditor({ embedded = false }: { embedded?: boolean } = {}
         onSelect={handleMediaPicked}
         images={mediaImages}
         onRefresh={loadMediaImages}
+      />
+
+      <BlogTranslateModal
+        open={blogTranslateOpen}
+        onClose={() => setBlogTranslateOpen(false)}
+        defaultSourceLocale={editorLocale}
+        onApplied={() => onBlogFilesChanged?.()}
       />
     </div>
   );

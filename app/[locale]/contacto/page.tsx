@@ -1,11 +1,6 @@
 import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
 import { RuralCommerceFooter as SiteFooter } from '@/components/RuralCommerceFooter';
-import {
-  ContactFormSplit,
-  ContactHeroSplit,
-  ContactMapSplit,
-  ContactSocialStrip,
-} from '@/components/ContactPageBlocks';
+import { ContactFormSplit, ContactHeroSplit, ContactSocialStrip } from '@/components/ContactPageBlocks';
 import { LayoutBlocksRenderer } from '@/components/LayoutBlocksRenderer';
 import {
   getBlockIdByType,
@@ -90,10 +85,6 @@ export default async function ContactoPage({
     ...BLOCK_LIBRARY['contact-form-split'].defaultProps,
     ...getBlockProps(layout, 'contact-form-split'),
   };
-  const map = {
-    ...BLOCK_LIBRARY['contact-map-split'].defaultProps,
-    ...getBlockProps(layout, 'contact-map-split'),
-  };
   const social = {
     ...BLOCK_LIBRARY['contact-social-strip'].defaultProps,
     ...getBlockProps(layout, 'contact-social-strip'),
@@ -105,7 +96,6 @@ export default async function ContactoPage({
       <main className="flex-1">
         <ContactHeroSplit editorBlockId={getBlockIdByType(layout, 'contact-hero-split')} {...hero} />
         <ContactFormSplit editorBlockId={getBlockIdByType(layout, 'contact-form-split')} {...form} />
-        <ContactMapSplit editorBlockId={getBlockIdByType(layout, 'contact-map-split')} {...map} />
         <ContactSocialStrip editorBlockId={getBlockIdByType(layout, 'contact-social-strip')} {...social} />
         <LayoutBlocksRenderer blocks={layout?.blocks ?? []} locale={locale} />
       </main>

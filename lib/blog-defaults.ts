@@ -26,7 +26,7 @@ export const blogMeta: Record<
   },
 };
 
-const blogContent: Record<
+export const blogContent: Record<
   BlogLocaleKey,
   {
     featured: {

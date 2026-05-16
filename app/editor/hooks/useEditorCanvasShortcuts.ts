@@ -3,13 +3,16 @@
 import { useEffect } from 'react';
 import { useEditorStore } from '@/lib/editor-store';
 
-function isTypingTarget(t: EventTarget | null): boolean {
-  const el = t as HTMLElement | null;
-  if (!el) return false;
-  if (el.closest('[data-editor-no-escape-deselect]')) return true;
-  const tag = el.tagName;
-  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-  return Boolean(el.isContentEditable);
+function isTypingTarget(e: KeyboardEvent): boolean {
+  const candidates = [e.target as HTMLElement | null, document.activeElement as HTMLElement | null];
+  for (const el of candidates) {
+    if (!el) continue;
+    if (el.closest('[data-editor-no-escape-deselect]')) return true;
+    const tag = el.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (el.isContentEditable) return true;
+  }
+  return false;
 }
 
 /**
@@ -25,7 +28,7 @@ export function useEditorCanvasShortcuts(enabled: boolean) {
     if (!enabled) return;
 
     const onKey = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target)) return;
+      if (isTypingTarget(e)) return;
       if (!selectedBlockId) return;
 
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'd') {

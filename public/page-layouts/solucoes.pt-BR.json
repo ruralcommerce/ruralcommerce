@@ -8,13 +8,13 @@
       "id": "block-1778570034567-ljxs62hh7",
       "type": "hero-section",
       "props": {
-        "title": "Transformamos excedentes em negócios sustentáveis.",
-        "subtitle": "Tecnologia, gestão e acesso a mercados para transformar perdas em novas oportunidades de negócio.",
-        "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calcule seu impacto",
-        "ctaUrl": "#soluciones",
-        "secondaryText": "Como funciona",
-        "secondaryUrl": "#sistema"
+        "title": "Aumente a Eficiência e Rentabilidade do seu negócio",
+        "subtitle": "Fornecemos a infraestrutura técnica para impulsionar o seu negócio. Nosso modelo combina hardware de precisão, software de gerenciamento de dados e metodologias de negócios para otimizar recursos, estruturar margens e reduzir o impacto ambiental de sua operação.",
+        "bgImage": "/images/solucoes/out-0__1_-1778889679914.png",
+        "ctaText": "Contato",
+        "ctaUrl": "/contacto",
+        "secondaryText": "",
+        "secondaryUrl": ""
       }
     },
     {
@@ -41,13 +41,21 @@
       "props": {
         "content": "",
         "fontSize": "16px",
-        "textAlign": "left"
+        "textAlign": "left",
+        "maxWidth": "",
+        "paddingY": "",
+        "marginTop": "",
+        "marginBottom": "",
+        "hideOnMobile": "",
+        "animationClass": "",
+        "opacity": "",
+        "boxShadow": ""
       }
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-15T07:49:14.506Z",
+  "updatedAt": "2026-05-16T04:48:54.966Z",
   "status": "published",
   "locale": "pt-BR",
-  "publishedAt": "2026-05-15T07:49:09.679Z"
+  "publishedAt": "2026-05-16T04:48:52.894Z"
 }

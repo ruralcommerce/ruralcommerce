@@ -16,7 +16,8 @@ import { PageSelector } from './PageSelector';
 import { LocaleSelector } from './LocaleSelector';
 import { TranslationPreviewModal } from './TranslationPreviewModal';
 import { PublishScopeModal, type PublishScopeSelection } from './PublishScopeModal';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { BlogPostsEditorModal } from './BlogPostsEditorModal';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -26,11 +27,14 @@ import {
   Redo2,
   SlidersHorizontal,
   Undo2,
+  Newspaper,
 } from 'lucide-react';
 import { PageSchema } from '@/lib/editor-types';
 import { isInvalidJsonProp } from '@/lib/json-prop-validation';
 import { createDefaultLayoutForPage, getEditorPageConfig } from '@/lib/editor-pages';
 import { detectTextChanges, fetchTranslationPreview, applyApprovedTranslations, TranslationPreview, TranslationChange } from '@/lib/translation-utils';
+import { blogPostsToEnvelope, applyApprovedBlogTranslations } from '@/lib/blog-translation';
+import type { BlogPostRecord } from '@/lib/blog-posts-shared';
 import { applyStructureSyncFromSource } from '@/lib/structure-sync-utils';
 import { locales as editorLocales } from '@/i18n/request';
 import { toast } from 'sonner';
@@ -87,6 +91,31 @@ export function EditorLayout({
   const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
   const [centerTab, setCenterTab] = useState<'preview' | 'blocks'>('preview');
   const [previewFrame, setPreviewFrame] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [blogPostsModalOpen, setBlogPostsModalOpen] = useState(false);
+  const [blogEnvelopeBaseline, setBlogEnvelopeBaseline] = useState<unknown>(null);
+
+  const refreshBlogEnvelopeBaselineEs = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/editor/blog-posts?locale=${encodeURIComponent('es')}`, {
+        credentials: 'include',
+        cache: 'no-store',
+      });
+      if (!res.ok) return;
+      const data = (await res.json()) as { posts?: unknown };
+      const posts = Array.isArray(data.posts) ? data.posts : [];
+      setBlogEnvelopeBaseline(blogPostsToEnvelope(posts as BlogPostRecord[]));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (currentPageSlug !== 'blog' || currentLocale !== 'es') {
+      setBlogEnvelopeBaseline(null);
+      return;
+    }
+    void refreshBlogEnvelopeBaselineEs();
+  }, [currentPageSlug, currentLocale, refreshBlogEnvelopeBaselineEs]);
   useEditorCanvasShortcuts(centerTab === 'blocks');
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const maisMenuRef = useRef<HTMLDetailsElement>(null);
@@ -492,11 +521,54 @@ export function EditorLayout({
 
   // Função para gerar preview das traduções
   const generateTranslationPreviews = async () => {
+    if (currentLocale !== 'es') {
+      toast.info('Tradução assistida só está disponível com o idioma do editor em Español (ES).');
+      return;
+    }
+
+    if (currentPageSlug === 'blog') {
+      if (!blogEnvelopeBaseline) {
+        toast.warning('Baseline do blog (ES) ainda não carregou.', {
+          description: 'Recarregue o editor ou aguarde um momento.',
+        });
+        return;
+      }
+
+      setIsGeneratingTranslations(true);
+      try {
+        const res = await fetch(`/api/editor/blog-posts?locale=${encodeURIComponent('es')}`, {
+          credentials: 'include',
+          cache: 'no-store',
+        });
+        if (!res.ok) {
+          throw new Error('Não foi possível ler o blog em ES.');
+        }
+        const data = (await res.json()) as { posts?: unknown };
+        const currentEnv = blogPostsToEnvelope(Array.isArray(data.posts) ? (data.posts as BlogPostRecord[]) : []);
+        const changedFields = detectTextChanges(blogEnvelopeBaseline, currentEnv);
+
+        if (changedFields.length === 0) {
+          toast.message('Sem alterações de texto no blog', {
+            description: 'Guarde o painel «Artigos» em ES se fez alterações.',
+          });
+          return;
+        }
+
+        const previews = await fetchTranslationPreview(currentEnv, ['pt-BR', 'en'], changedFields);
+        setTranslationPreviews(previews);
+        setTranslationModalOpen(true);
+      } catch (error) {
+        console.error('Erro ao gerar previews de tradução (blog):', error);
+        toast.error(error instanceof Error ? error.message : 'Erro ao gerar traduções. Verifique o console.');
+      } finally {
+        setIsGeneratingTranslations(false);
+      }
+      return;
+    }
+
     const baselineKey = `${currentPageSlug}:${currentLocale}`;
-    if (!currentPage || !translationBaselinePage || translationBaselineKey !== baselineKey || currentLocale !== 'es') {
-      if (currentLocale !== 'es') {
-        toast.info('Tradução assistida só está disponível com o idioma do editor em Español (ES).');
-      } else if (!translationBaselinePage) {
+    if (!currentPage || !translationBaselinePage || translationBaselineKey !== baselineKey) {
+      if (!translationBaselinePage) {
         toast.warning('Baseline de tradução ainda não carregou.', {
           description: 'Recarregue a página do editor.',
         });
@@ -529,18 +601,56 @@ export function EditorLayout({
 
   // Função para aplicar traduções aprovadas
   const applyApprovedTranslationsToLayouts = async (approvedChanges: TranslationChange[]) => {
+    const changesByLocale: Record<string, TranslationChange[]> = {};
+    approvedChanges.forEach((change) => {
+      if (!changesByLocale[change.targetLocale]) {
+        changesByLocale[change.targetLocale] = [];
+      }
+      changesByLocale[change.targetLocale].push(change);
+    });
+
+    if (currentPageSlug === 'blog') {
+      try {
+        for (const [locale, changes] of Object.entries(changesByLocale)) {
+          try {
+            const response = await fetch(`/api/editor/blog-posts?locale=${encodeURIComponent(locale)}`, {
+              credentials: 'include',
+              cache: 'no-store',
+            });
+            if (!response.ok) continue;
+
+            const store = await response.json();
+            const merged = applyApprovedBlogTranslations(store, changes);
+
+            const saveResponse = await fetch(`/api/editor/blog-posts?locale=${encodeURIComponent(locale)}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                status: 'draft',
+                posts: merged.posts,
+              }),
+            });
+
+            if (!saveResponse.ok) {
+              console.error(`Erro ao salvar blog ${locale}:`, await saveResponse.text());
+            }
+          } catch (error) {
+            console.error(`Erro ao processar traduções do blog para ${locale}:`, error);
+          }
+        }
+
+        toast.success(`Tradução do blog aplicada em ${Object.keys(changesByLocale).length} idioma(s).`);
+        await refreshBlogEnvelopeBaselineEs();
+      } catch (error) {
+        console.error('Erro ao aplicar traduções (blog):', error);
+        toast.error('Erro ao aplicar traduções do blog. Verifique o console.');
+      }
+      return;
+    }
+
     if (!currentPage) return;
 
     try {
-      // Agrupa mudanças por locale
-      const changesByLocale: Record<string, TranslationChange[]> = {};
-      approvedChanges.forEach(change => {
-        if (!changesByLocale[change.targetLocale]) {
-          changesByLocale[change.targetLocale] = [];
-        }
-        changesByLocale[change.targetLocale].push(change);
-      });
-
       // Para cada locale, carrega o layout atual, aplica as mudanças e salva
       for (const [locale, changes] of Object.entries(changesByLocale)) {
         try {
@@ -605,14 +715,22 @@ export function EditorLayout({
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      const el = e.target as HTMLElement | null;
-      if (!el) return;
-      if (
-        el.closest('[contenteditable="true"]') ||
-        el.tagName === 'INPUT' ||
-        el.tagName === 'TEXTAREA' ||
-        el.tagName === 'SELECT'
-      ) {
+      const direct = e.target as HTMLElement | null;
+      const active = document.activeElement as HTMLElement | null;
+      const typing =
+        (direct &&
+          (direct.closest('[contenteditable="true"]') ||
+            direct.tagName === 'INPUT' ||
+            direct.tagName === 'TEXTAREA' ||
+            direct.tagName === 'SELECT' ||
+            direct.isContentEditable)) ||
+        (active &&
+          (active.closest('[contenteditable="true"]') ||
+            active.tagName === 'INPUT' ||
+            active.tagName === 'TEXTAREA' ||
+            active.tagName === 'SELECT' ||
+            active.isContentEditable));
+      if (typing) {
         return;
       }
       const mod = e.ctrlKey || e.metaKey;
@@ -936,7 +1054,15 @@ export function EditorLayout({
           ) : sidebarMode === 'blocks' ? (
             <BlockPanel currentPageSlug={currentPageSlug} />
           ) : (
-            <PropertyEditor embedded />
+            <PropertyEditor
+              embedded
+              editorLocale={currentLocale}
+              onBlogFilesChanged={() => {
+                if (currentPageSlug === 'blog' && currentLocale === 'es') {
+                  void refreshBlogEnvelopeBaselineEs();
+                }
+              }}
+            />
           )}
         </div>
 
@@ -1007,6 +1133,17 @@ export function EditorLayout({
               currentPageSlug={currentPageSlug}
               onPickBlock={() => setSidebarMode('properties')}
             />
+            {currentPageSlug === 'blog' ? (
+              <button
+                type="button"
+                onClick={() => setBlogPostsModalOpen(true)}
+                className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-900 shadow-sm hover:bg-emerald-100"
+                title="Editar notícias, corpo do texto, destaque e galeria"
+              >
+                <Newspaper className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+                Artigos
+              </button>
+            ) : null}
             {esTranslationChangeCount > 0 ? (
               <span className="hidden rounded bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium text-purple-900 sm:inline">
                 ES {esTranslationChangeCount}
@@ -1107,7 +1244,14 @@ export function EditorLayout({
                 </button>
                 <button
                   type="button"
-                  disabled={!currentPage || isSaving || currentLocale !== 'es' || isGeneratingTranslations || isPublishingBulk || isSyncingLayout}
+                  disabled={
+                    (!currentPage || (currentPageSlug === 'blog' && !blogEnvelopeBaseline)) ||
+                    isSaving ||
+                    currentLocale !== 'es' ||
+                    isGeneratingTranslations ||
+                    isPublishingBulk ||
+                    isSyncingLayout
+                  }
                   onClick={() => {
                     generateTranslationPreviews();
                     if (maisMenuRef.current) maisMenuRef.current.open = false;
@@ -1220,6 +1364,17 @@ export function EditorLayout({
         previews={translationPreviews}
         onApprove={applyApprovedTranslationsToLayouts}
         isTranslating={isGeneratingTranslations}
+      />
+
+      <BlogPostsEditorModal
+        open={blogPostsModalOpen}
+        onClose={() => setBlogPostsModalOpen(false)}
+        locale={currentLocale}
+        onSaved={() => {
+          if (currentPageSlug === 'blog' && currentLocale === 'es') {
+            void refreshBlogEnvelopeBaselineEs();
+          }
+        }}
       />
     </div>
   );

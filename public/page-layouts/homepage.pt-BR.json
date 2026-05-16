@@ -32,6 +32,7 @@
         "backgroundColor": "#071F5E",
         "title": "O campo enfrenta grandes desafios",
         "subtitle": "Perdas pós-colheita, oscilações de mercado e pressão por sustentabilidade continuam limitando o crescimento rural.",
+        "sideImage": "/images/home/home-pic2.png",
         "pillarsJson": "[{\"title\":\"Hardware de Precisão\",\"body\":\"Equipamentos modulares para otimizar processos, reduzir custos e agregar valor à produção.\"},{\"title\":\"Software de Inteligência e Gestão\",\"body\":\"Ferramentas que centralizam a gestão do negócio e o monitoramento da produção, oferecendo indicadores e segurança para decisão.\"},{\"title\":\"Gestão de Resgate e Valorização\",\"body\":\"Processos comerciais que transformam perdas em produtos vendáveis com vida útil estendida, evitando emissões por descarte.\"},{\"title\":\"Metodologia de Aceleração\",\"body\":\"Estrutura prática para padronizar qualidade, estruturar margens e abrir canais comerciais.\"}]"
       }
     },
@@ -89,8 +90,8 @@
     }
   ],
   "createdAt": "2026-05-10T05:24:34.069Z",
-  "updatedAt": "2026-05-15T07:49:11.952Z",
+  "updatedAt": "2026-05-16T04:48:53.537Z",
   "status": "published",
-  "publishedAt": "2026-05-15T07:49:09.679Z",
+  "publishedAt": "2026-05-16T04:48:52.894Z",
   "locale": "pt-BR"
 }

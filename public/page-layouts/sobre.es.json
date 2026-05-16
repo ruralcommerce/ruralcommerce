@@ -12,7 +12,9 @@
         "subtitle": "A Rural Commerce integra tecnologia de precisão, inteligência de dados e metodologias de aceleração para transformar desafios estruturais do campo em ativos de alto valor.",
         "bgImage": "/images/sobre/sobre-hero.png",
         "ctaText": "Conhecer soluções",
-        "ctaUrl": "/solucoes"
+        "ctaUrl": "/solucoes",
+        "secondaryText": "Cómo funciona",
+        "secondaryUrl": "#sistema"
       }
     },
     {
@@ -21,13 +23,21 @@
       "props": {
         "content": "",
         "fontSize": "16px",
-        "textAlign": "left"
+        "textAlign": "left",
+        "maxWidth": "",
+        "paddingY": "",
+        "marginTop": "",
+        "marginBottom": "",
+        "hideOnMobile": "",
+        "animationClass": "",
+        "opacity": "",
+        "boxShadow": ""
       }
     }
   ],
   "createdAt": "2026-05-14T02:48:53.139Z",
-  "updatedAt": "2026-05-15T07:49:16.364Z",
+  "updatedAt": "2026-05-16T04:48:55.954Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-15T07:49:09.679Z"
+  "publishedAt": "2026-05-16T04:48:52.894Z"
 }

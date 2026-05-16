@@ -52,7 +52,8 @@
       "props": {
         "backgroundColor": "#EEF3F7",
         "title": "Números que hablan",
-        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales)."
+        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales).",
+        "statsJson": "[{\"icon\":\"users\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Personas\"},{\"icon\":\"droplets\",\"digits\":\"8,714\",\"symbol\":\"+\",\"label\":\"Millones de litros de agua preservados.\"},{\"icon\":\"building2\",\"digits\":\"1600\",\"symbol\":\"%\",\"label\":\"de aumento promedio en la rentabilidad en redes implementadas\"},{\"icon\":\"leaf\",\"digits\":\"35\",\"symbol\":\"+\",\"label\":\"especies y cultivos asociados a redes de valor sostenible\"},{\"icon\":\"mapPin\",\"digits\":\"18\",\"symbol\":\"+\",\"label\":\"territorios con intervenciones coordinadas en campo\"},{\"icon\":\"sprout\",\"digits\":\"240\",\"symbol\":\"+\",\"label\":\"productores vinculados a programas de eficiencia\"}]"
       }
     },
     {
@@ -81,8 +82,8 @@
     }
   ],
   "createdAt": "2026-05-14T01:48:52.533Z",
-  "updatedAt": "2026-05-15T07:49:10.816Z",
+  "updatedAt": "2026-05-16T04:48:53.111Z",
   "status": "published",
   "locale": "es",
-  "publishedAt": "2026-05-15T07:49:09.679Z"
+  "publishedAt": "2026-05-16T04:48:52.894Z"
 }

@@ -99,7 +99,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 <p className="mb-2 text-[11px] font-medium text-amber-200">Sem imagem de fundo</p>
               )}
               <h1
-                key={`${block.id}-t-${props.title}`}
+                key={`${block.id}-hero-title`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -109,7 +109,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 {props.title}
               </h1>
               <p
-                key={`${block.id}-s-${props.subtitle}`}
+                key={`${block.id}-hero-subtitle`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -119,7 +119,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 {props.subtitle}
               </p>
               <span
-                key={`${block.id}-cta-${props.ctaText}`}
+                key={`${block.id}-hero-cta`}
                 role="presentation"
                 contentEditable
                 suppressContentEditableWarning
@@ -130,7 +130,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 {props.ctaText}
               </span>
               <p
-                key={`${block.id}-sec-${props.secondaryText}`}
+                key={`${block.id}-hero-secondary`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -168,7 +168,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
             >
               <p className="text-xs font-semibold uppercase tracking-widest text-white/70 mb-2">Homepage</p>
               <h2
-                key={`${block.id}-st-${props.title}`}
+                key={`${block.id}-system-title`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -178,7 +178,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 {props.title}
               </h2>
               <div
-                key={`${block.id}-ss-${props.subtitle}`}
+                key={`${block.id}-system-subtitle`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -221,7 +221,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
             >
               <p className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-2">Homepage</p>
               <h3
-                key={`${block.id}-seg-${props.title}`}
+                key={`${block.id}-section-title`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -231,7 +231,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 {props.title}
               </h3>
               <p
-                key={`${block.id}-segs-${props.subtitle}`}
+                key={`${block.id}-section-subtitle`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -261,7 +261,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
               <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Contacto — Hero</p>
               <p className="text-center text-sm font-bold text-[#071F5E]">
                 <span
-                  key={`${block.id}-tl1-${props.titleLine1 || props.title}`}
+                  key={`${block.id}-contact-hero-line1`}
                   className="block outline-none focus:ring-2 focus:ring-violet-400 rounded-sm"
                   contentEditable
                   suppressContentEditableWarning
@@ -271,7 +271,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                   {props.titleLine1 || props.title}
                 </span>
                 <span
-                  key={`${block.id}-tl2-${props.titleLine2}`}
+                  key={`${block.id}-contact-hero-line2`}
                   className="block text-xs font-semibold outline-none focus:ring-2 focus:ring-violet-400 rounded-sm mt-0.5"
                   contentEditable
                   suppressContentEditableWarning
@@ -282,7 +282,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 </span>
               </p>
               <p
-                key={`${block.id}-chd-${props.description}`}
+                key={`${block.id}-contact-hero-desc`}
                 className="mt-1 text-center text-xs text-slate-600 outline-none min-h-[2em] focus:ring-2 focus:ring-violet-300 rounded-sm"
                 contentEditable
                 suppressContentEditableWarning
@@ -365,7 +365,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
             <div className="rounded-lg p-4 text-white" style={{ backgroundColor: props.backgroundColor || '#071F5E' }}>
               <p className="mb-1 text-xs font-semibold uppercase text-white/70">Contacto — Mapa</p>
               <p
-                key={`${block.id}-cmt-${props.title}`}
+                key={`${block.id}-contact-map-title`}
                 className="text-sm font-bold outline-none focus:ring-2 focus:ring-white/70 rounded-sm"
                 contentEditable
                 suppressContentEditableWarning
@@ -400,7 +400,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
             <div className="rounded-lg border border-slate-200 p-4" style={{ backgroundColor: props.pageBg || '#F5F7FA' }}>
               <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Contacto — Redes</p>
               <p
-                key={`${block.id}-cst-${props.title}`}
+                key={`${block.id}-contact-social-title`}
                 className="text-sm font-semibold outline-none focus:ring-2 focus:ring-violet-400 rounded-sm"
                 style={{ color: props.titleColor || '#009179' }}
                 contentEditable
@@ -430,7 +430,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
               style={{ fontSize: props.fontSize, textAlign: props.textAlign }}
             >
               <div
-                key={`${block.id}-ft-${String(props.content).slice(0, 48)}`}
+                key={`${block.id}-free-text-body`}
                 className="min-h-[3rem] whitespace-pre-wrap text-slate-900 outline-none focus:ring-2 focus:ring-violet-400 rounded-sm"
                 contentEditable
                 suppressContentEditableWarning
@@ -454,7 +454,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
             <div className="rounded-lg border border-slate-200 bg-white p-3">
               <p className="text-xs font-semibold text-slate-500">Texto rico (HTML) — edição direta</p>
               <textarea
-                key={`${block.id}-rt-${String(props.contentHtml || '').length}`}
+                key={`${block.id}-rich-text-html`}
                 defaultValue={String(props.contentHtml || '')}
                 onMouseDown={stopPick}
                 onBlur={(e) =>
@@ -515,7 +515,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 className={`mt-2 grid gap-2 text-[11px] text-slate-700 ${showThird ? 'grid-cols-3' : 'grid-cols-2'}`}
               >
                 <div
-                  key={`${block.id}-lc-l-${props.leftText}`}
+                  key={`${block.id}-cols-left`}
                   className="min-h-[2.5rem] whitespace-pre-wrap rounded bg-slate-50 p-2 outline-none focus:ring-2 focus:ring-violet-400"
                   contentEditable
                   suppressContentEditableWarning
@@ -525,7 +525,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                   {props.leftText}
                 </div>
                 <div
-                  key={`${block.id}-lc-r-${props.rightText}`}
+                  key={`${block.id}-cols-right`}
                   className="min-h-[2.5rem] whitespace-pre-wrap rounded bg-slate-50 p-2 outline-none focus:ring-2 focus:ring-violet-400"
                   contentEditable
                   suppressContentEditableWarning
@@ -536,7 +536,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
                 </div>
                 {showThird ? (
                   <div
-                    key={`${block.id}-lc-t-${props.thirdText}`}
+                    key={`${block.id}-cols-third`}
                     className="min-h-[2.5rem] whitespace-pre-wrap rounded bg-slate-50 p-2 outline-none focus:ring-2 focus:ring-violet-400"
                     contentEditable
                     suppressContentEditableWarning
@@ -584,7 +584,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
           return (
             <div className="rounded border border-slate-200 bg-white p-3">
               <Heading
-                key={`${block.id}-hd-${props.text}`}
+                key={`${block.id}-heading-text`}
                 contentEditable
                 suppressContentEditableWarning
                 onMouseDown={stopPick}
@@ -626,7 +626,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
               <span className={btnClass} style={btnStyle}>
                 {props.iconChar ? <span className="text-base">{props.iconChar}</span> : null}
                 <span
-                  key={`${block.id}-btn-${props.label}`}
+                  key={`${block.id}-button-label`}
                   contentEditable
                   suppressContentEditableWarning
                   onMouseDown={stopPick}
@@ -715,7 +715,7 @@ export function BlockRenderer({ block, dropTarget }: { block: BlockData; dropTar
             <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
               <p className="text-xs font-semibold text-slate-500">HTML — edição direta</p>
               <textarea
-                key={`${block.id}-rh-${String(props.htmlContent || '').length}`}
+                key={`${block.id}-rich-html-body`}
                 defaultValue={String(props.htmlContent || '')}
                 onMouseDown={stopPick}
                 onBlur={(e) =>

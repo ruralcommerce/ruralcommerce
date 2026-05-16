@@ -18,6 +18,50 @@ type StatItem = {
   label: string;
 };
 
+const STAT_ICONS: Record<string, LucideIcon> = {
+  users: Users,
+  droplets: Droplets,
+  building2: Building2,
+  leaf: Leaf,
+  mappin: MapPin,
+  sprout: Sprout,
+};
+
+function iconFromKey(raw: string): LucideIcon {
+  const k = raw.toLowerCase().replace(/-/g, '');
+  return STAT_ICONS[k] || Users;
+}
+
+function parseStatsFromJson(json: string | null | undefined, locale: string): StatItem[] {
+  const fallback = statsByLocale[locale] || fallbackStats;
+  const t = json?.trim();
+  if (!t) return fallback;
+  try {
+    const arr = JSON.parse(t) as unknown;
+    if (!Array.isArray(arr) || arr.length === 0) return fallback;
+    const out: StatItem[] = [];
+    for (const row of arr) {
+      if (!row || typeof row !== 'object') continue;
+      const o = row as Record<string, unknown>;
+      const iconKey = String(o.icon ?? 'users');
+      const digits = String(o.digits ?? '').trim();
+      const symRaw = String(o.symbol ?? '+').trim();
+      const symbol: '+' | '%' = symRaw === '%' ? '%' : '+';
+      const label = String(o.label ?? '').trim();
+      if (!label) continue;
+      out.push({
+        Icon: iconFromKey(iconKey),
+        digits: digits || '0',
+        symbol,
+        label,
+      });
+    }
+    return out.length ? out : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 const statsByLocale: Record<string, StatItem[]> = {
   es: [
     {
@@ -145,10 +189,12 @@ const fallbackStats = statsByLocale.es;
 
 export type StatsCarouselProps = {
   locale?: string;
+  /** Array JSON: [{ "icon": "users", "digits": "1200", "symbol": "+", "label": "..." }, ...]. Vazio = valores por idioma (legado). */
+  statsJson?: string | null;
 };
 
-export function StatsCarousel({ locale = 'es' }: StatsCarouselProps) {
-  const stats = statsByLocale[locale] || fallbackStats;
+export function StatsCarousel({ locale = 'es', statsJson }: StatsCarouselProps) {
+  const stats = parseStatsFromJson(statsJson, locale);
   const ariaLabel = ariaLabelByLocale[locale] || ariaLabelByLocale.es;
 
   const scrollerRef = useRef<HTMLDivElement>(null);

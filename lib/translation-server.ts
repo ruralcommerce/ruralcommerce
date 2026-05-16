@@ -18,16 +18,28 @@ function isSkippableNonCopyValue(text: string): boolean {
   return false;
 }
 
+function mapFromLocaleForGoogle(fromLocale: string): string {
+  if (fromLocale === 'pt-BR') return 'pt';
+  if (fromLocale === 'en') return 'en';
+  return 'es';
+}
+
 /**
- * Traduz texto ES → idioma alvo.
+ * Traduz texto entre dois códigos de locale da app (es, pt-BR, en).
  */
-export async function translateTextServer(text: string, targetLang: string): Promise<string> {
+export async function translateTextBetween(
+  text: string,
+  fromLocale: string,
+  toLocale: string
+): Promise<string> {
   if (!text || text.trim() === '') return text;
   if (isSkippableNonCopyValue(text)) return text;
+  if (fromLocale === toLocale) return text;
 
-  const googleTo = mapLocaleForGoogle(targetLang);
+  const googleFrom = mapFromLocaleForGoogle(fromLocale);
+  const googleTo = mapLocaleForGoogle(toLocale);
   const base = {
-    from: 'es',
+    from: googleFrom,
     to: googleTo,
     forceFrom: true,
     forceTo: true,
@@ -55,6 +67,13 @@ export async function translateTextServer(text: string, targetLang: string): Pro
       ? `Tradução falhou: ${lastError.message}`
       : 'Tradução falhou (rede ou limite do Google). Tente de novo ou edite manualmente no modal.'
   );
+}
+
+/**
+ * Traduz texto ES → idioma alvo (atalho; mantido por compatibilidade).
+ */
+export async function translateTextServer(text: string, targetLang: string): Promise<string> {
+  return translateTextBetween(text, 'es', targetLang);
 }
 
 export async function generateTranslationPreviewServer(

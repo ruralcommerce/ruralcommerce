@@ -173,14 +173,16 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   'stats-section': {
     type: 'stats-section',
     label: 'Números (Inicio)',
-    description: 'Indicadores em carrossel.',
+    description:
+      'Indicadores em carrossel. No editor: ícone, número, símbolo e descrição por cartão (sem alterar o CSS do site). Campo vazio = valores pré-definidos por idioma.',
     icon: 'NUM',
     defaultProps: {
       backgroundColor: '#EEF3F7',
       title: 'Números que hablan',
       subtitle: 'Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales).',
+      statsJson: '',
     },
-    editableProps: ['backgroundColor', 'title', 'subtitle'],
+    editableProps: ['backgroundColor', 'title', 'subtitle', 'statsJson'],
     singleton: true,
   },
   'contact-hero-split': {

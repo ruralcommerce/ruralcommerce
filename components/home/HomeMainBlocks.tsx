@@ -346,7 +346,7 @@ export function HomeMainBlocks({ blocks, locale, systemHeading }: { blocks: Bloc
                     {p.subtitle ||
                       'Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales).'}
                   </p>
-                  <StatsCarousel locale={locale} />
+                  <StatsCarousel locale={locale} statsJson={p.statsJson} />
                 </div>
               </section>
             );

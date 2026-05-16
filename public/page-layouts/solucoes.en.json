@@ -8,13 +8,13 @@
       "id": "block-1778570034567-ljxs62hh7",
       "type": "hero-section",
       "props": {
-        "title": "We turn surplus into sustainable businesses.",
-        "subtitle": "Technology, management, and market access to turn losses into new business opportunities.",
-        "bgImage": "/images/home/hero-1.png",
-        "ctaText": "Calculate your impact",
-        "ctaUrl": "#soluciones",
-        "secondaryText": "How it works",
-        "secondaryUrl": "#sistema"
+        "title": "Boost the Efficiency and Profitability of your business",
+        "subtitle": "We provide the technical infrastructure to boost your business. Our model combines precision hardware, data management software and business methodologies to optimize resources, structure margins and reduce the environmental impact of your operation.",
+        "bgImage": "/images/solucoes/out-0__1_-1778889679914.png",
+        "ctaText": "Contact",
+        "ctaUrl": "/contacto",
+        "secondaryText": "",
+        "secondaryUrl": ""
       }
     },
     {
@@ -41,13 +41,21 @@
       "props": {
         "content": "",
         "fontSize": "16px",
-        "textAlign": "left"
+        "textAlign": "left",
+        "maxWidth": "",
+        "paddingY": "",
+        "marginTop": "",
+        "marginBottom": "",
+        "hideOnMobile": "",
+        "animationClass": "",
+        "opacity": "",
+        "boxShadow": ""
       }
     }
   ],
   "createdAt": "2026-05-12T20:45:00.000Z",
-  "updatedAt": "2026-05-15T07:49:15.511Z",
+  "updatedAt": "2026-05-16T04:48:55.440Z",
   "status": "published",
   "locale": "en",
-  "publishedAt": "2026-05-15T07:49:09.679Z"
+  "publishedAt": "2026-05-16T04:48:52.894Z"
 }

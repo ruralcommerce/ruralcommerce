@@ -1,6 +1,9 @@
 /** Props JSON que devem ser objeto (ex.: GeoJSON), não array. */
 export const JSON_OBJECT_PROP_KEYS = new Set(['territoriesGeoJson', 'formCopyJson']);
 
+/** Arrays JSON onde string vazia é válida (usa fallback no runtime). */
+export const JSON_ARRAY_ALLOW_EMPTY = new Set(['statsJson']);
+
 export function isInvalidJsonProp(key: string, value: unknown): boolean {
   if (typeof value !== 'string') return false;
 
@@ -17,6 +20,7 @@ export function isInvalidJsonProp(key: string, value: unknown): boolean {
   if (!key.endsWith('Json')) return false;
 
   if (value.trim().length === 0) {
+    if (JSON_ARRAY_ALLOW_EMPTY.has(key)) return false;
     return !JSON_OBJECT_PROP_KEYS.has(key);
   }
 
@@ -50,6 +54,7 @@ export function getJsonValidationMessage(propName: string, value: unknown): stri
   }
 
   if (value.trim().length === 0) {
+    if (JSON_ARRAY_ALLOW_EMPTY.has(propName)) return null;
     if (JSON_OBJECT_PROP_KEYS.has(propName)) return null;
     return 'Campo JSON vazio. Use ao menos [] para lista vazia.';
   }

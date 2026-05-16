@@ -6,8 +6,8 @@
   "locale": "en",
   "status": "published",
   "createdAt": "2026-05-14T12:00:00.000Z",
-  "updatedAt": "2026-05-15T07:49:25.818Z",
-  "publishedAt": "2026-05-15T07:49:09.679Z",
+  "updatedAt": "2026-05-16T04:49:01.195Z",
+  "publishedAt": "2026-05-16T04:48:52.894Z",
   "blocks": [
     {
       "id": "block-contact-hero-en",
@@ -18,7 +18,7 @@
         "description": "Whether you are a producer focused on efficiency or an investor looking for real impact, our team is ready to execute the business architecture that your project needs.",
         "ctaText": "send us a message",
         "ctaUrl": "#",
-        "ctaSubtext": "Immediate response during business hours",
+        "ctaSubtext": "",
         "heroImage": "/images/uploads/out-0__3_-1778830276065.png",
         "accentCircleColor": "#071F5E"
       }
@@ -29,28 +29,18 @@
       "props": {
         "leftPanelBg": "#071F5E",
         "phone": "+1 (307) 212-6747",
-        "email": "info@ruralcommerceglobal.com"
-      }
-    },
-    {
-      "id": "block-contact-map-en",
-      "type": "contact-map-split",
-      "props": {
-        "backgroundColor": "#071F5E",
-        "title": "Our footprint in the region",
-        "body": "We are present in the main production hubs, bringing technology and management everywhere.",
-        "mapEmbedUrl": "https://www.openstreetmap.org/export/embed.html?bbox=-56.25%2C-34.95%2C-56.05%2C-34.80&layer=mapnik",
-        "territoriesGeoJson": "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{\"category\":\"atendimento\",\"name\":\"Cobertura sur y litoral\"},\"geometry\":{\"type\":\"Polygon\",\"coordinates\":[[[-57.12,-34.52],[-55.82,-34.52],[-55.82,-35.18],[-57.12,-35.18],[-57.12,-34.52]]]}},{\"type\":\"Feature\",\"properties\":{\"category\":\"intervencao\",\"name\":\"Montevideo\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-56.1881,-34.9011]}},{\"type\":\"Feature\",\"properties\":{\"category\":\"intervencao\",\"name\":\"Salto\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-57.9625,-31.3833]}}]}"
+        "email": "info@ruralcommerceglobal.com",
+        "formCopyJson": ""
       }
     },
     {
       "id": "block-contact-social-en",
       "type": "contact-social-strip",
       "props": {
-        "pageBg": "#F5F7FA",
+        "pageBg": "#071F5E",
         "title": "Follow us and join the community",
         "titleColor": "#009179",
-        "socialLinksJson": "[{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"LinkedIn\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"},{\"label\":\"Facebook\",\"href\":\"https://facebook.com\"},{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"}]"
+        "socialLinksJson": "[{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"LinkedIn\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"},{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"}]"
       }
     }
   ]
