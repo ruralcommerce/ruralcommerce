@@ -1,9 +1,7 @@
 ﻿import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
-import { LayoutBlocksRenderer } from '@/components/LayoutBlocksRenderer';
 import Image from 'next/image';
 import { Cpu, DollarSign, GraduationCap, Leaf } from 'lucide-react';
 import { getBlockProps, getFirstFreeTextContent, getManagedPageLayout, getSectionProps, LayoutSearchParams, parseJsonArray } from '@/lib/page-layout-runtime';
-import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 import { RuralCommerceFooter as SiteFooter } from '@/components/RuralCommerceFooter';
 import type { Metadata } from 'next';
 
@@ -23,7 +21,7 @@ const aboutCopy = {
       { label: 'Soluciones', href: '/solucoes' },
       { label: 'Aliados e Inversores', href: '/aliados' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Contacto', href: '/contacto' },
+      { label: 'Contacto', href: '#contacto' },
     ],
     heroTitle: 'Inteligencia Sistémica para Cadenas Regenerativas y Rentables',
     heroSubtitle:
@@ -68,7 +66,7 @@ const aboutCopy = {
       { label: 'Soluções', href: '/solucoes' },
       { label: 'Aliados e Investidores', href: '/aliados' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Contato', href: '/contacto' },
+      { label: 'Contato', href: '#contacto' },
     ],
     heroTitle: 'Inteligência Sistêmica para Cadeias Regenerativas e Rentáveis',
     heroSubtitle:
@@ -113,7 +111,7 @@ const aboutCopy = {
       { label: 'Solutions', href: '/solucoes' },
       { label: 'Partners & Investors', href: '/aliados' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Contact', href: '/contacto' },
+      { label: 'Contact', href: '#contacto' },
     ],
     heroTitle: 'Systemic Intelligence for Regenerative and Profitable Value Chains',
     heroSubtitle:
@@ -202,7 +200,7 @@ export default async function SobrePage({
   const heroBackground = String(heroProps.bgImage || HERO_BG);
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as unknown as { label: string; href: string }[]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
-  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
+  const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -359,7 +357,6 @@ export default async function SobrePage({
             {copy.ctaAction}
           </a>
         </section>
-        <LayoutBlocksRenderer blocks={layout?.blocks ?? []} locale={locale} />
       </main>
 
       <SiteFooter

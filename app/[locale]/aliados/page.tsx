@@ -1,10 +1,8 @@
 ﻿import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
-import { LayoutBlocksRenderer } from '@/components/LayoutBlocksRenderer';
 import { RuralCommerceFooter } from '@/components/RuralCommerceFooter';
 import Image from 'next/image';
 import { Building2, Cpu, GraduationCap, HandCoins } from 'lucide-react';
 import { getBlockProps, getFirstFreeTextContent, getManagedPageLayout, getSectionProps, LayoutSearchParams, parseJsonArray } from '@/lib/page-layout-runtime';
-import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 import type { Metadata } from 'next';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -22,7 +20,7 @@ const aliadosCopy = {
       { label: 'Soluciones', href: '/solucoes' },
       { label: 'Aliados e Inversores', href: '/aliados' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Contacto', href: '/contacto' },
+      { label: 'Contacto', href: '#contacto' },
     ],
     heroTitle: 'Inversión estratégica en la nueva economía rural.',
     heroSubtitle:
@@ -105,7 +103,7 @@ const aliadosCopy = {
       { label: 'Soluções', href: '/solucoes' },
       { label: 'Aliados e Investidores', href: '/aliados' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Contato', href: '/contacto' },
+      { label: 'Contato', href: '#contacto' },
     ],
     heroTitle: 'Investimento estratégico na nova economia rural.',
     heroSubtitle:
@@ -188,7 +186,7 @@ const aliadosCopy = {
       { label: 'Solutions', href: '/solucoes' },
       { label: 'Partners & Investors', href: '/aliados' },
       { label: 'Blog', href: '/blog' },
-      { label: 'Contact', href: '/contacto' },
+      { label: 'Contact', href: '#contacto' },
     ],
     heroTitle: 'Strategic investment in the new rural economy.',
     heroSubtitle:
@@ -364,7 +362,7 @@ export default async function AliadosPage({
   const heroBackground = String(heroProps.bgImage || HERO_BG);
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, copy.navItems as unknown as { label: string; href: string }[]);
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
-  const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
+  const socialLinks = parseJsonArray<{ label: string; href: string }>(footerProps.socialLinksJson, []);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -454,8 +452,8 @@ export default async function AliadosPage({
 
         {/* Bloco 3: Soluciones a medida */}
         <section data-editor-section="solutions-section" className="bg-[#F6F7F8] py-16 sm:py-20">
-          <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-10 px-4 sm:px-6 md:gap-12 lg:grid-cols-[390px_minmax(0,1fr)] lg:gap-16">
-            <div className="relative mx-auto h-[430px] w-full max-w-[390px] shrink-0 lg:mx-0">
+          <div className="mx-auto grid max-w-6xl grid-cols-[390px_minmax(0,1fr)] items-start gap-10 px-4 sm:px-6 md:gap-12 lg:gap-16">
+            <div className="relative h-[430px] w-[390px] shrink-0">
               <div className="relative h-[320px] w-[305px] origin-top-left scale-[1.22]">
               <div className="absolute left-[112px] top-[98px] h-[145px] w-[158px] rounded-[10px] bg-[#DCEBE6]" />
 
@@ -526,10 +524,7 @@ export default async function AliadosPage({
         </section>
 
         {/* Bloco 4: Modelo de trabajo */}
-        <section
-          data-editor-section="stats-section"
-          className="overflow-hidden bg-[#00071B] py-8 text-white sm:py-10"
-        >
+        <section data-editor-section="stats-section" className="bg-[#00071B] py-8 text-white sm:py-10">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2
               className="text-center text-3xl font-bold text-white sm:text-4xl"
@@ -538,15 +533,10 @@ export default async function AliadosPage({
               {copy.workflowTitle}
             </h2>
 
-            {/* Desktop: diagrama responsivo — overflow-hidden evita scroll interno */}
-            <div className="relative mx-auto mt-4 hidden max-w-5xl overflow-hidden md:block">
-              <svg
-                className="mx-auto block h-auto w-full"
-                viewBox="0 0 980 360"
-                preserveAspectRatio="xMidYMid meet"
-                fill="none"
-                aria-hidden
-              >
+            {/* Desktop: diagrama limpo sem sobreposicao */}
+            <div className="relative mx-auto mt-4 hidden h-[240px] max-w-5xl md:block">
+              <div className="absolute left-1/2 top-0 h-[240px] w-[1308px] -translate-x-1/2 origin-top scale-[1.15]">
+                <svg className="absolute inset-0 h-full w-full" viewBox="0 0 980 360" fill="none" aria-hidden>
                   <defs>
                     <marker id="workflow-arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
                       <polygon points="0 0, 9 3, 0 6" fill="#FFFFFF" />
@@ -610,7 +600,8 @@ export default async function AliadosPage({
                     <tspan x="884" dy="12">{copy.wfDiagDesc4c}</tspan>
                   </text>
                   </g>
-              </svg>
+                </svg>
+              </div>
             </div>
 
             {/* Mobile: versao empilhada */}
@@ -647,7 +638,6 @@ export default async function AliadosPage({
             </a>
           </div>
         </section>
-        <LayoutBlocksRenderer blocks={layout?.blocks ?? []} locale={locale} />
       </main>
 
       <RuralCommerceFooter

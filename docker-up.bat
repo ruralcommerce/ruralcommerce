@@ -2,7 +2,8 @@
 title Rural Commerce — Docker (porta 3001)
 cd /d "%~dp0"
 
-echo Subindo Rural Commerce em Docker...
+echo Subindo Rural Commerce em Docker LOCAL...
+echo Este botao NAO envia para GitHub e NAO faz deploy no servidor.
 echo Depois abra: http://localhost:3001
 echo.
 
@@ -18,5 +19,6 @@ if errorlevel 1 (
 echo.
 echo OK. Para ver logs: docker compose logs -f web
 echo Para parar: docker compose down
+echo Para publicar no Git/servidor use os botoes: atualizar-git-web.bat / publicar-tudo.bat
 echo.
 pause

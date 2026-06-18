@@ -1,0 +1,68 @@
+import { NextResponse } from 'next/server';
+import { mkdir, readFile, writeFile } from 'fs/promises';
+import path from 'path';
+
+const DATA_DIR = path.join(process.cwd(), 'data');
+const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
+
+async function readRecords() {
+  try {
+    const text = await readFile(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(text);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+async function writeRecords(records: unknown[]) {
+  await mkdir(DATA_DIR, { recursive: true });
+  await writeFile(DATA_FILE, JSON.stringify(records, null, 2), 'utf8');
+}
+
+export async function PATCH(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+  let payload: unknown;
+
+  try {
+    payload = await request.json();
+  } catch {
+    return NextResponse.json({ ok: false, message: 'Payload inválido.' }, { status: 400 });
+  }
+
+  const body = payload as Record<string, unknown>;
+  const status = typeof body.status === 'string' ? body.status : '';
+  const notes = typeof body.notes === 'string' ? body.notes.trim() : '';
+
+  if (!['pending', 'approved', 'rejected'].includes(status)) {
+    return NextResponse.json({ ok: false, message: 'Status inválido.' }, { status: 400 });
+  }
+
+  const records = await readRecords();
+  const typedRecords = records as Array<Record<string, unknown>>;
+  const index = typedRecords.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return NextResponse.json({ ok: false, message: 'Inscrição não encontrada.' }, { status: 404 });
+  }
+
+  const previousRecord = typedRecords[index] as Record<string, unknown>;
+  const previousUser = (previousRecord.user as Record<string, unknown>) || {};
+
+  typedRecords[index] = {
+    ...previousRecord,
+    status,
+    notes,
+    updatedAt: new Date().toISOString(),
+    user: {
+      ...previousUser,
+      accessStatus: status === 'approved' ? 'active' : 'pending',
+    },
+  };
+
+  await writeRecords(typedRecords);
+  return NextResponse.json({ ok: true, record: typedRecords[index] });
+}
