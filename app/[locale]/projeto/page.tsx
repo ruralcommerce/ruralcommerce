@@ -34,25 +34,25 @@ const copy = {
       {
         title: 'Gestión y Digitalización',
         body: [
-          'Fortalecimiento de capacidades empresariales, financieras y digitales para 60 MIPYMEs agroalimentarias rurales en Los Santos, con enfoque en exportación y trazabilidad de bajo costo.',
+          'Fortalecimiento de capacidades empresariales, financieras y digitales.',
         ],
       },
       {
         title: 'Maquila / Biorrefinería',
         body: [
-          'Instalación y puesta en marcha de una unidad maquila/biorrefinería compartida para el procesamiento de productos agroalimentarios con valor agregado, con equipos, protocolos validados y gobernanza participativa.',
+          'Instalación de biorrefinería compartida para el procesamiento de alimentos con valor agregado',
         ],
       },
       {
-        title: 'Monitoreo y Automatización',
+        title: 'Automatización',
         body: [
-          'Implementación de nodos de sensores de bajo costo para monitorear procesos críticos, reducir pérdidas y optimizar la eficiencia operativa de las MIPYME agroalimentarias en Los Santos.',
+          'Implementación de sensores para monitorear procesos y optimizar la eficiencia operativa',
         ],
       },
       {
-        title: 'Red Colaborativa de Comercialización',
+        title: 'Red de Comercialización',
         body: [
-          'Establecimiento de una red de comercialización conjunta que permite a las pymes aliadas agrupar sus productos de alta calidad y venderlos de forma coordinada, facilitando su acceso a mercados nacionales e internacionales, con un enfoque estratégico en Estados Unidos.',
+          'Creación de red comercialización para facilitar el acceso a mercados nacionales e internacionales.',
         ],
       },
     ],
@@ -126,40 +126,25 @@ const copy = {
       {
         title: 'Gestão e Digitalização',
         body: [
-          'Capacitação em modelos de negócio sustentáveis, finanças e exportação',
-          'Ferramentas digitais de baixo custo e rastreabilidade integrada',
-          'Coaching personalizado e planos de melhoria para 60 organizações',
-          'Indicadores: 59 MIPYMEs apoiadas, 80 horas-pessoa de formação',
+          'Fortalecimento de capacidades empresariais, financeiras e digitais.',
         ],
       },
       {
         title: 'Maquila / Biorrefinaria',
         body: [
-          'Instalação e puesta em marcha de uma unidade maquila/biorrefinaria compartilhada para o processamento de produtos agroalimentares com valor agregado, com equipamentos, protocolos validados e governança participativa.',
-          'Desenho técnico e planejamento do espaço e processos',
-          'Protocolos validados para produtos com valor agregado (café fermentado e desidratado)',
-          'Instalação de secadores solares, balanças e equipamentos de processamento',
-          'Capacitação em controle de qualidade e governança compartilhada',
+          'Instalação de biorrefinaria compartilhada para o processamento de alimentos com valor agregado',
         ],
       },
       {
-        title: 'Monitoramento e Automação',
+        title: 'Automação',
         body: [
-          'Implementação de nós de sensores de baixo custo para monitorar processos críticos, reduzir perdas e otimizar a eficiência operacional das MIPYMEs agroalimentares em Los Santos.',
-          'Identificar pontos críticos: secagem, fermentação e armazenamento',
-          'Instalar e calibrar kits de monitoramento no local',
-          'Configurar nós ESP32 para monitoramento de temperatura e umidade',
-          'Meta: 10% de redução nos custos operacionais',
+          'Implementação de sensores para monitorar processos e otimizar a eficiência operacional',
         ],
       },
       {
-        title: 'Rede Colaborativa de Comercialização',
+        title: 'Rede de Comercialização',
         body: [
-          'Padronização de especificações, qualidade e embalagem',
-          'Piloto de mecanismo colaborativo de comercialização',
-          'Estratégias conjuntas de marketing para mercados nacionais e EUA.',
-          'Capacitação especializada em requisitos FDA/FSMA',
-          'Marco de governança e 1 especificação de produto validada',
+          'Criação de rede comercialização para facilitar o acesso a mercados nacionais e internacionais.',
         ],
       },
     ],
@@ -233,40 +218,25 @@ const copy = {
       {
         title: 'Management and Digitalization',
         body: [
-          'Training in sustainable business models, finance and export',
-          'Low-cost digital tools and integrated traceability',
-          'Personalized coaching and improvement plans for 60 organizations',
-          'Indicators: 59 MIPYMEs supported, 80 person-hours of training',
+          'Strengthening of business, financial and digital capabilities.',
         ],
       },
       {
         title: 'Maquila / Biorefinery',
         body: [
-          'Installation and start-up of a shared maquila/biorefinery unit for processing agro-food products with added value, with validated equipment, protocols and participatory governance.',
-          'Technical design and planning of space and processes',
-          'Validated protocols for value-added products (fermented and dehydrated coffee)',
-          'Installation of solar dryers, scales and processing equipment',
-          'Training in quality control and shared governance',
+          'Installation of a shared biorefinery for processing value-added food products',
         ],
       },
       {
-        title: 'Monitoring and Automation',
+        title: 'Automation',
         body: [
-          'Implementation of low-cost sensor nodes to monitor critical processes, reduce losses and optimize the operational efficiency of agro-food MIPYMEs in Los Santos.',
-          'Identify critical points: drying, fermentation and storage',
-          'Install and calibrate monitoring kits on site',
-          'Configure ESP32 nodes for temperature and humidity monitoring',
-          'Target: 10% reduction in operating costs',
+          'Implementation of sensors to monitor processes and optimize operational efficiency',
         ],
       },
       {
-        title: 'Collaborative Commercialization Network',
+        title: 'Commercialization Network',
         body: [
-          'Standardization of specifications, quality and packaging',
-          'Pilot of a collaborative commercialization mechanism',
-          'Joint marketing strategies for national markets and the U.S.',
-          'Specialized training in FDA/FSMA requirements',
-          'Governance framework and 1 validated product specification',
+          'Creation of a commercialization network to facilitate access to national and international markets.',
         ],
       },
     ],
@@ -431,10 +401,7 @@ export default async function ProjetoPage({
                     : String(card.body);
                   return (
                     <article key={card.title} className="rounded-3xl border border-[#E8EEF3] bg-[#F9FBFC] p-6 shadow-sm">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
-                        <Sparkles size={22} />
-                      </div>
-                      <h3 className="mt-4 text-lg font-semibold text-[#071F5E]">{card.title}</h3>
+                      <h3 className="text-lg font-semibold text-[#071F5E]">{card.title}</h3>
                       <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{bodyText}</p>
                     </article>
                   );
@@ -444,22 +411,46 @@ export default async function ProjetoPage({
           </div>
         </section>
 
-        <section className="bg-[#F5F7FA] py-16">
+        <section className="scroll-mt-24 bg-[#071F5E] py-16 text-white sm:py-20">
           <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
             <div className="max-w-3xl">
-              <h2 className="text-3xl font-semibold tracking-tight text-[#071F5E] sm:text-4xl">
+              <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
                 {current.sectionProcessTitle}
               </h2>
             </div>
-            <div className="mt-10 grid gap-4 md:grid-cols-2">
-              {current.processSteps.map((step, index) => (
-                <article key={step.title} className="rounded-3xl border border-[#E3E8EE] bg-white p-6 shadow-sm">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-sm font-semibold text-[#1D6359]">
-                    0{index + 1}
-                  </div>
-                  <p className="mt-4 text-sm leading-6 text-[#2F3336]/75">{step.title}</p>
-                </article>
-              ))}
+            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+              {current.processSteps.map((step, index) => {
+                const icons = [Leaf, ChartNoAxesCombined, BadgeCheck, Sparkles] as const;
+                const Icon = icons[index % icons.length];
+
+                return (
+                  <article
+                    key={step.title}
+                    className="group flex items-center gap-4 rounded-2xl border border-white/20 bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.18)] transition-colors duration-200 hover:border-[#009179] hover:bg-[#009179]"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <Icon
+                        className="h-8 w-8 shrink-0 text-[#4C7B5B] transition-colors duration-200 group-hover:text-white"
+                        strokeWidth={1.75}
+                      />
+                      <h3 className="mt-4 text-lg font-semibold text-[#1E1E1E] transition-colors duration-200 group-hover:text-white">
+                        {step.title}
+                      </h3>
+                      {step.body ? (
+                        <p className="mt-1 text-sm text-[#1E1E1E]/70 transition-colors duration-200 group-hover:text-white/90">
+                          {step.body}
+                        </p>
+                      ) : null}
+                    </div>
+                    <span
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#1E1E1E]/12 bg-[#1E1E1E]/[0.04] opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:border-white/35 group-hover:bg-white/15"
+                      aria-hidden
+                    >
+                      <ArrowRight className="h-4 w-4 text-[#1E1E1E] transition-colors group-hover:text-white" />
+                    </span>
+                  </article>
+                );
+              })}
             </div>
           </div>
         </section>

@@ -19,6 +19,8 @@ type RuralCommerceHeaderProps = {
   logoAlt?: string;
 };
 
+const IMPULSA_CR_ITEM: HeaderNavItem = { href: '/impulsacr', label: 'Impulsa CR' };
+
 const defaultNav = [
   { href: '/sobre', label: 'Sobre' },
   { href: '/solucoes', label: 'Soluciones' },
@@ -71,6 +73,27 @@ function localizeHref(href: string, locale: SupportedLocale): string {
   return `/${locale}${href === '/' ? '' : href}`;
 }
 
+function ensureImpulsaCrNav(items: HeaderNavItem[]): HeaderNavItem[] {
+  const hasImpulsa = items.some((item) => {
+    const href = String(item.href || '').toLowerCase();
+    const label = String(item.label || '').toLowerCase();
+    return href.includes('/impulsacr') || href.includes('/projeto') || label.includes('impulsa cr');
+  });
+
+  if (hasImpulsa) return items;
+
+  const contactIndex = items.findIndex((item) => {
+    const href = String(item.href || '').toLowerCase();
+    return href === '/contacto' || href === '#contacto' || href.endsWith('/contacto');
+  });
+
+  if (contactIndex < 0) {
+    return [...items, IMPULSA_CR_ITEM];
+  }
+
+  return [...items.slice(0, contactIndex), IMPULSA_CR_ITEM, ...items.slice(contactIndex)];
+}
+
 /** Item ativo: mesma rota ou sub-rota (ex.: /blog/slug → Blog). */
 function isNavItemActive(strippedPath: string, itemHref: string): boolean {
   if (!itemHref || itemHref === '/') {
@@ -103,6 +126,7 @@ export function RuralCommerceHeader({ navItems = [...defaultNav], logoAlt = 'Rur
   const strippedPath = stripLocalePrefix(pathname);
   const isSobrePage = strippedPath === '/sobre';
   const localizedHomeHref = `/${locale}`;
+  const navItemsWithImpulsa = ensureImpulsaCrNav(navItems);
 
   useEffect(() => {
     const hero = document.getElementById('hero');
@@ -153,7 +177,7 @@ export function RuralCommerceHeader({ navItems = [...defaultNav], logoAlt = 'Rur
         </Link>
 
         <nav className="hidden items-center gap-0.5 lg:flex">
-          {navItems.map((item) => {
+          {navItemsWithImpulsa.map((item) => {
             const active = isNavItemActive(strippedPath, item.href);
             return (
             <a
@@ -212,7 +236,7 @@ export function RuralCommerceHeader({ navItems = [...defaultNav], logoAlt = 'Rur
           }`}
         >
           <div className="flex flex-col gap-1">
-            {navItems.map((item) => {
+            {navItemsWithImpulsa.map((item) => {
               const active = isNavItemActive(strippedPath, item.href);
               return (
               <a
