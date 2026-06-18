@@ -101,7 +101,13 @@ try {
 } catch {
   console.error('\n----------');
   console.error('[ERRO] git push falhou.');
-  console.error('Sem rede, sem permissão, ou branch divergente — veja o Git acima.');
+  console.error('Causas comuns:');
+  console.error('  1) Conta GitHub autenticada sem permissao neste repositorio (erro 403).');
+  console.error('  2) Token/credencial HTTPS expirado ou de outra conta.');
+  console.error('  3) Branch/remoto sem permissao de escrita.');
+  console.error('');
+  console.error('Correcao rapida (HTTPS): remova credenciais do github.com no "Gerenciador de Credenciais" e rode de novo para logar com a conta correta.');
+  console.error('Opcional (SSH): cadastrar a chave publica em GitHub > Settings > SSH and GPG keys e trocar origin para git@github.com:ruralcommerce/ruralcommerce.git');
   console.error('----------\n');
   process.exit(1);
 }
