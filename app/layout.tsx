@@ -3,7 +3,11 @@ import { Lexend } from 'next/font/google';
 import './globals.css';
 import './rural-theme.css';
 
-const lexend = Lexend({ subsets: ['latin'], variable: '--font-lexend' });
+const lexend = Lexend({
+  subsets: ['latin'],
+  variable: '--font-lexend',
+  weight: ['300', '400', '500', '600', '700', '800'],
+});
 
 interface RootLayoutProps {
   children: ReactNode;

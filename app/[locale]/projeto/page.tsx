@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
-import { ArrowRight, BadgeCheck, ChartNoAxesCombined, Leaf, Sparkles } from 'lucide-react';
-import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
+import { ArrowRight } from 'lucide-react';
+import { ProjectLandingReveal } from '@/components/ProjectLandingReveal';
+import { ProjectSiteHeader } from '@/components/ProjectSiteHeader';
 import { RuralCommerceFooter as SiteFooter } from '@/components/RuralCommerceFooter';
 import {
   getBlockProps,
@@ -20,17 +21,20 @@ const copy = {
     metadataTitle: 'Impulsa Mipymes: digitaliza Los Santos',
     metadataDescription:
       'Fortalecimiento de capacidades empresariales, financieras y digitales para 60 MIPYMEs agroalimentarias rurales en Los Santos, con enfoque en exportación y trazabilidad de bajo costo.',
-    heroEyebrow: 'Impulsa Mipymes',
+    heroEyebrow: 'Nueva etapa',
     heroTitle: 'Impulsa Mipymes: digitaliza Los Santos',
     heroText:
       'Fortalecimiento de capacidades empresariales, financieras y digitales para 60 MIPYMEs agroalimentarias rurales en Los Santos, con enfoque en exportación y trazabilidad de bajo costo.',
+    heroNote:
+      'Impulsa Mipymes conecta capacidades, herramientas y mercados para transformar desafíos estructurales en oportunidades sostenibles.',
     heroCtaPrimary: 'Inscribirme al proyecto',
     heroChips: ['Formación', 'Innovación', 'Eficiencia Productiva', 'Digitalización', 'Comercialización'],
     sectionGoalsEyebrow: 'Objetivos',
-    sectionGoalsTitle: 'Objetivos y Resultados',
+    sectionGoalsTitle: 'Objetivos',
     sectionGoalsText:
       'Mejora de la competitividad, la productividad y la preparación para la exportación de las micro, pequeñas y medianas empresas agroalimentarias participantes en la región de Los Santos, en Costa Rica.',
-    goalCards: [
+    sectionResultsTitle: 'Pilares de acción',
+    resultsCards: [
       {
         title: 'Gestión y Digitalización',
         body: [
@@ -56,6 +60,7 @@ const copy = {
         ],
       },
     ],
+    sectionProcessEyebrow: 'Multiplicadores',
     sectionProcessTitle: 'Efectos Multiplicadores',
     processSteps: [
       {
@@ -75,13 +80,13 @@ const copy = {
         body: '',
       },
     ],
+    sectionImpactEyebrow: 'Resultados',
     sectionImpactTitle: 'Resultados que buscamos',
     impactStats: [
       { value: '60', label: 'MIPYMEs Apoyadas' },
       { value: '80', label: 'Horas Formación y asistencia técnica' },
       { value: '1', label: 'Maquila biorrefinaría Instalada' },
       { value: '10', label: 'Kits de Monitoreo y automación' },
-      { value: '60', label: 'Planes de Negocio' },
     ],
     sectionMultipliersTitle: 'Efectos Multiplicadores',
     multipliersCards: [
@@ -112,17 +117,20 @@ const copy = {
     metadataTitle: 'Impulsa Mipymes: digitaliza Los Santos',
     metadataDescription:
       'Fortalecimento de capacidades empresariais, financeiras e digitais para 60 MIPYMEs agroalimentares rurais em Los Santos, com foco em exportação e rastreabilidade de baixo custo.',
-    heroEyebrow: 'Impulsa Mipymes',
+    heroEyebrow: 'Nova etapa',
     heroTitle: 'Impulsa Mipymes: digitaliza Los Santos',
     heroText:
       'Fortalecimento de capacidades empresariais, financeiras e digitais para 60 MIPYMEs agroalimentares rurais em Los Santos, com foco em exportação e rastreabilidade de baixo custo.',
+    heroNote:
+      'Impulsa Mipymes conecta capacidades, ferramentas e mercados para transformar desafios estruturais em oportunidades sustentáveis.',
     heroCtaPrimary: 'Me inscrever no projeto',
     heroChips: ['Formação', 'Inovação', 'Eficiência Produtiva', 'Digitalização', 'Comercialização'],
     sectionGoalsEyebrow: 'Objetivos',
-    sectionGoalsTitle: 'Objetivos e Resultados',
+    sectionGoalsTitle: 'Objetivos',
     sectionGoalsText:
       'Melhoria da competitividade, produtividade e preparação para a exportação das micro, pequenas e médias empresas agroalimentares participantes na região de Los Santos, na Costa Rica.',
-    goalCards: [
+    sectionResultsTitle: 'Pilares de ação',
+    resultsCards: [
       {
         title: 'Gestão e Digitalização',
         body: [
@@ -148,6 +156,7 @@ const copy = {
         ],
       },
     ],
+    sectionProcessEyebrow: 'Multiplicadores',
     sectionProcessTitle: 'Efeitos Multiplicadores',
     processSteps: [
       {
@@ -167,13 +176,13 @@ const copy = {
         body: '',
       },
     ],
+    sectionImpactEyebrow: 'Resultados',
     sectionImpactTitle: 'Resultados que buscamos',
     impactStats: [
       { value: '60', label: 'MIPYMEs Apoiadas' },
       { value: '80', label: 'Horas de Formação e assistência técnica' },
       { value: '1', label: 'Maquila biorrefinaria instalada' },
       { value: '10', label: 'Kits de Monitoramento e automação' },
-      { value: '60', label: 'Planos de Negócio' },
     ],
     sectionMultipliersTitle: 'Efeitos Multiplicadores',
     multipliersCards: [
@@ -204,17 +213,20 @@ const copy = {
     metadataTitle: 'Impulsa Mipymes: digitaliza Los Santos',
     metadataDescription:
       'Strengthening business, financial and digital capabilities for 60 rural agrifood MIPYMEs in Los Santos, with a focus on export and low-cost traceability.',
-    heroEyebrow: 'Impulsa Mipymes',
+    heroEyebrow: 'New stage',
     heroTitle: 'Impulsa Mipymes: digitaliza Los Santos',
     heroText:
       'Strengthening business, financial and digital capabilities for 60 rural agrifood MIPYMEs in Los Santos, with a focus on export and low-cost traceability.',
+    heroNote:
+      'Impulsa Mipymes connects capabilities, tools and markets to turn structural challenges into sustainable opportunities.',
     heroCtaPrimary: 'Apply to the project',
     heroChips: ['Training', 'Innovation', 'Productive Efficiency', 'Digitalization', 'Commercialization'],
     sectionGoalsEyebrow: 'Objectives',
-    sectionGoalsTitle: 'Objectives and Results',
+    sectionGoalsTitle: 'Objectives',
     sectionGoalsText:
       'Improving the competitiveness, productivity and export readiness of participating agro-food micro, small and medium enterprises in the Los Santos region, Costa Rica.',
-    goalCards: [
+    sectionResultsTitle: 'Pillars of action',
+    resultsCards: [
       {
         title: 'Management and Digitalization',
         body: [
@@ -240,6 +252,7 @@ const copy = {
         ],
       },
     ],
+    sectionProcessEyebrow: 'Multipliers',
     sectionProcessTitle: 'Multiplier Effects',
     processSteps: [
       {
@@ -259,13 +272,13 @@ const copy = {
         body: '',
       },
     ],
+    sectionImpactEyebrow: 'Results',
     sectionImpactTitle: 'Results we aim for',
     impactStats: [
       { value: '60', label: 'MIPYMEs supported' },
       { value: '80', label: 'hours of training and technical assistance' },
       { value: '1', label: 'installed biorefinery maquila unit' },
       { value: '10', label: 'monitoring and automation kits' },
-      { value: '60', label: 'business plans' },
     ],
     sectionMultipliersTitle: 'Multiplier Effects',
     multipliersCards: [
@@ -294,6 +307,28 @@ const copy = {
   },
 } as const;
 
+const resultsCardIcons = [
+  <svg key="results-icon-0" viewBox="0 0 48 48" aria-hidden>
+    <rect x="10" y="12" width="28" height="20" rx="5" />
+    <path d="M16 38h16M20 32v6M28 32v6" />
+  </svg>,
+  <svg key="results-icon-1" viewBox="0 0 48 48" aria-hidden>
+    <path d="M12 32V16M24 36V12M36 28V20" />
+    <path d="M9 32h6M21 36h6M33 28h6" />
+    <path d="M12 16c6 10 18 10 24 4" />
+  </svg>,
+  <svg key="results-icon-2" viewBox="0 0 48 48" aria-hidden>
+    <path d="M8 17l16-7 16 7-16 7-16-7Z" />
+    <path d="M15 22v8c5 5 13 5 18 0v-8" />
+    <path d="M40 17v13" />
+  </svg>,
+  <svg key="results-icon-3" viewBox="0 0 48 48" aria-hidden>
+    <path d="M10 34c10 0 12-20 28-20" />
+    <path d="M30 14h8v8" />
+    <path d="M12 22h8M12 30h6M12 38h20" />
+  </svg>,
+] as const;
+
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
   const locale = getLocaleKey(params.locale);
   const current = copy[locale];
@@ -313,166 +348,122 @@ export default async function ProjetoPage({
   const locale = getLocaleKey(params.locale);
   const current = copy[locale];
   const siteLayout = await getManagedPageLayout('homepage', searchParams, params.locale);
-  const headerProps = getBlockProps(siteLayout, 'site-header');
   const footerProps = getBlockProps(siteLayout, 'site-footer');
-  const headerNavItems = parseJsonArray<{ label: string; href: string }>(
-    headerProps.navItemsJson,
-    [
-      { label: 'Sobre', href: '/sobre' },
-      { label: 'Soluciones', href: '/solucoes' },
-      { label: 'Aliados e Inversores', href: '/aliados' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Contacto', href: '/contacto' },
-    ]
-  );
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(
     footerProps.footerLinksJson,
     []
   );
 
   return (
-    <div className="min-h-screen bg-[#F5F7FA]">
-      <RuralCommerceHeader
-        navItems={headerNavItems}
-        logoAlt={String(headerProps.logoAlt || 'Rural Commerce Logo')}
-      />
-
+    <div className="projeto-landing min-h-screen bg-[#f2f2f2]">
       <main className="flex-1">
-        <section className="relative overflow-hidden bg-[#071F5E] text-white">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(82,173,173,0.18),transparent_16%),radial-gradient(circle_at_bottom_left,rgba(65,111,147,0.18),transparent_18%)]" />
-          <div className="absolute inset-0 opacity-10">
-            <div className="h-full w-full bg-[linear-gradient(rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.06)_1px,transparent_1px)] bg-[size:48px_48px]" />
-          </div>
-          <div className="relative mx-auto max-w-7xl px-6 pb-14 pt-32 sm:px-8 lg:px-10 lg:pb-20 lg:pt-36">
-            <div className="max-w-4xl">
-              <span className="inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white/80 backdrop-blur-sm">
-                {current.heroEyebrow}
-              </span>
-              <h1 className="mt-6 text-4xl font-semibold tracking-tight text-white sm:text-5xl lg:text-6xl">
-                {current.heroTitle}
-              </h1>
-              <p className="mt-5 max-w-3xl text-base leading-7 text-white/80 sm:text-lg">
-                {current.heroText}
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <a
-                  href={`/${locale}/projeto/inscricao`}
-                  className="inline-flex items-center justify-center gap-2 rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E] transition hover:bg-[#6CC7C7]"
-                >
-                  {current.heroCtaPrimary}
+        <section className="projeto-hero" id="inicio">
+          <ProjectSiteHeader locale={locale} />
+          <div className="projeto-hero-pattern" aria-hidden />
+          <div className="projeto-hero-shape-teal" aria-hidden />
+          <div className="projeto-hero-shape-blue" aria-hidden />
+
+          <div className="projeto-container projeto-hero-content">
+            <ProjectLandingReveal className="projeto-hero-copy">
+              <span className="projeto-eyebrow">{current.heroEyebrow}</span>
+              <h1>{current.heroTitle}</h1>
+              <p>{current.heroText}</p>
+              <a href={`/${locale}/projeto/inscricao`} className="projeto-hero-btn">
+                {current.heroCtaPrimary}
+                <span className="projeto-hero-btn-icon">
                   <ArrowRight size={16} />
-                </a>
-                <a
-                  href={`/${locale}/perfil`}
-                  className="inline-flex items-center justify-center rounded-full border border-white/25 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  Ver mi perfil
-                </a>
-              </div>
-              <div className="mt-6 flex flex-wrap gap-3 text-sm text-white/75">
-                {current.heroChips.map((chip) => (
-                  <span key={chip} className="rounded-full bg-white/5 px-3 py-2">
-                    {chip}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="relative bg-white py-18">
-          <div className="mx-auto max-w-7xl px-6 py-16 sm:px-8 lg:px-10">
-            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-              <div>
-                <span className="inline-flex rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-[#1D6359]">
-                  {current.sectionGoalsEyebrow}
                 </span>
-                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-[#071F5E] sm:text-4xl">
-                  {current.sectionGoalsTitle}
-                </h2>
-                <p className="mt-4 max-w-2xl text-base leading-7 text-[#2F3336]/75">
-                  {current.sectionGoalsText}
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {current.goalCards.map((card) => {
-                  const bodyText = Array.isArray(card.body)
-                    ? card.body.join(' ')
-                    : String(card.body);
-                  return (
-                    <article key={card.title} className="rounded-3xl border border-[#E8EEF3] bg-[#F9FBFC] p-6 shadow-sm">
-                      <h3 className="text-lg font-semibold text-[#071F5E]">{card.title}</h3>
-                      <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{bodyText}</p>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
+              </a>
+            </ProjectLandingReveal>
+
+            <ProjectLandingReveal className="projeto-hero-meta" delayMs={90}>
+              <p className="projeto-hero-note">{current.heroNote}</p>
+            </ProjectLandingReveal>
           </div>
         </section>
 
-        <section className="scroll-mt-24 bg-[#071F5E] py-16 text-white sm:py-20">
-          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
-            <div className="max-w-3xl">
-              <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                {current.sectionProcessTitle}
-              </h2>
-            </div>
-            <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {current.processSteps.map((step, index) => {
-                const icons = [Leaf, ChartNoAxesCombined, BadgeCheck, Sparkles] as const;
-                const Icon = icons[index % icons.length];
+        <section className="projeto-objectives" id="objetivos">
+          <div className="projeto-container projeto-split">
+            <ProjectLandingReveal className="projeto-text-stack" delayMs={45}>
+              <span className="projeto-eyebrow">{current.sectionGoalsEyebrow}</span>
+              <h2>{current.sectionGoalsTitle}</h2>
+              <p>{current.sectionGoalsText}</p>
+            </ProjectLandingReveal>
 
-                return (
-                  <article
-                    key={step.title}
-                    className="group flex items-center gap-4 rounded-2xl border border-white/20 bg-white p-6 shadow-[0_8px_30px_rgba(0,0,0,0.18)] transition-colors duration-200 hover:border-[#009179] hover:bg-[#009179]"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <Icon
-                        className="h-8 w-8 shrink-0 text-[#4C7B5B] transition-colors duration-200 group-hover:text-white"
-                        strokeWidth={1.75}
-                      />
-                      <h3 className="mt-4 text-lg font-semibold text-[#1E1E1E] transition-colors duration-200 group-hover:text-white">
-                        {step.title}
-                      </h3>
-                      {step.body ? (
-                        <p className="mt-1 text-sm text-[#1E1E1E]/70 transition-colors duration-200 group-hover:text-white/90">
-                          {step.body}
-                        </p>
-                      ) : null}
+            <ProjectLandingReveal delayMs={135}>
+              <div className="projeto-brand-orbit" aria-hidden>
+                <img className="projeto-orbit-logo" src="/images/icone-azul.png" alt="" />
+                <span className="projeto-orbit-dot projeto-orbit-dot-1" />
+                <span className="projeto-orbit-dot projeto-orbit-dot-2" />
+                <span className="projeto-orbit-dot projeto-orbit-dot-3" />
+              </div>
+            </ProjectLandingReveal>
+          </div>
+        </section>
+
+        <section className="projeto-ecosystem" id="resultados">
+          <div className="projeto-container">
+            <ProjectLandingReveal className="projeto-text-stack">
+              <h2>{current.sectionResultsTitle}</h2>
+            </ProjectLandingReveal>
+
+            <div className="projeto-ecosystem-cards">
+              {current.resultsCards.map((card, index) => (
+                <ProjectLandingReveal key={card.title} delayMs={index * 45}>
+                  <article className="projeto-ecosystem-card">
+                    <div>
+                      <div className="projeto-ecosystem-card-icon">{resultsCardIcons[index]}</div>
+                      <h3>{card.title}</h3>
+                      <p>{card.body.join(' ')}</p>
                     </div>
-                    <span
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#1E1E1E]/12 bg-[#1E1E1E]/[0.04] opacity-0 transition-all duration-200 group-hover:opacity-100 group-hover:border-white/35 group-hover:bg-white/15"
-                      aria-hidden
-                    >
-                      <ArrowRight className="h-4 w-4 text-[#1E1E1E] transition-colors group-hover:text-white" />
-                    </span>
                   </article>
-                );
-              })}
+                </ProjectLandingReveal>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-white py-16">
-          <div className="mx-auto max-w-7xl px-6 sm:px-8 lg:px-10">
-            <div className="rounded-[32px] bg-[#071F5E] p-8 text-white sm:p-10">
-              <div className="max-w-2xl">
-                <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-white/80">
-                  {current.sectionImpactTitle}
-                </span>
-                <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white">{current.sectionImpactTitle}</h2>
+        <section className="projeto-impact" id="impacto">
+          <div className="projeto-container">
+            <ProjectLandingReveal className="projeto-impact-head">
+              <div>
+                <span className="projeto-eyebrow projeto-impact-eyebrow">{current.sectionImpactEyebrow}</span>
+                <h2>{current.sectionImpactTitle}</h2>
               </div>
-              <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {current.impactStats.map((stat, index) => (
-                  <div key={`${stat.value}-${index}`} className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-                    <div className="text-5xl font-semibold leading-none text-[#52ADAD] sm:text-6xl">{stat.value}</div>
-                    <p className="mt-3 text-sm leading-6 text-white/90">{stat.label}</p>
+            </ProjectLandingReveal>
+
+            <div className="projeto-impact-metrics">
+              {current.impactStats.map((stat, index) => (
+                <ProjectLandingReveal key={`${stat.value}-${stat.label}`} delayMs={index * 45} className="projeto-impact-metric-wrap">
+                  <div className="projeto-impact-metric">
+                    <strong>{stat.value}</strong>
+                    <span>{stat.label}</span>
                   </div>
-                ))}
-              </div>
+                </ProjectLandingReveal>
+              ))}
             </div>
+          </div>
+        </section>
+
+        <section className="projeto-human" id="multiplicadores">
+          <div className="projeto-human-grid">
+            <ProjectLandingReveal className="projeto-human-photo-wrap">
+              <div
+                className="projeto-human-photo"
+                role="img"
+                aria-label="Productores rurales y acompañamiento técnico en el territorio"
+              />
+            </ProjectLandingReveal>
+
+            <ProjectLandingReveal className="projeto-human-copy" delayMs={90}>
+              <span className="projeto-eyebrow">{current.sectionProcessEyebrow}</span>
+              <h2>{current.sectionProcessTitle}</h2>
+              <ul className="projeto-human-list">
+                {current.processSteps.map((step) => (
+                  <li key={step.title}>{step.title}</li>
+                ))}
+              </ul>
+            </ProjectLandingReveal>
           </div>
         </section>
 
