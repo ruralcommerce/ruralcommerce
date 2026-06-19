@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
+import { mapProjectApiMessage } from '@/lib/project-locale';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -557,7 +558,7 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(payload.message || t.loginText);
+        setError(mapProjectApiMessage(payload.message, localeKey, t.loginText));
         return;
       }
       const loadedRecord = payload.record as CandidateRecord;
@@ -612,7 +613,7 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(payload.message || t.requiredError);
+        setError(mapProjectApiMessage(payload.message, localeKey, t.requiredError));
         return;
       }
       setSuccess(t.success);

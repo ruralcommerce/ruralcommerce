@@ -14,7 +14,7 @@ export default function PerfilPage({
     <main className="min-h-screen bg-[#F5F7FA] px-6 py-16 sm:px-8 lg:px-10">
       <div className="mx-auto max-w-5xl">
         <ProjectFlowNav locale={params.locale} currentPage="perfil" className="mb-4" />
-        <ProjectProfileDashboard initialEmail={email} />
+        <ProjectProfileDashboard locale={params.locale} initialEmail={email} />
       </div>
     </main>
   );

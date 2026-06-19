@@ -12,10 +12,13 @@ type ProjectSiteHeaderProps = {
   locale: string;
 };
 
-const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; items: Array<{ href: string; label: string }> }> = {
+const RURAL_COMMERCE_HOME_LABEL = 'Rural Commerce';
+
+const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; homeAriaLabel: string; items: Array<{ href: string; label: string }> }> = {
   es: {
-    openMenu: 'Abrir menu',
-    closeMenu: 'Cerrar menu',
+    openMenu: 'Abrir menú',
+    closeMenu: 'Cerrar menú',
+    homeAriaLabel: 'Rural Commerce - inicio',
     items: [
       { href: '/projeto', label: 'Proyecto' },
       { href: '/projeto/inscricao', label: 'Inscripción' },
@@ -26,6 +29,7 @@ const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; items: Arra
   'pt-BR': {
     openMenu: 'Abrir menu',
     closeMenu: 'Fechar menu',
+    homeAriaLabel: 'Rural Commerce - início',
     items: [
       { href: '/projeto', label: 'Projeto' },
       { href: '/projeto/inscricao', label: 'Inscrição' },
@@ -36,6 +40,7 @@ const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; items: Arra
   en: {
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
+    homeAriaLabel: 'Rural Commerce - home',
     items: [
       { href: '/projeto', label: 'Project' },
       { href: '/projeto/inscricao', label: 'Application' },
@@ -60,21 +65,28 @@ export function ProjectSiteHeader({ locale }: { locale: string }) {
   const localeKey = getLocaleKey(locale);
   const t = copy[localeKey];
   const strippedPath = stripLocalePrefix(pathname);
-  const base = `/${locale}`;
+  const homeHref = `/${locale}`;
 
   const items = useMemo(
-    () => t.items.map((item) => ({ ...item, href: `${base}${item.href}` })),
-    [base, t.items]
+    () => [
+      { href: homeHref, label: RURAL_COMMERCE_HOME_LABEL, isHome: true as const },
+      ...t.items.map((item) => ({ ...item, href: `${homeHref}${item.href}`, isHome: false as const })),
+    ],
+    [homeHref, t.items]
   );
 
-  const isActive = (href: string) =>
-    strippedPath === href.replace(/^\/(es|pt-BR|en)/, '') ||
-    strippedPath.startsWith(`${href.replace(/^\/(es|pt-BR|en)/, '')}/`);
+  const isHomeActive = strippedPath === '/' || strippedPath === '';
+
+  const isActive = (href: string, label: string) => {
+    if (label === RURAL_COMMERCE_HOME_LABEL) return isHomeActive;
+    const path = href.replace(/^\/(es|pt-BR|en)/, '');
+    return strippedPath === path || strippedPath.startsWith(`${path}/`);
+  };
 
   return (
     <header className="projeto-site-header">
       <div className="projeto-site-header-inner">
-        <Link href={base} aria-label="Rural Commerce" className="inline-flex shrink-0 items-center">
+        <Link href={homeHref} aria-label={t.homeAriaLabel} className="inline-flex shrink-0 items-center">
           <Image
             src="/images/logo-branco.png"
             alt="Rural Commerce"
@@ -90,8 +102,14 @@ export function ProjectSiteHeader({ locale }: { locale: string }) {
             <Link
               key={item.href}
               href={item.href}
-              className={isActive(item.href) ? 'opacity-100' : undefined}
-              aria-current={isActive(item.href) ? 'page' : undefined}
+              className={
+                item.isHome
+                  ? 'projeto-site-nav-btn'
+                  : isActive(item.href, item.label)
+                    ? 'opacity-100'
+                    : undefined
+              }
+              aria-current={isActive(item.href, item.label) ? 'page' : undefined}
             >
               {item.label}
             </Link>
@@ -116,7 +134,11 @@ export function ProjectSiteHeader({ locale }: { locale: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`rounded-lg px-2 py-2 text-sm ${isActive(item.href) ? 'opacity-100' : 'opacity-90'}`}
+                className={
+                  item.isHome
+                    ? 'projeto-site-nav-btn px-3 py-2 text-sm'
+                    : `rounded-lg px-2 py-2 text-sm ${isActive(item.href, item.label) ? 'opacity-100' : 'opacity-90'}`
+                }
                 onClick={() => setOpen(false)}
               >
                 {item.label}

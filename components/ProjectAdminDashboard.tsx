@@ -1,6 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import {
+  formatProjectAnswerValue,
+  formatProjectDate,
+  getProjectLocaleKey,
+  getProjectStatusLabel,
+  mapProjectApiMessage,
+  type ProjectLocaleKey,
+} from '@/lib/project-locale';
 
 type EnrollmentRecord = {
   id: string;
@@ -32,9 +40,9 @@ type EnrollmentRecord = {
   };
 };
 
-type LocaleKey = 'es' | 'pt-BR' | 'en';
+type BulkAction = 'approve' | 'reject' | 'delete';
 
-const inscriptionQuestionLabels: Record<LocaleKey, Record<string, string>> = {
+const inscriptionQuestionLabels: Record<ProjectLocaleKey, Record<string, string>> = {
   es: {
     q1: '1. Nombre del emprendimiento, finca o empresa',
     q2: '2. Nombre completo de la persona representante',
@@ -88,7 +96,7 @@ const inscriptionQuestionLabels: Record<LocaleKey, Record<string, string>> = {
   },
 };
 
-const diagnosisQuestionLabels: Record<LocaleKey, Record<string, string>> = {
+const diagnosisQuestionLabels: Record<ProjectLocaleKey, Record<string, string>> = {
   es: {
     q1: '1. ¿Cuál es el estatus legal y tributario actual del negocio?',
     q2: '2. ¿Cuenta con un plan de negocio o mapa estratégico escrito para los próximos 1-3 años?',
@@ -175,12 +183,146 @@ const diagnosisQuestionLabels: Record<LocaleKey, Record<string, string>> = {
   },
 };
 
-function formatAnswerValue(value: unknown) {
-  if (Array.isArray(value)) return value.map((item) => String(item)).join(', ');
-  if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
-  if (value === null || typeof value === 'undefined' || value === '') return '—';
-  return String(value);
-}
+const uiCopy = {
+  es: {
+    loginEyebrow: 'Intranet del equipo',
+    loginTitle: 'Acceso al panel de inscripciones',
+    teamPassword: 'Contraseña del equipo',
+    loginCta: 'Entrar a la intranet',
+    panelEyebrow: 'Panel del equipo',
+    panelTitle: 'Inscripciones del proyecto',
+    filterAll: 'Todas',
+    filterPending: 'Pendientes',
+    filterApproved: 'Aprobadas',
+    filterRejected: 'Rechazadas',
+    loading: 'Cargando inscripciones...',
+    selectAll: 'Seleccionar todas',
+    selectedCount: '{count} seleccionadas',
+    approveSelected: 'Aprobar seleccionadas',
+    rejectSelected: 'Rechazar seleccionadas',
+    deleteSelected: 'Eliminar seleccionadas',
+    deleteOne: 'Eliminar',
+    viewForm: 'Ver formulario',
+    viewDiagnosis: 'Ver diagnóstico',
+    approve: 'Aprobar',
+    reject: 'Rechazar',
+    profileSection: 'Perfil',
+    contactSection: 'Contacto',
+    noOrganization: 'Sin organización',
+    noCity: 'Sin ciudad',
+    noRole: 'Sin función informada',
+    noInterest: 'Sin interés informado',
+    noPhone: 'Sin teléfono',
+    localeUnknown: 'Idioma no informado',
+    noMessage: 'Sin mensaje adicional.',
+    fullForm: 'Formulario completo',
+    fullDiagnosis: 'Diagnóstico completo',
+    close: 'Cerrar',
+    participantFallback: 'Participante',
+    csvHeader: 'Pregunta,Respuesta',
+    confirmDelete: '¿Eliminar {count} inscripción(es)? Esta acción no se puede deshacer.',
+    errorAuth: 'No fue posible autenticar al equipo.',
+    errorAuthGeneric: 'Error al autenticar al equipo.',
+    errorLoad: 'No fue posible cargar las inscripciones.',
+    errorLoadGeneric: 'Error al cargar las inscripciones.',
+    errorUpdate: 'No fue posible actualizar la inscripción.',
+    errorUpdateGeneric: 'Error al actualizar la inscripción.',
+    errorBulk: 'No fue posible completar la acción en lote.',
+    errorBulkGeneric: 'Error al procesar la acción en lote.',
+  },
+  'pt-BR': {
+    loginEyebrow: 'Intranet da equipe',
+    loginTitle: 'Acesso ao painel de inscrições',
+    teamPassword: 'Senha da equipe',
+    loginCta: 'Entrar na intranet',
+    panelEyebrow: 'Painel da equipe',
+    panelTitle: 'Inscrições do projeto',
+    filterAll: 'Todas',
+    filterPending: 'Pendentes',
+    filterApproved: 'Aprovadas',
+    filterRejected: 'Rejeitadas',
+    loading: 'Carregando inscrições...',
+    selectAll: 'Selecionar todas',
+    selectedCount: '{count} selecionadas',
+    approveSelected: 'Aprovar selecionadas',
+    rejectSelected: 'Rejeitar selecionadas',
+    deleteSelected: 'Apagar selecionadas',
+    deleteOne: 'Apagar',
+    viewForm: 'Ver formulário',
+    viewDiagnosis: 'Ver diagnóstico',
+    approve: 'Aprovar',
+    reject: 'Rejeitar',
+    profileSection: 'Perfil',
+    contactSection: 'Contato',
+    noOrganization: 'Sem organização',
+    noCity: 'Sem cidade',
+    noRole: 'Sem função informada',
+    noInterest: 'Sem interesse informado',
+    noPhone: 'Sem telefone',
+    localeUnknown: 'Locale não informado',
+    noMessage: 'Sem mensagem adicional.',
+    fullForm: 'Formulário completo',
+    fullDiagnosis: 'Diagnóstico completo',
+    close: 'Fechar',
+    participantFallback: 'Participante',
+    csvHeader: 'Pergunta,Resposta',
+    confirmDelete: 'Apagar {count} inscrição(ões)? Esta ação não pode ser desfeita.',
+    errorAuth: 'Não foi possível autenticar a equipe.',
+    errorAuthGeneric: 'Erro ao autenticar equipe.',
+    errorLoad: 'Não foi possível carregar as inscrições.',
+    errorLoadGeneric: 'Erro ao carregar as inscrições.',
+    errorUpdate: 'Não foi possível atualizar a inscrição.',
+    errorUpdateGeneric: 'Erro ao atualizar a inscrição.',
+    errorBulk: 'Não foi possível concluir a ação em lote.',
+    errorBulkGeneric: 'Erro ao processar a ação em lote.',
+  },
+  en: {
+    loginEyebrow: 'Team intranet',
+    loginTitle: 'Access to the applications panel',
+    teamPassword: 'Team password',
+    loginCta: 'Enter intranet',
+    panelEyebrow: 'Team panel',
+    panelTitle: 'Project applications',
+    filterAll: 'All',
+    filterPending: 'Pending',
+    filterApproved: 'Approved',
+    filterRejected: 'Rejected',
+    loading: 'Loading applications...',
+    selectAll: 'Select all',
+    selectedCount: '{count} selected',
+    approveSelected: 'Approve selected',
+    rejectSelected: 'Reject selected',
+    deleteSelected: 'Delete selected',
+    deleteOne: 'Delete',
+    viewForm: 'View form',
+    viewDiagnosis: 'View diagnosis',
+    approve: 'Approve',
+    reject: 'Reject',
+    profileSection: 'Profile',
+    contactSection: 'Contact',
+    noOrganization: 'No organization',
+    noCity: 'No city',
+    noRole: 'No role provided',
+    noInterest: 'No interest provided',
+    noPhone: 'No phone',
+    localeUnknown: 'Locale not provided',
+    noMessage: 'No additional message.',
+    fullForm: 'Full form',
+    fullDiagnosis: 'Full diagnosis',
+    close: 'Close',
+    participantFallback: 'Participant',
+    csvHeader: 'Question,Answer',
+    confirmDelete: 'Delete {count} application(s)? This action cannot be undone.',
+    errorAuth: 'Could not authenticate the team.',
+    errorAuthGeneric: 'Error authenticating the team.',
+    errorLoad: 'Could not load applications.',
+    errorLoadGeneric: 'Error loading applications.',
+    errorUpdate: 'Could not update the application.',
+    errorUpdateGeneric: 'Error updating the application.',
+    errorBulk: 'Could not complete the bulk action.',
+    errorBulkGeneric: 'Error processing the bulk action.',
+  },
+} as const;
 
 function getOrderedAnswerEntries(answers?: Record<string, unknown>) {
   if (!answers) return [] as Array<[string, unknown]>;
@@ -192,25 +334,16 @@ function getOrderedAnswerEntries(answers?: Record<string, unknown>) {
   });
 }
 
-function getLocaleKey(locale?: string): LocaleKey {
-  return locale === 'pt-BR' || locale === 'en' ? locale : 'es';
-}
-
 function getInscriptionAnswerLabel(key: string, locale?: string) {
   const normalized = key.toLowerCase();
-  const labels = inscriptionQuestionLabels[getLocaleKey(locale)];
+  const labels = inscriptionQuestionLabels[getProjectLocaleKey(locale)];
   return labels[normalized] || normalized.toUpperCase();
 }
 
 function getDiagnosisAnswerLabel(key: string, locale?: string) {
   const normalized = key.toLowerCase();
-  const labels = diagnosisQuestionLabels[getLocaleKey(locale)];
+  const labels = diagnosisQuestionLabels[getProjectLocaleKey(locale)];
   return labels[normalized] || normalized.toUpperCase();
-}
-
-function toCsv(rows: Array<[string, string]>) {
-  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
-  return ['Pergunta,Resposta', ...rows.map(([question, answer]) => `${escape(question)},${escape(answer)}`)].join('\n');
 }
 
 function triggerDownload(content: string, fileName: string, mimeType: string) {
@@ -225,32 +358,41 @@ function triggerDownload(content: string, fileName: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
-export function ProjectAdminDashboard() {
+export function ProjectAdminDashboard({ locale }: { locale: string }) {
+  const localeKey = getProjectLocaleKey(locale);
+  const t = uiCopy[localeKey];
+
   const [records, setRecords] = useState<EnrollmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [bulkLoading, setBulkLoading] = useState(false);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
   const [teamPassword, setTeamPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedRecord, setSelectedRecord] = useState<EnrollmentRecord | null>(null);
   const [selectedDiagnosisRecord, setSelectedDiagnosisRecord] = useState<EnrollmentRecord | null>(null);
 
   const getDiagnosisRows = (record: EnrollmentRecord) =>
     getOrderedAnswerEntries(record.profile.diagnosis?.answers).map(([key, value]) => [
       getDiagnosisAnswerLabel(key, record.profile.diagnosis?.locale || record.profile.locale),
-      formatAnswerValue(value),
+      formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
 
+  const toCsv = (rows: Array<[string, string]>) => {
+    const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    return [t.csvHeader, ...rows.map(([question, answer]) => `${escape(question)},${escape(answer)}`)].join('\n');
+  };
+
   const downloadDiagnosisCsv = (record: EnrollmentRecord) => {
-    const rows = getDiagnosisRows(record);
-    triggerDownload(toCsv(rows), `diagnostico-${record.id}.csv`, 'text/csv;charset=utf-8;');
+    triggerDownload(toCsv(getDiagnosisRows(record)), `diagnostico-${record.id}.csv`, 'text/csv;charset=utf-8;');
   };
 
   const downloadDiagnosisWord = (record: EnrollmentRecord) => {
     const rows = getDiagnosisRows(record)
       .map(([question, answer]) => `<tr><td style="border:1px solid #ccc;padding:6px;"><strong>${question}</strong></td><td style="border:1px solid #ccc;padding:6px;">${answer}</td></tr>`)
       .join('');
-    const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><h2>Diagnóstico - ${record.profile.name}</h2><table style="border-collapse:collapse;width:100%;">${rows}</table></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><h2>${t.fullDiagnosis} - ${record.profile.name}</h2><table style="border-collapse:collapse;width:100%;">${rows}</table></body></html>`;
     triggerDownload(html, `diagnostico-${record.id}.doc`, 'application/msword');
   };
 
@@ -278,7 +420,7 @@ export function ProjectAdminDashboard() {
     <title>diagnostico-${record.id}</title>
   </head>
   <body style="font-family: Arial, sans-serif; padding: 20px; color: #1f2937;">
-    <h2 style="margin: 0 0 4px;">Diagnóstico - ${record.profile.name || 'Participante'}</h2>
+    <h2 style="margin: 0 0 4px;">${t.fullDiagnosis} - ${record.profile.name || t.participantFallback}</h2>
     <p style="margin: 0 0 16px; color: #4b5563;">${record.user.email || ''}</p>
     <table style="width:100%; border-collapse:collapse; font-size:12px;">${tableRows}</table>
   </body>
@@ -304,14 +446,15 @@ export function ProjectAdminDashboard() {
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(payload.message || 'Não foi possível autenticar a equipe.');
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorAuth));
         setAuthenticated(false);
         return;
       }
       setRecords(payload.records || []);
       setAuthenticated(true);
+      setSelectedIds(new Set());
     } catch {
-      setError('Erro ao autenticar equipe.');
+      setError(t.errorAuthGeneric);
       setAuthenticated(false);
     } finally {
       setLoading(false);
@@ -326,12 +469,13 @@ export function ProjectAdminDashboard() {
       const response = await fetch('/api/projeto/inscriptions');
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(payload.message || 'Não foi possível carregar as inscrições.');
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
         return;
       }
       setRecords(payload.records || []);
+      setSelectedIds(new Set());
     } catch {
-      setError('Erro ao carregar as inscrições.');
+      setError(t.errorLoadGeneric);
     } finally {
       setLoading(false);
     }
@@ -348,6 +492,31 @@ export function ProjectAdminDashboard() {
     return records.filter((record) => record.status === filter);
   }, [filter, records]);
 
+  const allFilteredSelected =
+    filteredRecords.length > 0 && filteredRecords.every((record) => selectedIds.has(record.id));
+  const selectedCount = selectedIds.size;
+
+  function toggleRecordSelection(recordId: string) {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (next.has(recordId)) next.delete(recordId);
+      else next.add(recordId);
+      return next;
+    });
+  }
+
+  function toggleSelectAllFiltered() {
+    setSelectedIds((current) => {
+      const next = new Set(current);
+      if (allFilteredSelected) {
+        filteredRecords.forEach((record) => next.delete(record.id));
+      } else {
+        filteredRecords.forEach((record) => next.add(record.id));
+      }
+      return next;
+    });
+  }
+
   async function updateStatus(recordId: string, status: EnrollmentRecord['status']) {
     try {
       const response = await fetch(`/api/projeto/inscriptions/${recordId}`, {
@@ -357,12 +526,57 @@ export function ProjectAdminDashboard() {
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(payload.message || 'Não foi possível atualizar a inscrição.');
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorUpdate));
         return;
       }
       await loadRecords();
     } catch {
-      setError('Erro ao atualizar a inscrição.');
+      setError(t.errorUpdateGeneric);
+    }
+  }
+
+  async function deleteRecord(recordId: string) {
+    if (!window.confirm(t.confirmDelete.replace('{count}', '1'))) return;
+
+    try {
+      const response = await fetch(`/api/projeto/inscriptions/${recordId}`, { method: 'DELETE' });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorBulk));
+        return;
+      }
+      await loadRecords();
+    } catch {
+      setError(t.errorBulkGeneric);
+    }
+  }
+
+  async function runBulkAction(action: BulkAction) {
+    const ids = Array.from(selectedIds);
+    if (!ids.length) return;
+
+    if (action === 'delete' && !window.confirm(t.confirmDelete.replace('{count}', String(ids.length)))) {
+      return;
+    }
+
+    setBulkLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/projeto/inscriptions/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids, action }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorBulk));
+        return;
+      }
+      await loadRecords();
+    } catch {
+      setError(t.errorBulkGeneric);
+    } finally {
+      setBulkLoading(false);
     }
   }
 
@@ -370,11 +584,11 @@ export function ProjectAdminDashboard() {
     return (
       <div className="space-y-6">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">Intranet da equipe</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">Acesso ao painel de inscrições</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.loginEyebrow}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.loginTitle}</h1>
         </div>
         <div className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
-          <label className="block text-sm font-medium text-[#071F5E]">Senha da equipe</label>
+          <label className="block text-sm font-medium text-[#071F5E]">{t.teamPassword}</label>
           <input
             type="password"
             value={teamPassword}
@@ -385,7 +599,7 @@ export function ProjectAdminDashboard() {
             onClick={authenticateTeam}
             className="mt-4 rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E]"
           >
-            Entrar na intranet
+            {t.loginCta}
           </button>
         </div>
         {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
@@ -397,84 +611,149 @@ export function ProjectAdminDashboard() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">Painel da equipe</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">Inscrições do projeto</h1>
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
+          <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
         </div>
         <select
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
           className="rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm"
         >
-          <option value="all">Todas</option>
-          <option value="pending">Pendentes</option>
-          <option value="approved">Aprovadas</option>
-          <option value="rejected">Rejeitadas</option>
+          <option value="all">{t.filterAll}</option>
+          <option value="pending">{t.filterPending}</option>
+          <option value="approved">{t.filterApproved}</option>
+          <option value="rejected">{t.filterRejected}</option>
         </select>
+      </div>
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-[#E6EBF1] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+        <label className="inline-flex items-center gap-2 text-sm text-[#071F5E]">
+          <input
+            type="checkbox"
+            checked={allFilteredSelected && filteredRecords.length > 0}
+            onChange={toggleSelectAllFiltered}
+            className="h-4 w-4 rounded border-[#D9E3EC] text-[#52ADAD]"
+          />
+          {t.selectAll}
+        </label>
+
+        {selectedCount > 0 ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-[#2F3336]/75">
+              {t.selectedCount.replace('{count}', String(selectedCount))}
+            </span>
+            <button
+              type="button"
+              disabled={bulkLoading}
+              onClick={() => runBulkAction('approve')}
+              className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+            >
+              {t.approveSelected}
+            </button>
+            <button
+              type="button"
+              disabled={bulkLoading}
+              onClick={() => runBulkAction('reject')}
+              className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+            >
+              {t.rejectSelected}
+            </button>
+            <button
+              type="button"
+              disabled={bulkLoading}
+              onClick={() => runBulkAction('delete')}
+              className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-60"
+            >
+              {t.deleteSelected}
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
 
       {loading ? (
-        <p className="text-sm text-[#2F3336]/70">Carregando inscrições...</p>
+        <p className="text-sm text-[#2F3336]/70">{t.loading}</p>
       ) : (
         <div className="space-y-4">
           {filteredRecords.map((record) => (
-            <article key={record.id} className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
+            <article
+              key={record.id}
+              className={`rounded-3xl border bg-white p-6 shadow-sm ${
+                selectedIds.has(record.id) ? 'border-[#52ADAD] ring-1 ring-[#52ADAD]/30' : 'border-[#E6EBF1]'
+              }`}
+            >
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
-                    <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold text-[#1D6359]">
-                      {record.status}
-                    </span>
+                <div className="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(record.id)}
+                    onChange={() => toggleRecordSelection(record.id)}
+                    className="mt-1.5 h-4 w-4 rounded border-[#D9E3EC] text-[#52ADAD]"
+                    aria-label={record.profile.name}
+                  />
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h2 className="text-xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
+                      <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold text-[#1D6359]">
+                        {getProjectStatusLabel(record.status, localeKey)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
+                    <p className="mt-1 text-sm text-[#2F3336]/75">
+                      {record.profile.organization || t.noOrganization} · {record.profile.city || t.noCity}
+                    </p>
+                    <p className="mt-1 text-xs text-[#2F3336]/55">{formatProjectDate(record.createdAt, localeKey)}</p>
                   </div>
-                  <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
-                  <p className="mt-1 text-sm text-[#2F3336]/75">
-                    {record.profile.organization || 'Sem organização'} · {record.profile.city || 'Sem cidade'}
-                  </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setSelectedRecord(record)}
                     className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
                   >
-                    Ver formulário
+                    {t.viewForm}
                   </button>
                   <button
                     onClick={() => setSelectedDiagnosisRecord(record)}
-                    className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+                    className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-40"
                     disabled={!record.profile.diagnosis?.answers}
                   >
-                    Ver diagnóstico
+                    {t.viewDiagnosis}
                   </button>
                   <button
                     onClick={() => updateStatus(record.id, 'approved')}
                     className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E]"
                   >
-                    Aprovar
+                    {t.approve}
                   </button>
                   <button
                     onClick={() => updateStatus(record.id, 'rejected')}
                     className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
                   >
-                    Rejeitar
+                    {t.reject}
+                  </button>
+                  <button
+                    onClick={() => deleteRecord(record.id)}
+                    className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700"
+                  >
+                    {t.deleteOne}
                   </button>
                 </div>
               </div>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Perfil</p>
-                  <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.role || 'Sem função informada'}</p>
-                  <p className="text-sm text-[#2F3336]/80">{record.profile.interest || 'Sem interesse informado'}</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.profileSection}</p>
+                  <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.role || t.noRole}</p>
+                  <p className="text-sm text-[#2F3336]/80">{record.profile.interest || t.noInterest}</p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Contato</p>
-                  <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.phone || 'Sem telefone'}</p>
-                  <p className="text-sm text-[#2F3336]/80">{record.profile.locale || 'Locale não informado'}</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.contactSection}</p>
+                  <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.phone || t.noPhone}</p>
+                  <p className="text-sm text-[#2F3336]/80">{record.profile.locale || t.localeUnknown}</p>
                 </div>
               </div>
               <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm text-[#2F3336]/80">
-                {record.profile.message || 'Sem mensagem adicional.'}
+                {record.profile.message || t.noMessage}
               </p>
             </article>
           ))}
@@ -489,7 +768,7 @@ export function ProjectAdminDashboard() {
           >
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Formulário completo</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.fullForm}</p>
                 <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">{selectedRecord.profile.name}</h3>
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedRecord.user.email}</p>
               </div>
@@ -498,7 +777,7 @@ export function ProjectAdminDashboard() {
                 onClick={() => setSelectedRecord(null)}
                 className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
               >
-                Fechar
+                {t.close}
               </button>
             </div>
 
@@ -507,7 +786,7 @@ export function ProjectAdminDashboard() {
                 {getOrderedAnswerEntries(selectedRecord.profile.answers).map(([key, value]) => (
                   <div key={key} className="text-sm text-[#2F3336]/85">
                     <span className="font-semibold text-[#071F5E]">{getInscriptionAnswerLabel(key, selectedRecord.profile.locale)}:</span>{' '}
-                    {formatAnswerValue(value)}
+                    {formatProjectAnswerValue(value, selectedRecord.profile.locale || localeKey)}
                   </div>
                 ))}
               </div>
@@ -524,7 +803,7 @@ export function ProjectAdminDashboard() {
           >
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Diagnóstico completo</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.fullDiagnosis}</p>
                 <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">{selectedDiagnosisRecord.profile.name}</h3>
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedDiagnosisRecord.user.email}</p>
               </div>
@@ -562,7 +841,7 @@ export function ProjectAdminDashboard() {
                   onClick={() => setSelectedDiagnosisRecord(null)}
                   className="rounded-full border border-[#D9E3EC] px-3 py-1.5 text-xs font-semibold text-[#071F5E]"
                 >
-                  Fechar
+                  {t.close}
                 </button>
               </div>
             </div>
@@ -574,7 +853,7 @@ export function ProjectAdminDashboard() {
                     <span className="font-semibold text-[#071F5E]">
                       {getDiagnosisAnswerLabel(key, selectedDiagnosisRecord.profile.diagnosis?.locale || selectedDiagnosisRecord.profile.locale)}:
                     </span>{' '}
-                    {formatAnswerValue(value)}
+                    {formatProjectAnswerValue(value, selectedDiagnosisRecord.profile.diagnosis?.locale || localeKey)}
                   </div>
                 ))}
               </div>

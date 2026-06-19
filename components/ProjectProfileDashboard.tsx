@@ -1,6 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import {
+  formatProjectAnswerValue,
+  formatProjectDate,
+  getProjectLocaleKey,
+  getProjectStatusLabel,
+  mapProjectApiMessage,
+  type ProjectLocaleKey,
+} from '@/lib/project-locale';
 
 type EnrollmentRecord = {
   id: string;
@@ -26,9 +34,7 @@ type EnrollmentRecord = {
   };
 };
 
-type LocaleKey = 'es' | 'pt-BR' | 'en';
-
-const questionLabels: Record<LocaleKey, Record<string, string>> = {
+const questionLabels: Record<ProjectLocaleKey, Record<string, string>> = {
   es: {
     q1: '1. Nombre del emprendimiento, finca o empresa',
     q2: '2. Nombre completo de la persona representante',
@@ -82,17 +88,80 @@ const questionLabels: Record<LocaleKey, Record<string, string>> = {
   },
 };
 
-function formatDate(value?: string) {
-  if (!value) return '—';
-  return new Date(value).toLocaleDateString('pt-BR');
-}
-
-function formatAnswerValue(value: unknown) {
-  if (Array.isArray(value)) return value.map((item) => String(item)).join(', ');
-  if (typeof value === 'boolean') return value ? 'Sim' : 'Não';
-  if (value === null || typeof value === 'undefined' || value === '') return '—';
-  return String(value);
-}
+const uiCopy = {
+  es: {
+    eyebrow: 'Mi perfil',
+    title: 'Sigue tu inscripción y los próximos pasos',
+    emailPlaceholder: 'Ingresa tu correo electrónico',
+    passwordPlaceholder: 'Ingresa tu contraseña',
+    loginCta: 'Entrar a la intranet del candidato',
+    loading: 'Buscando información...',
+    statusSection: 'Estado del usuario',
+    emailLabel: 'Correo',
+    createdLabel: 'Creado el',
+    accessLabel: 'Acceso',
+    projectInfo: 'Información del proyecto',
+    organization: 'Organización',
+    city: 'Ciudad',
+    profile: 'Perfil',
+    interest: 'Interés',
+    noMessage: 'Sin mensaje adicional.',
+    formAnswers: 'Respuestas del formulario',
+    diagnosticCta: 'Ir al diagnóstico',
+    accessActive: 'Activo',
+    accessPending: 'Pendiente',
+    errorLoad: 'No fue posible cargar el perfil.',
+    errorLoadGeneric: 'Error al cargar el perfil.',
+  },
+  'pt-BR': {
+    eyebrow: 'Meu perfil',
+    title: 'Acompanhe sua inscrição e próximos passos',
+    emailPlaceholder: 'Digite seu e-mail',
+    passwordPlaceholder: 'Digite sua senha',
+    loginCta: 'Entrar na intranet do candidato',
+    loading: 'Buscando informações...',
+    statusSection: 'Status do usuário',
+    emailLabel: 'E-mail',
+    createdLabel: 'Criado em',
+    accessLabel: 'Acesso',
+    projectInfo: 'Informações do projeto',
+    organization: 'Organização',
+    city: 'Cidade',
+    profile: 'Perfil',
+    interest: 'Interesse',
+    noMessage: 'Sem mensagem adicional.',
+    formAnswers: 'Respostas do formulário',
+    diagnosticCta: 'Ir para o diagnóstico',
+    accessActive: 'Ativo',
+    accessPending: 'Pendente',
+    errorLoad: 'Não foi possível carregar o perfil.',
+    errorLoadGeneric: 'Erro ao carregar o perfil.',
+  },
+  en: {
+    eyebrow: 'My profile',
+    title: 'Track your application and next steps',
+    emailPlaceholder: 'Enter your email',
+    passwordPlaceholder: 'Enter your password',
+    loginCta: 'Enter candidate intranet',
+    loading: 'Loading information...',
+    statusSection: 'User status',
+    emailLabel: 'Email',
+    createdLabel: 'Created on',
+    accessLabel: 'Access',
+    projectInfo: 'Project information',
+    organization: 'Organization',
+    city: 'City',
+    profile: 'Profile',
+    interest: 'Interest',
+    noMessage: 'No additional message.',
+    formAnswers: 'Form answers',
+    diagnosticCta: 'Go to diagnosis',
+    accessActive: 'Active',
+    accessPending: 'Pending',
+    errorLoad: 'Could not load profile.',
+    errorLoadGeneric: 'Error loading profile.',
+  },
+} as const;
 
 function getOrderedAnswerEntries(answers?: Record<string, unknown>) {
   if (!answers) return [] as Array<[string, unknown]>;
@@ -104,24 +173,22 @@ function getOrderedAnswerEntries(answers?: Record<string, unknown>) {
   });
 }
 
-function getLocaleKey(locale?: string): LocaleKey {
-  return locale === 'pt-BR' || locale === 'en' ? locale : 'es';
-}
-
 function getAnswerLabel(key: string, locale?: string) {
   const normalized = key.toLowerCase();
-  const labels = questionLabels[getLocaleKey(locale)];
+  const labels = questionLabels[getProjectLocaleKey(locale)];
   return labels[normalized] || normalized.toUpperCase();
 }
 
-function getDiagnosticCta(locale?: string) {
-  const localeKey = getLocaleKey(locale);
-  if (localeKey === 'pt-BR') return 'Ir para o diagnóstico';
-  if (localeKey === 'en') return 'Go to diagnostic';
-  return 'Ir al diagnóstico';
-}
+export function ProjectProfileDashboard({
+  locale,
+  initialEmail = '',
+}: {
+  locale: string;
+  initialEmail?: string;
+}) {
+  const localeKey = getProjectLocaleKey(locale);
+  const t = uiCopy[localeKey];
 
-export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: string }) {
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [record, setRecord] = useState<EnrollmentRecord | null>(null);
@@ -141,7 +208,7 @@ export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: 
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(payload.message || 'Não foi possível carregar o perfil.');
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
         return;
       }
       const loadedRecord = payload.record || null;
@@ -153,13 +220,13 @@ export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: 
             id: loadedRecord.id,
             email: loadedRecord.user?.email || '',
             status: loadedRecord.status,
-            locale: loadedRecord.profile?.locale || 'es',
+            locale: loadedRecord.profile?.locale || localeKey,
             name: loadedRecord.profile?.name || '',
           })
         );
       }
     } catch {
-      setError('Erro ao carregar o perfil.');
+      setError(t.errorLoadGeneric);
     } finally {
       setLoading(false);
     }
@@ -171,11 +238,19 @@ export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: 
     }
   }, [initialEmail, password]);
 
+  const displayLocale = record?.profile?.locale || localeKey;
+
+  function getAccessLabel(accessStatus: string) {
+    if (accessStatus === 'active') return t.accessActive;
+    if (accessStatus === 'pending') return t.accessPending;
+    return accessStatus;
+  }
+
   return (
     <div className="space-y-6">
       <div className="rounded-3xl bg-[#071F5E] p-8 text-white">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/75">Meu perfil</p>
-        <h1 className="mt-2 text-3xl font-semibold">Acompanhe sua inscrição e próximos passos</h1>
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/75">{t.eyebrow}</p>
+        <h1 className="mt-2 text-3xl font-semibold">{t.title}</h1>
       </div>
 
       {!record ? (
@@ -184,14 +259,14 @@ export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: 
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Digite seu e-mail"
+              placeholder={t.emailPlaceholder}
               className="rounded-2xl border border-[#D9E3EC] px-4 py-3"
             />
             <input
               value={password}
               type="password"
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Digite sua senha"
+              placeholder={t.passwordPlaceholder}
               className="rounded-2xl border border-[#D9E3EC] px-4 py-3"
             />
           </div>
@@ -200,7 +275,7 @@ export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: 
               onClick={() => loadRecord(email)}
               className="rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E]"
             >
-              Entrar na intranet do candidato
+              {t.loginCta}
             </button>
           </div>
         </div>
@@ -208,78 +283,79 @@ export function ProjectProfileDashboard({ initialEmail = '' }: { initialEmail?: 
 
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
 
-      {loading ? <p className="text-sm text-[#2F3336]/70">Buscando informações...</p> : null}
+      {loading ? <p className="text-sm text-[#2F3336]/70">{t.loading}</p> : null}
 
       {record ? (
         <div className="space-y-4">
           <section className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-[#1D6359]">Status do usuário</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-[#1D6359]">{t.statusSection}</p>
                 <h2 className="mt-1 text-2xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
               </div>
               <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-sm font-semibold text-[#1D6359]">
-                {record.status === 'approved' ? 'Aprovado' : record.status === 'rejected' ? 'Rejeitado' : 'Em análise'}
+                {getProjectStatusLabel(record.status, localeKey)}
               </span>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">E-mail</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.emailLabel}</p>
                 <p className="mt-1 text-sm text-[#2F3336]/80">{record.user.email}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Criado em</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{formatDate(record.createdAt)}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.createdLabel}</p>
+                <p className="mt-1 text-sm text-[#2F3336]/80">{formatProjectDate(record.createdAt, localeKey)}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Acesso</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{record.user.accessStatus}</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.accessLabel}</p>
+                <p className="mt-1 text-sm text-[#2F3336]/80">{getAccessLabel(record.user.accessStatus)}</p>
               </div>
             </div>
 
             {record.status === 'approved' ? (
               <div className="mt-4">
                 <a
-                  href={`/${getLocaleKey(record.profile.locale)}/projeto/diagnostico`}
+                  href={`/${localeKey}/projeto/diagnostico`}
                   className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
                 >
-                  {getDiagnosticCta(record.profile.locale)}
+                  {t.diagnosticCta}
                 </a>
               </div>
             ) : null}
           </section>
 
           <section className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-[#071F5E]">Informações do projeto</h3>
+            <h3 className="text-lg font-semibold text-[#071F5E]">{t.projectInfo}</h3>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Organização</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.organization}</p>
                 <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.organization || '—'}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Cidade</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.city}</p>
                 <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.city || '—'}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Perfil</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.profile}</p>
                 <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.role || '—'}</p>
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">Interesse</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.interest}</p>
                 <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.interest || '—'}</p>
               </div>
             </div>
             <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm text-[#2F3336]/80">
-              {record.profile.message || 'Sem mensagem adicional.'}
+              {record.profile.message || t.noMessage}
             </p>
 
             {answerEntries.length ? (
               <div className="mt-4 rounded-2xl bg-[#F7FAFB] p-4">
-                <p className="text-sm font-semibold text-[#071F5E]">Respostas do formulário</p>
+                <p className="text-sm font-semibold text-[#071F5E]">{t.formAnswers}</p>
                 <div className="mt-3 grid gap-2">
                   {answerEntries.map(([key, value]) => (
                     <div key={key} className="text-sm text-[#2F3336]/85">
-                      <span className="font-semibold text-[#071F5E]">{getAnswerLabel(key, record.profile.locale)}:</span> {formatAnswerValue(value)}
+                      <span className="font-semibold text-[#071F5E]">{getAnswerLabel(key, displayLocale)}:</span>{' '}
+                      {formatProjectAnswerValue(value, displayLocale)}
                     </div>
                   ))}
                 </div>

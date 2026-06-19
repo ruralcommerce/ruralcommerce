@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { ScrollText } from 'lucide-react';
+import { mapProjectApiMessage } from '@/lib/project-locale';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -284,7 +285,7 @@ export function ProjectEnrollmentForm({
       });
       const payload = await res.json();
       if (!res.ok || !payload.ok) {
-        setError(payload.message || t.errorGeneric);
+        setError(mapProjectApiMessage(payload.message, locale, t.errorGeneric));
         return;
       }
       setSuccess(t.successMsg);

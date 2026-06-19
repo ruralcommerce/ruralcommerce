@@ -35,8 +35,8 @@ const HEADER_VISIBLE_SCROLL_PX = 56;
 const headerA11yByLocale: Record<SupportedLocale, { home: string; openMenu: string; closeMenu: string }> = {
   es: {
     home: 'Rural Commerce - inicio',
-    openMenu: 'Abrir menu',
-    closeMenu: 'Cerrar menu',
+    openMenu: 'Abrir menú',
+    closeMenu: 'Cerrar menú',
   },
   'pt-BR': {
     home: 'Rural Commerce - inicio',

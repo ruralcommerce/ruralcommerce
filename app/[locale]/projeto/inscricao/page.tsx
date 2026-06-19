@@ -8,6 +8,7 @@ import {
   LayoutSearchParams,
   parseJsonArray,
 } from '@/lib/page-layout-runtime';
+import { defaultProjectHeaderNav } from '@/lib/project-locale';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -82,13 +83,7 @@ export default async function ProjectInscricaoPage({
   const headerProps = getBlockProps(siteLayout, 'site-header');
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(
     headerProps.navItemsJson,
-    [
-      { label: 'Sobre', href: '/sobre' },
-      { label: 'Soluciones', href: '/solucoes' },
-      { label: 'Aliados e Inversores', href: '/aliados' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Contacto', href: '/contacto' },
-    ]
+    defaultProjectHeaderNav[locale]
   );
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-white">

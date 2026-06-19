@@ -66,3 +66,21 @@ export async function PATCH(
   await writeRecords(typedRecords);
   return NextResponse.json({ ok: true, record: typedRecords[index] });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: { id: string } }
+) {
+  const id = params.id;
+  const records = await readRecords();
+  const typedRecords = records as Array<Record<string, unknown>>;
+  const index = typedRecords.findIndex((item) => item.id === id);
+
+  if (index === -1) {
+    return NextResponse.json({ ok: false, message: 'Inscrição não encontrada.' }, { status: 404 });
+  }
+
+  typedRecords.splice(index, 1);
+  await writeRecords(typedRecords);
+  return NextResponse.json({ ok: true });
+}
