@@ -6,3 +6,4 @@ out
 .env.local
 .env*.local
 resend-server.env
+data/project-inscriptions.json
