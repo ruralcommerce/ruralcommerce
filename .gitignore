@@ -7,3 +7,5 @@ out
 .env*.local
 resend-server.env
 data/project-inscriptions.json
+public/images/uploads/*
+!public/images/uploads/.gitkeep

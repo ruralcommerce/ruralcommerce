@@ -48,8 +48,32 @@ function run(cmd) {
   execSync(cmd, { stdio: 'inherit', shell: true });
 }
 
-function porcelain() {
-  return execSync('git status --porcelain', { encoding: 'utf8' }).trim();
+function assertNoRuntimeDataStaged() {
+  let staged = '';
+  try {
+    staged = execSync('git diff --cached --name-only', { encoding: 'utf8' });
+  } catch {
+    return;
+  }
+
+  const blocked = staged
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .filter(
+      (line) =>
+        line === 'data/project-inscriptions.json' ||
+        (line.startsWith('public/images/uploads/') && !line.endsWith('.gitkeep'))
+    );
+
+  if (blocked.length) {
+    console.error('\n----------');
+    console.error('[ERRO] Dados de runtime do servidor/local não devem ir para o Git:');
+    blocked.forEach((line) => console.error(`  - ${line}`));
+    console.error('Confira .gitignore e rode: git restore --staged <ficheiro>');
+    console.error('----------\n');
+    process.exit(1);
+  }
 }
 
 const resumo = [];
@@ -65,6 +89,7 @@ if (!statusInicial) {
 } else {
   try {
     run('git add -A');
+    assertNoRuntimeDataStaged();
     const msg = `sync local ${new Date().toISOString()}`;
     run(`git commit -m "${msg.replace(/"/g, "'")}"`);
     resumo.push('Commit: OK');
