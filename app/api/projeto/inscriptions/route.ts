@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { randomBytes, scryptSync } from 'crypto';
 import path from 'path';
+import { notifyNewProjectInscription } from '@/lib/project-inscription-notify';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -129,5 +130,30 @@ export async function POST(request: Request) {
   records.push(record);
   await writeRecords(records);
 
-  return NextResponse.json({ ok: true, record: sanitizeRecord(record as Record<string, unknown>) });
+  const safeRecord = sanitizeRecord(record as Record<string, unknown>);
+  try {
+    await notifyNewProjectInscription({
+      id: String(safeRecord.id || record.id),
+      createdAt: String(safeRecord.createdAt || record.createdAt),
+      user: { email: String((safeRecord.user as { email?: string })?.email || email) },
+      profile: {
+        name: String((safeRecord.profile as { name?: string })?.name || name),
+        phone: String((safeRecord.profile as { phone?: string })?.phone || phone),
+        organization: String((safeRecord.profile as { organization?: string })?.organization || organization),
+        city: String((safeRecord.profile as { city?: string })?.city || city),
+        role: String((safeRecord.profile as { role?: string })?.role || role),
+        interest: String((safeRecord.profile as { interest?: string })?.interest || interest),
+        message: String((safeRecord.profile as { message?: string })?.message || message),
+        locale: typeof (safeRecord.profile as { locale?: string })?.locale === 'string'
+          ? (safeRecord.profile as { locale?: string }).locale
+          : typeof body.locale === 'string'
+            ? body.locale
+            : 'es',
+      },
+    });
+  } catch (error) {
+    console.error('[api/projeto/inscriptions] notification email failed:', error);
+  }
+
+  return NextResponse.json({ ok: true, record: safeRecord });
 }
