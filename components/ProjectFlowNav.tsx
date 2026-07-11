@@ -1,7 +1,7 @@
 import Link from 'next/link';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
-type PageKey = 'projeto' | 'inscricao' | 'diagnostico' | 'perfil' | 'admin';
+type PageKey = 'projeto' | 'inscricao' | 'convenio' | 'diagnostico' | 'perfil' | 'admin';
 
 const copy: Record<LocaleKey, { title: string; labels: Record<PageKey, string> }> = {
   es: {
@@ -9,6 +9,7 @@ const copy: Record<LocaleKey, { title: string; labels: Record<PageKey, string> }
     labels: {
       projeto: 'Proyecto',
       inscricao: 'Inscripción',
+      convenio: 'Convenio',
       diagnostico: 'Diagnóstico',
       perfil: 'Mi perfil',
       admin: 'Equipo',
@@ -19,6 +20,7 @@ const copy: Record<LocaleKey, { title: string; labels: Record<PageKey, string> }
     labels: {
       projeto: 'Projeto',
       inscricao: 'Inscrição',
+      convenio: 'Convênio',
       diagnostico: 'Diagnóstico',
       perfil: 'Meu perfil',
       admin: 'Equipe',
@@ -29,6 +31,7 @@ const copy: Record<LocaleKey, { title: string; labels: Record<PageKey, string> }
     labels: {
       projeto: 'Project',
       inscricao: 'Application',
+      convenio: 'Agreement',
       diagnostico: 'Diagnosis',
       perfil: 'My profile',
       admin: 'Team',
@@ -55,6 +58,7 @@ export function ProjectFlowNav({
   const items: Array<{ key: PageKey; href: string }> = [
     { key: 'projeto', href: `${base}/projeto` },
     { key: 'inscricao', href: `${base}/projeto/inscricao` },
+    { key: 'convenio', href: `${base}/projeto/convenio` },
     { key: 'diagnostico', href: `${base}/projeto/diagnostico` },
     { key: 'perfil', href: `${base}/perfil` },
     { key: 'admin', href: `${base}/admin` },

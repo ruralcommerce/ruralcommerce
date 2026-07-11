@@ -124,6 +124,8 @@ export async function POST(request: Request) {
       message,
       answers,
       locale: typeof body.locale === 'string' ? body.locale : 'pt-BR',
+      marketingConsent: body.marketingConsent === true,
+      consentAt: body.marketingConsent === true ? createdAt : null,
     },
   };
 

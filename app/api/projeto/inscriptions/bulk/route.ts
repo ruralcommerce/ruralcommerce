@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
+import { notifyApprovalForRawRecord } from '@/lib/project-inscription-notify';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -62,14 +63,16 @@ export async function POST(request: Request) {
   const idSet = new Set(ids);
   let updatedCount = 0;
   const status = action === 'approve' ? 'approved' : 'rejected';
+  const newlyApproved: Array<Record<string, unknown>> = [];
 
   const updatedRecords = records.map((record) => {
     if (!idSet.has(String(record.id || ''))) return record;
 
     updatedCount += 1;
     const previousUser = (record.user as Record<string, unknown>) || {};
+    const wasApproved = record.status === 'approved';
 
-    return {
+    const updated = {
       ...record,
       status,
       updatedAt: new Date().toISOString(),
@@ -78,6 +81,12 @@ export async function POST(request: Request) {
         accessStatus: status === 'approved' ? 'active' : 'pending',
       },
     };
+
+    if (status === 'approved' && !wasApproved) {
+      newlyApproved.push(updated);
+    }
+
+    return updated;
   });
 
   if (updatedCount === 0) {
@@ -85,5 +94,10 @@ export async function POST(request: Request) {
   }
 
   await writeRecords(updatedRecords);
+
+  for (const approvedRecord of newlyApproved) {
+    await notifyApprovalForRawRecord(approvedRecord);
+  }
+
   return NextResponse.json({ ok: true, count: updatedCount });
 }

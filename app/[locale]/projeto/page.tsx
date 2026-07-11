@@ -18,15 +18,15 @@ function getLocaleKey(locale: string): LocaleKey {
 
 const copy = {
   es: {
-    metadataTitle: 'Impulsa Mipymes: digitaliza Los Santos',
+    metadataTitle: 'Impulso MiPyMEs: digitaliza Los Santos',
     metadataDescription:
       'Fortalecimiento de capacidades empresariales, financieras y digitales para 60 MIPYMEs agroalimentarias rurales en Los Santos, con enfoque en exportación y trazabilidad de bajo costo.',
     heroEyebrow: 'Nueva etapa',
-    heroTitle: 'Impulsa Mipymes: digitaliza Los Santos',
+    heroTitle: 'Impulso MiPyMEs: digitaliza Los Santos',
     heroText:
       'Fortalecimiento de capacidades empresariales, financieras y digitales para 60 MIPYMEs agroalimentarias rurales en Los Santos, con enfoque en exportación y trazabilidad de bajo costo.',
     heroNote:
-      'Impulsa Mipymes conecta capacidades, herramientas y mercados para transformar desafíos estructurales en oportunidades sostenibles.',
+      'Impulso MiPyMEs conecta capacidades, herramientas y mercados para transformar desafíos estructurales en oportunidades sostenibles.',
     heroCtaPrimary: 'Inscribirme al proyecto',
     heroChips: ['Formación', 'Innovación', 'Eficiencia Productiva', 'Digitalización', 'Comercialización'],
     sectionGoalsEyebrow: 'Objetivos',
@@ -114,15 +114,15 @@ const copy = {
     closingCtaSecondary: 'Quiero el diagnóstico',
   },
   'pt-BR': {
-    metadataTitle: 'Impulsa Mipymes: digitaliza Los Santos',
+    metadataTitle: 'Impulso MiPyMEs: digitaliza Los Santos',
     metadataDescription:
       'Fortalecimento de capacidades empresariais, financeiras e digitais para 60 MIPYMEs agroalimentares rurais em Los Santos, com foco em exportação e rastreabilidade de baixo custo.',
     heroEyebrow: 'Nova etapa',
-    heroTitle: 'Impulsa Mipymes: digitaliza Los Santos',
+    heroTitle: 'Impulso MiPyMEs: digitaliza Los Santos',
     heroText:
       'Fortalecimento de capacidades empresariais, financeiras e digitais para 60 MIPYMEs agroalimentares rurais em Los Santos, com foco em exportação e rastreabilidade de baixo custo.',
     heroNote:
-      'Impulsa Mipymes conecta capacidades, ferramentas e mercados para transformar desafios estruturais em oportunidades sustentáveis.',
+      'Impulso MiPyMEs conecta capacidades, ferramentas e mercados para transformar desafios estruturais em oportunidades sustentáveis.',
     heroCtaPrimary: 'Me inscrever no projeto',
     heroChips: ['Formação', 'Inovação', 'Eficiência Produtiva', 'Digitalização', 'Comercialização'],
     sectionGoalsEyebrow: 'Objetivos',
@@ -210,15 +210,15 @@ const copy = {
     closingCtaSecondary: 'Quero o diagnóstico',
   },
   en: {
-    metadataTitle: 'Impulsa Mipymes: digitaliza Los Santos',
+    metadataTitle: 'Impulso MiPyMEs: digitaliza Los Santos',
     metadataDescription:
       'Strengthening business, financial and digital capabilities for 60 rural agrifood MIPYMEs in Los Santos, with a focus on export and low-cost traceability.',
     heroEyebrow: 'New stage',
-    heroTitle: 'Impulsa Mipymes: digitaliza Los Santos',
+    heroTitle: 'Impulso MiPyMEs: digitaliza Los Santos',
     heroText:
       'Strengthening business, financial and digital capabilities for 60 rural agrifood MIPYMEs in Los Santos, with a focus on export and low-cost traceability.',
     heroNote:
-      'Impulsa Mipymes connects capabilities, tools and markets to turn structural challenges into sustainable opportunities.',
+      'Impulso MiPyMEs connects capabilities, tools and markets to turn structural challenges into sustainable opportunities.',
     heroCtaPrimary: 'Apply to the project',
     heroChips: ['Training', 'Innovation', 'Productive Efficiency', 'Digitalization', 'Commercialization'],
     sectionGoalsEyebrow: 'Objectives',

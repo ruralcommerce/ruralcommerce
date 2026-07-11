@@ -15,6 +15,9 @@ type CandidateRecord = {
   profile: {
     name?: string;
     locale?: string;
+    agreement?: {
+      signed?: boolean;
+    };
   };
 };
 
@@ -394,6 +397,9 @@ const copy: Record<
     loginCta: string;
     blockedTitle: string;
     blockedText: string;
+    agreementRequiredTitle: string;
+    agreementRequiredText: string;
+    goToConvenio: string;
     continue: string;
     previous: string;
     submit: string;
@@ -419,6 +425,9 @@ const copy: Record<
     loginCta: 'Entrar al diagnóstico',
     blockedTitle: 'Inscripción no aprobada',
     blockedText: 'Tu inscripción aún no está aprobada. Cuando el estado cambie a aprobado, podrás completar el diagnóstico.',
+    agreementRequiredTitle: 'Firma el convenio primero',
+    agreementRequiredText: 'Tu perfil fue aprobado. Antes de completar el diagnóstico, debes firmar el convenio de participación (derechos de imagen y compromiso con el proyecto).',
+    goToConvenio: 'Firmar el convenio',
     continue: 'Continuar',
     previous: 'Anterior',
     submit: 'Enviar diagnóstico',
@@ -443,6 +452,9 @@ const copy: Record<
     loginCta: 'Entrar no diagnóstico',
     blockedTitle: 'Inscrição não aprovada',
     blockedText: 'Sua inscrição ainda não está aprovada. Quando o status mudar para aprovado, você poderá completar o diagnóstico.',
+    agreementRequiredTitle: 'Assine o convênio primeiro',
+    agreementRequiredText: 'Seu perfil foi aprovado. Antes de preencher o diagnóstico, você precisa assinar o convênio de participação (direitos de imagem e compromisso com o projeto).',
+    goToConvenio: 'Assinar o convênio',
     continue: 'Continuar',
     previous: 'Anterior',
     submit: 'Enviar diagnóstico',
@@ -467,6 +479,9 @@ const copy: Record<
     loginCta: 'Enter diagnosis',
     blockedTitle: 'Application not approved',
     blockedText: 'Your application is not approved yet. Once approved, you can complete the diagnosis.',
+    agreementRequiredTitle: 'Sign the agreement first',
+    agreementRequiredText: 'Your profile was approved. Before completing the diagnosis, you must sign the participation agreement (image rights and project commitment).',
+    goToConvenio: 'Sign the agreement',
     continue: 'Continue',
     previous: 'Previous',
     submit: 'Submit diagnosis',
@@ -523,20 +538,32 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
   };
 
   const isApproved = record?.status === 'approved';
+  const agreementSigned = record?.profile?.agreement?.signed === true;
 
   const hydrateFromSession = () => {
     if (typeof window === 'undefined') return;
     try {
       const raw = window.sessionStorage.getItem(sessionKey());
       if (!raw) return;
-      const parsed = JSON.parse(raw) as { email?: string; status?: string; id?: string; locale?: string; name?: string };
+      const parsed = JSON.parse(raw) as {
+        email?: string;
+        status?: string;
+        id?: string;
+        locale?: string;
+        name?: string;
+        agreementSigned?: boolean;
+      };
       if (!parsed?.email || parsed.status !== 'approved') return;
       setEmail(parsed.email);
       setRecord({
         id: parsed.id || `session_${parsed.email}`,
         status: 'approved',
         user: { email: parsed.email },
-        profile: { name: parsed.name || '', locale: parsed.locale || localeKey },
+        profile: {
+          name: parsed.name || '',
+          locale: parsed.locale || localeKey,
+          agreement: { signed: parsed.agreementSigned === true },
+        },
       });
     } catch {
       // ignore malformed session cache
@@ -575,6 +602,7 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
             status: loadedRecord.status,
             locale: loadedRecord.profile.locale || localeKey,
             name: loadedRecord.profile.name || '',
+            agreementSigned: loadedRecord.profile.agreement?.signed === true,
           })
         );
       }
@@ -674,6 +702,22 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
           className="mt-4 inline-flex items-center justify-center rounded-full border border-[#D9E3EC] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
         >
           {t.goToProfile}
+        </a>
+      </div>
+    );
+  }
+
+  if (!agreementSigned) {
+    return (
+      <div className="rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-[#E6EBF1] sm:p-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">{t.eyebrow}</p>
+        <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.agreementRequiredTitle}</h2>
+        <p className="mt-2 text-sm leading-6 text-[#2F3336]/80">{t.agreementRequiredText}</p>
+        <a
+          href={`/${locale}/projeto/convenio`}
+          className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+        >
+          {t.goToConvenio}
         </a>
       </div>
     );

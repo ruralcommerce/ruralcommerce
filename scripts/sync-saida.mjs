@@ -63,6 +63,8 @@ function assertNoRuntimeDataStaged() {
     .filter(
       (line) =>
         line === 'data/project-inscriptions.json' ||
+        line === 'data/project-push-subscriptions.json' ||
+        line === 'data/project-broadcast-log.json' ||
         (line.startsWith('public/images/uploads/') && !line.endsWith('.gitkeep'))
     );
 

@@ -9,6 +9,7 @@ import {
   mapProjectApiMessage,
   type ProjectLocaleKey,
 } from '@/lib/project-locale';
+import { ProjectPushOptIn } from '@/components/ProjectPushOptIn';
 
 type EnrollmentRecord = {
   id: string;
@@ -31,6 +32,10 @@ type EnrollmentRecord = {
     message?: string;
     answers?: Record<string, unknown>;
     locale?: string;
+    marketingConsent?: boolean;
+    agreement?: {
+      signed?: boolean;
+    };
   };
 };
 
@@ -108,6 +113,14 @@ const uiCopy = {
     noMessage: 'Sin mensaje adicional.',
     formAnswers: 'Respuestas del formulario',
     diagnosticCta: 'Ir al diagnóstico',
+    convenioCta: 'Firmar el convenio',
+    convenioPending: 'Tu perfil fue aprobado. Firma el convenio de participación (red y compromiso activo) para desbloquear el diagnóstico.',
+    commsTitle: 'Comunicaciones del proyecto',
+    commsOn: 'Recibes actualizaciones por e-mail, push y WhatsApp (según disponibilidad).',
+    commsOff: 'No recibes comunicaciones del proyecto.',
+    commsRevoke: 'Dejar de recibir comunicaciones',
+    commsGrant: 'Activar comunicaciones',
+    commsUpdating: 'Actualizando...',
     accessActive: 'Activo',
     accessPending: 'Pendiente',
     errorLoad: 'No fue posible cargar el perfil.',
@@ -132,6 +145,14 @@ const uiCopy = {
     noMessage: 'Sem mensagem adicional.',
     formAnswers: 'Respostas do formulário',
     diagnosticCta: 'Ir para o diagnóstico',
+    convenioCta: 'Assinar o convênio',
+    convenioPending: 'Seu perfil foi aprovado. Assine o convênio de participação (rede e compromisso ativo) para desbloquear o diagnóstico.',
+    commsTitle: 'Comunicações do projeto',
+    commsOn: 'Você recebe atualizações por e-mail, push e WhatsApp (conforme disponibilidade).',
+    commsOff: 'Você não recebe comunicações do projeto.',
+    commsRevoke: 'Deixar de receber comunicações',
+    commsGrant: 'Ativar comunicações',
+    commsUpdating: 'Atualizando...',
     accessActive: 'Ativo',
     accessPending: 'Pendente',
     errorLoad: 'Não foi possível carregar o perfil.',
@@ -156,6 +177,14 @@ const uiCopy = {
     noMessage: 'No additional message.',
     formAnswers: 'Form answers',
     diagnosticCta: 'Go to diagnosis',
+    convenioCta: 'Sign the agreement',
+    convenioPending: 'Your profile was approved. Sign the participation agreement (network and active commitment) to unlock the diagnosis.',
+    commsTitle: 'Project communications',
+    commsOn: 'You receive updates by email, push and WhatsApp (when available).',
+    commsOff: 'You do not receive project communications.',
+    commsRevoke: 'Stop receiving communications',
+    commsGrant: 'Enable communications',
+    commsUpdating: 'Updating...',
     accessActive: 'Active',
     accessPending: 'Pending',
     errorLoad: 'Could not load profile.',
@@ -194,6 +223,7 @@ export function ProjectProfileDashboard({
   const [record, setRecord] = useState<EnrollmentRecord | null>(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [commsLoading, setCommsLoading] = useState(false);
   const answerEntries = record ? getOrderedAnswerEntries(record.profile.answers) : [];
 
   const loadRecord = async (targetEmail: string) => {
@@ -245,6 +275,29 @@ export function ProjectProfileDashboard({
     if (accessStatus === 'pending') return t.accessPending;
     return accessStatus;
   }
+
+  const updateConsent = async (action: 'grant' | 'revoke') => {
+    if (!record) return;
+    setCommsLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/projeto/consent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: record.user.email, password, action }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
+        return;
+      }
+      setRecord(payload.record as EnrollmentRecord);
+    } catch {
+      setError(t.errorLoadGeneric);
+    } finally {
+      setCommsLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -313,15 +366,53 @@ export function ProjectProfileDashboard({
             </div>
 
             {record.status === 'approved' ? (
-              <div className="mt-4">
-                <a
-                  href={`/${localeKey}/projeto/diagnostico`}
-                  className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
-                >
-                  {t.diagnosticCta}
-                </a>
-              </div>
+              record.profile.agreement?.signed ? (
+                <div className="mt-4">
+                  <a
+                    href={`/${localeKey}/projeto/diagnostico`}
+                    className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                  >
+                    {t.diagnosticCta}
+                  </a>
+                </div>
+              ) : (
+                <div className="mt-4">
+                  <p className="text-sm text-[#2F3336]/80">{t.convenioPending}</p>
+                  <a
+                    href={`/${localeKey}/projeto/convenio`}
+                    className="mt-2 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                  >
+                    {t.convenioCta}
+                  </a>
+                </div>
+              )
             ) : null}
+
+            <ProjectPushOptIn
+              locale={localeKey}
+              email={record.user.email}
+              password={password}
+              marketingConsent={record.profile.marketingConsent}
+            />
+
+            <div className="mt-4 rounded-2xl border border-[#E6EBF1] bg-[#FBFCFD] p-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{t.commsTitle}</p>
+              <p className="mt-1 text-sm text-[#2F3336]/80">
+                {record.profile.marketingConsent ? t.commsOn : t.commsOff}
+              </p>
+              <button
+                type="button"
+                disabled={commsLoading || !password}
+                onClick={() => updateConsent(record.profile.marketingConsent ? 'revoke' : 'grant')}
+                className="mt-3 inline-flex rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+              >
+                {commsLoading
+                  ? t.commsUpdating
+                  : record.profile.marketingConsent
+                    ? t.commsRevoke
+                    : t.commsGrant}
+              </button>
+            </div>
           </section>
 
           <section className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">

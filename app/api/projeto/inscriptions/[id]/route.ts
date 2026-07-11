@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
+import { notifyApprovalForRawRecord } from '@/lib/project-inscription-notify';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -51,6 +52,7 @@ export async function PATCH(
 
   const previousRecord = typedRecords[index] as Record<string, unknown>;
   const previousUser = (previousRecord.user as Record<string, unknown>) || {};
+  const wasApproved = previousRecord.status === 'approved';
 
   typedRecords[index] = {
     ...previousRecord,
@@ -64,6 +66,11 @@ export async function PATCH(
   };
 
   await writeRecords(typedRecords);
+
+  if (status === 'approved' && !wasApproved) {
+    await notifyApprovalForRawRecord(typedRecords[index]);
+  }
+
   return NextResponse.json({ ok: true, record: typedRecords[index] });
 }
 

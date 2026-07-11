@@ -9,6 +9,7 @@ import {
   mapProjectApiMessage,
   type ProjectLocaleKey,
 } from '@/lib/project-locale';
+import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
 
 type EnrollmentRecord = {
   id: string;
@@ -37,6 +38,13 @@ type EnrollmentRecord = {
       answers?: Record<string, unknown>;
     };
     locale?: string;
+    marketingConsent?: boolean;
+    consentAt?: string | null;
+    agreement?: {
+      signed?: boolean;
+      signedAt?: string;
+      fullName?: string;
+    };
   };
 };
 
@@ -202,6 +210,9 @@ const uiCopy = {
     rejectSelected: 'Rechazar seleccionadas',
     deleteSelected: 'Eliminar seleccionadas',
     deleteOne: 'Eliminar',
+    convenioSignedBadge: 'Convenio firmado',
+    convenioPendingBadge: 'Convenio pendiente',
+    consentBadge: 'Acepta comunicaciones',
     viewForm: 'Ver formulario',
     viewDiagnosis: 'Ver diagnóstico',
     approve: 'Aprobar',
@@ -248,6 +259,9 @@ const uiCopy = {
     rejectSelected: 'Rejeitar selecionadas',
     deleteSelected: 'Apagar selecionadas',
     deleteOne: 'Apagar',
+    convenioSignedBadge: 'Convênio assinado',
+    convenioPendingBadge: 'Convênio pendente',
+    consentBadge: 'Aceita comunicações',
     viewForm: 'Ver formulário',
     viewDiagnosis: 'Ver diagnóstico',
     approve: 'Aprovar',
@@ -294,6 +308,9 @@ const uiCopy = {
     rejectSelected: 'Reject selected',
     deleteSelected: 'Delete selected',
     deleteOne: 'Delete',
+    convenioSignedBadge: 'Agreement signed',
+    convenioPendingBadge: 'Agreement pending',
+    consentBadge: 'Accepts communications',
     viewForm: 'View form',
     viewDiagnosis: 'View diagnosis',
     approve: 'Approve',
@@ -609,6 +626,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
 
   return (
     <div className="space-y-6">
+      <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} />
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
@@ -698,6 +717,22 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                       <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold text-[#1D6359]">
                         {getProjectStatusLabel(record.status, localeKey)}
                       </span>
+                      {record.status === 'approved' ? (
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                            record.profile.agreement?.signed
+                              ? 'bg-[#E7F6EC] text-[#1D6359]'
+                              : 'bg-[#FDF3E7] text-[#9A6A1B]'
+                          }`}
+                        >
+                          {record.profile.agreement?.signed ? t.convenioSignedBadge : t.convenioPendingBadge}
+                        </span>
+                      ) : null}
+                      {record.profile.marketingConsent ? (
+                        <span className="rounded-full bg-[#EEF1F7] px-3 py-1 text-xs font-semibold text-[#3A4B7A]">
+                          {t.consentBadge}
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
                     <p className="mt-1 text-sm text-[#2F3336]/75">
@@ -771,6 +806,17 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.fullForm}</p>
                 <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">{selectedRecord.profile.name}</h3>
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedRecord.user.email}</p>
+                {selectedRecord.profile.agreement?.signed ? (
+                  <p className="mt-1 text-sm text-[#1D6359]">
+                    {t.convenioSignedBadge}
+                    {selectedRecord.profile.agreement.fullName
+                      ? ` · ${selectedRecord.profile.agreement.fullName}`
+                      : ''}
+                    {selectedRecord.profile.agreement.signedAt
+                      ? ` · ${formatProjectDate(selectedRecord.profile.agreement.signedAt, localeKey)}`
+                      : ''}
+                  </p>
+                ) : null}
               </div>
               <button
                 type="button"
