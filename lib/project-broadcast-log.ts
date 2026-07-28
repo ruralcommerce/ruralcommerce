@@ -12,7 +12,7 @@ export type BroadcastLogEntry = {
   segment: BroadcastSegment;
   channels: string[];
   result: BroadcastResult;
-  sentBy: 'team';
+  sentBy: 'team' | 'team-resend-convenio';
 };
 
 async function readLog(): Promise<BroadcastLogEntry[]> {

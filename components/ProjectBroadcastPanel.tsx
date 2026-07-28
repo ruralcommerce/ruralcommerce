@@ -45,6 +45,14 @@ const copy: Record<
     resultTitle: string;
     recipients: string;
     recentTitle: string;
+    previewEmail: string;
+    previewEmailTitle: string;
+    closePreview: string;
+    resendTitle: string;
+    resendHint: string;
+    resendPreview: string;
+    resendCta: string;
+    resending: string;
   }
 > = {
   es: {
@@ -70,6 +78,15 @@ const copy: Record<
     resultTitle: 'Resultado del envío',
     recipients: 'Destinatarios',
     recentTitle: 'Envíos recientes',
+    previewEmail: 'Ver ejemplo del e-mail',
+    previewEmailTitle: 'Vista previa del e-mail',
+    closePreview: 'Cerrar',
+    resendTitle: 'Reenviar invitación al convenio',
+    resendHint:
+      'Envía de nuevo el e-mail con el nuevo diseño a participantes aprobados que aún no firmaron el convenio. No requiere que hayan aceptado comunicaciones antes.',
+    resendPreview: 'Ver cuántos pendientes',
+    resendCta: 'Reenviar invitación al convenio',
+    resending: 'Reenviando...',
   },
   'pt-BR': {
     title: 'Comunicação do projeto',
@@ -94,6 +111,15 @@ const copy: Record<
     resultTitle: 'Resultado do envio',
     recipients: 'Destinatários',
     recentTitle: 'Envios recentes',
+    previewEmail: 'Ver exemplo do e-mail',
+    previewEmailTitle: 'Pré-visualização do e-mail',
+    closePreview: 'Fechar',
+    resendTitle: 'Reenviar convite do convênio',
+    resendHint:
+      'Reenvia o e-mail com o novo layout para aprovados que ainda não assinaram o convênio. Não exige consentimento de comunicações anterior.',
+    resendPreview: 'Ver quantos pendentes',
+    resendCta: 'Reenviar convite do convênio',
+    resending: 'Reenviando...',
   },
   en: {
     title: 'Project communication',
@@ -118,6 +144,15 @@ const copy: Record<
     resultTitle: 'Send result',
     recipients: 'Recipients',
     recentTitle: 'Recent sends',
+    previewEmail: 'View email sample',
+    previewEmailTitle: 'Email preview',
+    closePreview: 'Close',
+    resendTitle: 'Resend agreement invitation',
+    resendHint:
+      'Resend the redesigned email to approved participants who have not signed the agreement yet. Does not require prior communications consent.',
+    resendPreview: 'Preview pending count',
+    resendCta: 'Resend agreement invitation',
+    resending: 'Resending...',
   },
 };
 
@@ -148,6 +183,10 @@ export function ProjectBroadcastPanel({
   const [recent, setRecent] = useState<RecentBroadcast[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailPreviewHtml, setEmailPreviewHtml] = useState<string | null>(null);
+  const [convenioPending, setConvenioPending] = useState<{ total: number; withPhone: number; withoutPhone: number } | null>(null);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendResult, setResendResult] = useState<BroadcastResult | null>(null);
 
   useEffect(() => {
     setPreview(null);
@@ -228,6 +267,73 @@ export function ProjectBroadcastPanel({
       setError('Error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadEmailPreview = async (type: 'approval' | 'broadcast' = 'approval') => {
+    setError('');
+    try {
+      const params = new URLSearchParams({
+        password: teamPassword,
+        locale: localeFilter === 'all' ? localeKey : localeFilter,
+        type,
+      });
+      const response = await fetch(`/api/projeto/email-preview?${params.toString()}`);
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(payload.message || 'Error');
+        return;
+      }
+      setEmailPreviewHtml(payload.html as string);
+    } catch {
+      setError('Error');
+    }
+  };
+
+  const loadConvenioPending = async () => {
+    setError('');
+    try {
+      const params = new URLSearchParams({
+        password: teamPassword,
+        ...(localeFilter !== 'all' ? { locale: localeFilter } : {}),
+      });
+      const response = await fetch(`/api/projeto/broadcast/resend-convenio?${params.toString()}`);
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(payload.message || 'Error');
+        return;
+      }
+      setConvenioPending(payload.counts);
+    } catch {
+      setError('Error');
+    }
+  };
+
+  const handleResendConvenio = async () => {
+    setResendLoading(true);
+    setError('');
+    setResendResult(null);
+    try {
+      const response = await fetch('/api/projeto/broadcast/resend-convenio', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          password: teamPassword,
+          localeFilter: localeFilter === 'all' ? undefined : localeFilter,
+          channels: ['email'],
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(payload.message || 'Error');
+        return;
+      }
+      setResendResult(payload.result as BroadcastResult);
+      loadConvenioPending();
+    } catch {
+      setError('Error');
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -340,6 +446,13 @@ export function ProjectBroadcastPanel({
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           type="button"
+          onClick={() => loadEmailPreview('approval')}
+          className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+        >
+          {t.previewEmail}
+        </button>
+        <button
+          type="button"
           onClick={loadPreview}
           className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
         >
@@ -354,6 +467,62 @@ export function ProjectBroadcastPanel({
           {loading ? t.sending : t.send}
         </button>
       </div>
+
+      <div className="mt-6 rounded-2xl border border-[#D9E3EC] bg-[#FBFCFD] p-4">
+        <p className="text-sm font-semibold text-[#071F5E]">{t.resendTitle}</p>
+        <p className="mt-1 text-sm text-[#2F3336]/75">{t.resendHint}</p>
+        {convenioPending ? (
+          <p className="mt-2 text-sm text-[#2F3336]/80">
+            {t.recipients}: <strong>{convenioPending.total}</strong> ({localeKey === 'en' ? 'approved, agreement not signed' : localeKey === 'pt-BR' ? 'aprovados, convênio pendente' : 'aprobados, convenio pendiente'})
+          </p>
+        ) : null}
+        {resendResult ? (
+          <div className="mt-2 rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">
+            <p className="font-semibold">{t.resultTitle}</p>
+            <p className="mt-1">{t.recipients}: {resendResult.recipients}</p>
+            <p>E-mail: {resendResult.email.sent} ok / {resendResult.email.failed} erro</p>
+          </div>
+        ) : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={loadConvenioPending}
+            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+          >
+            {t.resendPreview}
+          </button>
+          <button
+            type="button"
+            onClick={handleResendConvenio}
+            disabled={resendLoading}
+            className="rounded-full bg-[#071F5E] px-5 py-2 text-sm font-semibold text-white disabled:opacity-60"
+          >
+            {resendLoading ? t.resending : t.resendCta}
+          </button>
+        </div>
+      </div>
+
+      {emailPreviewHtml ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="flex max-h-[90vh] w-full max-w-3xl flex-col rounded-2xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#E6EBF1] px-4 py-3">
+              <p className="font-semibold text-[#071F5E]">{t.previewEmailTitle}</p>
+              <button
+                type="button"
+                onClick={() => setEmailPreviewHtml(null)}
+                className="rounded-full px-3 py-1 text-sm font-semibold text-[#071F5E]"
+              >
+                {t.closePreview}
+              </button>
+            </div>
+            <iframe
+              title={t.previewEmailTitle}
+              srcDoc={emailPreviewHtml}
+              className="min-h-[60vh] w-full flex-1 border-0"
+            />
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }

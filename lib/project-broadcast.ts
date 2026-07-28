@@ -102,6 +102,36 @@ export async function listBroadcastRecipients(input: Pick<BroadcastInput, 'segme
   return recipients;
 }
 
+/** Approved participants who have not signed the agreement yet (transactional — no marketing consent required). */
+export async function listConvenioPendingRecipients(localeFilter?: string) {
+  const records = (await readRecords()) as Array<Record<string, unknown>>;
+  const recipients: BroadcastRecipient[] = [];
+
+  for (const record of records) {
+    if (record.status !== 'approved') continue;
+    const profile = (record.profile as Record<string, unknown>) || {};
+    const agreement = (profile.agreement as Record<string, unknown>) || {};
+    if (agreement.signed === true) continue;
+
+    const user = (record.user as Record<string, unknown>) || {};
+    const email = typeof user.email === 'string' ? user.email : '';
+    if (!email) continue;
+
+    const locale = typeof profile.locale === 'string' ? profile.locale : 'es';
+    if (localeFilter && localeFilter !== 'all' && locale !== localeFilter) continue;
+
+    recipients.push({
+      id: typeof record.id === 'string' ? record.id : email,
+      email,
+      phone: typeof profile.phone === 'string' ? profile.phone : undefined,
+      name: typeof profile.name === 'string' ? profile.name : '',
+      locale,
+    });
+  }
+
+  return recipients;
+}
+
 export type BroadcastMessageContent = Pick<
   BroadcastInput,
   'subject' | 'body' | 'pushTitle' | 'pushBody' | 'link'
