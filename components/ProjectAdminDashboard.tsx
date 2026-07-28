@@ -49,6 +49,7 @@ type EnrollmentRecord = {
 };
 
 type BulkAction = 'approve' | 'reject' | 'delete';
+type AdminSection = 'hub' | 'inscriptions' | 'communications';
 
 const inscriptionQuestionLabels: Record<ProjectLocaleKey, Record<string, string>> = {
   es: {
@@ -197,7 +198,15 @@ const uiCopy = {
     loginTitle: 'Acceso al panel de inscripciones',
     teamPassword: 'Contraseña del equipo',
     loginCta: 'Entrar a la intranet',
-    panelEyebrow: 'Panel del equipo',
+    hubEyebrow: 'Panel del equipo',
+    hubTitle: '¿Qué quieres administrar?',
+    hubHint: 'Elige una sección. Cada área tiene una función específica para no mezclar todo en la misma pantalla.',
+    sectionInscriptionsTitle: 'Inscripciones',
+    sectionInscriptionsText: 'Revisar, aprobar, rechazar o eliminar participantes. Ver convenio y diagnóstico.',
+    sectionCommsTitle: 'Comunicaciones',
+    sectionCommsText: 'Enviar e-mails, ver ejemplo del mensaje, reenviar invitación al convenio.',
+    backToHub: 'Volver al inicio',
+    panelEyebrow: 'Inscripciones',
     panelTitle: 'Inscripciones del proyecto',
     filterAll: 'Todas',
     filterPending: 'Pendientes',
@@ -246,7 +255,15 @@ const uiCopy = {
     loginTitle: 'Acesso ao painel de inscrições',
     teamPassword: 'Senha da equipe',
     loginCta: 'Entrar na intranet',
-    panelEyebrow: 'Painel da equipe',
+    hubEyebrow: 'Painel da equipe',
+    hubTitle: 'O que você quer administrar?',
+    hubHint: 'Escolha uma seção. Cada área tem uma função específica para não misturar tudo na mesma tela.',
+    sectionInscriptionsTitle: 'Inscrições',
+    sectionInscriptionsText: 'Revisar, aprovar, rejeitar ou apagar participantes. Ver convênio e diagnóstico.',
+    sectionCommsTitle: 'Comunicações',
+    sectionCommsText: 'Enviar e-mails, ver exemplo da mensagem, reenviar convite do convênio.',
+    backToHub: 'Voltar ao início',
+    panelEyebrow: 'Inscrições',
     panelTitle: 'Inscrições do projeto',
     filterAll: 'Todas',
     filterPending: 'Pendentes',
@@ -295,7 +312,15 @@ const uiCopy = {
     loginTitle: 'Access to the applications panel',
     teamPassword: 'Team password',
     loginCta: 'Enter intranet',
-    panelEyebrow: 'Team panel',
+    hubEyebrow: 'Team panel',
+    hubTitle: 'What do you want to manage?',
+    hubHint: 'Choose a section. Each area has a specific job so everything is not mixed on one screen.',
+    sectionInscriptionsTitle: 'Applications',
+    sectionInscriptionsText: 'Review, approve, reject or delete participants. View agreement and diagnosis.',
+    sectionCommsTitle: 'Communications',
+    sectionCommsText: 'Send emails, preview the message, resend the agreement invitation.',
+    backToHub: 'Back to home',
+    panelEyebrow: 'Applications',
     panelTitle: 'Project applications',
     filterAll: 'All',
     filterPending: 'Pending',
@@ -384,6 +409,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
+  const [section, setSection] = useState<AdminSection>('hub');
   const [teamPassword, setTeamPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -626,10 +652,60 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
 
   return (
     <div className="space-y-6">
-      <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} />
+      {section === 'hub' ? (
+        <div className="space-y-6">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.hubEyebrow}</p>
+            <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.hubTitle}</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-[#2F3336]/75">{t.hubHint}</p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <button
+              type="button"
+              onClick={() => setSection('inscriptions')}
+              className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">01</p>
+              <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionInscriptionsTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionInscriptionsText}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSection('communications')}
+              className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">02</p>
+              <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionCommsTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionCommsText}</p>
+            </button>
+          </div>
+        </div>
+      ) : null}
 
+      {section === 'communications' ? (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setSection('hub')}
+            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+          >
+            ← {t.backToHub}
+          </button>
+          <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} />
+        </div>
+      ) : null}
+
+      {section === 'inscriptions' ? (
+      <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
+          <button
+            type="button"
+            onClick={() => setSection('hub')}
+            className="mb-3 rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+          >
+            ← {t.backToHub}
+          </button>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
           <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
         </div>
@@ -794,6 +870,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           ))}
         </div>
       )}
+      </div>
+      ) : null}
 
       {selectedRecord ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071F5E]/45 p-4" onClick={() => setSelectedRecord(null)}>
