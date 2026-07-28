@@ -4,6 +4,8 @@ import { Resend } from 'resend';
 import { sendPushToEmails } from '@/lib/project-push';
 import { sendUtilityWhatsApp, isWhatsAppConfigured } from '@/lib/project-whatsapp';
 import { PROJECT_NAME } from '@/lib/project-brand';
+import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
+import { buildBroadcastEmailContent } from '@/lib/project-email-messages';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'project-inscriptions.json');
 
@@ -103,7 +105,10 @@ export async function listBroadcastRecipients(input: Pick<BroadcastInput, 'segme
 export type BroadcastMessageContent = Pick<
   BroadcastInput,
   'subject' | 'body' | 'pushTitle' | 'pushBody' | 'link'
->;
+> & {
+  /** Pre-rendered HTML; when omitted, broadcast layout is built from subject/body/link */
+  html?: string;
+};
 
 function buildPushMessage(input: BroadcastMessageContent, locale?: string) {
   return {
@@ -113,16 +118,20 @@ function buildPushMessage(input: BroadcastMessageContent, locale?: string) {
   };
 }
 
-function buildEmailText(input: BroadcastMessageContent, recipient: BroadcastRecipient) {
+function buildEmailPayload(input: BroadcastMessageContent, recipient: BroadcastRecipient) {
   const link = absoluteLink(input.link, recipient.locale);
-  const greeting =
-    localeKeyOf(recipient.locale) === 'en'
-      ? `Hi ${recipient.name || ''},`.trim()
-      : localeKeyOf(recipient.locale) === 'pt-BR'
-        ? `Olá ${recipient.name || ''},`.trim()
-        : `Hola ${recipient.name || ''},`.trim();
-
-  return [greeting, '', input.body, '', link, '', `— ${PROJECT_NAME} / Rural Commerce`].join('\n');
+  const content = buildBroadcastEmailContent(
+    recipient.name,
+    input.subject,
+    input.body,
+    link,
+    recipient.locale
+  );
+  return {
+    subject: `[${PROJECT_NAME}] ${input.subject}`,
+    text: buildProjectEmailText(content),
+    html: input.html || buildProjectEmailHtml(content),
+  };
 }
 
 async function dispatchProjectMessages(
@@ -149,11 +158,13 @@ async function dispatchProjectMessages(
     } else {
       for (const recipient of recipients) {
         try {
+          const emailPayload = buildEmailPayload(input, recipient);
           const { error } = await resend.emails.send({
             from: from!,
             to: [recipient.email],
-            subject: `[${PROJECT_NAME}] ${input.subject}`,
-            text: buildEmailText(input, recipient),
+            subject: emailPayload.subject,
+            text: emailPayload.text,
+            html: emailPayload.html,
           });
           if (error) {
             console.error('[project-broadcast] email error:', recipient.email, error);

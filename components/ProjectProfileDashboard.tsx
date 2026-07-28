@@ -9,7 +9,12 @@ import {
   mapProjectApiMessage,
   type ProjectLocaleKey,
 } from '@/lib/project-locale';
+import {
+  readCandidateSession,
+  writeCandidateSession,
+} from '@/lib/project-candidate-session';
 import { ProjectPushOptIn } from '@/components/ProjectPushOptIn';
+import { PROJECT_NAME } from '@/lib/project-brand';
 
 type EnrollmentRecord = {
   id: string;
@@ -113,8 +118,14 @@ const uiCopy = {
     noMessage: 'Sin mensaje adicional.',
     formAnswers: 'Respuestas del formulario',
     diagnosticCta: 'Ir al diagnóstico',
-    convenioCta: 'Firmar el convenio',
-    convenioPending: 'Tu perfil fue aprobado. Firma el convenio de participación (red y compromiso activo) para desbloquear el diagnóstico.',
+    convenioCta: 'Ir a firmar el convenio',
+    convenioBoxTitle: 'Siguiente paso: convenio de participación',
+    convenioPending: `Tu perfil fue aprobado para ${PROJECT_NAME}. Debes firmar el convenio en línea (reglas del programa) para desbloquear el diagnóstico.`,
+    convenioSteps: [
+      'Haz clic en el botón de abajo.',
+      'Inicia sesión con el correo y contraseña de tu inscripción (si te lo pide).',
+      'Lee el convenio, marca las 4 casillas y firma con tu nombre completo.',
+    ],
     commsTitle: 'Comunicaciones del proyecto',
     commsOn: 'Recibes actualizaciones por e-mail, push y WhatsApp (según disponibilidad).',
     commsOff: 'No recibes comunicaciones del proyecto.',
@@ -145,8 +156,14 @@ const uiCopy = {
     noMessage: 'Sem mensagem adicional.',
     formAnswers: 'Respostas do formulário',
     diagnosticCta: 'Ir para o diagnóstico',
-    convenioCta: 'Assinar o convênio',
-    convenioPending: 'Seu perfil foi aprovado. Assine o convênio de participação (rede e compromisso ativo) para desbloquear o diagnóstico.',
+    convenioCta: 'Ir assinar o convênio',
+    convenioBoxTitle: 'Próxima etapa: convênio de participação',
+    convenioPending: `Seu perfil foi aprovado no ${PROJECT_NAME}. É preciso assinar o convênio online (regras do programa) para desbloquear o diagnóstico.`,
+    convenioSteps: [
+      'Clique no botão abaixo.',
+      'Entre com o e-mail e senha da inscrição (se solicitado).',
+      'Leia o convênio, marque as 4 caixas e assine com seu nome completo.',
+    ],
     commsTitle: 'Comunicações do projeto',
     commsOn: 'Você recebe atualizações por e-mail, push e WhatsApp (conforme disponibilidade).',
     commsOff: 'Você não recebe comunicações do projeto.',
@@ -177,8 +194,14 @@ const uiCopy = {
     noMessage: 'No additional message.',
     formAnswers: 'Form answers',
     diagnosticCta: 'Go to diagnosis',
-    convenioCta: 'Sign the agreement',
-    convenioPending: 'Your profile was approved. Sign the participation agreement (network and active commitment) to unlock the diagnosis.',
+    convenioCta: 'Go sign the agreement',
+    convenioBoxTitle: 'Next step: participation agreement',
+    convenioPending: `Your profile was approved for ${PROJECT_NAME}. You must sign the agreement online (program rules) to unlock the diagnosis.`,
+    convenioSteps: [
+      'Click the button below.',
+      'Log in with your application email and password (if prompted).',
+      'Read the agreement, check all 4 boxes and sign with your full name.',
+    ],
     commsTitle: 'Project communications',
     commsOn: 'You receive updates by email, push and WhatsApp (when available).',
     commsOff: 'You do not receive project communications.',
@@ -226,7 +249,9 @@ export function ProjectProfileDashboard({
   const [commsLoading, setCommsLoading] = useState(false);
   const answerEntries = record ? getOrderedAnswerEntries(record.profile.answers) : [];
 
-  const loadRecord = async (targetEmail: string) => {
+  const loadRecord = async (targetEmail: string, targetPassword?: string) => {
+    const authPassword = targetPassword ?? password;
+    if (!authPassword) return;
     setLoading(true);
     setError('');
     setRecord(null);
@@ -234,7 +259,7 @@ export function ProjectProfileDashboard({
       const response = await fetch('/api/projeto/auth/candidate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: targetEmail, password }),
+        body: JSON.stringify({ email: targetEmail, password: authPassword }),
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
@@ -243,17 +268,16 @@ export function ProjectProfileDashboard({
       }
       const loadedRecord = payload.record || null;
       setRecord(loadedRecord);
-      if (loadedRecord && typeof window !== 'undefined') {
-        window.sessionStorage.setItem(
-          'rc_candidate_session',
-          JSON.stringify({
-            id: loadedRecord.id,
-            email: loadedRecord.user?.email || '',
-            status: loadedRecord.status,
-            locale: loadedRecord.profile?.locale || localeKey,
-            name: loadedRecord.profile?.name || '',
-          })
-        );
+      if (loadedRecord) {
+        writeCandidateSession({
+          id: loadedRecord.id,
+          email: loadedRecord.user?.email || targetEmail,
+          password: authPassword,
+          status: loadedRecord.status,
+          locale: loadedRecord.profile?.locale || localeKey,
+          name: loadedRecord.profile?.name || '',
+          agreementSigned: loadedRecord.profile?.agreement?.signed === true,
+        });
       }
     } catch {
       setError(t.errorLoadGeneric);
@@ -263,10 +287,14 @@ export function ProjectProfileDashboard({
   };
 
   useEffect(() => {
-    if (initialEmail && password) {
-      loadRecord(initialEmail);
+    const session = readCandidateSession();
+    if (session?.email) setEmail(session.email);
+    if (session?.password) setPassword(session.password);
+    if (session?.email && session.password) {
+      void loadRecord(session.email, session.password);
     }
-  }, [initialEmail, password]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const displayLocale = record?.profile?.locale || localeKey;
 
@@ -376,11 +404,17 @@ export function ProjectProfileDashboard({
                   </a>
                 </div>
               ) : (
-                <div className="mt-4">
-                  <p className="text-sm text-[#2F3336]/80">{t.convenioPending}</p>
+                <div className="mt-4 rounded-2xl border border-[#CFE8E8] bg-[#F3FAFA] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#1D6359]">{t.convenioBoxTitle}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#2F3336]/85">{t.convenioPending}</p>
+                  <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-[#2F3336]/85">
+                    {t.convenioSteps.map((step) => (
+                      <li key={step}>{step}</li>
+                    ))}
+                  </ol>
                   <a
                     href={`/${localeKey}/projeto/convenio`}
-                    className="mt-2 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                    className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
                   >
                     {t.convenioCta}
                   </a>

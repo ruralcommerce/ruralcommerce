@@ -1,6 +1,8 @@
 import { Resend } from 'resend';
 import { sendDirectProjectMessage } from '@/lib/project-broadcast';
 import { PROJECT_NAME } from '@/lib/project-brand';
+import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
+import { buildApprovalEmailContent } from '@/lib/project-email-messages';
 
 const DEFAULT_NOTIFY_EMAILS = [
   'operations@ruralcommerceglobal.com',
@@ -51,40 +53,10 @@ function convenioPath(locale?: string) {
   return `/${localeKeyOf(locale)}/projeto/convenio`;
 }
 
-const approvalCopy = {
-  es: {
-    subject: 'Tu perfil fue aprobado — firma el convenio para continuar',
-    body: [
-      `¡Buenas noticias! Tu perfil fue aprobado para el proyecto ${PROJECT_NAME}.`,
-      '',
-      'Para integrarte a la red y acceder a los beneficios del programa, tu próximo paso es firmar el convenio de participación y compromiso (red, confidencialidad de datos, derechos de imagen y participación activa).',
-      '',
-      'Una vez firmado, podrás completar el diagnóstico.',
-    ].join('\n'),
-    pushBody: 'Perfil aprobado. Firma el convenio para integrarte a la red y continuar.',
-  },
-  'pt-BR': {
-    subject: 'Seu perfil foi aprovado — assine o convênio para continuar',
-    body: [
-      `Boas notícias! Seu perfil foi aprovado para o projeto ${PROJECT_NAME}.`,
-      '',
-      'Para integrar a rede e acessar os benefícios do programa, seu próximo passo é assinar o convênio de participação e compromisso (rede, confidencialidade de dados, direitos de imagem e participação ativa).',
-      '',
-      'Após assinar, você poderá preencher o diagnóstico.',
-    ].join('\n'),
-    pushBody: 'Perfil aprovado. Assine o convênio para integrar a rede e continuar.',
-  },
-  en: {
-    subject: 'Your profile was approved — sign the agreement to continue',
-    body: [
-      `Good news! Your profile was approved for the ${PROJECT_NAME} project.`,
-      '',
-      'To join the network and access program benefits, your next step is to sign the participation and commitment agreement (network, data confidentiality, image rights and active participation).',
-      '',
-      'Once signed, you can complete the diagnosis.',
-    ].join('\n'),
-    pushBody: 'Profile approved. Sign the agreement to join the network and continue.',
-  },
+const approvalPushCopy = {
+  es: 'Perfil aprobado. Firma el convenio en línea para continuar con el diagnóstico.',
+  'pt-BR': 'Perfil aprovado. Assine o convênio online para continuar com o diagnóstico.',
+  en: 'Profile approved. Sign the agreement online to continue with the diagnosis.',
 } as const;
 
 function buildEmailText(record: InscriptionNotifyRecord) {
@@ -149,9 +121,10 @@ export async function notifyNewProjectInscription(record: InscriptionNotifyRecor
  */
 export async function notifyProjectApproval(record: InscriptionNotifyRecord) {
   const locale = localeKeyOf(record.profile.locale);
-  const copy = approvalCopy[locale];
   const candidateEmail = record.user.email;
   if (!candidateEmail) return;
+
+  const emailContent = buildApprovalEmailContent(record.profile.name, locale);
 
   try {
     await sendDirectProjectMessage(
@@ -163,11 +136,12 @@ export async function notifyProjectApproval(record: InscriptionNotifyRecord) {
         locale: record.profile.locale,
       },
       {
-        subject: copy.subject,
-        body: copy.body,
-        pushTitle: copy.subject,
-        pushBody: copy.pushBody,
+        subject: emailContent.subject,
+        body: buildProjectEmailText(emailContent),
+        pushTitle: emailContent.subject,
+        pushBody: approvalPushCopy[locale],
         link: convenioPath(locale),
+        html: buildProjectEmailHtml(emailContent),
       },
       ['email', 'push', 'whatsapp']
     );

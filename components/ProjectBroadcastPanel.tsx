@@ -54,7 +54,7 @@ const copy: Record<
     body: 'Mensaje completo (e-mail)',
     pushTitle: 'Título push (opcional)',
     pushBody: 'Resumen corto (push y WhatsApp)',
-    link: 'Enlace (opcional, ej. /es/perfil)',
+    link: 'Enlace (recomendado: /es/projeto/convenio para firma del convenio)',
     segment: 'Destinatarios',
     segmentConsent: 'Convenio + comunicaciones (todos los estados)',
     segmentApproved: 'Convenio + comunicaciones + aprobados',
@@ -78,7 +78,7 @@ const copy: Record<
     body: 'Mensagem completa (e-mail)',
     pushTitle: 'Título push (opcional)',
     pushBody: 'Resumo curto (push e WhatsApp)',
-    link: 'Link (opcional, ex. /pt-BR/perfil)',
+    link: 'Link (recomendado: /pt-BR/projeto/convenio para assinatura)',
     segment: 'Destinatários',
     segmentConsent: 'Convênio + comunicações (todos os status)',
     segmentApproved: 'Convênio + comunicações + aprovados',
@@ -102,7 +102,7 @@ const copy: Record<
     body: 'Full message (email)',
     pushTitle: 'Push title (optional)',
     pushBody: 'Short summary (push and WhatsApp)',
-    link: 'Link (optional, e.g. /en/perfil)',
+    link: 'Link (recommended: /en/projeto/convenio to sign the agreement)',
     segment: 'Recipients',
     segmentConsent: 'Agreement + communications (all statuses)',
     segmentApproved: 'Agreement + communications + approved',
@@ -135,7 +135,7 @@ export function ProjectBroadcastPanel({
   const [body, setBody] = useState('');
   const [pushTitle, setPushTitle] = useState('');
   const [pushBody, setPushBody] = useState('');
-  const [link, setLink] = useState(`/${localeKey}/perfil`);
+  const [link, setLink] = useState(`/${localeKey}/projeto/convenio`);
   const [segment, setSegment] = useState<BroadcastSegment>('consent');
   const [localeFilter, setLocaleFilter] = useState('all');
   const [channels, setChannels] = useState<Record<BroadcastChannel, boolean>>({
