@@ -394,6 +394,7 @@ const copy: Record<
     loginText: string;
     emailLabel: string;
     passwordLabel: string;
+    forgotPassword: string;
     loginCta: string;
     blockedTitle: string;
     blockedText: string;
@@ -422,6 +423,7 @@ const copy: Record<
     loginText: 'Para continuar, debes iniciar sesión y tener tu inscripción aprobada.',
     emailLabel: 'Correo electrónico',
     passwordLabel: 'Contraseña',
+    forgotPassword: '¿Olvidaste tu contraseña?',
     loginCta: 'Entrar al diagnóstico',
     blockedTitle: 'Inscripción no aprobada',
     blockedText: 'Tu inscripción aún no está aprobada. Cuando el estado cambie a aprobado, podrás completar el diagnóstico.',
@@ -449,6 +451,7 @@ const copy: Record<
     loginText: 'Para continuar, você precisa fazer login e ter sua inscrição aprovada.',
     emailLabel: 'E-mail',
     passwordLabel: 'Senha',
+    forgotPassword: 'Esqueceu sua senha?',
     loginCta: 'Entrar no diagnóstico',
     blockedTitle: 'Inscrição não aprovada',
     blockedText: 'Sua inscrição ainda não está aprovada. Quando o status mudar para aprovado, você poderá completar o diagnóstico.',
@@ -476,6 +479,7 @@ const copy: Record<
     loginText: 'To continue, you must be logged in and have your application approved.',
     emailLabel: 'Email',
     passwordLabel: 'Password',
+    forgotPassword: 'Forgot your password?',
     loginCta: 'Enter diagnosis',
     blockedTitle: 'Application not approved',
     blockedText: 'Your application is not approved yet. Once approved, you can complete the diagnosis.',
@@ -686,6 +690,12 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
         >
           {isCheckingLogin ? `${t.loginCta}...` : t.loginCta}
         </button>
+        <a
+          href={`/${locale}/projeto/recuperar-senha${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+          className="mt-3 inline-flex text-sm font-semibold text-[#1D6359] underline"
+        >
+          {t.forgotPassword}
+        </a>
         {error ? <p className="mt-3 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
       </div>
     );

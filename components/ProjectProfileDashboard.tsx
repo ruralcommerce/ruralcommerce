@@ -104,6 +104,7 @@ const uiCopy = {
     title: 'Sigue tu inscripción y los próximos pasos',
     emailPlaceholder: 'Ingresa tu correo electrónico',
     passwordPlaceholder: 'Ingresa tu contraseña',
+    forgotPassword: '¿Olvidaste tu contraseña?',
     loginCta: 'Entrar a la intranet del candidato',
     loading: 'Buscando información...',
     statusSection: 'Estado del usuario',
@@ -142,6 +143,7 @@ const uiCopy = {
     title: 'Acompanhe sua inscrição e próximos passos',
     emailPlaceholder: 'Digite seu e-mail',
     passwordPlaceholder: 'Digite sua senha',
+    forgotPassword: 'Esqueceu sua senha?',
     loginCta: 'Entrar na intranet do candidato',
     loading: 'Buscando informações...',
     statusSection: 'Status do usuário',
@@ -180,6 +182,7 @@ const uiCopy = {
     title: 'Track your application and next steps',
     emailPlaceholder: 'Enter your email',
     passwordPlaceholder: 'Enter your password',
+    forgotPassword: 'Forgot your password?',
     loginCta: 'Enter candidate intranet',
     loading: 'Loading information...',
     statusSection: 'User status',
@@ -351,13 +354,19 @@ export function ProjectProfileDashboard({
               className="rounded-2xl border border-[#D9E3EC] px-4 py-3"
             />
           </div>
-          <div className="mt-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <button
               onClick={() => loadRecord(email)}
               className="rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E]"
             >
               {t.loginCta}
             </button>
+            <a
+              href={`/${localeKey}/projeto/recuperar-senha${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+              className="text-sm font-semibold text-[#1D6359] underline"
+            >
+              {t.forgotPassword}
+            </a>
           </div>
         </div>
       ) : null}

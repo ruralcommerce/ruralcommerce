@@ -40,6 +40,7 @@ const uiCopy: Record<
     loginText: string;
     emailLabel: string;
     passwordLabel: string;
+    forgotPassword: string;
     loginCta: string;
     sessionHint: string;
     blockedTitle: string;
@@ -77,6 +78,7 @@ const uiCopy: Record<
       'Usa el mismo correo y contraseña que creaste al inscribirte. Si ya entraste en «Mi perfil», usa esos mismos datos.',
     emailLabel: 'Correo electrónico',
     passwordLabel: 'Contraseña de la inscripción',
+    forgotPassword: '¿Olvidaste tu contraseña?',
     loginCta: 'Continuar al convenio',
     sessionHint: 'Sesión activa como',
     blockedTitle: 'Perfil aún no aprobado',
@@ -113,6 +115,7 @@ const uiCopy: Record<
       'Use o mesmo e-mail e senha criados na inscrição. Se já entrou em «Meu perfil», use os mesmos dados.',
     emailLabel: 'E-mail',
     passwordLabel: 'Senha da inscrição',
+    forgotPassword: 'Esqueceu sua senha?',
     loginCta: 'Continuar para o convênio',
     sessionHint: 'Sessão ativa como',
     blockedTitle: 'Perfil ainda não aprovado',
@@ -149,6 +152,7 @@ const uiCopy: Record<
       'Use the same email and password you created when applying. If you already logged into «My profile», use the same credentials.',
     emailLabel: 'Email',
     passwordLabel: 'Application password',
+    forgotPassword: 'Forgot your password?',
     loginCta: 'Continue to agreement',
     sessionHint: 'Signed in as',
     blockedTitle: 'Profile not approved yet',
@@ -405,6 +409,12 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
           >
             {isCheckingLogin ? `${t.loginCta}...` : t.loginCta}
           </button>
+          <a
+            href={`/${locale}/projeto/recuperar-senha${email ? `?email=${encodeURIComponent(email)}` : ''}`}
+            className="mt-3 inline-flex text-sm font-semibold text-[#1D6359] underline"
+          >
+            {t.forgotPassword}
+          </a>
           {error ? <p className="mt-3 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
         </div>
       </div>

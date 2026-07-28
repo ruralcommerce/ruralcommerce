@@ -109,6 +109,26 @@ const apiMessageMap: Record<string, Record<ProjectLocaleKey, string>> = {
     'pt-BR': 'Senha inválida.',
     en: 'Invalid password.',
   },
+  'Enlace inválido o incompleto.': {
+    es: 'Enlace inválido o incompleto.',
+    'pt-BR': 'Link inválido ou incompleto.',
+    en: 'Invalid or incomplete link.',
+  },
+  'Enlace inválido o expirado.': {
+    es: 'Enlace inválido o expirado.',
+    'pt-BR': 'Link inválido ou expirado.',
+    en: 'Invalid or expired link.',
+  },
+  'La contraseña debe tener al menos 6 caracteres.': {
+    es: 'La contraseña debe tener al menos 6 caracteres.',
+    'pt-BR': 'A senha deve ter pelo menos 6 caracteres.',
+    en: 'Password must be at least 6 characters.',
+  },
+  'Contraseña actualizada correctamente.': {
+    es: 'Contraseña actualizada correctamente.',
+    'pt-BR': 'Senha atualizada com sucesso.',
+    en: 'Password updated successfully.',
+  },
 };
 
 export function mapProjectApiMessage(message: string | undefined, locale: string | undefined, fallback: string) {
