@@ -1,4 +1,10 @@
-import { PROJECT_EXECUTOR, PROJECT_NAME } from '@/lib/project-brand';
+import {
+  PROJECT_EXECUTOR,
+  PROJECT_NAME,
+  PROJECT_LOGO_PATH,
+  RURAL_COMMERCE_LOGO_PATH,
+  absoluteProjectAsset,
+} from '@/lib/project-brand';
 
 export type ProjectEmailContent = {
   locale?: string;
@@ -56,6 +62,27 @@ function stepsToHtml(steps: string[], locale?: string) {
   return `<p style="margin:20px 0 10px;font-size:13px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#1D6359;">${title}</p><ol style="margin:0;padding-left:20px;">${items}</ol>`;
 }
 
+function emailLogoHeaderHtml() {
+  const projectLogo = absoluteProjectAsset(PROJECT_LOGO_PATH);
+  const ruralLogo = absoluteProjectAsset(RURAL_COMMERCE_LOGO_PATH);
+  return `<tr><td style="background:#ffffff;padding:20px 24px 18px;border-bottom:1px solid #E6EBF1;">
+          <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+            <tr>
+              <td align="left" style="vertical-align:middle;width:58%;">
+                <img src="${escapeHtml(projectLogo)}" alt="${escapeHtml(PROJECT_NAME)}" width="132" style="display:block;max-width:132px;width:132px;height:auto;border:0;" />
+              </td>
+              <td align="right" style="vertical-align:middle;width:42%;">
+                <img src="${escapeHtml(ruralLogo)}" alt="${escapeHtml(PROJECT_EXECUTOR)}" width="108" style="display:block;max-width:108px;width:108px;height:auto;border:0;margin-left:auto;" />
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+        <tr><td style="background:#071F5E;padding:14px 24px;">
+          <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#9FD6D6;">${escapeHtml(PROJECT_NAME)}</p>
+          <p style="margin:4px 0 0;font-size:13px;color:#ffffff;">${escapeHtml(PROJECT_EXECUTOR)}</p>
+        </td></tr>`;
+}
+
 export function buildProjectEmailHtml(content: ProjectEmailContent) {
   const stepsBlock = content.steps?.length ? stepsToHtml(content.steps, content.locale) : '';
   const footnote = content.footnote
@@ -69,10 +96,7 @@ export function buildProjectEmailHtml(content: ProjectEmailContent) {
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#F5F7FA;padding:24px 12px;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:560px;background:#ffffff;border-radius:16px;overflow:hidden;border:1px solid #E6EBF1;">
-        <tr><td style="background:#071F5E;padding:22px 24px;">
-          <p style="margin:0;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:#9FD6D6;">${escapeHtml(PROJECT_NAME)}</p>
-          <p style="margin:6px 0 0;font-size:14px;color:#ffffff;">${escapeHtml(PROJECT_EXECUTOR)}</p>
-        </td></tr>
+        ${emailLogoHeaderHtml()}
         <tr><td style="padding:24px;">
           <p style="margin:0 0 12px;font-size:15px;color:#2F3336;">${escapeHtml(greeting(content.recipientName, content.locale))}</p>
           <h1 style="margin:0 0 16px;font-size:22px;line-height:1.35;color:#071F5E;">${escapeHtml(content.headline)}</h1>

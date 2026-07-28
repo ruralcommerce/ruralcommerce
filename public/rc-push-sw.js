@@ -9,8 +9,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(data.title || 'Impulso MiPyMEs', {
       body: data.body || '',
-      icon: '/images/logo-rural-commerce.png',
-      badge: '/images/logo-rural-commerce.png',
+      icon: '/images/projeto/im-los-santos-logo-azul.png',
+      badge: '/images/logo.png',
       data: { url: data.url || '/' },
     })
   );

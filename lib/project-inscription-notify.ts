@@ -1,6 +1,9 @@
 import { Resend } from 'resend';
 import { sendDirectProjectMessage } from '@/lib/project-broadcast';
-import { PROJECT_NAME } from '@/lib/project-brand';
+import {
+  PROJECT_NAME,
+  PROJECT_EXECUTOR,
+} from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
 import { buildApprovalEmailContent } from '@/lib/project-email-messages';
 
@@ -59,29 +62,34 @@ const approvalPushCopy = {
   en: 'Profile approved. Sign the agreement online to continue with the diagnosis.',
 } as const;
 
-function buildEmailText(record: InscriptionNotifyRecord) {
+function buildTeamInscriptionEmail(record: InscriptionNotifyRecord) {
   const profile = record.profile;
   const locale = profile.locale || 'es';
-
-  return [
-    'Nova inscrição no projeto ' + PROJECT_NAME,
-    '',
-    `ID: ${record.id}`,
-    `Data: ${record.createdAt}`,
-    `Idioma: ${locale}`,
-    '',
+  const subjectName = profile.organization || profile.name;
+  const paragraphs = [
+    `Nova inscrição recebida no projeto ${PROJECT_NAME}.`,
     `Nome: ${profile.name}`,
     `E-mail: ${record.user.email}`,
     `Telefone: ${profile.phone || '—'}`,
-    `Organização / empreendimento: ${profile.organization || '—'}`,
+    `Organização: ${profile.organization || '—'}`,
     `Cidade: ${profile.city || '—'}`,
-    `Interesse / atividade: ${profile.interest || '—'}`,
-    '',
-    'Mensagem:',
-    profile.message || '—',
-    '',
-    `Painel da equipe: ${adminUrl(locale)}`,
-  ].join('\n');
+    `Interesse: ${profile.interest || '—'}`,
+    profile.message ? `Mensagem: ${profile.message}` : '',
+  ].filter(Boolean);
+
+  return {
+    subject: `[${PROJECT_NAME}] Nova inscrição — ${subjectName}`,
+    content: {
+      locale,
+      recipientName: PROJECT_EXECUTOR,
+      subject: `Nova inscrição — ${subjectName}`,
+      headline: `Nova inscrição — ${subjectName}`,
+      paragraphs,
+      ctaLabel: 'Abrir painel da equipe',
+      ctaUrl: adminUrl(locale),
+      footnote: `ID: ${record.id} · ${record.createdAt}`,
+    },
+  };
 }
 
 export async function notifyNewProjectInscription(record: InscriptionNotifyRecord) {
@@ -101,13 +109,15 @@ export async function notifyNewProjectInscription(record: InscriptionNotifyRecor
 
   const profile = record.profile;
   const subjectName = profile.organization || profile.name;
+  const { subject, content } = buildTeamInscriptionEmail(record);
   const resend = new Resend(apiKey);
   const { error } = await resend.emails.send({
     from,
     to,
     replyTo: record.user.email,
-    subject: `[${PROJECT_NAME}] Nova inscrição — ${subjectName}`,
-    text: buildEmailText(record),
+    subject,
+    text: buildProjectEmailText(content),
+    html: buildProjectEmailHtml(content),
   });
 
   if (error) {
