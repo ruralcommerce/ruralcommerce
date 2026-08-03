@@ -85,11 +85,20 @@ export async function POST(request: Request) {
 
   const records = (await readRecords()) as RecordItem[];
 
-  const index = records.findIndex((item) => {
+  let index = records.findIndex((item) => {
     const user = ((item.user as RecordItem) || {}) as RecordItem;
     const userEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
     return item.id === candidateId && userEmail === email;
   });
+
+  // Fallback: match approved participant by email if session id is stale/missing.
+  if (index === -1) {
+    index = records.findIndex((item) => {
+      const user = ((item.user as RecordItem) || {}) as RecordItem;
+      const userEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
+      return userEmail === email && item.status === 'approved';
+    });
+  }
 
   if (index === -1) {
     return NextResponse.json({ ok: false, message: 'Participante não encontrado.' }, { status: 404 });

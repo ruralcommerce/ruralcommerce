@@ -1,7 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ClipboardList } from 'lucide-react';
+import {
+  patchCandidateSession,
+  readCandidateSession,
+  writeCandidateSession,
+} from '@/lib/project-candidate-session';
 import { mapProjectApiMessage } from '@/lib/project-locale';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -412,6 +417,7 @@ const copy: Record<
     no: string;
     percentPlaceholder: string;
     requiredError: string;
+    stepIncompleteError: string;
   }
 > = {
   es: {
@@ -440,7 +446,8 @@ const copy: Record<
     yes: 'Sí',
     no: 'No',
     percentPlaceholder: 'Ingrese %',
-    requiredError: 'Completa todas las respuestas antes de enviar.',
+    requiredError: 'Faltan respuestas. Te llevamos a la primera pregunta incompleta.',
+    stepIncompleteError: 'Completa todas las respuestas de esta sección antes de continuar.',
   },
   'pt-BR': {
     eyebrow: 'Diagnóstico',
@@ -468,7 +475,8 @@ const copy: Record<
     yes: 'Sim',
     no: 'Não',
     percentPlaceholder: 'Informe %',
-    requiredError: 'Complete todas as respostas antes de enviar.',
+    requiredError: 'Faltam respostas. Levamos você à primeira pergunta incompleta.',
+    stepIncompleteError: 'Complete todas as respostas desta seção antes de continuar.',
   },
   en: {
     eyebrow: 'Diagnosis',
@@ -496,7 +504,8 @@ const copy: Record<
     yes: 'Yes',
     no: 'No',
     percentPlaceholder: 'Enter %',
-    requiredError: 'Complete all answers before submitting.',
+    requiredError: 'Some answers are missing. We took you to the first incomplete question.',
+    stepIncompleteError: 'Complete all answers in this section before continuing.',
   },
 };
 
@@ -508,19 +517,26 @@ function buildEmptyAnswers() {
   return Object.fromEntries(questions.map((question) => [question.id, ''])) as Record<string, string>;
 }
 
-function sessionKey() {
-  return 'rc_candidate_session';
+function isAnswerFilled(value: string | undefined) {
+  return String(value || '').trim().length > 0;
+}
+
+function stepIndexForQuestion(questionId: string) {
+  const question = questions.find((item) => item.id === questionId);
+  return question ? question.section : 0;
 }
 
 export function ProjectDiagnosisForm({ locale }: { locale: string }) {
   const localeKey = getLocaleKey(locale);
   const t = copy[localeKey];
+  const feedbackRef = useRef<HTMLDivElement>(null);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [record, setRecord] = useState<CandidateRecord | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>(buildEmptyAnswers());
   const [currentStep, setCurrentStep] = useState(0);
+  const [incompleteIds, setIncompleteIds] = useState<string[]>([]);
   const [isCheckingLogin, setIsCheckingLogin] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -539,39 +555,40 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
 
   const setAnswer = (key: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [key]: value }));
+    setIncompleteIds((prev) => prev.filter((id) => id !== key));
   };
 
   const isApproved = record?.status === 'approved';
   const agreementSigned = record?.profile?.agreement?.signed === true;
 
-  const hydrateFromSession = () => {
-    if (typeof window === 'undefined') return;
-    try {
-      const raw = window.sessionStorage.getItem(sessionKey());
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as {
-        email?: string;
-        status?: string;
-        id?: string;
-        locale?: string;
-        name?: string;
-        agreementSigned?: boolean;
-      };
-      if (!parsed?.email || parsed.status !== 'approved') return;
-      setEmail(parsed.email);
-      setRecord({
-        id: parsed.id || `session_${parsed.email}`,
-        status: 'approved',
-        user: { email: parsed.email },
-        profile: {
-          name: parsed.name || '',
-          locale: parsed.locale || localeKey,
-          agreement: { signed: parsed.agreementSigned === true },
-        },
-      });
-    } catch {
-      // ignore malformed session cache
+  const showFeedback = (message: string, kind: 'error' | 'success' = 'error') => {
+    if (kind === 'error') {
+      setError(message);
+      setSuccess('');
+    } else {
+      setSuccess(message);
+      setError('');
     }
+    requestAnimationFrame(() => {
+      feedbackRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+  };
+
+  const hydrateFromSession = () => {
+    const parsed = readCandidateSession();
+    if (!parsed?.email || parsed.status !== 'approved' || !parsed.id) return;
+    setEmail(parsed.email);
+    if (parsed.password) setPassword(parsed.password);
+    setRecord({
+      id: parsed.id,
+      status: 'approved',
+      user: { email: parsed.email },
+      profile: {
+        name: parsed.name || '',
+        locale: parsed.locale || localeKey,
+        agreement: { signed: parsed.agreementSigned === true },
+      },
+    });
   };
 
   useEffect(() => {
@@ -597,19 +614,15 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
       if (loadedRecord.status !== 'approved') {
         return;
       }
-      if (typeof window !== 'undefined') {
-        window.sessionStorage.setItem(
-          sessionKey(),
-          JSON.stringify({
-            id: loadedRecord.id,
-            email: loadedRecord.user.email,
-            status: loadedRecord.status,
-            locale: loadedRecord.profile.locale || localeKey,
-            name: loadedRecord.profile.name || '',
-            agreementSigned: loadedRecord.profile.agreement?.signed === true,
-          })
-        );
-      }
+      writeCandidateSession({
+        id: loadedRecord.id,
+        email: loadedRecord.user.email,
+        password,
+        status: loadedRecord.status,
+        locale: loadedRecord.profile.locale || localeKey,
+        name: loadedRecord.profile.name || '',
+        agreementSigned: loadedRecord.profile.agreement?.signed === true,
+      });
     } catch {
       setError(t.loginText);
     } finally {
@@ -617,21 +630,45 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
     }
   };
 
-  const validateAll = () => questions.every((question) => String(answers[question.id] || '').trim().length > 0);
+  const incompleteQuestions = () => questions.filter((question) => !isAnswerFilled(answers[question.id]));
+
+  const currentSectionIncomplete = () => {
+    if (isFirstStep) return [];
+    const section = sections[currentStep - 1];
+    return section.items.filter((question) => !isAnswerFilled(answers[question.id])).map((question) => question.id);
+  };
+
+  const goToNextStep = () => {
+    if (!isFirstStep) {
+      const missing = currentSectionIncomplete();
+      if (missing.length > 0) {
+        setIncompleteIds(missing);
+        showFeedback(t.stepIncompleteError);
+        return;
+      }
+    }
+    setError('');
+    setIncompleteIds([]);
+    setCurrentStep((value) => Math.min(totalSteps - 1, value + 1));
+  };
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (!record || record.status !== 'approved') {
-      setError(t.blockedText);
+      showFeedback(t.blockedText);
       return;
     }
-    if (!validateAll()) {
-      setError(t.requiredError);
+    const missing = incompleteQuestions();
+    if (missing.length > 0) {
+      setIncompleteIds(missing.map((question) => question.id));
+      setCurrentStep(stepIndexForQuestion(missing[0].id));
+      showFeedback(t.requiredError);
       return;
     }
     setIsSubmitting(true);
     setError('');
     setSuccess('');
+    setIncompleteIds([]);
     try {
       const response = await fetch('/api/projeto/diagnosticos', {
         method: 'POST',
@@ -645,12 +682,13 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        setError(mapProjectApiMessage(payload.message, localeKey, t.requiredError));
+        showFeedback(mapProjectApiMessage(payload.message, localeKey, t.requiredError));
         return;
       }
-      setSuccess(t.success);
+      patchCandidateSession({ id: record.id, email: record.user.email });
+      showFeedback(t.success, 'success');
     } catch {
-      setError(t.requiredError);
+      showFeedback(t.requiredError);
     } finally {
       setIsSubmitting(false);
     }
@@ -734,7 +772,7 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-0 flex-col gap-0">
+    <form noValidate onSubmit={handleSubmit} className="flex min-h-0 flex-col gap-0">
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white px-2 py-1.5 sm:px-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
@@ -771,62 +809,67 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
             <div key={section} className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
               <div className="flex h-full flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
                 <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
-                  {items.map((question) => (
-                    <div key={question.id} className="rounded-2xl border border-[#E6EBF1] bg-[#FBFCFD] p-2.5">
-                      <p className="text-sm leading-5 text-[#071F5E]">
-                        <span className="font-semibold text-[#1D6359]">{question.subcategory}:</span> {question.prompt}
-                      </p>
+                  {items.map((question) => {
+                    const isIncomplete = incompleteIds.includes(question.id);
+                    return (
+                      <div
+                        key={question.id}
+                        className={`rounded-2xl border bg-[#FBFCFD] p-2.5 ${
+                          isIncomplete ? 'border-red-300 ring-1 ring-red-200' : 'border-[#E6EBF1]'
+                        }`}
+                      >
+                        <p className="text-sm leading-5 text-[#071F5E]">
+                          <span className="font-semibold text-[#1D6359]">{question.subcategory}:</span> {question.prompt}
+                        </p>
 
-                      {question.kind === 'select' ? (
-                        <select
-                          required
-                          value={answers[question.id] || ''}
-                          onChange={(e) => setAnswer(question.id, e.target.value)}
-                          className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
-                        >
-                          <option value="" disabled>
-                            {t.selectPlaceholder}
-                          </option>
-                          {(question.options || []).map((option) => (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          ))}
-                        </select>
-                      ) : null}
-
-                      {question.kind === 'binary' ? (
-                        <select
-                          required
-                          value={answers[question.id] || ''}
-                          onChange={(e) => setAnswer(question.id, e.target.value)}
-                          className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
-                        >
-                          <option value="" disabled>
-                            {t.selectPlaceholder}
-                          </option>
-                          <option value={t.yes}>{t.yes}</option>
-                          <option value={t.no}>{t.no}</option>
-                        </select>
-                      ) : null}
-
-                      {question.kind === 'percent' ? (
-                        <div className="mt-2 flex items-center gap-2">
-                          <input
-                            required
-                            type="number"
-                            min={0}
-                            max={100}
+                        {question.kind === 'select' ? (
+                          <select
                             value={answers[question.id] || ''}
                             onChange={(e) => setAnswer(question.id, e.target.value)}
-                            placeholder={t.percentPlaceholder}
-                            className="w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
-                          />
-                          <span className="text-sm text-[#2F3336]/70">%</span>
-                        </div>
-                      ) : null}
-                    </div>
-                  ))}
+                            className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
+                          >
+                            <option value="" disabled>
+                              {t.selectPlaceholder}
+                            </option>
+                            {(question.options || []).map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
+                            ))}
+                          </select>
+                        ) : null}
+
+                        {question.kind === 'binary' ? (
+                          <select
+                            value={answers[question.id] || ''}
+                            onChange={(e) => setAnswer(question.id, e.target.value)}
+                            className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
+                          >
+                            <option value="" disabled>
+                              {t.selectPlaceholder}
+                            </option>
+                            <option value={t.yes}>{t.yes}</option>
+                            <option value={t.no}>{t.no}</option>
+                          </select>
+                        ) : null}
+
+                        {question.kind === 'percent' ? (
+                          <div className="mt-2 flex items-center gap-2">
+                            <input
+                              type="number"
+                              min={0}
+                              max={100}
+                              value={answers[question.id] || ''}
+                              onChange={(e) => setAnswer(question.id, e.target.value)}
+                              placeholder={t.percentPlaceholder}
+                              className="w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
+                            />
+                            <span className="text-sm text-[#2F3336]/70">%</span>
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -834,10 +877,25 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
         </div>
       </div>
 
+      <div ref={feedbackRef} className="mt-2 flex-none space-y-2">
+        {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+        {success ? (
+          <div className="rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">
+            <p>{success}</p>
+            <a href={`/${locale}/perfil`} className="mt-2 inline-flex font-semibold underline">
+              {t.goToProfile}
+            </a>
+          </div>
+        ) : null}
+      </div>
+
       <div className="mt-2 flex flex-none items-center justify-between gap-2">
         <button
           type="button"
-          onClick={() => setCurrentStep((value) => Math.max(0, value - 1))}
+          onClick={() => {
+            setError('');
+            setCurrentStep((value) => Math.max(0, value - 1));
+          }}
           disabled={isFirstStep || isSubmitting}
           className="inline-flex items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#071F5E] disabled:opacity-50"
         >
@@ -855,16 +913,13 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
         ) : (
           <button
             type="button"
-            onClick={() => setCurrentStep((value) => Math.min(totalSteps - 1, value + 1))}
+            onClick={goToNextStep}
             className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-2.5 text-sm font-semibold text-[#071F5E]"
           >
             {t.continue}
           </button>
         )}
       </div>
-
-      {error ? <p className="mt-2 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-      {success ? <p className="mt-2 rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">{success}</p> : null}
     </form>
   );
 }

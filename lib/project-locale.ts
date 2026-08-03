@@ -129,6 +129,31 @@ const apiMessageMap: Record<string, Record<ProjectLocaleKey, string>> = {
     'pt-BR': 'Senha atualizada com sucesso.',
     en: 'Password updated successfully.',
   },
+  'Dados de diagnóstico incompletos.': {
+    es: 'Datos de diagnóstico incompletos.',
+    'pt-BR': 'Dados de diagnóstico incompletos.',
+    en: 'Incomplete diagnosis data.',
+  },
+  'Complete todas as respostas do diagnóstico.': {
+    es: 'Completa todas las respuestas del diagnóstico.',
+    'pt-BR': 'Complete todas as respostas do diagnóstico.',
+    en: 'Complete all diagnosis answers.',
+  },
+  'Participante não encontrado.': {
+    es: 'Participante no encontrado.',
+    'pt-BR': 'Participante não encontrado.',
+    en: 'Participant not found.',
+  },
+  'Diagnóstico disponível apenas para participantes aprovados.': {
+    es: 'Diagnóstico disponible solo para participantes aprobados.',
+    'pt-BR': 'Diagnóstico disponível apenas para participantes aprovados.',
+    en: 'Diagnosis is available only for approved participants.',
+  },
+  'Diagnóstico enviado com sucesso.': {
+    es: 'Diagnóstico enviado correctamente.',
+    'pt-BR': 'Diagnóstico enviado com sucesso.',
+    en: 'Diagnosis submitted successfully.',
+  },
 };
 
 export function mapProjectApiMessage(message: string | undefined, locale: string | undefined, fallback: string) {
