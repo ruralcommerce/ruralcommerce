@@ -433,14 +433,14 @@
 .projeto-site-header-brands {
 	display: flex;
 	align-items: center;
-	gap: 14px;
+	gap: 12px;
 	min-width: 0;
 }
 
 .projeto-site-header-brand-divider {
 	display: inline-block;
 	width: 1px;
-	height: 34px;
+	height: 28px;
 	background: rgba(242, 242, 242, 0.28);
 	flex-shrink: 0;
 }
@@ -455,15 +455,12 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	padding: 4px 8px;
-	border-radius: 14px;
-	background: rgba(242, 242, 242, 0.96);
-	box-shadow: 0 6px 18px rgba(7, 31, 94, 0.18);
+	line-height: 0;
 }
 
 .projeto-site-header-project-logo {
 	width: auto;
-	height: 44px;
+	height: 40px;
 	object-fit: contain;
 }
 
@@ -603,24 +600,19 @@
 	}
 
 	.projeto-site-header-brands {
-		gap: 10px;
+		gap: 8px;
 	}
 
 	.projeto-site-header-brand-divider {
-		height: 28px;
+		height: 22px;
 	}
 
 	.projeto-site-header-logo {
 		width: 118px;
 	}
 
-	.projeto-site-header-project-logo-wrap {
-		padding: 3px 6px;
-		border-radius: 12px;
-	}
-
 	.projeto-site-header-project-logo {
-		height: 36px;
+		height: 30px;
 	}
 }
 
