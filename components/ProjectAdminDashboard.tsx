@@ -10,6 +10,12 @@ import {
   type ProjectLocaleKey,
 } from '@/lib/project-locale';
 import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
+import {
+  PROJECT_TEAM_TAGS,
+  getProjectTeamTagLabel,
+  type ProjectTeamTag,
+  type ProjectTeamTagFilter,
+} from '@/lib/project-team-tags';
 
 type EnrollmentRecord = {
   id: string;
@@ -17,6 +23,7 @@ type EnrollmentRecord = {
   createdAt: string;
   updatedAt?: string;
   notes?: string;
+  teamTag?: ProjectTeamTag | null;
   user: {
     email: string;
     username: string;
@@ -48,8 +55,14 @@ type EnrollmentRecord = {
   };
 };
 
-type BulkAction = 'approve' | 'reject' | 'delete';
+type BulkAction = 'approve' | 'reject' | 'delete' | 'set-tag';
 type AdminSection = 'hub' | 'inscriptions' | 'communications';
+
+const teamTagBadgeClass: Record<ProjectTeamTag, string> = {
+  frutalcoop: 'bg-[#E8F0FF] text-[#1D3A7A]',
+  'aliados-frutalcoop': 'bg-[#F3EAF8] text-[#6B3A8C]',
+  participantes: 'bg-[#E7F6EC] text-[#1D6359]',
+};
 
 const inscriptionQuestionLabels: Record<ProjectLocaleKey, Record<string, string>> = {
   es: {
@@ -221,6 +234,12 @@ const uiCopy = {
     filterDiagnosisAll: 'Todos los diagnósticos',
     filterDiagnosisDone: 'Diagnóstico enviado',
     filterDiagnosisPending: 'Diagnóstico pendiente',
+    filterTagLabel: 'Etiqueta',
+    filterTagAll: 'Todas las etiquetas',
+    filterTagNone: 'Sin etiqueta',
+    tagLabel: 'Etiqueta del equipo',
+    tagNone: 'Sin etiqueta',
+    tagApplySelected: 'Aplicar etiqueta',
     diagnosisDoneBadge: 'Diagnóstico enviado',
     diagnosisPendingBadge: 'Diagnóstico pendiente',
     loading: 'Cargando inscripciones...',
@@ -289,6 +308,12 @@ const uiCopy = {
     filterDiagnosisAll: 'Todos os diagnósticos',
     filterDiagnosisDone: 'Diagnóstico enviado',
     filterDiagnosisPending: 'Diagnóstico pendente',
+    filterTagLabel: 'Etiqueta',
+    filterTagAll: 'Todas as etiquetas',
+    filterTagNone: 'Sem etiqueta',
+    tagLabel: 'Etiqueta da equipe',
+    tagNone: 'Sem etiqueta',
+    tagApplySelected: 'Aplicar etiqueta',
     diagnosisDoneBadge: 'Diagnóstico enviado',
     diagnosisPendingBadge: 'Diagnóstico pendente',
     loading: 'Carregando inscrições...',
@@ -357,6 +382,12 @@ const uiCopy = {
     filterDiagnosisAll: 'All diagnoses',
     filterDiagnosisDone: 'Diagnosis submitted',
     filterDiagnosisPending: 'Diagnosis pending',
+    filterTagLabel: 'Tag',
+    filterTagAll: 'All tags',
+    filterTagNone: 'No tag',
+    tagLabel: 'Team tag',
+    tagNone: 'No tag',
+    tagApplySelected: 'Apply tag',
     diagnosisDoneBadge: 'Diagnosis submitted',
     diagnosisPendingBadge: 'Diagnosis pending',
     loading: 'Loading applications...',
@@ -444,6 +475,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [filter, setFilter] = useState('all');
   const [convenioFilter, setConvenioFilter] = useState<'all' | 'signed' | 'pending'>('all');
   const [diagnosisFilter, setDiagnosisFilter] = useState<'all' | 'done' | 'pending'>('all');
+  const [tagFilter, setTagFilter] = useState<ProjectTeamTagFilter>('all');
+  const [bulkTag, setBulkTag] = useState<'' | ProjectTeamTag | 'none'>('');
   const [section, setSection] = useState<AdminSection>('hub');
   const [teamPassword, setTeamPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -577,9 +610,13 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       if (diagnosisFilter === 'done' && !diagnosisDone) return false;
       if (diagnosisFilter === 'pending' && diagnosisDone) return false;
 
+      const tag = record.teamTag || null;
+      if (tagFilter === 'none' && tag) return false;
+      if (tagFilter !== 'all' && tagFilter !== 'none' && tag !== tagFilter) return false;
+
       return true;
     });
-  }, [convenioFilter, diagnosisFilter, filter, records]);
+  }, [convenioFilter, diagnosisFilter, filter, records, tagFilter]);
 
   const allFilteredSelected =
     filteredRecords.length > 0 && filteredRecords.every((record) => selectedIds.has(record.id));
@@ -621,6 +658,54 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       await loadRecords();
     } catch {
       setError(t.errorUpdateGeneric);
+    }
+  }
+
+  async function updateTeamTag(recordId: string, teamTag: ProjectTeamTag | null) {
+    try {
+      const response = await fetch(`/api/projeto/inscriptions/${recordId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ teamTag }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorUpdate));
+        return;
+      }
+      setRecords((current) =>
+        current.map((record) => (record.id === recordId ? { ...record, teamTag } : record))
+      );
+    } catch {
+      setError(t.errorUpdateGeneric);
+    }
+  }
+
+  async function applyBulkTag() {
+    if (!bulkTag || selectedIds.size === 0) return;
+    setBulkLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/projeto/inscriptions/bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ids: Array.from(selectedIds),
+          action: 'set-tag',
+          teamTag: bulkTag === 'none' ? null : bulkTag,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorBulk));
+        return;
+      }
+      setBulkTag('');
+      await loadRecords();
+    } catch {
+      setError(t.errorBulkGeneric);
+    } finally {
+      setBulkLoading(false);
     }
   }
 
@@ -793,6 +878,22 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
               <option value="pending">{t.filterDiagnosisPending}</option>
             </select>
           </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+            {t.filterTagLabel}
+            <select
+              value={tagFilter}
+              onChange={(e) => setTagFilter(e.target.value as ProjectTeamTagFilter)}
+              className="min-w-[12rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+            >
+              <option value="all">{t.filterTagAll}</option>
+              <option value="none">{t.filterTagNone}</option>
+              {PROJECT_TEAM_TAGS.map((tag) => (
+                <option key={tag} value={tag}>
+                  {getProjectTeamTagLabel(tag)}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
       </div>
 
@@ -836,6 +937,27 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             >
               {t.deleteSelected}
             </button>
+            <select
+              value={bulkTag}
+              onChange={(e) => setBulkTag(e.target.value as '' | ProjectTeamTag | 'none')}
+              className="rounded-full border border-[#D9E3EC] px-3 py-2 text-sm text-[#071F5E]"
+            >
+              <option value="">{t.tagLabel}</option>
+              <option value="none">{t.tagNone}</option>
+              {PROJECT_TEAM_TAGS.map((tag) => (
+                <option key={tag} value={tag}>
+                  {getProjectTeamTagLabel(tag)}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              disabled={bulkLoading || !bulkTag}
+              onClick={applyBulkTag}
+              className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+            >
+              {t.tagApplySelected}
+            </button>
           </div>
         ) : null}
       </div>
@@ -868,6 +990,11 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                       <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold text-[#1D6359]">
                         {getProjectStatusLabel(record.status, localeKey)}
                       </span>
+                      {record.teamTag ? (
+                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${teamTagBadgeClass[record.teamTag]}`}>
+                          {getProjectTeamTagLabel(record.teamTag)}
+                        </span>
+                      ) : null}
                       {record.status === 'approved' ? (
                         <>
                           <span
@@ -901,6 +1028,24 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                       {record.profile.organization || t.noOrganization} · {record.profile.city || t.noCity}
                     </p>
                     <p className="mt-1 text-xs text-[#2F3336]/55">{formatProjectDate(record.createdAt, localeKey)}</p>
+                    <label className="mt-3 flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+                      {t.tagLabel}
+                      <select
+                        value={record.teamTag || ''}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          void updateTeamTag(record.id, value ? (value as ProjectTeamTag) : null);
+                        }}
+                        className="min-w-[12rem] rounded-2xl border border-[#D9E3EC] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+                      >
+                        <option value="">{t.tagNone}</option>
+                        {PROJECT_TEAM_TAGS.map((tag) => (
+                          <option key={tag} value={tag}>
+                            {getProjectTeamTagLabel(tag)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2">

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { notifyApprovalForRawRecord } from '@/lib/project-inscription-notify';
+import { isProjectTeamTag, normalizeProjectTeamTag } from '@/lib/project-team-tags';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -35,11 +36,21 @@ export async function PATCH(
   }
 
   const body = payload as Record<string, unknown>;
-  const status = typeof body.status === 'string' ? body.status : '';
-  const notes = typeof body.notes === 'string' ? body.notes.trim() : '';
+  const hasStatus = typeof body.status === 'string' && body.status.length > 0;
+  const hasTeamTag = Object.prototype.hasOwnProperty.call(body, 'teamTag');
+  const status = hasStatus ? String(body.status) : '';
+  const notes = typeof body.notes === 'string' ? body.notes.trim() : undefined;
 
-  if (!['pending', 'approved', 'rejected'].includes(status)) {
+  if (!hasStatus && !hasTeamTag) {
+    return NextResponse.json({ ok: false, message: 'Nada para actualizar.' }, { status: 400 });
+  }
+
+  if (hasStatus && !['pending', 'approved', 'rejected'].includes(status)) {
     return NextResponse.json({ ok: false, message: 'Status inválido.' }, { status: 400 });
+  }
+
+  if (hasTeamTag && body.teamTag !== null && body.teamTag !== '' && !isProjectTeamTag(body.teamTag)) {
+    return NextResponse.json({ ok: false, message: 'Etiqueta inválida.' }, { status: 400 });
   }
 
   const records = await readRecords();
@@ -54,20 +65,30 @@ export async function PATCH(
   const previousUser = (previousRecord.user as Record<string, unknown>) || {};
   const wasApproved = previousRecord.status === 'approved';
 
-  typedRecords[index] = {
+  const nextRecord: Record<string, unknown> = {
     ...previousRecord,
-    status,
-    notes,
     updatedAt: new Date().toISOString(),
-    user: {
-      ...previousUser,
-      accessStatus: status === 'approved' ? 'active' : 'pending',
-    },
   };
 
+  if (hasStatus) {
+    nextRecord.status = status;
+    nextRecord.user = {
+      ...previousUser,
+      accessStatus: status === 'approved' ? 'active' : 'pending',
+    };
+    if (typeof notes === 'string') {
+      nextRecord.notes = notes;
+    }
+  }
+
+  if (hasTeamTag) {
+    nextRecord.teamTag = normalizeProjectTeamTag(body.teamTag);
+  }
+
+  typedRecords[index] = nextRecord;
   await writeRecords(typedRecords);
 
-  if (status === 'approved' && !wasApproved) {
+  if (hasStatus && status === 'approved' && !wasApproved) {
     await notifyApprovalForRawRecord(typedRecords[index]);
   }
 

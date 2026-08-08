@@ -154,6 +154,16 @@ const apiMessageMap: Record<string, Record<ProjectLocaleKey, string>> = {
     'pt-BR': 'Diagnóstico enviado com sucesso.',
     en: 'Diagnosis submitted successfully.',
   },
+  'Nada para actualizar.': {
+    es: 'Nada para actualizar.',
+    'pt-BR': 'Nada para atualizar.',
+    en: 'Nothing to update.',
+  },
+  'Etiqueta inválida.': {
+    es: 'Etiqueta inválida.',
+    'pt-BR': 'Etiqueta inválida.',
+    en: 'Invalid tag.',
+  },
 };
 
 export function mapProjectApiMessage(message: string | undefined, locale: string | undefined, fallback: string) {

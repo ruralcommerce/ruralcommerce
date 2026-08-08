@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { notifyApprovalForRawRecord } from '@/lib/project-inscription-notify';
+import { isProjectTeamTag, normalizeProjectTeamTag } from '@/lib/project-team-tags';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
 
-const VALID_ACTIONS = ['approve', 'reject', 'delete'] as const;
+const VALID_ACTIONS = ['approve', 'reject', 'delete', 'set-tag'] as const;
 type BulkAction = (typeof VALID_ACTIONS)[number];
 
 async function readRecords() {
@@ -46,6 +47,32 @@ export async function POST(request: Request) {
   }
 
   const records = (await readRecords()) as Array<Record<string, unknown>>;
+
+  if (action === 'set-tag') {
+    if (body.teamTag !== null && body.teamTag !== '' && body.teamTag !== undefined && !isProjectTeamTag(body.teamTag)) {
+      return NextResponse.json({ ok: false, message: 'Etiqueta inválida.' }, { status: 400 });
+    }
+
+    const teamTag = normalizeProjectTeamTag(body.teamTag);
+    const idSet = new Set(ids);
+    let updatedCount = 0;
+    const updatedRecords = records.map((record) => {
+      if (!idSet.has(String(record.id || ''))) return record;
+      updatedCount += 1;
+      return {
+        ...record,
+        teamTag,
+        updatedAt: new Date().toISOString(),
+      };
+    });
+
+    if (updatedCount === 0) {
+      return NextResponse.json({ ok: false, message: 'Inscrição não encontrada.' }, { status: 404 });
+    }
+
+    await writeRecords(updatedRecords);
+    return NextResponse.json({ ok: true, count: updatedCount });
+  }
 
   if (action === 'delete') {
     const idSet = new Set(ids);
