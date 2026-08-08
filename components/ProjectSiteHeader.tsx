@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
-import { PROJECT_LOGO_PATH, PROJECT_NAME, RURAL_COMMERCE_LOGO_WHITE_PATH } from '@/lib/project-brand';
+import { PROJECT_LOGO_HEADER_PATH, PROJECT_NAME, RURAL_COMMERCE_LOGO_WHITE_PATH } from '@/lib/project-brand';
 import type { ProjectNavPage } from '@/lib/project-nav';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -130,8 +130,8 @@ export function ProjectSiteHeader({
             <Image
               src={RURAL_COMMERCE_LOGO_WHITE_PATH}
               alt="Rural Commerce"
-              width={140}
-              height={40}
+              width={148}
+              height={44}
               className="projeto-site-header-logo"
               priority
             />
@@ -139,10 +139,10 @@ export function ProjectSiteHeader({
           <span className="projeto-site-header-brand-divider" aria-hidden />
           <Link href={projectHref} aria-label={PROJECT_NAME} className="projeto-site-header-project-logo-wrap">
             <Image
-              src={PROJECT_LOGO_PATH}
+              src={PROJECT_LOGO_HEADER_PATH}
               alt={PROJECT_NAME}
-              width={40}
-              height={40}
+              width={44}
+              height={44}
               className="projeto-site-header-project-logo"
               priority
             />
