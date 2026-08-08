@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { PROJECT_LOGO_PATH, PROJECT_NAME, RURAL_COMMERCE_LOGO_WHITE_PATH } from '@/lib/project-brand';
 import type { ProjectNavPage } from '@/lib/project-nav';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -124,16 +125,29 @@ export function ProjectSiteHeader({
   return (
     <header className={`projeto-site-header${variant === 'bar' ? ' projeto-site-header--bar' : ''}`}>
       <div className="projeto-site-header-inner">
-        <Link href={homeHref} aria-label={t.homeAriaLabel} className="inline-flex shrink-0 items-center">
-          <Image
-            src="/images/logo-branco.png"
-            alt="Rural Commerce"
-            width={168}
-            height={48}
-            className="projeto-site-header-logo"
-            priority
-          />
-        </Link>
+        <div className="projeto-site-header-brands">
+          <Link href={homeHref} aria-label={t.homeAriaLabel} className="inline-flex shrink-0 items-center">
+            <Image
+              src={RURAL_COMMERCE_LOGO_WHITE_PATH}
+              alt="Rural Commerce"
+              width={168}
+              height={48}
+              className="projeto-site-header-logo"
+              priority
+            />
+          </Link>
+          <span className="projeto-site-header-brand-divider" aria-hidden />
+          <Link href={projectHref} aria-label={PROJECT_NAME} className="projeto-site-header-project-logo-wrap">
+            <Image
+              src={PROJECT_LOGO_PATH}
+              alt={PROJECT_NAME}
+              width={112}
+              height={112}
+              className="projeto-site-header-project-logo"
+              priority
+            />
+          </Link>
+        </div>
 
         <nav className="projeto-site-nav" aria-label="Navegación principal">
           <Link
