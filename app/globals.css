@@ -440,14 +440,25 @@
 .projeto-site-header-brand-divider {
 	display: inline-block;
 	width: 1px;
-	height: 28px;
+	height: 32px;
 	background: rgba(242, 242, 242, 0.28);
 	flex-shrink: 0;
 }
 
-.projeto-site-header-logo {
-	width: 168px;
-	height: auto;
+.projeto-site-header-brands > a {
+	display: inline-flex;
+	align-items: center;
+	height: 40px;
+	line-height: 0;
+}
+
+.projeto-site-header-logo,
+.projeto-site-header-project-logo {
+	width: auto;
+	height: 40px;
+	max-width: none;
+	object-fit: contain;
+	object-position: center;
 }
 
 .projeto-site-header-project-logo-wrap {
@@ -455,13 +466,8 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	line-height: 0;
-}
-
-.projeto-site-header-project-logo {
-	width: auto;
 	height: 40px;
-	object-fit: contain;
+	line-height: 0;
 }
 
 .projeto-site-nav {
@@ -604,15 +610,17 @@
 	}
 
 	.projeto-site-header-brand-divider {
-		height: 22px;
+		height: 26px;
 	}
 
-	.projeto-site-header-logo {
-		width: 118px;
+	.projeto-site-header-brands > a,
+	.projeto-site-header-project-logo-wrap {
+		height: 32px;
 	}
 
+	.projeto-site-header-logo,
 	.projeto-site-header-project-logo {
-		height: 30px;
+		height: 32px;
 	}
 }
 
