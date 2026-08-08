@@ -8,13 +8,12 @@ import { usePathname } from 'next/navigation';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
-type ProjectSiteHeaderProps = {
-  locale: string;
-};
-
 const RURAL_COMMERCE_HOME_LABEL = 'Rural Commerce';
 
-const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; homeAriaLabel: string; items: Array<{ href: string; label: string }> }> = {
+const copy: Record<
+  LocaleKey,
+  { openMenu: string; closeMenu: string; homeAriaLabel: string; items: Array<{ href: string; label: string }> }
+> = {
   es: {
     openMenu: 'Abrir menú',
     closeMenu: 'Cerrar menú',
@@ -22,8 +21,10 @@ const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; homeAriaLab
     items: [
       { href: '/projeto', label: 'Proyecto' },
       { href: '/projeto/inscricao', label: 'Inscripción' },
+      { href: '/projeto/convenio', label: 'Convenio' },
       { href: '/projeto/diagnostico', label: 'Diagnóstico' },
       { href: '/perfil', label: 'Perfil' },
+      { href: '/admin', label: 'Equipo' },
     ],
   },
   'pt-BR': {
@@ -33,8 +34,10 @@ const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; homeAriaLab
     items: [
       { href: '/projeto', label: 'Projeto' },
       { href: '/projeto/inscricao', label: 'Inscrição' },
+      { href: '/projeto/convenio', label: 'Convênio' },
       { href: '/projeto/diagnostico', label: 'Diagnóstico' },
       { href: '/perfil', label: 'Perfil' },
+      { href: '/admin', label: 'Equipe' },
     ],
   },
   en: {
@@ -44,8 +47,10 @@ const copy: Record<LocaleKey, { openMenu: string; closeMenu: string; homeAriaLab
     items: [
       { href: '/projeto', label: 'Project' },
       { href: '/projeto/inscricao', label: 'Application' },
+      { href: '/projeto/convenio', label: 'Agreement' },
       { href: '/projeto/diagnostico', label: 'Diagnosis' },
       { href: '/perfil', label: 'Profile' },
+      { href: '/admin', label: 'Team' },
     ],
   },
 };
@@ -59,7 +64,13 @@ function stripLocalePrefix(pathname: string): string {
   return stripped.length > 0 ? stripped : '/';
 }
 
-export function ProjectSiteHeader({ locale }: { locale: string }) {
+export function ProjectSiteHeader({
+  locale,
+  variant = 'overlay',
+}: {
+  locale: string;
+  variant?: 'overlay' | 'bar';
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const localeKey = getLocaleKey(locale);
@@ -77,14 +88,17 @@ export function ProjectSiteHeader({ locale }: { locale: string }) {
 
   const isHomeActive = strippedPath === '/' || strippedPath === '';
 
-  const isActive = (href: string, label: string) => {
-    if (label === RURAL_COMMERCE_HOME_LABEL) return isHomeActive;
-    const path = href.replace(/^\/(es|pt-BR|en)/, '');
+  const isActive = (href: string, isHome: boolean) => {
+    if (isHome) return isHomeActive;
+    const path = href.replace(/^\/(es|pt-BR|en)/, '') || '/';
+    if (path === '/projeto') {
+      return strippedPath === '/projeto' || strippedPath === '/impulsacr';
+    }
     return strippedPath === path || strippedPath.startsWith(`${path}/`);
   };
 
   return (
-    <header className="projeto-site-header">
+    <header className={`projeto-site-header${variant === 'bar' ? ' projeto-site-header--bar' : ''}`}>
       <div className="projeto-site-header-inner">
         <Link href={homeHref} aria-label={t.homeAriaLabel} className="inline-flex shrink-0 items-center">
           <Image
@@ -105,11 +119,11 @@ export function ProjectSiteHeader({ locale }: { locale: string }) {
               className={
                 item.isHome
                   ? 'projeto-site-nav-btn'
-                  : isActive(item.href, item.label)
+                  : isActive(item.href, item.isHome)
                     ? 'opacity-100'
                     : undefined
               }
-              aria-current={isActive(item.href, item.label) ? 'page' : undefined}
+              aria-current={isActive(item.href, item.isHome) ? 'page' : undefined}
             >
               {item.label}
             </Link>
@@ -137,7 +151,7 @@ export function ProjectSiteHeader({ locale }: { locale: string }) {
                 className={
                   item.isHome
                     ? 'projeto-site-nav-btn px-3 py-2 text-sm'
-                    : `rounded-lg px-2 py-2 text-sm ${isActive(item.href, item.label) ? 'opacity-100' : 'opacity-90'}`
+                    : `rounded-lg px-2 py-2 text-sm ${isActive(item.href, item.isHome) ? 'opacity-100' : 'opacity-90'}`
                 }
                 onClick={() => setOpen(false)}
               >
