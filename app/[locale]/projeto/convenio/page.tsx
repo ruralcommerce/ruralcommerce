@@ -38,6 +38,7 @@ export default function ProjectConvenioPage({ params }: { params: { locale: stri
   return (
     <ProjectPageShell
       locale={locale}
+      currentPage="convenio"
       contentClassName="mx-auto flex w-full max-w-3xl flex-col px-4 sm:px-6 lg:px-8"
     >
       <ProjectAgreementForm locale={locale} />

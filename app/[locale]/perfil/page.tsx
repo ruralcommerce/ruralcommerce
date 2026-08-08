@@ -11,7 +11,7 @@ export default function PerfilPage({
   const email = typeof searchParams?.email === 'string' ? searchParams.email : '';
 
   return (
-    <ProjectPageShell locale={params.locale}>
+    <ProjectPageShell locale={params.locale} currentPage="perfil">
       <ProjectProfileDashboard locale={params.locale} initialEmail={email} />
     </ProjectPageShell>
   );

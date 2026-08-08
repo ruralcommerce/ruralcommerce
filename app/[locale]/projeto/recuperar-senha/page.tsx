@@ -45,6 +45,7 @@ export default function RecoverPasswordPage({
   return (
     <ProjectPageShell
       locale={locale}
+      currentPage="recuperar-senha"
       contentClassName="mx-auto flex w-full max-w-xl flex-col px-4 sm:px-6 lg:px-8"
     >
       <ProjectPasswordReset locale={locale} initialEmail={email} initialToken={token} />

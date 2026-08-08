@@ -1,17 +1,22 @@
 import type { ReactNode } from 'react';
 import { ProjectSiteHeader } from '@/components/ProjectSiteHeader';
+import { getProjectPageTitle, type ProjectNavPage } from '@/lib/project-nav';
 
 export function ProjectPageShell({
   locale,
+  currentPage,
   children,
   fullViewport = false,
   contentClassName,
 }: {
   locale: string;
+  currentPage: ProjectNavPage;
   children: ReactNode;
   fullViewport?: boolean;
   contentClassName?: string;
 }) {
+  const pageTitle = getProjectPageTitle(locale, currentPage);
+
   return (
     <div
       className={
@@ -35,6 +40,9 @@ export function ProjectPageShell({
               'mx-auto flex h-full w-full max-w-5xl flex-col px-4 sm:px-6 lg:px-8'
             }
           >
+            <p className="mb-2 px-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1D6359]">
+              {pageTitle}
+            </p>
             {children}
           </div>
         </section>

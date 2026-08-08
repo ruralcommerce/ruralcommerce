@@ -2,9 +2,10 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useMemo, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import type { ProjectNavPage } from '@/lib/project-nav';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -12,45 +13,56 @@ const RURAL_COMMERCE_HOME_LABEL = 'Rural Commerce';
 
 const copy: Record<
   LocaleKey,
-  { openMenu: string; closeMenu: string; homeAriaLabel: string; items: Array<{ href: string; label: string }> }
+  {
+    openMenu: string;
+    closeMenu: string;
+    homeAriaLabel: string;
+    projectLabel: string;
+    profileMenu: string;
+    intranet: string;
+    profileItems: Array<{ href: string; label: string; page: ProjectNavPage }>;
+  }
 > = {
   es: {
     openMenu: 'Abrir menú',
     closeMenu: 'Cerrar menú',
     homeAriaLabel: 'Rural Commerce - inicio',
-    items: [
-      { href: '/projeto', label: 'Proyecto' },
-      { href: '/projeto/inscricao', label: 'Inscripción' },
-      { href: '/projeto/convenio', label: 'Convenio' },
-      { href: '/projeto/diagnostico', label: 'Diagnóstico' },
-      { href: '/perfil', label: 'Perfil' },
-      { href: '/admin', label: 'Equipo' },
+    projectLabel: 'Proyecto',
+    profileMenu: 'Mi perfil',
+    intranet: 'Intranet',
+    profileItems: [
+      { href: '/projeto/inscricao', label: 'Inscripción', page: 'inscricao' },
+      { href: '/projeto/convenio', label: 'Convenio', page: 'convenio' },
+      { href: '/projeto/diagnostico', label: 'Diagnóstico', page: 'diagnostico' },
+      { href: '/perfil', label: 'Mi perfil', page: 'perfil' },
     ],
   },
   'pt-BR': {
     openMenu: 'Abrir menu',
     closeMenu: 'Fechar menu',
     homeAriaLabel: 'Rural Commerce - início',
-    items: [
-      { href: '/projeto', label: 'Projeto' },
-      { href: '/projeto/inscricao', label: 'Inscrição' },
-      { href: '/projeto/convenio', label: 'Convênio' },
-      { href: '/projeto/diagnostico', label: 'Diagnóstico' },
-      { href: '/perfil', label: 'Perfil' },
-      { href: '/admin', label: 'Equipe' },
+    projectLabel: 'Projeto',
+    profileMenu: 'Meu perfil',
+    intranet: 'Intranet',
+    profileItems: [
+      { href: '/projeto/inscricao', label: 'Inscrição', page: 'inscricao' },
+      { href: '/projeto/convenio', label: 'Convênio', page: 'convenio' },
+      { href: '/projeto/diagnostico', label: 'Diagnóstico', page: 'diagnostico' },
+      { href: '/perfil', label: 'Meu perfil', page: 'perfil' },
     ],
   },
   en: {
     openMenu: 'Open menu',
     closeMenu: 'Close menu',
     homeAriaLabel: 'Rural Commerce - home',
-    items: [
-      { href: '/projeto', label: 'Project' },
-      { href: '/projeto/inscricao', label: 'Application' },
-      { href: '/projeto/convenio', label: 'Agreement' },
-      { href: '/projeto/diagnostico', label: 'Diagnosis' },
-      { href: '/perfil', label: 'Profile' },
-      { href: '/admin', label: 'Team' },
+    projectLabel: 'Project',
+    profileMenu: 'My profile',
+    intranet: 'Intranet',
+    profileItems: [
+      { href: '/projeto/inscricao', label: 'Application', page: 'inscricao' },
+      { href: '/projeto/convenio', label: 'Agreement', page: 'convenio' },
+      { href: '/projeto/diagnostico', label: 'Diagnosis', page: 'diagnostico' },
+      { href: '/perfil', label: 'My profile', page: 'perfil' },
     ],
   },
 };
@@ -71,31 +83,43 @@ export function ProjectSiteHeader({
   locale: string;
   variant?: 'overlay' | 'bar';
 }) {
-  const [open, setOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const localeKey = getLocaleKey(locale);
   const t = copy[localeKey];
   const strippedPath = stripLocalePrefix(pathname);
   const homeHref = `/${locale}`;
+  const projectHref = `${homeHref}/projeto`;
+  const intranetHref = `${homeHref}/admin`;
 
-  const items = useMemo(
-    () => [
-      { href: homeHref, label: RURAL_COMMERCE_HOME_LABEL, isHome: true as const },
-      ...t.items.map((item) => ({ ...item, href: `${homeHref}${item.href}`, isHome: false as const })),
-    ],
-    [homeHref, t.items]
+  const profileItems = useMemo(
+    () => t.profileItems.map((item) => ({ ...item, href: `${homeHref}${item.href}` })),
+    [homeHref, t.profileItems]
   );
 
   const isHomeActive = strippedPath === '/' || strippedPath === '';
+  const isProjectActive = strippedPath === '/projeto' || strippedPath === '/impulsacr';
+  const isIntranetActive = strippedPath === '/admin' || strippedPath.startsWith('/admin/');
+  const isProfileSectionActive = profileItems.some(
+    (item) => strippedPath === item.href.replace(homeHref, '') || strippedPath.startsWith(`${item.href.replace(homeHref, '')}/`)
+  );
 
-  const isActive = (href: string, isHome: boolean) => {
-    if (isHome) return isHomeActive;
-    const path = href.replace(/^\/(es|pt-BR|en)/, '') || '/';
-    if (path === '/projeto') {
-      return strippedPath === '/projeto' || strippedPath === '/impulsacr';
-    }
-    return strippedPath === path || strippedPath.startsWith(`${path}/`);
-  };
+  useEffect(() => {
+    const onPointerDown = (event: MouseEvent) => {
+      if (!profileRef.current?.contains(event.target as Node)) {
+        setProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, []);
+
+  useEffect(() => {
+    setProfileOpen(false);
+    setMobileOpen(false);
+  }, [pathname]);
 
   return (
     <header className={`projeto-site-header${variant === 'bar' ? ' projeto-site-header--bar' : ''}`}>
@@ -112,52 +136,112 @@ export function ProjectSiteHeader({
         </Link>
 
         <nav className="projeto-site-nav" aria-label="Navegación principal">
-          {items.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={
-                item.isHome
-                  ? 'projeto-site-nav-btn'
-                  : isActive(item.href, item.isHome)
-                    ? 'opacity-100'
-                    : undefined
-              }
-              aria-current={isActive(item.href, item.isHome) ? 'page' : undefined}
+          <Link
+            href={homeHref}
+            className="projeto-site-nav-btn"
+            aria-current={isHomeActive ? 'page' : undefined}
+          >
+            {RURAL_COMMERCE_HOME_LABEL}
+          </Link>
+
+          <Link
+            href={projectHref}
+            className={isProjectActive ? 'opacity-100' : undefined}
+            aria-current={isProjectActive ? 'page' : undefined}
+          >
+            {t.projectLabel}
+          </Link>
+
+          <div className="projeto-site-dropdown" ref={profileRef}>
+            <button
+              type="button"
+              className={`projeto-site-dropdown-trigger${isProfileSectionActive ? ' is-active' : ''}`}
+              aria-expanded={profileOpen}
+              aria-haspopup="menu"
+              onClick={() => setProfileOpen((value) => !value)}
             >
-              {item.label}
-            </Link>
-          ))}
+              {t.profileMenu}
+              <ChevronDown size={14} className={profileOpen ? 'rotate-180 transition' : 'transition'} />
+            </button>
+            {profileOpen ? (
+              <div className="projeto-site-dropdown-menu" role="menu">
+                {profileItems.map((item) => {
+                  const path = item.href.replace(homeHref, '') || '/';
+                  const active = strippedPath === path || strippedPath.startsWith(`${path}/`);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      role="menuitem"
+                      className={active ? 'is-active' : undefined}
+                      aria-current={active ? 'page' : undefined}
+                      onClick={() => setProfileOpen(false)}
+                    >
+                      {item.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            ) : null}
+          </div>
+
+          <Link
+            href={intranetHref}
+            className={`projeto-site-nav-intranet${isIntranetActive ? ' is-active' : ''}`}
+            aria-current={isIntranetActive ? 'page' : undefined}
+          >
+            {t.intranet}
+          </Link>
         </nav>
 
         <button
           type="button"
           className="inline-flex rounded-lg p-2 text-white lg:hidden"
-          aria-label={open ? t.closeMenu : t.openMenu}
-          aria-expanded={open}
-          onClick={() => setOpen((value) => !value)}
+          aria-label={mobileOpen ? t.closeMenu : t.openMenu}
+          aria-expanded={mobileOpen}
+          onClick={() => setMobileOpen((value) => !value)}
         >
-          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
-      {open ? (
+      {mobileOpen ? (
         <div className="projeto-site-header-inner lg:hidden">
           <nav className="projeto-site-nav-mobile w-full" aria-label="Navegación principal">
-            {items.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={
-                  item.isHome
-                    ? 'projeto-site-nav-btn px-3 py-2 text-sm'
-                    : `rounded-lg px-2 py-2 text-sm ${isActive(item.href, item.isHome) ? 'opacity-100' : 'opacity-90'}`
-                }
-                onClick={() => setOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+            <Link href={homeHref} className="projeto-site-nav-btn px-3 py-2 text-sm" onClick={() => setMobileOpen(false)}>
+              {RURAL_COMMERCE_HOME_LABEL}
+            </Link>
+            <Link
+              href={projectHref}
+              className={`rounded-lg px-2 py-2 text-sm ${isProjectActive ? 'opacity-100' : 'opacity-90'}`}
+              onClick={() => setMobileOpen(false)}
+            >
+              {t.projectLabel}
+            </Link>
+            <p className="px-2 pt-2 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/55">
+              {t.profileMenu}
+            </p>
+            {profileItems.map((item) => {
+              const path = item.href.replace(homeHref, '') || '/';
+              const active = strippedPath === path || strippedPath.startsWith(`${path}/`);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`rounded-lg px-2 py-2 text-sm ${active ? 'opacity-100' : 'opacity-90'}`}
+                  onClick={() => setMobileOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+            <Link
+              href={intranetHref}
+              className="projeto-site-nav-intranet mt-2 inline-flex w-fit px-3 py-2 text-sm"
+              onClick={() => setMobileOpen(false)}
+            >
+              {t.intranet}
+            </Link>
           </nav>
         </div>
       ) : null}
