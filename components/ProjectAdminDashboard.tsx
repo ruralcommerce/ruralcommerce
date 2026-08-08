@@ -212,6 +212,17 @@ const uiCopy = {
     filterPending: 'Pendientes',
     filterApproved: 'Aprobadas',
     filterRejected: 'Rechazadas',
+    filterStatusLabel: 'Estado',
+    filterConvenioLabel: 'Convenio',
+    filterConvenioAll: 'Todos los convenios',
+    filterConvenioSigned: 'Convenio firmado',
+    filterConvenioPending: 'Convenio pendiente',
+    filterDiagnosisLabel: 'Diagnóstico',
+    filterDiagnosisAll: 'Todos los diagnósticos',
+    filterDiagnosisDone: 'Diagnóstico enviado',
+    filterDiagnosisPending: 'Diagnóstico pendiente',
+    diagnosisDoneBadge: 'Diagnóstico enviado',
+    diagnosisPendingBadge: 'Diagnóstico pendiente',
     loading: 'Cargando inscripciones...',
     selectAll: 'Seleccionar todas',
     selectedCount: '{count} seleccionadas',
@@ -269,6 +280,17 @@ const uiCopy = {
     filterPending: 'Pendentes',
     filterApproved: 'Aprovadas',
     filterRejected: 'Rejeitadas',
+    filterStatusLabel: 'Status',
+    filterConvenioLabel: 'Convênio',
+    filterConvenioAll: 'Todos os convênios',
+    filterConvenioSigned: 'Convênio assinado',
+    filterConvenioPending: 'Convênio pendente',
+    filterDiagnosisLabel: 'Diagnóstico',
+    filterDiagnosisAll: 'Todos os diagnósticos',
+    filterDiagnosisDone: 'Diagnóstico enviado',
+    filterDiagnosisPending: 'Diagnóstico pendente',
+    diagnosisDoneBadge: 'Diagnóstico enviado',
+    diagnosisPendingBadge: 'Diagnóstico pendente',
     loading: 'Carregando inscrições...',
     selectAll: 'Selecionar todas',
     selectedCount: '{count} selecionadas',
@@ -326,6 +348,17 @@ const uiCopy = {
     filterPending: 'Pending',
     filterApproved: 'Approved',
     filterRejected: 'Rejected',
+    filterStatusLabel: 'Status',
+    filterConvenioLabel: 'Agreement',
+    filterConvenioAll: 'All agreements',
+    filterConvenioSigned: 'Agreement signed',
+    filterConvenioPending: 'Agreement pending',
+    filterDiagnosisLabel: 'Diagnosis',
+    filterDiagnosisAll: 'All diagnoses',
+    filterDiagnosisDone: 'Diagnosis submitted',
+    filterDiagnosisPending: 'Diagnosis pending',
+    diagnosisDoneBadge: 'Diagnosis submitted',
+    diagnosisPendingBadge: 'Diagnosis pending',
     loading: 'Loading applications...',
     selectAll: 'Select all',
     selectedCount: '{count} selected',
@@ -409,6 +442,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [bulkLoading, setBulkLoading] = useState(false);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
+  const [convenioFilter, setConvenioFilter] = useState<'all' | 'signed' | 'pending'>('all');
+  const [diagnosisFilter, setDiagnosisFilter] = useState<'all' | 'done' | 'pending'>('all');
   const [section, setSection] = useState<AdminSection>('hub');
   const [teamPassword, setTeamPassword] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
@@ -531,9 +566,20 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   }, [authenticated]);
 
   const filteredRecords = useMemo(() => {
-    if (filter === 'all') return records;
-    return records.filter((record) => record.status === filter);
-  }, [filter, records]);
+    return records.filter((record) => {
+      if (filter !== 'all' && record.status !== filter) return false;
+
+      const convenioSigned = record.profile.agreement?.signed === true;
+      if (convenioFilter === 'signed' && !convenioSigned) return false;
+      if (convenioFilter === 'pending' && convenioSigned) return false;
+
+      const diagnosisDone = Boolean(record.profile.diagnosis?.answers);
+      if (diagnosisFilter === 'done' && !diagnosisDone) return false;
+      if (diagnosisFilter === 'pending' && diagnosisDone) return false;
+
+      return true;
+    });
+  }, [convenioFilter, diagnosisFilter, filter, records]);
 
   const allFilteredSelected =
     filteredRecords.length > 0 && filteredRecords.every((record) => selectedIds.has(record.id));
@@ -709,16 +755,45 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
           <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
         </div>
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm"
-        >
-          <option value="all">{t.filterAll}</option>
-          <option value="pending">{t.filterPending}</option>
-          <option value="approved">{t.filterApproved}</option>
-          <option value="rejected">{t.filterRejected}</option>
-        </select>
+        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+            {t.filterStatusLabel}
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="min-w-[10rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+            >
+              <option value="all">{t.filterAll}</option>
+              <option value="pending">{t.filterPending}</option>
+              <option value="approved">{t.filterApproved}</option>
+              <option value="rejected">{t.filterRejected}</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+            {t.filterConvenioLabel}
+            <select
+              value={convenioFilter}
+              onChange={(e) => setConvenioFilter(e.target.value as 'all' | 'signed' | 'pending')}
+              className="min-w-[11rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+            >
+              <option value="all">{t.filterConvenioAll}</option>
+              <option value="signed">{t.filterConvenioSigned}</option>
+              <option value="pending">{t.filterConvenioPending}</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+            {t.filterDiagnosisLabel}
+            <select
+              value={diagnosisFilter}
+              onChange={(e) => setDiagnosisFilter(e.target.value as 'all' | 'done' | 'pending')}
+              className="min-w-[12rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+            >
+              <option value="all">{t.filterDiagnosisAll}</option>
+              <option value="done">{t.filterDiagnosisDone}</option>
+              <option value="pending">{t.filterDiagnosisPending}</option>
+            </select>
+          </label>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3 rounded-2xl border border-[#E6EBF1] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
@@ -794,15 +869,26 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                         {getProjectStatusLabel(record.status, localeKey)}
                       </span>
                       {record.status === 'approved' ? (
-                        <span
-                          className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                            record.profile.agreement?.signed
-                              ? 'bg-[#E7F6EC] text-[#1D6359]'
-                              : 'bg-[#FDF3E7] text-[#9A6A1B]'
-                          }`}
-                        >
-                          {record.profile.agreement?.signed ? t.convenioSignedBadge : t.convenioPendingBadge}
-                        </span>
+                        <>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              record.profile.agreement?.signed
+                                ? 'bg-[#E7F6EC] text-[#1D6359]'
+                                : 'bg-[#FDF3E7] text-[#9A6A1B]'
+                            }`}
+                          >
+                            {record.profile.agreement?.signed ? t.convenioSignedBadge : t.convenioPendingBadge}
+                          </span>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
+                              record.profile.diagnosis?.answers
+                                ? 'bg-[#E7F6EC] text-[#1D6359]'
+                                : 'bg-[#FDF3E7] text-[#9A6A1B]'
+                            }`}
+                          >
+                            {record.profile.diagnosis?.answers ? t.diagnosisDoneBadge : t.diagnosisPendingBadge}
+                          </span>
+                        </>
                       ) : null}
                       {record.profile.marketingConsent ? (
                         <span className="rounded-full bg-[#EEF1F7] px-3 py-1 text-xs font-semibold text-[#3A4B7A]">
