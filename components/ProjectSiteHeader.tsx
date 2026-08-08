@@ -126,13 +126,14 @@ export function ProjectSiteHeader({
     <header className={`projeto-site-header${variant === 'bar' ? ' projeto-site-header--bar' : ''}`}>
       <div className="projeto-site-header-inner">
         <div className="projeto-site-header-brands">
-          <Link href={homeHref} aria-label={t.homeAriaLabel}>
+          <Link href={homeHref} aria-label={t.homeAriaLabel} className="projeto-site-header-rc-link">
             <Image
               src={RURAL_COMMERCE_LOGO_WHITE_PATH}
               alt="Rural Commerce"
-              width={118}
+              width={115}
               height={35}
               className="projeto-site-header-logo"
+              style={{ width: 115, height: 35 }}
               priority
             />
           </Link>
@@ -141,9 +142,10 @@ export function ProjectSiteHeader({
             <Image
               src={PROJECT_LOGO_HEADER_PATH}
               alt={PROJECT_NAME}
-              width={51}
+              width={34}
               height={51}
               className="projeto-site-header-project-logo"
+              style={{ width: 34, height: 51 }}
               priority
             />
           </Link>

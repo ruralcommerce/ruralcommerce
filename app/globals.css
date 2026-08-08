@@ -434,7 +434,8 @@
 	display: flex;
 	align-items: center;
 	gap: 14px;
-	min-width: 0;
+	flex-shrink: 0;
+	min-width: max-content;
 }
 
 .projeto-site-header-brand-divider {
@@ -449,15 +450,17 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0;
 	line-height: 0;
 }
 
 .projeto-site-header-logo {
-	width: auto !important;
+	display: block;
+	width: 115px !important;
 	height: 35px !important;
-	max-height: 35px;
+	max-width: none !important;
 	object-fit: contain;
-	object-position: center;
+	object-position: left center;
 }
 
 .projeto-site-header-project-logo-wrap {
@@ -469,9 +472,10 @@
 }
 
 .projeto-site-header-project-logo {
-	width: auto !important;
+	display: block;
+	width: 34px !important;
 	height: 51px !important;
-	max-height: 51px;
+	max-width: none !important;
 	object-fit: contain;
 	object-position: center;
 }
@@ -624,13 +628,13 @@
 	}
 
 	.projeto-site-header-logo {
+		width: 92px !important;
 		height: 28px !important;
-		max-height: 28px;
 	}
 
 	.projeto-site-header-project-logo {
+		width: 26px !important;
 		height: 40px !important;
-		max-height: 40px;
 	}
 }
 
