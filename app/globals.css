@@ -449,15 +449,13 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	height: 44px;
 	line-height: 0;
 }
 
-.projeto-site-header-logo,
-.projeto-site-header-project-logo {
+.projeto-site-header-logo {
 	width: auto !important;
-	height: 44px !important;
-	max-height: 44px;
+	height: 35px !important;
+	max-height: 35px;
 	object-fit: contain;
 	object-position: center;
 }
@@ -467,8 +465,15 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	height: 44px;
 	line-height: 0;
+}
+
+.projeto-site-header-project-logo {
+	width: auto !important;
+	height: 51px !important;
+	max-height: 51px;
+	object-fit: contain;
+	object-position: center;
 }
 
 .projeto-site-nav {
@@ -614,15 +619,18 @@
 		height: 26px;
 	}
 
-	.projeto-site-header-brands > a,
-	.projeto-site-header-project-logo-wrap {
-		height: 34px;
+	.projeto-site-header-brand-divider {
+		height: 28px;
 	}
 
-	.projeto-site-header-logo,
+	.projeto-site-header-logo {
+		height: 28px !important;
+		max-height: 28px;
+	}
+
 	.projeto-site-header-project-logo {
-		height: 34px !important;
-		max-height: 34px;
+		height: 40px !important;
+		max-height: 40px;
 	}
 }
 

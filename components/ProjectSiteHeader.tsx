@@ -130,8 +130,8 @@ export function ProjectSiteHeader({
             <Image
               src={RURAL_COMMERCE_LOGO_WHITE_PATH}
               alt="Rural Commerce"
-              width={148}
-              height={44}
+              width={118}
+              height={35}
               className="projeto-site-header-logo"
               priority
             />
@@ -141,8 +141,8 @@ export function ProjectSiteHeader({
             <Image
               src={PROJECT_LOGO_HEADER_PATH}
               alt={PROJECT_NAME}
-              width={44}
-              height={44}
+              width={51}
+              height={51}
               className="projeto-site-header-project-logo"
               priority
             />
