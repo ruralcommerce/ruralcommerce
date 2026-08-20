@@ -10,17 +10,21 @@ import {
   readCandidateSession,
   writeCandidateSession,
 } from '@/lib/project-candidate-session';
+import { ProjectAgreementDownloadButton } from '@/components/ProjectAgreementDownloadButton';
+import { formatProjectDate } from '@/lib/project-locale';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
 type CandidateRecord = {
   id: string;
   status: 'pending' | 'approved' | 'rejected';
+  updatedAt?: string;
   user: { email: string };
   profile: {
     name?: string;
+    organization?: string;
     locale?: string;
-    agreement?: { signed?: boolean; signedAt?: string; fullName?: string };
+    agreement?: { signed?: boolean; signedAt?: string; fullName?: string; locale?: string };
   };
 };
 
@@ -48,6 +52,8 @@ const uiCopy: Record<
     goToProfile: string;
     signedTitle: string;
     signedText: string;
+    signedByLabel: string;
+    signedAtLabel: string;
     goToDiagnosis: string;
     signSectionTitle: string;
     signSectionText: string;
@@ -85,7 +91,9 @@ const uiCopy: Record<
     blockedText: 'Podrás firmar el convenio cuando el equipo apruebe tu perfil. Te avisaremos por correo.',
     goToProfile: 'Ver mi perfil',
     signedTitle: 'Convenio firmado',
-    signedText: 'Ya firmaste el convenio de participación. Ahora puedes completar el diagnóstico.',
+    signedText: 'Ya firmaste el convenio de participación. Puedes descargarlo cuando quieras y continuar con el diagnóstico.',
+    signedByLabel: 'Firmado por',
+    signedAtLabel: 'Fecha de firma',
     goToDiagnosis: 'Ir al diagnóstico',
     signSectionTitle: 'Firma electrónica',
     signSectionText: 'Al firmar confirmas que leíste el convenio y aceptas las condiciones del proyecto.',
@@ -122,7 +130,9 @@ const uiCopy: Record<
     blockedText: 'Você poderá assinar o convênio quando a equipe aprovar seu perfil. Avisaremos por e-mail.',
     goToProfile: 'Ver meu perfil',
     signedTitle: 'Convênio assinado',
-    signedText: 'Você já assinou o convênio de participação. Agora pode preencher o diagnóstico.',
+    signedText: 'Você já assinou o convênio de participação. Pode baixá-lo quando quiser e continuar com o diagnóstico.',
+    signedByLabel: 'Assinado por',
+    signedAtLabel: 'Data da assinatura',
     goToDiagnosis: 'Ir para o diagnóstico',
     signSectionTitle: 'Assinatura eletrônica',
     signSectionText: 'Ao assinar, você confirma que leu o convênio e aceita as condições do projeto.',
@@ -159,7 +169,9 @@ const uiCopy: Record<
     blockedText: 'You will be able to sign the agreement once the team approves your profile. We will notify you by email.',
     goToProfile: 'View my profile',
     signedTitle: 'Agreement signed',
-    signedText: 'You have already signed the participation agreement. You can now complete the diagnosis.',
+    signedText: 'You have already signed the participation agreement. You can download it anytime and continue with the diagnosis.',
+    signedByLabel: 'Signed by',
+    signedAtLabel: 'Signed on',
     goToDiagnosis: 'Go to the diagnosis',
     signSectionTitle: 'Electronic signature',
     signSectionText: 'By signing, you confirm that you read the agreement and accept the project conditions.',
@@ -440,6 +452,10 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
   }
 
   if (alreadySigned) {
+    const agreement = record.profile.agreement;
+    const signedName = agreement?.fullName || record.profile.name || record.user.email;
+    const signedAt = agreement?.signedAt || '';
+
     return (
       <div>
         {pageHeader}
@@ -449,12 +465,35 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
           </div>
           <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.signedTitle}</h2>
           <p className="mt-2 text-sm leading-6 text-[#2F3336]/80">{t.signedText}</p>
-          <a
-            href={`/${locale}/projeto/diagnostico`}
-            className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
-          >
-            {t.goToDiagnosis}
-          </a>
+          {signedName ? (
+            <p className="mt-3 text-sm text-[#2F3336]/85">
+              <span className="font-semibold text-[#071F5E]">{t.signedByLabel}:</span> {signedName}
+            </p>
+          ) : null}
+          {signedAt ? (
+            <p className="mt-1 text-sm text-[#2F3336]/85">
+              <span className="font-semibold text-[#071F5E]">{t.signedAtLabel}:</span>{' '}
+              {formatProjectDate(signedAt, localeKey)}
+            </p>
+          ) : null}
+          <div className="mt-4 flex flex-wrap gap-3">
+            <ProjectAgreementDownloadButton
+              locale={localeKey}
+              input={{
+                fullName: signedName,
+                email: record.user.email,
+                organization: record.profile.organization,
+                signedAt: signedAt || record.updatedAt,
+                locale: agreement?.locale || record.profile.locale || localeKey,
+              }}
+            />
+            <a
+              href={`/${locale}/projeto/diagnostico`}
+              className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+            >
+              {t.goToDiagnosis}
+            </a>
+          </div>
         </div>
       </div>
     );

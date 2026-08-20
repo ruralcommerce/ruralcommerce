@@ -14,6 +14,7 @@ import {
   writeCandidateSession,
 } from '@/lib/project-candidate-session';
 import { ProjectPushOptIn } from '@/components/ProjectPushOptIn';
+import { ProjectAgreementDownloadButton } from '@/components/ProjectAgreementDownloadButton';
 import { PROJECT_NAME } from '@/lib/project-brand';
 
 type EnrollmentRecord = {
@@ -40,6 +41,9 @@ type EnrollmentRecord = {
     marketingConsent?: boolean;
     agreement?: {
       signed?: boolean;
+      signedAt?: string;
+      fullName?: string;
+      locale?: string;
     };
   };
 };
@@ -119,6 +123,10 @@ const uiCopy = {
     noMessage: 'Sin mensaje adicional.',
     formAnswers: 'Respuestas del formulario',
     diagnosticCta: 'Ir al diagnóstico',
+    convenioSignedTitle: 'Convenio firmado',
+    convenioSignedText: 'Tu convenio está registrado. Puedes descargarlo cuando lo necesites.',
+    convenioSignedBy: 'Firmado por',
+    convenioSignedAt: 'Fecha de firma',
     convenioCta: 'Ir a firmar el convenio',
     convenioBoxTitle: 'Siguiente paso: convenio de participación',
     convenioPending: `Tu perfil fue aprobado para ${PROJECT_NAME}. Debes firmar el convenio en línea (reglas del programa) para desbloquear el diagnóstico.`,
@@ -158,6 +166,10 @@ const uiCopy = {
     noMessage: 'Sem mensagem adicional.',
     formAnswers: 'Respostas do formulário',
     diagnosticCta: 'Ir para o diagnóstico',
+    convenioSignedTitle: 'Convênio assinado',
+    convenioSignedText: 'Seu convênio está registrado. Você pode baixá-lo quando precisar.',
+    convenioSignedBy: 'Assinado por',
+    convenioSignedAt: 'Data da assinatura',
     convenioCta: 'Ir assinar o convênio',
     convenioBoxTitle: 'Próxima etapa: convênio de participação',
     convenioPending: `Seu perfil foi aprovado no ${PROJECT_NAME}. É preciso assinar o convênio online (regras do programa) para desbloquear o diagnóstico.`,
@@ -197,6 +209,10 @@ const uiCopy = {
     noMessage: 'No additional message.',
     formAnswers: 'Form answers',
     diagnosticCta: 'Go to diagnosis',
+    convenioSignedTitle: 'Agreement signed',
+    convenioSignedText: 'Your agreement is on record. You can download it whenever you need it.',
+    convenioSignedBy: 'Signed by',
+    convenioSignedAt: 'Signed on',
     convenioCta: 'Go sign the agreement',
     convenioBoxTitle: 'Next step: participation agreement',
     convenioPending: `Your profile was approved for ${PROJECT_NAME}. You must sign the agreement online (program rules) to unlock the diagnosis.`,
@@ -404,13 +420,37 @@ export function ProjectProfileDashboard({
 
             {record.status === 'approved' ? (
               record.profile.agreement?.signed ? (
-                <div className="mt-4">
-                  <a
-                    href={`/${localeKey}/projeto/diagnostico`}
-                    className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
-                  >
-                    {t.diagnosticCta}
-                  </a>
+                <div className="mt-4 rounded-2xl border border-[#CFE8E8] bg-[#F3FAFA] p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#1D6359]">{t.convenioSignedTitle}</p>
+                  <p className="mt-2 text-sm leading-6 text-[#2F3336]/85">{t.convenioSignedText}</p>
+                  <p className="mt-2 text-sm text-[#2F3336]/85">
+                    <span className="font-semibold text-[#071F5E]">{t.convenioSignedBy}:</span>{' '}
+                    {record.profile.agreement.fullName || record.profile.name || record.user.email}
+                  </p>
+                  {record.profile.agreement.signedAt ? (
+                    <p className="mt-1 text-sm text-[#2F3336]/85">
+                      <span className="font-semibold text-[#071F5E]">{t.convenioSignedAt}:</span>{' '}
+                      {formatProjectDate(record.profile.agreement.signedAt, localeKey)}
+                    </p>
+                  ) : null}
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <ProjectAgreementDownloadButton
+                      locale={localeKey}
+                      input={{
+                        fullName: record.profile.agreement.fullName || record.profile.name || record.user.email,
+                        email: record.user.email,
+                        organization: record.profile.organization,
+                        signedAt: record.profile.agreement.signedAt || record.updatedAt,
+                        locale: record.profile.agreement.locale || record.profile.locale || localeKey,
+                      }}
+                    />
+                    <a
+                      href={`/${localeKey}/projeto/diagnostico`}
+                      className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                    >
+                      {t.diagnosticCta}
+                    </a>
+                  </div>
                 </div>
               ) : (
                 <div className="mt-4 rounded-2xl border border-[#CFE8E8] bg-[#F3FAFA] p-4">
