@@ -10,6 +10,7 @@ import {
   type ProjectLocaleKey,
 } from '@/lib/project-locale';
 import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
+import { ProjectTeamMembersPanel } from '@/components/ProjectTeamMembersPanel';
 import {
   readTeamSession,
   writeTeamSession,
@@ -66,7 +67,7 @@ type EnrollmentRecord = {
 };
 
 type BulkAction = 'approve' | 'reject' | 'delete' | 'set-tag';
-type AdminSection = 'hub' | 'inscriptions' | 'communications';
+type AdminSection = 'hub' | 'inscriptions' | 'communications' | 'team';
 
 const teamTagBadgeClass: Record<ProjectTeamTag, string> = {
   frutalcoop: 'bg-[#E8F0FF] text-[#1D3A7A]',
@@ -230,6 +231,8 @@ const uiCopy = {
     sectionInscriptionsText: 'Revisar, aprobar, rechazar o eliminar participantes. Ver convenio y diagnóstico.',
     sectionCommsTitle: 'Comunicaciones',
     sectionCommsText: 'Enviar e-mails, ver ejemplo del mensaje, reenviar invitación al convenio.',
+    sectionTeamTitle: 'Usuarios del equipo',
+    sectionTeamText: 'Invitar técnicos por correo para que creen su nombre y contraseña.',
     backToHub: 'Volver al inicio',
     panelEyebrow: 'Inscripciones',
     panelTitle: 'Inscripciones del proyecto',
@@ -306,6 +309,8 @@ const uiCopy = {
     sectionInscriptionsText: 'Revisar, aprovar, rejeitar ou apagar participantes. Ver convênio e diagnóstico.',
     sectionCommsTitle: 'Comunicações',
     sectionCommsText: 'Enviar e-mails, ver exemplo da mensagem, reenviar convite do convênio.',
+    sectionTeamTitle: 'Usuários da equipe',
+    sectionTeamText: 'Convidar técnicos por e-mail para que criem o nome e a senha.',
     backToHub: 'Voltar ao início',
     panelEyebrow: 'Inscrições',
     panelTitle: 'Inscrições do projeto',
@@ -382,6 +387,8 @@ const uiCopy = {
     sectionInscriptionsText: 'Review, approve, reject or delete participants. View agreement and diagnosis.',
     sectionCommsTitle: 'Communications',
     sectionCommsText: 'Send emails, preview the message, resend the agreement invitation.',
+    sectionTeamTitle: 'Team users',
+    sectionTeamText: 'Invite technicians by email so they can set their name and password.',
     backToHub: 'Back to home',
     panelEyebrow: 'Applications',
     panelTitle: 'Project applications',
@@ -498,6 +505,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [teamEmail, setTeamEmail] = useState('');
   const [teamToken, setTeamToken] = useState('');
   const [teamMemberName, setTeamMemberName] = useState('');
+  const [teamRole, setTeamRole] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedRecord, setSelectedRecord] = useState<EnrollmentRecord | null>(null);
@@ -583,6 +591,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       setRecords(payload.records || []);
       setTeamToken(payload.token || '');
       setTeamMemberName(payload.member?.name || '');
+      setTeamRole(payload.member?.role || '');
       if (payload.token && payload.member) {
         writeTeamSession({
           token: payload.token,
@@ -608,6 +617,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     setTeamToken(session.token);
     setTeamEmail(session.email);
     setTeamMemberName(session.name);
+    setTeamRole(session.role);
     setAuthenticated(true);
   }, []);
 
@@ -862,7 +872,31 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
               <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionCommsTitle}</h2>
               <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionCommsText}</p>
             </button>
+            {teamRole === 'master' ? (
+              <button
+                type="button"
+                onClick={() => setSection('team')}
+                className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
+              >
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">03</p>
+                <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionTeamTitle}</h2>
+                <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionTeamText}</p>
+              </button>
+            ) : null}
           </div>
+        </div>
+      ) : null}
+
+      {section === 'team' ? (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setSection('hub')}
+            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+          >
+            ← {t.backToHub}
+          </button>
+          <ProjectTeamMembersPanel locale={locale} teamToken={teamToken} />
         </div>
       ) : null}
 

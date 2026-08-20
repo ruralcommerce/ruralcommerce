@@ -6,7 +6,9 @@ export type AuditAction =
   | 'diagnosis_update'
   | 'status_change'
   | 'tag_change'
-  | 'team_login';
+  | 'team_login'
+  | 'team_invite'
+  | 'team_invite_complete';
 
 export type AuditEntry = {
   id: string;
