@@ -9,5 +9,7 @@ resend-server.env
 data/project-inscriptions.json
 data/project-push-subscriptions.json
 data/project-broadcast-log.json
+data/project-team-members.json
+data/project-audit-log.json
 public/images/uploads/*
 !public/images/uploads/.gitkeep

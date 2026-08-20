@@ -3,11 +3,15 @@ import { PROJECT_EXECUTOR, PROJECT_NAME } from '@/lib/project-brand';
 import { formatProjectDate } from '@/lib/project-locale';
 
 export type SignedAgreementDocumentInput = {
+  candidateId?: string;
   fullName: string;
   email: string;
   organization?: string;
   signedAt?: string;
   locale?: string;
+  documentId?: string;
+  verificationCode?: string;
+  ipAddress?: string;
 };
 
 const docLabels: Record<
@@ -61,6 +65,24 @@ const docLabels: Record<
       'This document reflects the electronic signature recorded on the project platform. Keep a copy for your records.',
   },
 };
+
+export function buildLegacyAgreementDocumentId(candidateId: string, signedAt?: string) {
+  const base = `${candidateId}:${signedAt || 'legacy'}`;
+  let hash = 0;
+  for (let i = 0; i < base.length; i += 1) {
+    hash = (hash * 31 + base.charCodeAt(i)) >>> 0;
+  }
+  return `IMLS-LEG-${hash.toString(16).toUpperCase().padStart(8, '0')}`;
+}
+
+export function buildLegacyVerificationCode(candidateId: string, signedAt?: string, fullName?: string) {
+  const base = `${candidateId}:${signedAt || 'legacy'}:${fullName || ''}`;
+  let hash = 0;
+  for (let i = 0; i < base.length; i += 1) {
+    hash = (hash * 33 + base.charCodeAt(i)) >>> 0;
+  }
+  return hash.toString(16).toUpperCase().slice(0, 8);
+}
 
 function escapeHtml(value: string) {
   return value

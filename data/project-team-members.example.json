@@ -1,0 +1,11 @@
+[
+  {
+    "id": "team_master_example",
+    "name": "Coordenação",
+    "email": "coordenacao@example.com",
+    "role": "master",
+    "passwordHash": "replace-with-seed-script",
+    "active": true,
+    "createdAt": "2026-01-01T00:00:00.000Z"
+  }
+]

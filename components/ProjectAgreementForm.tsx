@@ -1,7 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
-import { FileSignature, CheckCircle2, ListOrdered } from 'lucide-react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { FileSignature, CheckCircle2 } from 'lucide-react';
 import { mapProjectApiMessage } from '@/lib/project-locale';
 import { getProjectAgreementCopy } from '@/lib/project-agreement-copy';
 import { PROJECT_NAME } from '@/lib/project-brand';
@@ -11,6 +11,16 @@ import {
   writeCandidateSession,
 } from '@/lib/project-candidate-session';
 import { ProjectAgreementDownloadButton } from '@/components/ProjectAgreementDownloadButton';
+import {
+  ProjectPortalHero,
+  ProjectPortalPanel,
+  ProjectPortalShell,
+  ProjectPortalSteps,
+} from '@/components/ProjectPortalLayout';
+import {
+  buildLegacyAgreementDocumentId,
+  buildLegacyVerificationCode,
+} from '@/lib/project-agreement-document';
 import { formatProjectDate } from '@/lib/project-locale';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -24,7 +34,7 @@ type CandidateRecord = {
     name?: string;
     organization?: string;
     locale?: string;
-    agreement?: { signed?: boolean; signedAt?: string; fullName?: string; locale?: string };
+    agreement?: { signed?: boolean; signedAt?: string; fullName?: string; locale?: string; documentId?: string; verificationCode?: string; ip?: string };
   };
 };
 
@@ -215,27 +225,6 @@ function CheckRow({
   );
 }
 
-function StepsGuide({ title, steps }: { title: string; steps: string[] }) {
-  return (
-    <div className="rounded-2xl border border-[#CFE8E8] bg-[#F3FAFA] p-4">
-      <div className="flex items-center gap-2 text-[#1D6359]">
-        <ListOrdered size={18} />
-        <p className="text-sm font-semibold">{title}</p>
-      </div>
-      <ol className="mt-3 space-y-2">
-        {steps.map((step, index) => (
-          <li key={step} className="flex gap-3 text-sm leading-snug text-[#2F3336]/90">
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#52ADAD] text-xs font-bold text-[#071F5E]">
-              {index + 1}
-            </span>
-            <span>{step}</span>
-          </li>
-        ))}
-      </ol>
-    </div>
-  );
-}
-
 export function ProjectAgreementForm({ locale, initialEmail }: { locale: string; initialEmail?: string }) {
   const localeKey = getLocaleKey(locale);
   const t = uiCopy[localeKey];
@@ -368,37 +357,48 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
     }
   };
 
-  const cardCls = 'rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-[#E6EBF1] sm:p-5';
   const inputCls = 'mt-1 w-full rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm';
 
-  const pageHeader = (
-    <div className="mb-4 space-y-3">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">{t.eyebrow}</p>
-      <h1 className="text-2xl font-semibold text-[#071F5E] sm:text-3xl">{t.pageTitle}</h1>
-      <p className="text-sm leading-6 text-[#2F3336]/80">{t.pageIntro}</p>
-      <StepsGuide title={t.stepsTitle} steps={t.steps} />
+  const agreementDownloadInput = (loaded: CandidateRecord) => {
+    const agreement = loaded.profile.agreement;
+    const signedName = agreement?.fullName || loaded.profile.name || loaded.user.email;
+    return {
+      candidateId: loaded.id,
+      fullName: signedName,
+      email: loaded.user.email,
+      organization: loaded.profile.organization,
+      signedAt: agreement?.signedAt || loaded.updatedAt,
+      locale: agreement?.locale || loaded.profile.locale || localeKey,
+      documentId:
+        agreement?.documentId || buildLegacyAgreementDocumentId(loaded.id, agreement?.signedAt),
+      verificationCode:
+        agreement?.verificationCode ||
+        buildLegacyVerificationCode(loaded.id, agreement?.signedAt, agreement?.fullName),
+      ipAddress: agreement?.ip,
+    };
+  };
+
+  const pageShell = (content: React.ReactNode) => (
+    <div className="space-y-5">
+      <ProjectPortalHero eyebrow={t.eyebrow} title={t.pageTitle} description={t.pageIntro} />
+      <ProjectPortalShell sidebar={<ProjectPortalSteps title={t.stepsTitle} steps={t.steps} />}>
+        {content}
+      </ProjectPortalShell>
     </div>
   );
 
   if (isBootstrapping) {
-    return (
-      <div>
-        {pageHeader}
-        <div className={cardCls}>
-          <p className="text-sm text-[#2F3336]/70">...</p>
-        </div>
-      </div>
+    return pageShell(
+      <ProjectPortalPanel>
+        <p className="text-sm text-[#2F3336]/70">...</p>
+      </ProjectPortalPanel>
     );
   }
 
   if (!record) {
-    return (
-      <div>
-        {pageHeader}
-        <div className={cardCls}>
-          <h2 className="text-xl font-semibold text-[#071F5E]">{t.loginTitle}</h2>
-          <p className="mt-1 text-sm text-[#2F3336]/75">{t.loginText}</p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+    return pageShell(
+      <ProjectPortalPanel title={t.loginTitle} subtitle={t.loginText}>
+          <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="text-sm font-medium text-[#071F5E]">{t.emailLabel}</span>
               <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
@@ -428,26 +428,20 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
             {t.forgotPassword}
           </a>
           {error ? <p className="mt-3 rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-        </div>
-      </div>
+      </ProjectPortalPanel>
     );
   }
 
   if (!isApproved) {
-    return (
-      <div>
-        {pageHeader}
-        <div className={cardCls}>
-          <h2 className="text-xl font-semibold text-[#071F5E]">{t.blockedTitle}</h2>
-          <p className="mt-2 text-sm leading-6 text-[#2F3336]/80">{t.blockedText}</p>
+    return pageShell(
+      <ProjectPortalPanel title={t.blockedTitle} subtitle={t.blockedText}>
           <a
             href={`/${locale}/perfil`}
-            className="mt-4 inline-flex items-center justify-center rounded-full border border-[#D9E3EC] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+            className="mt-2 inline-flex items-center justify-center rounded-full border border-[#D9E3EC] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
           >
             {t.goToProfile}
           </a>
-        </div>
-      </div>
+      </ProjectPortalPanel>
     );
   }
 
@@ -456,15 +450,11 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
     const signedName = agreement?.fullName || record.profile.name || record.user.email;
     const signedAt = agreement?.signedAt || '';
 
-    return (
-      <div>
-        {pageHeader}
-        <div className={cardCls}>
+    return pageShell(
+      <ProjectPortalPanel title={t.signedTitle} subtitle={t.signedText} tone="accent">
           <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
             <CheckCircle2 size={22} />
           </div>
-          <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.signedTitle}</h2>
-          <p className="mt-2 text-sm leading-6 text-[#2F3336]/80">{t.signedText}</p>
           {signedName ? (
             <p className="mt-3 text-sm text-[#2F3336]/85">
               <span className="font-semibold text-[#071F5E]">{t.signedByLabel}:</span> {signedName}
@@ -477,16 +467,7 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
             </p>
           ) : null}
           <div className="mt-4 flex flex-wrap gap-3">
-            <ProjectAgreementDownloadButton
-              locale={localeKey}
-              input={{
-                fullName: signedName,
-                email: record.user.email,
-                organization: record.profile.organization,
-                signedAt: signedAt || record.updatedAt,
-                locale: agreement?.locale || record.profile.locale || localeKey,
-              }}
-            />
+            <ProjectAgreementDownloadButton locale={localeKey} input={agreementDownloadInput(record)} />
             <a
               href={`/${locale}/projeto/diagnostico`}
               className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
@@ -494,17 +475,14 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
               {t.goToDiagnosis}
             </a>
           </div>
-        </div>
-      </div>
+      </ProjectPortalPanel>
     );
   }
 
   const showPasswordField = !resolvePassword();
 
-  return (
-    <div>
-      {pageHeader}
-      <div className={cardCls}>
+  return pageShell(
+    <ProjectPortalPanel>
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
           <FileSignature size={22} />
         </div>
@@ -577,7 +555,6 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
         >
           {isSigning ? t.signing : t.signCta}
         </button>
-      </div>
-    </div>
+    </ProjectPortalPanel>
   );
 }

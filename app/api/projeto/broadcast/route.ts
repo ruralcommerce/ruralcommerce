@@ -6,17 +6,11 @@ import {
   type BroadcastSegment,
 } from '@/lib/project-broadcast';
 import { appendBroadcastLog, listRecentBroadcasts } from '@/lib/project-broadcast-log';
+import { verifyTeamAccess } from '@/lib/project-team-auth-request';
 
 function trimField(value: unknown, max: number) {
   if (typeof value !== 'string') return '';
   return value.trim().slice(0, max);
-}
-
-function verifyTeamPassword(password: string) {
-  const expected = (process.env.PROJETO_TEAM_PASSWORD || '').trim();
-  if (!expected) return { ok: false as const, message: 'Defina PROJETO_TEAM_PASSWORD no ambiente.' };
-  if (password !== expected) return { ok: false as const, message: 'Senha da equipe inválida.' };
-  return { ok: true as const };
 }
 
 const VALID_CHANNELS: BroadcastChannel[] = ['email', 'push', 'whatsapp'];
@@ -25,7 +19,7 @@ const VALID_SEGMENTS: BroadcastSegment[] = ['consent', 'consent_approved'];
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const password = searchParams.get('password') || '';
-  const auth = verifyTeamPassword(password);
+  const auth = verifyTeamAccess(request, password);
   if (!auth.ok) {
     const status = auth.message.includes('inválida') ? 401 : 500;
     return NextResponse.json({ ok: false, message: auth.message }, { status });
@@ -52,7 +46,7 @@ export async function POST(request: Request) {
 
   const body = payload as Record<string, unknown>;
   const password = trimField(body.password, 128);
-  const auth = verifyTeamPassword(password);
+  const auth = verifyTeamAccess(request, password);
   if (!auth.ok) {
     return NextResponse.json({ ok: false, message: auth.message }, { status: auth.message.includes('inválida') ? 401 : 500 });
   }

@@ -526,14 +526,24 @@ function stepIndexForQuestion(questionId: string) {
   return question ? question.section : 0;
 }
 
-export function ProjectDiagnosisForm({ locale }: { locale: string }) {
+export function ProjectDiagnosisForm({
+  locale,
+  teamAssist,
+}: {
+  locale: string;
+  teamAssist?: {
+    token: string;
+    memberName: string;
+    record: CandidateRecord;
+  };
+}) {
   const localeKey = getLocaleKey(locale);
   const t = copy[localeKey];
   const feedbackRef = useRef<HTMLDivElement>(null);
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(teamAssist?.record.user.email || '');
   const [password, setPassword] = useState('');
-  const [record, setRecord] = useState<CandidateRecord | null>(null);
+  const [record, setRecord] = useState<CandidateRecord | null>(teamAssist?.record ?? null);
   const [answers, setAnswers] = useState<Record<string, string>>(buildEmptyAnswers());
   const [currentStep, setCurrentStep] = useState(0);
   const [incompleteIds, setIncompleteIds] = useState<string[]>([]);
@@ -592,8 +602,18 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
   };
 
   useEffect(() => {
+    if (teamAssist) {
+      setRecord(teamAssist.record);
+      setEmail(teamAssist.record.user.email);
+      const existing = (teamAssist.record.profile as { diagnosis?: { answers?: Record<string, string> } }).diagnosis
+        ?.answers;
+      if (existing) {
+        setAnswers((prev) => ({ ...prev, ...existing }));
+      }
+      return;
+    }
     hydrateFromSession();
-  }, []);
+  }, [teamAssist]);
 
   const handleLogin = async () => {
     setIsCheckingLogin(true);
@@ -670,14 +690,20 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
     setSuccess('');
     setIncompleteIds([]);
     try {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (teamAssist?.token) {
+        headers.Authorization = `Bearer ${teamAssist.token}`;
+      }
+
       const response = await fetch('/api/projeto/diagnosticos', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           candidateId: record.id,
           email: record.user.email,
           locale: localeKey,
           answers,
+          teamAssist: Boolean(teamAssist),
         }),
       });
       const payload = await response.json();
@@ -755,7 +781,7 @@ export function ProjectDiagnosisForm({ locale }: { locale: string }) {
     );
   }
 
-  if (!agreementSigned) {
+  if (!agreementSigned && !teamAssist) {
     return (
       <div className="rounded-[28px] bg-white p-4 shadow-sm ring-1 ring-[#E6EBF1] sm:p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">{t.eyebrow}</p>

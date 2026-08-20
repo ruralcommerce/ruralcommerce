@@ -159,12 +159,19 @@ const copy: Record<
 export function ProjectBroadcastPanel({
   locale,
   teamPassword,
+  teamToken,
 }: {
   locale: string;
   teamPassword: string;
+  teamToken?: string;
 }) {
   const localeKey = getProjectLocaleKey(locale);
   const t = copy[localeKey];
+
+  const authHeaders = (): Record<string, string> => {
+    if (teamToken) return { Authorization: `Bearer ${teamToken}` };
+    return {};
+  };
 
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
@@ -194,15 +201,15 @@ export function ProjectBroadcastPanel({
   }, [segment, localeFilter]);
 
   useEffect(() => {
-    if (!teamPassword) return;
+    if (!teamToken && !teamPassword) return;
     const params = new URLSearchParams({ password: teamPassword, segment: 'consent' });
-    fetch(`/api/projeto/broadcast?${params.toString()}`)
+    fetch(`/api/projeto/broadcast?${params.toString()}`, { headers: authHeaders() })
       .then((r) => r.json())
       .then((payload) => {
         if (payload.ok && Array.isArray(payload.recent)) setRecent(payload.recent);
       })
       .catch(() => undefined);
-  }, [teamPassword]);
+  }, [teamPassword, teamToken]);
 
   const selectedChannels = (Object.keys(channels) as BroadcastChannel[]).filter((key) => channels[key]);
 
@@ -214,7 +221,7 @@ export function ProjectBroadcastPanel({
         segment,
         ...(localeFilter !== 'all' ? { locale: localeFilter } : {}),
       });
-      const response = await fetch(`/api/projeto/broadcast?${params.toString()}`);
+      const response = await fetch(`/api/projeto/broadcast?${params.toString()}`, { headers: authHeaders() });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
         setError(payload.message || 'Error');
@@ -243,7 +250,7 @@ export function ProjectBroadcastPanel({
     try {
       const response = await fetch('/api/projeto/broadcast', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           password: teamPassword,
           subject,
@@ -278,7 +285,7 @@ export function ProjectBroadcastPanel({
         locale: localeFilter === 'all' ? localeKey : localeFilter,
         type,
       });
-      const response = await fetch(`/api/projeto/email-preview?${params.toString()}`);
+      const response = await fetch(`/api/projeto/email-preview?${params.toString()}`, { headers: authHeaders() });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
         setError(payload.message || 'Error');
@@ -297,7 +304,9 @@ export function ProjectBroadcastPanel({
         password: teamPassword,
         ...(localeFilter !== 'all' ? { locale: localeFilter } : {}),
       });
-      const response = await fetch(`/api/projeto/broadcast/resend-convenio?${params.toString()}`);
+      const response = await fetch(`/api/projeto/broadcast/resend-convenio?${params.toString()}`, {
+        headers: authHeaders(),
+      });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
         setError(payload.message || 'Error');
@@ -316,7 +325,7 @@ export function ProjectBroadcastPanel({
     try {
       const response = await fetch('/api/projeto/broadcast/resend-convenio', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({
           password: teamPassword,
           localeFilter: localeFilter === 'all' ? undefined : localeFilter,

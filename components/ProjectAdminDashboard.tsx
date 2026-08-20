@@ -11,6 +11,10 @@ import {
 } from '@/lib/project-locale';
 import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
 import {
+  readTeamSession,
+  writeTeamSession,
+} from '@/lib/project-team-session-client';
+import {
   PROJECT_TEAM_TAGS,
   getProjectTeamTagLabel,
   type ProjectTeamTag,
@@ -43,6 +47,12 @@ type EnrollmentRecord = {
       submittedAt?: string;
       locale?: string;
       answers?: Record<string, unknown>;
+      submittedBy?: {
+        type?: 'candidate' | 'team';
+        teamMemberId?: string;
+        teamMemberName?: string;
+        teamMemberEmail?: string;
+      };
     };
     locale?: string;
     marketingConsent?: boolean;
@@ -210,7 +220,9 @@ const uiCopy = {
     loginEyebrow: 'Intranet del equipo',
     loginTitle: 'Acceso al panel de inscripciones',
     teamPassword: 'Contraseña del equipo',
+    teamEmail: 'Correo del equipo',
     loginCta: 'Entrar a la intranet',
+    assistDiagnosis: 'Asistencia técnica',
     hubEyebrow: 'Panel del equipo',
     hubTitle: '¿Qué quieres administrar?',
     hubHint: 'Elige una sección. Cada área tiene una función específica para no mezclar todo en la misma pantalla.',
@@ -284,7 +296,9 @@ const uiCopy = {
     loginEyebrow: 'Intranet da equipe',
     loginTitle: 'Acesso ao painel de inscrições',
     teamPassword: 'Senha da equipe',
+    teamEmail: 'E-mail da equipe',
     loginCta: 'Entrar na intranet',
+    assistDiagnosis: 'Assistência técnica',
     hubEyebrow: 'Painel da equipe',
     hubTitle: 'O que você quer administrar?',
     hubHint: 'Escolha uma seção. Cada área tem uma função específica para não misturar tudo na mesma tela.',
@@ -358,7 +372,9 @@ const uiCopy = {
     loginEyebrow: 'Team intranet',
     loginTitle: 'Access to the applications panel',
     teamPassword: 'Team password',
+    teamEmail: 'Team email',
     loginCta: 'Enter intranet',
+    assistDiagnosis: 'Technical assistance',
     hubEyebrow: 'Team panel',
     hubTitle: 'What do you want to manage?',
     hubHint: 'Choose a section. Each area has a specific job so everything is not mixed on one screen.',
@@ -479,6 +495,9 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [bulkTag, setBulkTag] = useState<'' | ProjectTeamTag | 'none'>('');
   const [section, setSection] = useState<AdminSection>('hub');
   const [teamPassword, setTeamPassword] = useState('');
+  const [teamEmail, setTeamEmail] = useState('');
+  const [teamToken, setTeamToken] = useState('');
+  const [teamMemberName, setTeamMemberName] = useState('');
   const [authenticated, setAuthenticated] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedRecord, setSelectedRecord] = useState<EnrollmentRecord | null>(null);
@@ -553,7 +572,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       const response = await fetch('/api/projeto/auth/team', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: teamPassword }),
+        body: JSON.stringify({ email: teamEmail, password: teamPassword }),
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
@@ -562,6 +581,17 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         return;
       }
       setRecords(payload.records || []);
+      setTeamToken(payload.token || '');
+      setTeamMemberName(payload.member?.name || '');
+      if (payload.token && payload.member) {
+        writeTeamSession({
+          token: payload.token,
+          memberId: payload.member.id,
+          name: payload.member.name,
+          email: payload.member.email,
+          role: payload.member.role,
+        });
+      }
       setAuthenticated(true);
       setSelectedIds(new Set());
     } catch {
@@ -572,12 +602,23 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     }
   }
 
+  useEffect(() => {
+    const session = readTeamSession();
+    if (!session?.token) return;
+    setTeamToken(session.token);
+    setTeamEmail(session.email);
+    setTeamMemberName(session.name);
+    setAuthenticated(true);
+  }, []);
+
   const loadRecords = async () => {
     if (!authenticated) return;
     setLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/projeto/inscriptions');
+      const headers: Record<string, string> = {};
+      if (teamToken) headers.Authorization = `Bearer ${teamToken}`;
+      const response = await fetch('/api/projeto/inscriptions', { headers });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
         setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
@@ -593,10 +634,10 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   };
 
   useEffect(() => {
-    if (authenticated) {
+    if (authenticated && teamToken) {
       loadRecords();
     }
-  }, [authenticated]);
+  }, [authenticated, teamToken]);
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) => {
@@ -762,7 +803,14 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.loginTitle}</h1>
         </div>
         <div className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
-          <label className="block text-sm font-medium text-[#071F5E]">{t.teamPassword}</label>
+          <label className="block text-sm font-medium text-[#071F5E]">{t.teamEmail}</label>
+          <input
+            type="email"
+            value={teamEmail}
+            onChange={(e) => setTeamEmail(e.target.value)}
+            className="mt-2 w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+          />
+          <label className="mt-4 block text-sm font-medium text-[#071F5E]">{t.teamPassword}</label>
           <input
             type="password"
             value={teamPassword}
@@ -785,6 +833,11 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     <div className="space-y-6">
       {section === 'hub' ? (
         <div className="space-y-6">
+          {teamMemberName ? (
+            <p className="text-sm text-[#2F3336]/75">
+              Logado como <strong>{teamMemberName}</strong>
+            </p>
+          ) : null}
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.hubEyebrow}</p>
             <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.hubTitle}</h1>
@@ -822,7 +875,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           >
             ← {t.backToHub}
           </button>
-          <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} />
+          <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} teamToken={teamToken} />
         </div>
       ) : null}
 
@@ -1062,6 +1115,14 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   >
                     {t.viewDiagnosis}
                   </button>
+                  {record.status === 'approved' ? (
+                    <a
+                      href={`/${localeKey}/admin/assist/${record.id}`}
+                      className="rounded-full border border-[#52ADAD] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359]"
+                    >
+                      {t.assistDiagnosis}
+                    </a>
+                  ) : null}
                   <button
                     onClick={() => updateStatus(record.id, 'approved')}
                     className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E]"

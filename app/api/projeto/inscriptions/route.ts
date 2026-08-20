@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import { randomBytes, scryptSync } from 'crypto';
 import path from 'path';
 import { notifyNewProjectInscription } from '@/lib/project-inscription-notify';
+import { verifyTeamAccess } from '@/lib/project-team-auth-request';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -58,7 +59,13 @@ async function writeRecords(records: unknown[]) {
   await writeFile(DATA_FILE, JSON.stringify(records, null, 2), 'utf8');
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const auth = verifyTeamAccess(request);
+  if (!auth.ok) {
+    const status = auth.message.includes('inválida') ? 401 : 500;
+    return NextResponse.json({ ok: false, message: auth.message }, { status });
+  }
+
   const records = await readRecords();
   const safeRecords = (records as Array<Record<string, unknown>>).map((record) => sanitizeRecord(record));
   return NextResponse.json({ ok: true, records: safeRecords });

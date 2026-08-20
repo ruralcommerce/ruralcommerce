@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { scryptSync, timingSafeEqual } from 'crypto';
+import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 import path from 'path';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -107,6 +107,8 @@ export async function POST(request: Request) {
 
   const profile = ((record.profile as Record<string, unknown>) || {}) as Record<string, unknown>;
   const signedAt = new Date().toISOString();
+  const documentId = `IMLS-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`;
+  const verificationCode = randomBytes(4).toString('hex').toUpperCase();
 
   records[index] = {
     ...record,
@@ -119,6 +121,8 @@ export async function POST(request: Request) {
         signed: true,
         signedAt,
         fullName,
+        documentId,
+        verificationCode,
         imageRightsAccepted: true,
         commitmentAccepted: true,
         dataConfidentialityAccepted: true,

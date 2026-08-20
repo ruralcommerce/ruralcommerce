@@ -15,6 +15,18 @@ import {
 } from '@/lib/project-candidate-session';
 import { ProjectPushOptIn } from '@/components/ProjectPushOptIn';
 import { ProjectAgreementDownloadButton } from '@/components/ProjectAgreementDownloadButton';
+import {
+  ProjectPortalAnswerGrid,
+  ProjectPortalHero,
+  ProjectPortalPanel,
+  ProjectPortalShell,
+  ProjectPortalStat,
+  ProjectPortalStatGrid,
+} from '@/components/ProjectPortalLayout';
+import {
+  buildLegacyAgreementDocumentId,
+  buildLegacyVerificationCode,
+} from '@/lib/project-agreement-document';
 import { PROJECT_NAME } from '@/lib/project-brand';
 
 type EnrollmentRecord = {
@@ -44,6 +56,9 @@ type EnrollmentRecord = {
       signedAt?: string;
       fullName?: string;
       locale?: string;
+      documentId?: string;
+      verificationCode?: string;
+      ip?: string;
     };
   };
 };
@@ -347,14 +362,11 @@ export function ProjectProfileDashboard({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-3xl bg-[#071F5E] p-8 text-white">
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-white/75">{t.eyebrow}</p>
-        <h1 className="mt-2 text-3xl font-semibold">{t.title}</h1>
-      </div>
+    <div className="space-y-5">
+      <ProjectPortalHero eyebrow={t.eyebrow} title={t.title} />
 
       {!record ? (
-        <div className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
+        <ProjectPortalPanel title={t.loginCta}>
           <div className="grid gap-3 sm:grid-cols-2">
             <input
               value={email}
@@ -370,7 +382,7 @@ export function ProjectProfileDashboard({
               className="rounded-2xl border border-[#D9E3EC] px-4 py-3"
             />
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               onClick={() => loadRecord(email)}
               className="rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E]"
@@ -384,159 +396,142 @@ export function ProjectProfileDashboard({
               {t.forgotPassword}
             </a>
           </div>
-        </div>
+        </ProjectPortalPanel>
       ) : null}
 
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-
       {loading ? <p className="text-sm text-[#2F3336]/70">{t.loading}</p> : null}
 
       {record ? (
-        <div className="space-y-4">
-          <section className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p className="text-xs uppercase tracking-[0.22em] text-[#1D6359]">{t.statusSection}</p>
-                <h2 className="mt-1 text-2xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
-              </div>
-              <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-sm font-semibold text-[#1D6359]">
-                {getProjectStatusLabel(record.status, localeKey)}
-              </span>
-            </div>
-            <div className="mt-4 grid gap-3 sm:grid-cols-3">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.emailLabel}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{record.user.email}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.createdLabel}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{formatProjectDate(record.createdAt, localeKey)}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.accessLabel}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{getAccessLabel(record.user.accessStatus)}</p>
-              </div>
-            </div>
-
-            {record.status === 'approved' ? (
-              record.profile.agreement?.signed ? (
-                <div className="mt-4 rounded-2xl border border-[#CFE8E8] bg-[#F3FAFA] p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#1D6359]">{t.convenioSignedTitle}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#2F3336]/85">{t.convenioSignedText}</p>
-                  <p className="mt-2 text-sm text-[#2F3336]/85">
-                    <span className="font-semibold text-[#071F5E]">{t.convenioSignedBy}:</span>{' '}
-                    {record.profile.agreement.fullName || record.profile.name || record.user.email}
-                  </p>
-                  {record.profile.agreement.signedAt ? (
-                    <p className="mt-1 text-sm text-[#2F3336]/85">
-                      <span className="font-semibold text-[#071F5E]">{t.convenioSignedAt}:</span>{' '}
-                      {formatProjectDate(record.profile.agreement.signedAt, localeKey)}
-                    </p>
-                  ) : null}
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <ProjectAgreementDownloadButton
-                      locale={localeKey}
-                      input={{
-                        fullName: record.profile.agreement.fullName || record.profile.name || record.user.email,
-                        email: record.user.email,
-                        organization: record.profile.organization,
-                        signedAt: record.profile.agreement.signedAt || record.updatedAt,
-                        locale: record.profile.agreement.locale || record.profile.locale || localeKey,
-                      }}
-                    />
-                    <a
-                      href={`/${localeKey}/projeto/diagnostico`}
-                      className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
-                    >
-                      {t.diagnosticCta}
-                    </a>
+        <ProjectPortalShell
+          sidebar={
+            <>
+              <ProjectPortalPanel title={t.statusSection} tone="accent">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
+                    <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
                   </div>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1D6359]">
+                    {getProjectStatusLabel(record.status, localeKey)}
+                  </span>
                 </div>
-              ) : (
-                <div className="mt-4 rounded-2xl border border-[#CFE8E8] bg-[#F3FAFA] p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#1D6359]">{t.convenioBoxTitle}</p>
-                  <p className="mt-2 text-sm leading-6 text-[#2F3336]/85">{t.convenioPending}</p>
-                  <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-[#2F3336]/85">
-                    {t.convenioSteps.map((step) => (
-                      <li key={step}>{step}</li>
-                    ))}
-                  </ol>
-                  <a
-                    href={`/${localeKey}/projeto/convenio`}
-                    className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
-                  >
-                    {t.convenioCta}
-                  </a>
-                </div>
-              )
-            ) : null}
+                <ProjectPortalStatGrid>
+                  <ProjectPortalStat label={t.createdLabel} value={formatProjectDate(record.createdAt, localeKey)} />
+                  <ProjectPortalStat label={t.accessLabel} value={getAccessLabel(record.user.accessStatus)} />
+                </ProjectPortalStatGrid>
+              </ProjectPortalPanel>
 
-            <ProjectPushOptIn
-              locale={localeKey}
-              email={record.user.email}
-              password={password}
-              marketingConsent={record.profile.marketingConsent}
-            />
+              {record.status === 'approved' ? (
+                record.profile.agreement?.signed ? (
+                  <ProjectPortalPanel title={t.convenioSignedTitle} subtitle={t.convenioSignedText} tone="accent">
+                    <p className="text-sm text-[#2F3336]/85">
+                      <span className="font-semibold text-[#071F5E]">{t.convenioSignedBy}:</span>{' '}
+                      {record.profile.agreement.fullName || record.profile.name || record.user.email}
+                    </p>
+                    {record.profile.agreement.signedAt ? (
+                      <p className="mt-1 text-sm text-[#2F3336]/85">
+                        <span className="font-semibold text-[#071F5E]">{t.convenioSignedAt}:</span>{' '}
+                        {formatProjectDate(record.profile.agreement.signedAt, localeKey)}
+                      </p>
+                    ) : null}
+                    <div className="mt-4 flex flex-col gap-3">
+                      <ProjectAgreementDownloadButton
+                        locale={localeKey}
+                        input={{
+                          candidateId: record.id,
+                          fullName: record.profile.agreement.fullName || record.profile.name || record.user.email,
+                          email: record.user.email,
+                          organization: record.profile.organization,
+                          signedAt: record.profile.agreement.signedAt || record.updatedAt,
+                          locale: record.profile.agreement.locale || record.profile.locale || localeKey,
+                          documentId:
+                            record.profile.agreement.documentId ||
+                            buildLegacyAgreementDocumentId(record.id, record.profile.agreement.signedAt),
+                          verificationCode:
+                            record.profile.agreement.verificationCode ||
+                            buildLegacyVerificationCode(
+                              record.id,
+                              record.profile.agreement.signedAt,
+                              record.profile.agreement.fullName
+                            ),
+                          ipAddress: record.profile.agreement.ip,
+                        }}
+                      />
+                      <a
+                        href={`/${localeKey}/projeto/diagnostico`}
+                        className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                      >
+                        {t.diagnosticCta}
+                      </a>
+                    </div>
+                  </ProjectPortalPanel>
+                ) : (
+                  <ProjectPortalPanel title={t.convenioBoxTitle} subtitle={t.convenioPending} tone="accent">
+                    <ol className="list-decimal space-y-1 pl-5 text-sm text-[#2F3336]/85">
+                      {t.convenioSteps.map((step) => (
+                        <li key={step}>{step}</li>
+                      ))}
+                    </ol>
+                    <a
+                      href={`/${localeKey}/projeto/convenio`}
+                      className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                    >
+                      {t.convenioCta}
+                    </a>
+                  </ProjectPortalPanel>
+                )
+              ) : null}
 
-            <div className="mt-4 rounded-2xl border border-[#E6EBF1] bg-[#FBFCFD] p-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{t.commsTitle}</p>
-              <p className="mt-1 text-sm text-[#2F3336]/80">
-                {record.profile.marketingConsent ? t.commsOn : t.commsOff}
-              </p>
-              <button
-                type="button"
-                disabled={commsLoading || !password}
-                onClick={() => updateConsent(record.profile.marketingConsent ? 'revoke' : 'grant')}
-                className="mt-3 inline-flex rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
-              >
-                {commsLoading
-                  ? t.commsUpdating
-                  : record.profile.marketingConsent
-                    ? t.commsRevoke
-                    : t.commsGrant}
-              </button>
-            </div>
-          </section>
-
-          <section className="rounded-3xl border border-[#E6EBF1] bg-white p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-[#071F5E]">{t.projectInfo}</h3>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.organization}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.organization || '—'}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.city}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.city || '—'}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.profile}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.role || '—'}</p>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.interest}</p>
-                <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.interest || '—'}</p>
-              </div>
-            </div>
-            <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm text-[#2F3336]/80">
+              <ProjectPortalPanel title={t.commsTitle} tone="muted">
+                <p className="text-sm text-[#2F3336]/80">
+                  {record.profile.marketingConsent ? t.commsOn : t.commsOff}
+                </p>
+                <ProjectPushOptIn
+                  locale={localeKey}
+                  email={record.user.email}
+                  password={password}
+                  marketingConsent={record.profile.marketingConsent}
+                />
+                <button
+                  type="button"
+                  disabled={commsLoading || !password}
+                  onClick={() => updateConsent(record.profile.marketingConsent ? 'revoke' : 'grant')}
+                  className="mt-3 inline-flex rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+                >
+                  {commsLoading
+                    ? t.commsUpdating
+                    : record.profile.marketingConsent
+                      ? t.commsRevoke
+                      : t.commsGrant}
+                </button>
+              </ProjectPortalPanel>
+            </>
+          }
+        >
+          <ProjectPortalPanel title={t.projectInfo}>
+            <ProjectPortalStatGrid>
+              <ProjectPortalStat label={t.organization} value={record.profile.organization || '—'} />
+              <ProjectPortalStat label={t.city} value={record.profile.city || '—'} />
+              <ProjectPortalStat label={t.profile} value={record.profile.role || '—'} />
+              <ProjectPortalStat label={t.interest} value={record.profile.interest || '—'} />
+            </ProjectPortalStatGrid>
+            <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm leading-6 text-[#2F3336]/80">
               {record.profile.message || t.noMessage}
             </p>
+          </ProjectPortalPanel>
 
-            {answerEntries.length ? (
-              <div className="mt-4 rounded-2xl bg-[#F7FAFB] p-4">
-                <p className="text-sm font-semibold text-[#071F5E]">{t.formAnswers}</p>
-                <div className="mt-3 grid gap-2">
-                  {answerEntries.map(([key, value]) => (
-                    <div key={key} className="text-sm text-[#2F3336]/85">
-                      <span className="font-semibold text-[#071F5E]">{getAnswerLabel(key, displayLocale)}:</span>{' '}
-                      {formatProjectAnswerValue(value, displayLocale)}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-          </section>
-        </div>
+          {answerEntries.length ? (
+            <ProjectPortalPanel title={t.formAnswers}>
+              <ProjectPortalAnswerGrid
+                entries={answerEntries.map(([key, value]) => ({
+                  label: getAnswerLabel(key, displayLocale),
+                  value: formatProjectAnswerValue(value, displayLocale),
+                }))}
+              />
+            </ProjectPortalPanel>
+          ) : null}
+        </ProjectPortalShell>
       ) : null}
     </div>
   );
