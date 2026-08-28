@@ -8,7 +8,9 @@ export type AuditAction =
   | 'tag_change'
   | 'team_login'
   | 'team_invite'
-  | 'team_invite_complete';
+  | 'team_invite_complete'
+  | 'team_reminder_convenio'
+  | 'team_reminder_diagnosis';
 
 export type AuditEntry = {
   id: string;

@@ -294,6 +294,11 @@ const uiCopy = {
     errorUpdateGeneric: 'Error al actualizar la inscripción.',
     errorBulk: 'No fue posible completar la acción en lote.',
     errorBulkGeneric: 'Error al procesar la acción en lote.',
+    remindConvenio: 'Recordatorio convenio',
+    remindDiagnosis: 'Recordatorio diagnóstico',
+    remindConvenioSelected: 'Recordatorio convenio ({count})',
+    remindDiagnosisSelected: 'Recordatorio diagnóstico ({count})',
+    reminding: 'Enviando recordatorio...',
   },
   'pt-BR': {
     loginEyebrow: 'Intranet da equipe',
@@ -372,6 +377,11 @@ const uiCopy = {
     errorUpdateGeneric: 'Erro ao atualizar a inscrição.',
     errorBulk: 'Não foi possível concluir a ação em lote.',
     errorBulkGeneric: 'Erro ao processar a ação em lote.',
+    remindConvenio: 'Lembrete convênio',
+    remindDiagnosis: 'Lembrete diagnóstico',
+    remindConvenioSelected: 'Lembrete convênio ({count})',
+    remindDiagnosisSelected: 'Lembrete diagnóstico ({count})',
+    reminding: 'Enviando lembrete...',
   },
   en: {
     loginEyebrow: 'Team intranet',
@@ -450,6 +460,11 @@ const uiCopy = {
     errorUpdateGeneric: 'Error updating the application.',
     errorBulk: 'Could not complete the bulk action.',
     errorBulkGeneric: 'Error processing the bulk action.',
+    remindConvenio: 'Agreement reminder',
+    remindDiagnosis: 'Diagnosis reminder',
+    remindConvenioSelected: 'Agreement reminder ({count})',
+    remindDiagnosisSelected: 'Diagnosis reminder ({count})',
+    reminding: 'Sending reminder...',
   },
 } as const;
 
@@ -487,6 +502,18 @@ function triggerDownload(content: string, fileName: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
+function needsConvenioReminder(record: EnrollmentRecord) {
+  return record.status === 'approved' && record.profile.agreement?.signed !== true;
+}
+
+function needsDiagnosisReminder(record: EnrollmentRecord) {
+  return (
+    record.status === 'approved' &&
+    record.profile.agreement?.signed === true &&
+    !record.profile.diagnosis?.answers
+  );
+}
+
 export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const localeKey = getProjectLocaleKey(locale);
   const t = uiCopy[localeKey];
@@ -494,6 +521,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [records, setRecords] = useState<EnrollmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [reminderLoading, setReminderLoading] = useState(false);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState('all');
   const [convenioFilter, setConvenioFilter] = useState<'all' | 'signed' | 'pending'>('all');
@@ -673,6 +701,16 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     filteredRecords.length > 0 && filteredRecords.every((record) => selectedIds.has(record.id));
   const selectedCount = selectedIds.size;
 
+  const selectedConvenioIds = useMemo(
+    () => records.filter((record) => selectedIds.has(record.id) && needsConvenioReminder(record)).map((r) => r.id),
+    [records, selectedIds]
+  );
+
+  const selectedDiagnosisIds = useMemo(
+    () => records.filter((record) => selectedIds.has(record.id) && needsDiagnosisReminder(record)).map((r) => r.id),
+    [records, selectedIds]
+  );
+
   function toggleRecordSelection(recordId: string) {
     setSelectedIds((current) => {
       const next = new Set(current);
@@ -692,6 +730,32 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       }
       return next;
     });
+  }
+
+  async function sendReminders(type: 'convenio' | 'diagnosis', ids: string[]) {
+    if (!ids.length || !teamToken) return;
+    setReminderLoading(true);
+    setError('');
+    try {
+      const response = await fetch('/api/projeto/reminders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${teamToken}`,
+        },
+        body: JSON.stringify({ type, ids }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorBulk));
+        return;
+      }
+      window.alert(payload.message || 'Recordatorio enviado.');
+    } catch {
+      setError(t.errorBulkGeneric);
+    } finally {
+      setReminderLoading(false);
+    }
   }
 
   async function updateStatus(recordId: string, status: EnrollmentRecord['status']) {
@@ -1039,12 +1103,36 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             </select>
             <button
               type="button"
-              disabled={bulkLoading || !bulkTag}
+              disabled={bulkLoading || reminderLoading || !bulkTag}
               onClick={applyBulkTag}
               className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
             >
               {t.tagApplySelected}
             </button>
+            {selectedConvenioIds.length > 0 ? (
+              <button
+                type="button"
+                disabled={bulkLoading || reminderLoading}
+                onClick={() => void sendReminders('convenio', selectedConvenioIds)}
+                className="rounded-full border border-[#FDF3E7] bg-[#FDF8F0] px-4 py-2 text-sm font-semibold text-[#9A6A1B] disabled:opacity-60"
+              >
+                {reminderLoading
+                  ? t.reminding
+                  : t.remindConvenioSelected.replace('{count}', String(selectedConvenioIds.length))}
+              </button>
+            ) : null}
+            {selectedDiagnosisIds.length > 0 ? (
+              <button
+                type="button"
+                disabled={bulkLoading || reminderLoading}
+                onClick={() => void sendReminders('diagnosis', selectedDiagnosisIds)}
+                className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359] disabled:opacity-60"
+              >
+                {reminderLoading
+                  ? t.reminding
+                  : t.remindDiagnosisSelected.replace('{count}', String(selectedDiagnosisIds.length))}
+              </button>
+            ) : null}
           </div>
         ) : null}
       </div>
@@ -1149,6 +1237,26 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   >
                     {t.viewDiagnosis}
                   </button>
+                  {needsConvenioReminder(record) ? (
+                    <button
+                      type="button"
+                      disabled={reminderLoading}
+                      onClick={() => void sendReminders('convenio', [record.id])}
+                      className="rounded-full border border-[#FDF3E7] bg-[#FDF8F0] px-4 py-2 text-sm font-semibold text-[#9A6A1B] disabled:opacity-60"
+                    >
+                      {t.remindConvenio}
+                    </button>
+                  ) : null}
+                  {needsDiagnosisReminder(record) ? (
+                    <button
+                      type="button"
+                      disabled={reminderLoading}
+                      onClick={() => void sendReminders('diagnosis', [record.id])}
+                      className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359] disabled:opacity-60"
+                    >
+                      {t.remindDiagnosis}
+                    </button>
+                  ) : null}
                   {record.status === 'approved' ? (
                     <a
                       href={`/${localeKey}/admin/assist/${record.id}`}

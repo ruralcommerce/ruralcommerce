@@ -19,6 +19,68 @@ export function profileUrl(locale?: string) {
   return `${siteBaseUrl()}/${localeKey(locale)}/perfil`;
 }
 
+export function diagnosticoUrl(locale?: string) {
+  return `${siteBaseUrl()}/${localeKey(locale)}/projeto/diagnostico`;
+}
+
+const projectContextParagraph = (recipientName: string) =>
+  `Hola ${recipientName}, te escribimos desde Rural Commerce, organización ejecutora del proyecto Impulso MiPyMEs: digitaliza Los Santos. Este programa acompaña a micro, pequeñas y medianas empresas agroalimentarias rurales de la región de Los Santos (Costa Rica) en capacidades empresariales, financieras y digitales, con enfoque en trazabilidad, innovación y acceso a mercados. Tu participación ya fue aprobada. Este mensaje es un recordatorio para que completes la siguiente etapa oficial de tu proceso dentro del programa.`;
+
+/** Spanish reminder when agreement is still unsigned (approved participants). */
+export function buildConvenioReminderEmailContent(recipientName: string): ProjectEmailContent {
+  return {
+    locale: 'es',
+    recipientName,
+    subject: 'Recordatorio · Rural Commerce: firma tu convenio para continuar en el proyecto',
+    headline: 'Firma tu convenio de participación para activar tu lugar en el proyecto',
+    paragraphs: [
+      projectContextParagraph(recipientName),
+      'En este momento tu perfil está aprobado, pero aún no registramos la firma electrónica de tu convenio de participación. Este documento es obligatorio: formaliza tu ingreso al programa y establece las reglas de participación (integración a la red, confidencialidad de datos, derechos de imagen, compromiso operativo y autorización de comunicaciones oficiales).',
+      'Sin la firma del convenio no podrás acceder al diagnóstico de tu emprendimiento, que es la siguiente etapa del proceso. Completar este paso solo toma unos minutos si sigues la guía de abajo.',
+    ],
+    steps: [
+      'Entra a la plataforma del proyecto: abre el botón de este correo o visita ruralcommerceglobal.com/es/projeto/convenio.',
+      'Inicia sesión con el mismo correo electrónico y contraseña que registraste al inscribirte. Si no recuerdas la contraseña, usa la opción de recuperación desde la página de acceso.',
+      'Lee el convenio completo. En la pantalla verás el texto oficial del convenio de participación del proyecto Impulso MiPyMEs.',
+      'Marca las 4 casillas de aceptación: participación en la red, derechos de imagen, compromiso operativo y autorización de comunicaciones.',
+      'Escribe tu nombre completo en el campo indicado y pulsa «Firmar convenio».',
+      'Confirma que quedó registrado. Desde tu perfil podrás descargar una copia en PDF del convenio firmado y continuar con el diagnóstico.',
+    ],
+    ctaLabel: 'Ir a firmar el convenio',
+    ctaUrl: convenioUrl('es'),
+    footnote:
+      'Este es un mensaje oficial del proyecto Impulso MiPyMEs: digitaliza Los Santos, ejecutado por Rural Commerce. Si tienes dificultades técnicas para entrar o firmar, responde a este correo o contacta al equipo del proyecto y te ayudaremos.',
+  };
+}
+
+/** Spanish reminder when diagnosis is still pending (agreement signed). */
+export function buildDiagnosisReminderEmailContent(recipientName: string): ProjectEmailContent {
+  return {
+    locale: 'es',
+    recipientName,
+    subject: 'Recordatorio · Rural Commerce: completa tu diagnóstico empresarial',
+    headline: 'Completa tu diagnóstico para que el equipo pueda acompañarte',
+    paragraphs: [
+      projectContextParagraph(recipientName),
+      'Ya registramos la firma de tu convenio de participación. ¡Gracias por completar ese paso! Ahora falta la etapa de diagnóstico: un formulario en línea que nos permite conocer en detalle tu emprendimiento, su nivel de madurez productiva, comercial y tecnológica, y definir el acompañamiento más adecuado dentro del programa.',
+      'El diagnóstico es confidencial y la información que compartas será utilizada por Rural Commerce y el equipo técnico del proyecto únicamente para fines de acompañamiento, articulación en red y reportes agregados del programa. Te pedimos completarlo lo antes posible para no retrasar tu proceso.',
+    ],
+    steps: [
+      'Entra a la plataforma: abre el botón de este correo o visita ruralcommerceglobal.com/es/projeto/diagnostico.',
+      'Inicia sesión con el mismo correo y contraseña de tu inscripción.',
+      'Revisa que tu convenio esté firmado. El diagnóstico solo se habilita para participantes aprobados con convenio firmado.',
+      'Responde todas las secciones del formulario. Avanza sección por sección con los botones «Siguiente» y «Anterior».',
+      'Responde con la mayor precisión posible. Usa datos reales de tu operación actual.',
+      'En la última pantalla, confirma que todas las preguntas obligatorias están completas y pulsa «Enviar diagnóstico».',
+      'Consulta tu estado en cualquier momento desde tu perfil en ruralcommerceglobal.com/es/perfil.',
+    ],
+    ctaLabel: 'Ir al diagnóstico',
+    ctaUrl: diagnosticoUrl('es'),
+    footnote:
+      'Mensaje oficial del proyecto Impulso MiPyMEs: digitaliza Los Santos, ejecutado por Rural Commerce. Si necesitas ayuda para completar el formulario, escríbenos y coordinamos el acompañamiento.',
+  };
+}
+
 /** Transactional email when the team approves a candidate profile. */
 export function buildApprovalEmailContent(
   recipientName: string,
