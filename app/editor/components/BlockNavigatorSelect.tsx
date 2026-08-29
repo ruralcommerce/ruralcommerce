@@ -7,6 +7,7 @@
 import { useEditorStore } from '@/lib/editor-store';
 import { getBlockLabelForPage, type BlockType } from '@/lib/editor-types';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useEditorUi } from '../editor-ui-context';
 
 export function BlockNavigatorSelect({
   currentPageSlug,
@@ -16,6 +17,7 @@ export function BlockNavigatorSelect({
   /** Chamado após escolher um bloco (ex.: abrir painel Propriedades). */
   onPickBlock?: () => void;
 }) {
+  const t = useEditorUi();
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const selectBlock = useEditorStore((s) => s.selectBlock);
@@ -23,7 +25,7 @@ export function BlockNavigatorSelect({
 
   if (!currentPage?.blocks.length) {
     return (
-      <span className="text-[11px] text-slate-400" title="Sem blocos nesta página">
+      <span className="text-[11px] text-slate-400" title={t.noBlocksOnPage}>
         —
       </span>
     );
@@ -46,7 +48,7 @@ export function BlockNavigatorSelect({
   return (
     <div className="flex max-w-full items-center gap-0.5">
       <label htmlFor="editor-block-nav" className="sr-only">
-        Ir para bloco
+        {t.goToBlock}
       </label>
       <select
         id="editor-block-nav"
@@ -61,9 +63,9 @@ export function BlockNavigatorSelect({
           onPickBlock?.();
         }}
         className="max-w-[min(100vw-12rem,14rem)] truncate rounded-md border border-slate-200 bg-white py-1 pl-2 pr-6 text-[11px] font-medium text-slate-800 shadow-sm outline-none focus:border-violet-400 focus:ring-1 focus:ring-violet-200"
-        title="Escolher bloco na ordem da página"
+        title={t.chooseBlock}
       >
-        <option value="">Bloco…</option>
+        <option value="">{t.blockEllipsis}</option>
         {blocks.map((block, index) => {
           const label = getBlockLabelForPage(block.type as BlockType, currentPageSlug);
           const short = label.length > 36 ? `${label.slice(0, 34)}…` : label;
@@ -76,7 +78,7 @@ export function BlockNavigatorSelect({
       </select>
       <button
         type="button"
-        title="Subir bloco selecionado"
+        title={t.moveBlockUp}
         disabled={selectedIndex <= 0}
         onClick={() => moveSelected(-1)}
         className="rounded border border-slate-200 bg-white p-1 text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-30"
@@ -85,7 +87,7 @@ export function BlockNavigatorSelect({
       </button>
       <button
         type="button"
-        title="Descer bloco selecionado"
+        title={t.moveBlockDown}
         disabled={selectedIndex < 0 || selectedIndex >= blocks.length - 1}
         onClick={() => moveSelected(1)}
         className="rounded border border-slate-200 bg-white p-1 text-slate-600 shadow-sm hover:bg-slate-50 disabled:opacity-30"

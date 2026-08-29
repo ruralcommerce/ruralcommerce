@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { useEditorStore } from '@/lib/editor-store';
 import { BLOCK_LIBRARY, type BlockType } from '@/lib/editor-types';
 import { createBlock } from '@/lib/editor-utils';
+import { useEditorUi } from '../editor-ui-context';
 
 const MIME = 'application/x-rc-block-type';
 
@@ -13,6 +14,7 @@ function hasPalettePayload(e: React.DragEvent): boolean {
 
 /** Faixa fina entre blocos: soltar um tipo da paleta (arrastar) insere neste índice. */
 export function PaletteInsertZone({ insertIndex }: { insertIndex: number }) {
+  const t = useEditorUi();
   const addBlockAt = useEditorStore((s) => s.addBlockAt);
   const [over, setOver] = useState(false);
 
@@ -49,7 +51,7 @@ export function PaletteInsertZone({ insertIndex }: { insertIndex: number }) {
           over ? 'text-emerald-700 opacity-100' : 'text-slate-400 opacity-0 group-hover/zone:opacity-100'
         }`}
       >
-        {over ? 'Largar para inserir' : 'Inserir da paleta'}
+        {over ? t.dropToInsert : t.insertFromPalette}
       </p>
     </div>
   );

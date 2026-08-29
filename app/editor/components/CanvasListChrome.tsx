@@ -6,10 +6,12 @@
 
 import { useEditorStore } from '@/lib/editor-store';
 import { Grid3x3, ZoomIn } from 'lucide-react';
+import { useEditorUi } from '../editor-ui-context';
 
 const ZOOM_STEPS = [75, 90, 100, 110, 125] as const;
 
 export function CanvasListChrome() {
+  const t = useEditorUi();
   const zoom = useEditorStore((s) => s.canvasListZoom);
   const setZoom = useEditorStore((s) => s.setCanvasListZoom);
   const grid = useEditorStore((s) => s.canvasListGrid);
@@ -43,9 +45,9 @@ export function CanvasListChrome() {
           onChange={(e) => setGrid(e.target.checked)}
         />
         <Grid3x3 className="h-3.5 w-3.5 text-slate-500" aria-hidden />
-        Grelha
+        {t.grid}
       </label>
-      <span className="hidden text-[10px] text-slate-400 sm:inline">Atalhos: Ctrl+D duplicar · Del apagar bloco</span>
+      <span className="hidden text-[10px] text-slate-400 sm:inline">{t.shortcuts}</span>
     </div>
   );
 }

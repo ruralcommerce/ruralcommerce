@@ -6,39 +6,14 @@
 
 import { useMemo, useState } from 'react';
 import { BLOCK_LIBRARY, getBlockLabelForPage, type BlockType } from '@/lib/editor-types';
-import { getPaletteCardLabel, getPaletteSectionBlocks, type PaletteSections } from '@/lib/editor-palette';
+import { getPaletteCardLabel, getPaletteSectionBlocks } from '@/lib/editor-palette';
 import { EDITOR_PALETTE_ICONS } from '@/lib/editor-palette-icons';
 import { createBlock } from '@/lib/editor-utils';
 import { useEditorStore } from '@/lib/editor-store';
 import { Plus, Search } from 'lucide-react';
+import { useEditorUi } from '../editor-ui-context';
 
 const MIME = 'application/x-rc-block-type';
-
-const SECTIONS: {
-  key: keyof Pick<PaletteSections, 'structure' | 'content' | 'interaction'>;
-  title: string;
-  hint: string;
-  defaultOpen: boolean;
-}[] = [
-  {
-    key: 'structure',
-    title: 'Estrutura',
-    hint: 'Container, colunas, divisor, espaço.',
-    defaultOpen: true,
-  },
-  {
-    key: 'content',
-    title: 'Conteúdo',
-    hint: 'Título, texto, imagem, vídeo, mapa, botão.',
-    defaultOpen: true,
-  },
-  {
-    key: 'interaction',
-    title: 'Interação',
-    hint: 'Acordeão, abas, progresso, preços, HTML.',
-    defaultOpen: true,
-  },
-];
 
 function paletteSearchMatch(blockType: BlockType, pageSlug: string, q: string, kind: 'atomic' | 'section'): boolean {
   if (!q) return true;
@@ -58,6 +33,7 @@ function paletteSearchMatch(blockType: BlockType, pageSlug: string, q: string, k
 }
 
 export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?: string }) {
+  const t = useEditorUi();
   const addBlock = useEditorStore((s) => s.addBlock);
   const palette = getPaletteSectionBlocks(currentPageSlug);
   const [query, setQuery] = useState('');
@@ -95,7 +71,7 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
           e.dataTransfer.setData(MIME, blockType);
           e.dataTransfer.effectAllowed = 'copy';
         }}
-        title={`${block.description} — Arraste para a lista ou use +.`}
+        title={t.paletteDragTitle(block.description)}
         className="group relative"
       >
         <div className="flex min-h-[4.5rem] cursor-grab flex-col items-center gap-1.5 rounded-lg border border-slate-200/90 bg-white px-1.5 py-2 text-center shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all active:cursor-grabbing hover:border-violet-400/55 hover:shadow-[0_4px_14px_rgba(109,40,217,0.08)]">
@@ -113,7 +89,7 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
             handleAddBlock(blockType);
           }}
           className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-md border border-slate-200/90 bg-white text-slate-600 opacity-100 shadow-sm transition hover:border-violet-400 hover:bg-violet-600 hover:text-white md:opacity-0 md:group-hover:opacity-100"
-          title="Adicionar ao fim"
+          title={t.addToEnd}
         >
           <Plus className="h-3 w-3" strokeWidth={2.5} />
         </button>
@@ -126,9 +102,9 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
       <div className="shrink-0 space-y-2.5 border-b border-slate-200/70 bg-white px-3 pb-3 pt-2.5">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h2 className="text-[13px] font-semibold tracking-tight text-slate-900">Widgets</h2>
+            <h2 className="text-[13px] font-semibold tracking-tight text-slate-900">{t.widgets}</h2>
             <p className="mt-0.5 max-w-[240px] text-[10px] leading-snug text-slate-500">
-              Arraste para a lista ou toque em <span className="font-medium text-slate-700">+</span>.
+              {t.widgetsHint}
             </p>
           </div>
         </div>
@@ -138,7 +114,7 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Pesquisar…"
+            placeholder={t.searchPlaceholder}
             className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-8 pr-2.5 text-xs text-slate-900 shadow-sm outline-none ring-0 transition placeholder:text-slate-400 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/20"
             autoComplete="off"
             spellCheck={false}
@@ -148,10 +124,14 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
 
       <div className="editor-scroll min-h-0 flex-1 space-y-0.5 px-2 pb-3 pt-2">
         {query.trim() && totalMatches === 0 ? (
-          <p className="px-1 py-10 text-center text-[11px] text-slate-500">Nenhum resultado.</p>
+          <p className="px-1 py-10 text-center text-[11px] text-slate-500">{t.noResults}</p>
         ) : null}
 
-        {SECTIONS.map(({ key, title, hint, defaultOpen }) => {
+        {[
+          { key: 'structure' as const, title: t.paletteStructure, hint: t.paletteStructureHint, defaultOpen: true },
+          { key: 'content' as const, title: t.paletteContent, hint: t.paletteContentHint, defaultOpen: true },
+          { key: 'interaction' as const, title: t.paletteInteraction, hint: t.paletteInteractionHint, defaultOpen: true },
+        ].map(({ key, title, hint, defaultOpen }) => {
           const types = filtered[key];
           if (!types.length) return null;
           return (
@@ -165,7 +145,7 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
                   {types.length}
                 </span>
               </summary>
-              <div className="mt-1 grid grid-cols-2 gap-1.5 px-0.5 pb-2">{types.map((t) => renderWidgetCard(t, 'atomic'))}</div>
+              <div className="mt-1 grid grid-cols-2 gap-1.5 px-0.5 pb-2">{types.map((type) => renderWidgetCard(type, 'atomic'))}</div>
             </details>
           );
         })}
@@ -176,10 +156,10 @@ export function BlockPanel({ currentPageSlug = 'homepage' }: { currentPageSlug?:
             className="mt-1 rounded-lg border border-dashed border-slate-300/80 bg-white/60"
           >
             <summary className="cursor-pointer list-none rounded-lg px-2 py-2 marker:content-none [&::-webkit-details-marker]:hidden">
-              <p className="text-[11px] font-semibold text-slate-800">Secções do modelo</p>
-              <p className="mt-0.5 text-[10px] leading-snug text-slate-500">Hero, menu, rodapé… Ajuste textos; layouts novos: widgets acima.</p>
+              <p className="text-[11px] font-semibold text-slate-800">{t.paletteSections}</p>
+              <p className="mt-0.5 text-[10px] leading-snug text-slate-500">{t.paletteSectionsHint}</p>
             </summary>
-            <div className="grid grid-cols-2 gap-1.5 border-t border-slate-200/70 p-2">{filtered.sections.map((t) => renderWidgetCard(t, 'section'))}</div>
+            <div className="grid grid-cols-2 gap-1.5 border-t border-slate-200/70 p-2">{filtered.sections.map((type) => renderWidgetCard(type, 'section'))}</div>
           </details>
         ) : null}
       </div>

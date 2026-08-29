@@ -19,6 +19,7 @@ import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
 import { StatsCarousel } from '@/components/StatsCarousel';
 import { BlockData, PageSchema } from '@/lib/editor-types';
 import { getBlockProps, parseJsonArray } from '@/lib/page-layout-runtime';
+import { defaultProjectHeaderNav, getProjectLocaleKey } from '@/lib/project-locale';
 
 const ecosystemPillars = [
   {
@@ -262,37 +263,15 @@ export default async function HomePage({
       ? heroProps.secondaryUrl
       : `/${params.locale}#contacto`;
 
+  const localeKey = getProjectLocaleKey(params.locale);
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(
     headerProps.navItemsJson,
-    [
-      { label: 'Sobre', href: '/sobre' },
-      { label: 'Soluciones', href: '/solucoes' },
-      { label: 'Aliados y Inversores', href: '/aliados' },
-      { label: 'Blog', href: '/blog' },
-      { label: 'Contacto', href: '#contacto' },
-    ]
+    [...defaultProjectHeaderNav[localeKey]]
   );
 
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(
     footerProps.footerLinksJson,
-    [
-      {
-        group: 'Otra seccion',
-        items: [
-          { label: 'Inicio', href: '/#hero' },
-          { label: 'Soluciones', href: '/#soluciones' },
-          { label: 'Segmentos', href: '/#segmentos' },
-        ],
-      },
-      {
-        group: 'Sobre',
-        items: [
-          { label: 'Historia y propósito', href: '/sobre' },
-          { label: 'Como funciona', href: '/#sistema' },
-          { label: 'Socios', href: '/#socios' },
-        ],
-      },
-    ]
+    []
   );
 
   const socialLinks = parseJsonArray<{ label: string; href: string }>(
@@ -528,12 +507,12 @@ export default async function HomePage({
       <RuralCommerceFooter
         locale={params.locale}
         title={String(footerProps.title || 'Rural Commerce')}
-        copyright={String(footerProps.copyright || `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`)}
-        contactTitle={String(footerProps.contactTitle || 'Contacto')}
-        contactAddress={String(footerProps.contactAddress || 'Uruguay - direccion comercial (completar)')}
-        contactPhone={String(footerProps.contactPhone || '+598 - - - - -')}
+        copyright={String(footerProps.copyright || '')}
+        contactTitle={String(footerProps.contactTitle || '')}
+        contactAddress={String(footerProps.contactAddress || '')}
+        contactPhone={String(footerProps.contactPhone || '')}
         contactEmail={String(footerProps.contactEmail || 'contacto@ruralcommerce.com')}
-        socialLabel={String(footerProps.socialLabel || 'Redes sociales')}
+        socialLabel={String(footerProps.socialLabel || '')}
         footerLinks={footerLinks}
         socialLinks={socialLinks}
       />

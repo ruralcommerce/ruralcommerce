@@ -24,6 +24,7 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useEditorUi } from '../editor-ui-context';
 
 const ROOT_TOKEN = '__root__';
 const BROWSE_KEY_STORAGE = 'media-library-browse-key';
@@ -198,6 +199,7 @@ export function MediaLibraryModal({
   images: string[];
   onRefresh: () => Promise<void>;
 }) {
+  const t = useEditorUi();
   const [mounted, setMounted] = useState(false);
   const [search, setSearch] = useState('');
   const [folderFilter, setFolderFilter] = useState<string>('__all__');
@@ -346,10 +348,10 @@ export function MediaLibraryModal({
         });
         const { data } = await parseApiJson(res);
         if (!res.ok) {
-          toast.error((typeof data.error === 'string' && data.error) || `Erro HTTP ${res.status}`);
+          toast.error((typeof data.error === 'string' && data.error) || t.httpError(res.status));
           return;
         }
-        toast.success('Ficheiro movido');
+        toast.success(t.fileMoved);
         setMovingPath(null);
         await onRefresh();
         const newPath = typeof data.path === 'string' ? data.path : null;
@@ -374,7 +376,7 @@ export function MediaLibraryModal({
         setMovingBusy(false);
       }
     },
-    [onRefresh]
+    [onRefresh, t]
   );
 
   const goOrMoveToFolder = useCallback(
@@ -444,7 +446,7 @@ export function MediaLibraryModal({
   const handleDelete = useCallback(
     async (imagePath: string) => {
       if (!canManageMediaFile(imagePath)) return;
-      if (!window.confirm(`Apagar permanentemente esta imagem no servidor?\n${imagePath}`)) return;
+      if (!window.confirm(t.confirmDeleteImage(imagePath))) return;
       setDeleting(imagePath);
       try {
         const res = await fetch('/api/editor/media', {
@@ -455,29 +457,29 @@ export function MediaLibraryModal({
         });
         const { data } = await parseApiJson(res);
         if (!res.ok) {
-          toast.error((typeof data.error === 'string' && data.error) || 'Não foi possível apagar');
+          toast.error((typeof data.error === 'string' && data.error) || t.cannotDelete);
           return;
         }
-        toast.success('Imagem apagada');
+        toast.success(t.imageDeleted);
         await onRefresh();
       } finally {
         setDeleting(null);
       }
     },
-    [onRefresh]
+    [onRefresh, t]
   );
 
   const applyExternalUrl = () => {
     const u = externalUrl.trim();
     if (!u.startsWith('https://') && !u.startsWith('http://')) {
-      toast.error('A URL deve começar por https:// ou http://');
+      toast.error(t.urlMustHttp);
       return;
     }
     try {
       // eslint-disable-next-line no-new
       new URL(u);
     } catch {
-      toast.error('URL inválida');
+      toast.error(t.invalidUrl);
       return;
     }
     onSelect(u);
@@ -538,17 +540,17 @@ export function MediaLibraryModal({
         <div className="flex shrink-0 items-start justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
           <div>
             <h2 id="media-library-title" className="text-sm font-bold uppercase tracking-wide text-slate-800">
-              Explorador de imagens
+              {t.mediaExplorer}
             </h2>
             <p className="mt-0.5 text-xs text-slate-500">
-              Pastas em <code className="rounded bg-slate-200 px-1">public/images</code>. O upload vai para a pasta em que está agora (barra de caminho). Mover: botão «Mover» numa imagem e depois clique na pasta de destino na árvore ou nas pastas grandes. Até {maxUploadMb} MB por ficheiro.
+              {t.mediaHint(maxUploadMb)}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-lg p-2 text-slate-500 hover:bg-slate-200 hover:text-slate-800"
-            aria-label="Fechar"
+            aria-label={t.close}
           >
             <X className="h-5 w-5" />
           </button>
@@ -558,7 +560,7 @@ export function MediaLibraryModal({
           <div className="flex flex-wrap items-center gap-2">
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-violet-200 bg-violet-50 px-3 py-2 text-xs font-semibold text-violet-900 hover:bg-violet-100">
               <Upload className="h-4 w-4" />
-              {uploading ? 'A enviar…' : 'Escolher ficheiros'}
+              {uploading ? t.sending : t.chooseFiles}
               <input
                 ref={fileRef}
                 type="file"
@@ -581,7 +583,7 @@ export function MediaLibraryModal({
             <div className="ml-auto flex items-center gap-1 rounded-lg border border-slate-200 p-0.5">
               <button
                 type="button"
-                title="Ícones grandes"
+                title={t.largeIcons}
                 onClick={() => setViewMode('icons')}
                 className={`rounded-md p-1.5 ${viewMode === 'icons' ? 'bg-violet-100 text-violet-800' : 'text-slate-500 hover:bg-slate-100'}`}
               >
@@ -589,7 +591,7 @@ export function MediaLibraryModal({
               </button>
               <button
                 type="button"
-                title="Lista"
+                title={t.list}
                 onClick={() => setViewMode('list')}
                 className={`rounded-md p-1.5 ${viewMode === 'list' ? 'bg-violet-100 text-violet-800' : 'text-slate-500 hover:bg-slate-100'}`}
               >
@@ -600,7 +602,7 @@ export function MediaLibraryModal({
 
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <div className="min-w-0 flex-1">
-              <label className="mb-1 block text-[10px] font-semibold uppercase text-slate-500">URL externa</label>
+              <label className="mb-1 block text-[10px] font-semibold uppercase text-slate-500">{t.externalUrl}</label>
               <div className="flex gap-2">
                 <input
                   type="url"
@@ -625,16 +627,15 @@ export function MediaLibraryModal({
         {movingPath ? (
           <div className="flex shrink-0 items-center justify-between gap-2 border-b border-amber-200 bg-amber-50 px-4 py-2 text-xs text-amber-950">
             <span className="min-w-0 truncate">
-              A mover:{' '}
-              <code className="rounded bg-white/80 px-1 font-mono">{fileNameFromPath(movingPath)}</code> — clique numa pasta
-              na árvore ou nas pastas grandes.
+              {t.moveMode}:{' '}
+              <code className="rounded bg-white/80 px-1 font-mono">{fileNameFromPath(movingPath)}</code> — {t.clickDestTree}
             </span>
             <button
               type="button"
               className="shrink-0 rounded border border-amber-300 px-2 py-1 font-semibold hover:bg-amber-100"
               onClick={() => setMovingPath(null)}
             >
-              Cancelar
+              {t.cancel}
             </button>
           </div>
         ) : null}
@@ -643,7 +644,7 @@ export function MediaLibraryModal({
           {/* Coluna esquerda — árvore */}
           <aside className="flex w-[220px] shrink-0 flex-col bg-slate-50">
             <div className="border-b border-slate-200 px-2 py-2 text-[10px] font-bold uppercase tracking-wide text-slate-500">
-              Pastas
+              {t.folders}
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto py-1">
               <button
@@ -654,7 +655,7 @@ export function MediaLibraryModal({
                 }`}
               >
                 <Folder className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                <span className="truncate">Imagens (raiz)</span>
+                <span className="truncate">{t.root}</span>
               </button>
               <TreeRow
                 node={tree}
@@ -696,7 +697,7 @@ export function MediaLibraryModal({
                   type="search"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  placeholder="Buscar em todo o projeto…"
+                  placeholder={t.searchAll}
                   className="w-full rounded-lg border border-slate-300 py-1.5 pl-8 pr-2 text-xs text-slate-900 outline-none focus:border-violet-400"
                 />
               </div>
@@ -704,12 +705,12 @@ export function MediaLibraryModal({
                 value={folderFilter}
                 onChange={(e) => setFolderFilter(e.target.value)}
                 className="rounded-lg border border-slate-300 bg-white py-1.5 pl-2 pr-6 text-[10px] font-semibold text-slate-700"
-                title="Filtro rápido (opcional)"
+                title={t.quickFilter}
               >
-                <option value="__all__">Todas ({images.length})</option>
+                <option value="__all__">{t.allCount(images.length)}</option>
                 {folders.map((f) => (
                   <option key={f} value={f}>
-                    {f === ROOT_TOKEN ? '(raiz)' : f.split('/').join(' / ')}
+                    {f === ROOT_TOKEN ? t.rootParen : f.split('/').join(' / ')}
                   </option>
                 ))}
               </select>
@@ -737,7 +738,7 @@ export function MediaLibraryModal({
                 <>
                   {!search.trim() && subfoldersInBrowse.length > 0 ? (
                     <div className="mb-4">
-                      <p className="mb-2 text-[10px] font-bold uppercase text-slate-400">Pastas</p>
+                      <p className="mb-2 text-[10px] font-bold uppercase text-slate-400">{t.folders}</p>
                       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
                         {subfoldersInBrowse.map((sub) => (
                           <button
@@ -757,11 +758,11 @@ export function MediaLibraryModal({
                   {filesInFolder.length === 0 ? (
                     <div className="flex flex-col items-center justify-center gap-2 py-16 text-center text-sm text-slate-500">
                       <ImagePlus className="h-10 w-10 text-slate-300" />
-                      <p>Nenhuma imagem aqui.</p>
+                      <p>{t.noImagesHere}</p>
                       <p className="max-w-md text-xs">
                         {search.trim()
-                          ? 'Tente outro termo ou limpe a busca.'
-                          : 'Arraste imagens para esta área ou use «Escolher ficheiros». O destino é a pasta atual (caminho em cima).'}
+                          ? t.tryAnotherTerm
+                          : t.dropHint}
                       </p>
                     </div>
                   ) : viewMode === 'icons' ? (
@@ -770,7 +771,7 @@ export function MediaLibraryModal({
                         const manageable = canManageMediaFile(imagePath);
                         const busy = deleting === imagePath;
                         const dir = directoryFromImagePath(imagePath);
-                        const dirLabel = dir === ROOT_TOKEN ? '(raiz)' : dir;
+                        const dirLabel = dir === ROOT_TOKEN ? t.rootParen : dir;
                         const isMoving = movingPath === imagePath;
                         return (
                           <div
@@ -805,13 +806,13 @@ export function MediaLibraryModal({
                               <div className="absolute right-1 top-1 flex gap-0.5 opacity-0 shadow-sm transition group-hover:opacity-100">
                                 <button
                                   type="button"
-                                  title="Mover para outra pasta"
+                                  title={t.moveToFolder}
                                   disabled={movingBusy}
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setMovingPath(imagePath);
-                                    toast.message('Modo mover', {
-                                      description: 'Clique na pasta de destino na árvore ou numa pasta grande.',
+                                    toast.message(t.moveMode, {
+                                      description: t.clickDestTree,
                                     });
                                   }}
                                   className="rounded-md bg-white/95 p-1.5 text-slate-700 ring-1 ring-slate-200 hover:bg-violet-50 hover:text-violet-900 disabled:opacity-50"
@@ -820,7 +821,7 @@ export function MediaLibraryModal({
                                 </button>
                                 <button
                                   type="button"
-                                  title="Apagar do servidor"
+                                  title={t.deleteFromServer}
                                   disabled={busy}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -850,7 +851,7 @@ export function MediaLibraryModal({
                         <tbody>
                           {filesInFolder.map((imagePath) => {
                             const dir = directoryFromImagePath(imagePath);
-                            const dirLabel = dir === ROOT_TOKEN ? '(raiz)' : dir;
+                            const dirLabel = dir === ROOT_TOKEN ? t.rootParen : dir;
                             const manageable = canManageMediaFile(imagePath);
                             const busy = deleting === imagePath;
                             return (
@@ -881,19 +882,19 @@ export function MediaLibraryModal({
                                     <div className="flex justify-center gap-1">
                                       <button
                                         type="button"
-                                        title="Mover"
+                                        title={t.move}
                                         disabled={movingBusy}
                                         className="rounded border border-slate-200 p-1 text-slate-600 hover:bg-violet-50 hover:text-violet-900 disabled:opacity-50"
                                         onClick={() => {
                                           setMovingPath(imagePath);
-                                          toast.message('Modo mover', { description: 'Clique na pasta de destino.' });
+                                          toast.message(t.moveMode, { description: t.clickDest });
                                         }}
                                       >
                                         <ArrowRightLeft className="h-3.5 w-3.5" />
                                       </button>
                                       <button
                                         type="button"
-                                        title="Apagar"
+                                        title={t.delete}
                                         disabled={busy}
                                         className="rounded border border-slate-200 p-1 text-red-600 hover:bg-red-50 disabled:opacity-50"
                                         onClick={() => void handleDelete(imagePath)}
@@ -919,7 +920,8 @@ export function MediaLibraryModal({
         </div>
 
         <div className="shrink-0 border-t border-slate-200 bg-slate-50 px-4 py-2 text-center text-[10px] text-slate-500">
-          Clique numa imagem para escolher · Apagar ou mover ficheiros em <code className="mx-0.5 rounded bg-slate-200 px-1">/images/</code> · Variável{' '}
+          {t.mediaFooter}{' '}
+          <code className="mx-0.5 rounded bg-slate-200 px-1">/images/</code> · {t.actions}{' '}
           <code className="mx-0.5 rounded bg-slate-200 px-1">EDITOR_MAX_UPLOAD_MB</code>
         </div>
       </div>

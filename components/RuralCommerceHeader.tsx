@@ -39,7 +39,7 @@ const headerA11yByLocale: Record<SupportedLocale, { home: string; openMenu: stri
     closeMenu: 'Cerrar menú',
   },
   'pt-BR': {
-    home: 'Rural Commerce - inicio',
+    home: 'Rural Commerce - início',
     openMenu: 'Abrir menu',
     closeMenu: 'Fechar menu',
   },

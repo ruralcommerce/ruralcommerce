@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { EDITOR_PAGES } from '@/lib/editor-pages';
+import { useEditorUi } from '../editor-ui-context';
 
 interface PageSelectorProps {
   currentPageSlug?: string;
@@ -17,8 +18,10 @@ export function PageSelector({
   disabled,
   compact = false,
 }: PageSelectorProps) {
+  const t = useEditorUi();
   const [isOpen, setIsOpen] = useState(false);
   const currentPage = EDITOR_PAGES.find((p) => p.slug === currentPageSlug) || EDITOR_PAGES[0];
+  const pageLabel = (slug: string, fallback: string) => t.pages[slug] || fallback;
 
   const btnClass = compact
     ? 'flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-semibold text-slate-800 shadow-sm hover:bg-slate-50 transition disabled:opacity-60'
@@ -32,7 +35,7 @@ export function PageSelector({
         className={btnClass}
       >
         <span>{currentPage.icon}</span>
-        <span>{currentPage.name}</span>
+        <span>{pageLabel(currentPage.slug, currentPage.name)}</span>
         <span className={compact ? 'text-[9px] text-slate-400' : 'text-xs'}>▼</span>
       </button>
 
@@ -58,7 +61,7 @@ export function PageSelector({
               }`}
             >
               <span className="mr-2">{page.icon}</span>
-              {page.name}
+              {pageLabel(page.slug, page.name)}
             </button>
           ))}
         </div>

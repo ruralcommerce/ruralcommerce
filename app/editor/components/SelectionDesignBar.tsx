@@ -9,6 +9,8 @@ import { useEffect } from 'react';
 import { useEditorStore } from '@/lib/editor-store';
 import { BLOCK_LIBRARY, type BlockData, type BlockDefinition } from '@/lib/editor-types';
 import { findBlockPath } from '@/lib/editor-utils';
+import { useEditorUi } from '../editor-ui-context';
+import type { EditorUiCopy } from '@/lib/editor-ui-i18n';
 import {
   AlignCenter,
   AlignLeft,
@@ -65,23 +67,25 @@ function SpacingPair({
   def,
   p,
   updateBlock,
+  ui,
 }: {
   block: BlockData;
   def: BlockDefinition | undefined;
   p: Record<string, unknown>;
   updateBlock: (id: string, u: Partial<BlockData>) => void;
+  ui: EditorUiCopy;
 }) {
   const mt = hasEditable(def, 'marginTop');
   const mb = hasEditable(def, 'marginBottom');
   if (!mt && !mb) return null;
   return (
     <div className="flex flex-wrap items-center gap-2">
-      <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Espaço</span>
+      <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.space}</span>
       {mt ? (
         <select
           value={String(p.marginTop ?? '')}
           onChange={(e) => patchBlockProps(block, updateBlock, { marginTop: e.target.value })}
-          title="Margem superior"
+          title={ui.marginTop}
           className="max-w-[5.5rem] rounded-md border border-slate-200 bg-white py-0.5 pl-1 pr-5 text-[10px] font-semibold text-slate-800 shadow-sm outline-none focus:border-violet-400"
         >
           <option value="">↑ auto</option>
@@ -96,7 +100,7 @@ function SpacingPair({
         <select
           value={String(p.marginBottom ?? '')}
           onChange={(e) => patchBlockProps(block, updateBlock, { marginBottom: e.target.value })}
-          title="Margem inferior"
+          title={ui.marginBottom}
           className="max-w-[5.5rem] rounded-md border border-slate-200 bg-white py-0.5 pl-1 pr-5 text-[10px] font-semibold text-slate-800 shadow-sm outline-none focus:border-violet-400"
         >
           <option value="">↓ auto</option>
@@ -112,6 +116,7 @@ function SpacingPair({
 }
 
 export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void }) {
+  const ui = useEditorUi();
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const updateBlock = useEditorStore((s) => s.updateBlock);
@@ -149,7 +154,7 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
   const p = block.props as Record<string, unknown>;
 
   const handleDelete = () => {
-    if (!window.confirm('Eliminar este bloco? (Pode desfazer no menu Mais)')) return;
+    if (!window.confirm(ui.confirmDeleteBlock)) return;
     removeBlock(block.id);
     selectBlock(null);
   };
@@ -167,52 +172,52 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
 
       <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
 
-      <SpacingPair block={block} def={def} p={p} updateBlock={updateBlock} />
+      <SpacingPair block={block} def={def} p={p} updateBlock={updateBlock} ui={ui} />
 
       {block.type === 'button-block' ? (
         <>
           <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Fundo</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.bg}</span>
             <MiniColor
-              title="Cor de fundo"
+              title={ui.bg}
               value={String(p.backgroundColor ?? '#009179')}
               onChange={(v) => patchBlockProps(block, updateBlock, { backgroundColor: v })}
             />
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Texto</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.textLabel}</span>
             <MiniColor
-              title="Cor do texto"
+              title={ui.textLabel}
               value={String(p.textColor ?? '#ffffff')}
               onChange={(v) => patchBlockProps(block, updateBlock, { textColor: v })}
             />
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Estilo</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.tabStyle}</span>
             <div className="inline-flex rounded-md border border-slate-200 bg-white p-px shadow-sm">
               <button
                 type="button"
-                title="Preenchido"
+                title={ui.filled}
                 onClick={() => patchBlockProps(block, updateBlock, { variant: 'solid' })}
                 className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
                   String(p.variant ?? 'solid') !== 'outline' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                Cheio
+                {ui.filled}
               </button>
               <button
                 type="button"
-                title="Contorno"
+                title={ui.outline}
                 onClick={() => patchBlockProps(block, updateBlock, { variant: 'outline' })}
                 className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
                   String(p.variant ?? 'solid') === 'outline' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                Contorno
+                {ui.outline}
               </button>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Raio</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.radius}</span>
             <div className="flex flex-wrap gap-0.5">
               {RADIUS_PRESETS.map((r) => {
                 const cur = String(p.borderRadius ?? '0.5rem');
@@ -242,15 +247,15 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
         <>
           <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Cor</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.color}</span>
             <MiniColor
-              title="Cor do título"
+              title={ui.headingColor}
               value={String(p.color ?? '#0f172a')}
               onChange={(v) => patchBlockProps(block, updateBlock, { color: v })}
             />
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Nível</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.level}</span>
             <select
               value={String(Math.min(6, Math.max(1, Number(p.level) || 2)))}
               onChange={(e) => patchBlockProps(block, updateBlock, { level: Number(e.target.value) })}
@@ -387,7 +392,7 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
         <>
           <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Cor</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.color}</span>
             <MiniColor
               title="Cor da linha"
               value={String(p.color ?? '#e2e8f0')}
@@ -415,9 +420,9 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
         <>
           <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Fundo</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.bg}</span>
             <MiniColor
-              title="Cor de fundo"
+              title={ui.bg}
               value={String(p.backgroundColor ?? '#f8fafc')}
               onChange={(v) => patchBlockProps(block, updateBlock, { backgroundColor: v })}
             />
@@ -452,9 +457,9 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
         <>
           <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Fundo</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.bg}</span>
             <MiniColor
-              title="Cor de fundo da secção"
+              title={ui.sectionBg}
               value={String(p.backgroundColor ?? '#071F5E')}
               onChange={(v) => patchBlockProps(block, updateBlock, { backgroundColor: v })}
             />
@@ -466,9 +471,9 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
         <>
           <div className="mx-1 hidden h-6 w-px bg-slate-200 sm:block" aria-hidden />
           <div className="flex items-center gap-1.5">
-            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">Fundo</span>
+            <span className="text-[10px] font-medium uppercase tracking-wide text-slate-500">{ui.bg}</span>
             <MiniColor
-              title="Cor de fundo"
+              title={ui.bg}
               value={String(p.backgroundColor ?? '#ffffff')}
               onChange={(v) => patchBlockProps(block, updateBlock, { backgroundColor: v })}
             />
@@ -481,7 +486,7 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
           type="button"
           onClick={() => duplicateBlock(block.id)}
           className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-          title="Duplicar (Ctrl+D)"
+          title={ui.dupTitle}
         >
           <Copy className="h-3.5 w-3.5" />
           Dup
@@ -490,7 +495,7 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
           type="button"
           onClick={handleDelete}
           className="inline-flex items-center gap-1 rounded-md border border-red-200 bg-white px-2 py-1 text-[10px] font-semibold text-red-700 shadow-sm hover:bg-red-50"
-          title="Eliminar bloco (Del)"
+          title={ui.deleteBlockTitle}
         >
           <Trash2 className="h-3.5 w-3.5" />
         </button>
@@ -498,16 +503,16 @@ export function SelectionDesignBar({ onOpenPanel }: { onOpenPanel: () => void })
           type="button"
           onClick={onOpenPanel}
           className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-          title="Abrir todas as propriedades no painel"
+          title={ui.panelTitle}
         >
           <PanelRightOpen className="h-3.5 w-3.5" />
-          Painel
+          {ui.panel}
         </button>
         <button
           type="button"
           onClick={() => selectBlock(null)}
           className="rounded-md px-2 py-1 text-[10px] font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-800"
-          title="Desmarcar (Esc)"
+          title={ui.deselectEsc}
         >
           Esc
         </button>

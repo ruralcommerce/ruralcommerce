@@ -362,12 +362,12 @@ export default async function SobrePage({
       <SiteFooter
         locale={locale}
         title={String(footerProps.title || 'Rural Commerce')}
-        copyright={String(footerProps.copyright || `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`)}
-        contactTitle={String(footerProps.contactTitle || 'Contacto')}
-        contactAddress={String(footerProps.contactAddress || 'Uruguay - dirección comercial (completar)')}
-        contactPhone={String(footerProps.contactPhone || '+598 - - - - -')}
+        copyright={String(footerProps.copyright || '')}
+        contactTitle={String(footerProps.contactTitle || '')}
+        contactAddress={String(footerProps.contactAddress || '')}
+        contactPhone={String(footerProps.contactPhone || '')}
         contactEmail={String(footerProps.contactEmail || 'contacto@ruralcommerce.com')}
-        socialLabel={String(footerProps.socialLabel || 'Redes sociales')}
+        socialLabel={String(footerProps.socialLabel || '')}
         footerLinks={footerLinks}
         socialLinks={socialLinks}
       />

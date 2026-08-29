@@ -8,10 +8,10 @@
       "id": "block-sobre-hero-ptbr",
       "type": "hero-section",
       "props": {
-        "title": "Inteligência sistêmica para cadeias regenerativas e rentáveis",
-        "subtitle": "A Rural Commerce integra tecnologia de precisão, inteligência de dados e metodologias de aceleração para transformar desafios estruturais do campo em ativos de alto valor.",
+        "title": "Inteligencia sistémica para cadenas regenerativas y rentables",
+        "subtitle": "Rural Commerce integra tecnología de precisión, inteligencia de datos y metodologías de aceleración para transformar los desafíos estructurales del campo en activos de alto valor.",
         "bgImage": "/images/sobre/sobre-hero.png",
-        "ctaText": "Conhecer soluções",
+        "ctaText": "Conocer soluciones",
         "ctaUrl": "/solucoes",
         "secondaryText": "Cómo funciona",
         "secondaryUrl": "#sistema"

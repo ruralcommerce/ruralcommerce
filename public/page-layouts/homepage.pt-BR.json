@@ -53,7 +53,7 @@
         "backgroundColor": "#EEF3F7",
         "title": "Números que falam",
         "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais).",
-        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Emprendimientos atendidos por nuestro ecosistema.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"de CO2e evitados a cada 5kg de alimentos rescatados.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"de AGUA virtual preservadas a cada 5kg de alimento rescatados.\"}]"
+        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Empreendimentos atendidos pelo nosso ecossistema.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"de CO2e evitados a cada 5kg de alimentos resgatados.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"de ÁGUA virtual preservada a cada 5kg de alimento resgatado.\"}]"
       }
     },
     {
@@ -77,7 +77,7 @@
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Redes sociais",
         "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Linkedin\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"}]",
-        "footerLinksJson": "[{\"group\":\"Outra seção\",\"items\":[{\"label\":\"Sobre\",\"href\":\"/#sobre\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Aliados\",\"href\":\"/#aliados\"}]},{\"group\":\"Termos\",\"items\":[{\"label\":\"Términos de Uso\",\"href\":\"\"},{\"label\":\"Política de Privacidad\",\"href\":\"\"},{\"label\":\"Política de Cookies\",\"href\":\"\"}]}]"
+        "footerLinksJson": "[{\"group\":\"Outra seção\",\"items\":[{\"label\":\"Sobre\",\"href\":\"/#sobre\"},{\"label\":\"Soluções\",\"href\":\"/#soluciones\"},{\"label\":\"Aliados\",\"href\":\"/#aliados\"}]},{\"group\":\"Termos\",\"items\":[{\"label\":\"Termos de Uso\",\"href\":\"\"},{\"label\":\"Política de Privacidade\",\"href\":\"\"},{\"label\":\"Política de Cookies\",\"href\":\"\"}]}]"
       }
     }
   ],

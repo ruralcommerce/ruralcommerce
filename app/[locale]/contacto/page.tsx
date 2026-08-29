@@ -11,6 +11,7 @@ import {
 } from '@/lib/page-layout-runtime';
 import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
 import { BLOCK_LIBRARY } from '@/lib/editor-types';
+import { defaultProjectHeaderNav } from '@/lib/project-locale';
 import type { Metadata } from 'next';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -44,32 +45,9 @@ export default async function ContactoPage({
   const headerProps = getBlockProps(siteLayout, 'site-header');
   const footerProps = getBlockProps(siteLayout, 'site-footer');
 
-  const fallbackNav = [
-    { label: 'Sobre', href: '/sobre' },
-    { label: 'Soluciones', href: '/solucoes' },
-    { label: 'Aliados e Inversores', href: '/aliados' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contacto', href: '/contacto' },
-  ];
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(
     headerProps.navItemsJson,
-    locale === 'pt-BR'
-      ? fallbackNav.map((n, i) =>
-          i === 1
-            ? { label: 'Soluções', href: n.href }
-            : i === 4
-              ? { label: 'Contato', href: n.href }
-              : n
-        )
-      : locale === 'en'
-        ? [
-            { label: 'About', href: '/sobre' },
-            { label: 'Solutions', href: '/solucoes' },
-            { label: 'Partners & Investors', href: '/aliados' },
-            { label: 'Blog', href: '/blog' },
-            { label: 'Contact', href: '/contacto' },
-          ]
-        : fallbackNav
+    [...defaultProjectHeaderNav[locale]]
   );
 
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(

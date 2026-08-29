@@ -17,32 +17,49 @@ import {
 } from 'lucide-react';
 import { getBlockProps, getFirstFreeTextContent, getManagedPageLayout, getSectionProps, LayoutSearchParams, parseJsonArray } from '@/lib/page-layout-runtime';
 import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
+import { defaultProjectHeaderNav, getProjectLocaleKey } from '@/lib/project-locale';
+import type { Metadata } from 'next';
 
-export const metadata = {
-  title: 'Soluciones - Rural Commerce',
-  description: 'Elegi tu camino hacia la rentabilidad sustentable. Combos, complementos y financiamiento para el campo.',
-};
+const solucoesMeta = {
+  es: {
+    title: 'Soluciones - Rural Commerce',
+    description: 'Elegí tu camino hacia la rentabilidad sustentable. Combos, complementos y financiamiento para el campo.',
+  },
+  'pt-BR': {
+    title: 'Soluções - Rural Commerce',
+    description: 'Escolha seu caminho rumo à rentabilidade sustentável. Combos, complementos e financiamento para o campo.',
+  },
+  en: {
+    title: 'Solutions - Rural Commerce',
+    description: 'Choose your path to sustainable profitability. Bundles, add-ons and financing for the field.',
+  },
+} as const;
+
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  const m = solucoesMeta[getProjectLocaleKey(params.locale)];
+  return { title: m.title, description: m.description };
+}
 
 const HERO_BG = '/images/solucoes/solucoes-hero.png';
 
 const combos = [
   {
     name: 'Combos de Negocio',
-    subtitle: 'Soluciones integrales de implementacion rapida para retos especificos.',
+    subtitle: 'Soluciones integrales de implementación rápida para retos específicos.',
     features: [
-      'Diagnostico profundo del negocio.',
-      'Pack de productos + servicios tecnicos de ejecucion.',
-      'Enfoque en transformacion y/o creacion de modelos de negocios',
+      'Diagnóstico profundo del negocio.',
+      'Pack de productos + servicios técnicos de ejecución.',
+      'Enfoque en transformación y/o creación de modelos de negocios',
     ],
     variant: 'outline' as const,
     buttonText: 'Ver Combos',
   },
   {
-    name: 'Membresia Estrategica',
-    subtitle: 'Acompanamiento tecnico constante para una operacion eficiente y para potenciar el desarrollo',
+    name: 'Membresía Estratégica',
+    subtitle: 'Acompañamiento técnico constante para una operación eficiente y para potenciar el desarrollo',
     features: [
-      'Asesoria 24/7 con IA especializada en agronegocios',
-      'Consultoria estrategica personalizada (segun su plan)',
+      'Asesoría 24/7 con IA especializada en agronegocios',
+      'Consultoría estratégica personalizada (según su plan)',
       'Monitoreo continuo de eficiencia y procesos',
     ],
     variant: 'filled' as const,
@@ -50,11 +67,11 @@ const combos = [
   },
   {
     name: 'Servicios y Add-ons',
-    subtitle: 'Soluciones tecnicas y quirurgicas para potenciar su operacion actual.',
+    subtitle: 'Soluciones técnicas y quirúrgicas para potenciar su operación actual.',
     features: [
-      'Diagnosticos especializados y certificaciones de calidad.',
-      'Diseno de marca, marketing rural y asesoria comercial.',
-      'Intervenciones tecnicas puntuales segun su necesidad.',
+      'Diagnósticos especializados y certificaciones de calidad.',
+      'Diseño de marca, marketing rural y asesoría comercial.',
+      'Intervenciones técnicas puntuales según su necesidad.',
       'Acceso preferencial para miembros de nuestra red.',
     ],
     variant: 'outline' as const,
@@ -181,7 +198,7 @@ const addons = [
   },
   {
     Icon: Globe,
-    name: 'Campanas Digitales',
+    name: 'Campañas Digitales',
     desc: 'Llega a nuevos clientes y aumenta la demanda de tus productos.',
   },
 ];
@@ -199,7 +216,7 @@ export default async function SolucoesPage({
   const footerProps = getBlockProps(siteLayout, 'site-footer');
   const heroProps = getSectionProps(layout, 'hero-section');
   const freeTextContent = getFirstFreeTextContent(layout);
-  const locale = params.locale === 'pt-BR' || params.locale === 'en' ? params.locale : 'es';
+  const locale = getProjectLocaleKey(params.locale);
   const contactHref = `/${locale}/contacto`;
   const localizedCombos = combosByLocale[locale];
   const routesTitle =
@@ -232,13 +249,10 @@ export default async function SolucoesPage({
   const capitalCta =
     locale === 'pt-BR' ? 'Quero saber mais' : locale === 'en' ? 'I want to learn more' : 'Quiero saber más';
   const heroBackground = String(heroProps.bgImage || HERO_BG);
-  const headerNavItems = parseJsonArray<{ label: string; href: string }>(headerProps.navItemsJson, [
-    { label: 'Sobre', href: '/sobre' },
-    { label: 'Soluciones', href: '/solucoes' },
-    { label: 'Aliados y Inversores', href: '/aliados' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contacto', href: '/contacto' },
-  ]);
+  const headerNavItems = parseJsonArray<{ label: string; href: string }>(
+    headerProps.navItemsJson,
+    [...defaultProjectHeaderNav[locale]]
+  );
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(footerProps.footerLinksJson, []);
   const socialLinks = parseSocialLinksJsonWithFallback(footerProps.socialLinksJson, []);
 
@@ -375,12 +389,12 @@ export default async function SolucoesPage({
       <RuralCommerceFooter
         locale={locale}
         title={String(footerProps.title || 'Rural Commerce')}
-        copyright={String(footerProps.copyright || `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`)}
-        contactTitle={String(footerProps.contactTitle || 'Contacto')}
-        contactAddress={String(footerProps.contactAddress || 'Uruguay - direccion comercial (completar)')}
-        contactPhone={String(footerProps.contactPhone || '+598 - - - - -')}
+        copyright={String(footerProps.copyright || '')}
+        contactTitle={String(footerProps.contactTitle || '')}
+        contactAddress={String(footerProps.contactAddress || '')}
+        contactPhone={String(footerProps.contactPhone || '')}
         contactEmail={String(footerProps.contactEmail || 'contacto@ruralcommerce.com')}
-        socialLabel={String(footerProps.socialLabel || 'Redes sociales')}
+        socialLabel={String(footerProps.socialLabel || '')}
         footerLinks={footerLinks}
         socialLinks={socialLinks}
       />

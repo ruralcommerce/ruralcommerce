@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { TranslationPreview, TranslationChange } from '@/lib/translation-utils';
 import { formatTranslationFieldLabel } from '@/lib/translation-field-paths';
 import { X, Loader2, AlertTriangle } from 'lucide-react';
+import { useEditorUi } from '../editor-ui-context';
 
 interface TranslationPreviewModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export function TranslationPreviewModal({
   sourceLocale = 'es',
   overlayClassName = 'z-50',
 }: TranslationPreviewModalProps) {
+  const t = useEditorUi();
   const [selectedChanges, setSelectedChanges] = useState<Set<string>>(new Set());
   /** Texto traduzido editável por item (chave = targetLocale-field). */
   const [editedText, setEditedText] = useState<Record<string, string>>({});
@@ -82,18 +84,7 @@ export function TranslationPreviewModal({
     setSelectedChanges(new Set());
   };
 
-  const getLocaleName = (locale: string) => {
-    switch (locale) {
-      case 'pt-BR':
-        return 'Português (Brasil)';
-      case 'en':
-        return 'English';
-      case 'es':
-        return 'Español';
-      default:
-        return locale;
-    }
-  };
+  const getLocaleName = (locale: string) => t.localeName(locale);
 
   const sourceLocaleShort = sourceLocale === 'pt-BR' ? 'PT' : sourceLocale === 'en' ? 'EN' : 'ES';
 
@@ -102,17 +93,16 @@ export function TranslationPreviewModal({
       <div className="max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-xl">
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Revisar e editar traduções</h2>
+            <h2 className="text-lg font-semibold text-gray-900">{t.reviewTranslations}</h2>
             <p className="text-sm text-gray-600">
-              {totalChanges} mudança{totalChanges !== 1 ? 's' : ''} para revisar. Ajuste o texto traduzido se
-              necessário, marque as linhas e aplique.
+              {t.reviewHint(totalChanges)}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-            aria-label="Fechar"
+            aria-label={t.close}
           >
             <X className="h-5 w-5" />
           </button>
@@ -122,7 +112,7 @@ export function TranslationPreviewModal({
           {isTranslating ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
-              <span className="ml-3 text-gray-600">Traduzindo textos...</span>
+              <span className="ml-3 text-gray-600">{t.translating}</span>
             </div>
           ) : (
             <div className="space-y-6">
@@ -132,14 +122,14 @@ export function TranslationPreviewModal({
                   onClick={handleSelectAll}
                   className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
                 >
-                  Selecionar todas
+                  {t.selectAll}
                 </button>
                 <button
                   type="button"
                   onClick={handleDeselectAll}
                   className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
                 >
-                  Desmarcar todas
+                  {t.deselectAll}
                 </button>
               </div>
 
@@ -176,7 +166,7 @@ export function TranslationPreviewModal({
                           <div className="grid gap-3 md:grid-cols-2">
                             <div>
                               <p className="mb-1 text-xs font-medium text-gray-700">
-                                Original ({sourceLocaleShort} · {sourceLocale})
+                                {t.original} ({sourceLocaleShort} · {sourceLocale})
                               </p>
                               <p className="rounded border border-gray-200 bg-gray-50 p-2 text-sm text-gray-900">
                                 {change.originalText}
@@ -184,7 +174,7 @@ export function TranslationPreviewModal({
                             </div>
                             <div>
                               <p className="mb-1 text-xs font-medium text-gray-700">
-                                Tradução ({change.targetLocale}) — editável
+                                {t.translationEditable} ({change.targetLocale})
                               </p>
                               <textarea
                                 value={editedText[key] ?? change.translatedText}
@@ -217,7 +207,7 @@ export function TranslationPreviewModal({
             onClick={onClose}
             className="rounded border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Cancelar
+            {t.cancel}
           </button>
           <button
             type="button"
@@ -225,7 +215,7 @@ export function TranslationPreviewModal({
             disabled={selectedChanges.size === 0}
             className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
-            Aplicar {selectedChanges.size} tradução{selectedChanges.size !== 1 ? 'ões' : ''}
+            {t.applyN(selectedChanges.size)}
           </button>
         </div>
       </div>

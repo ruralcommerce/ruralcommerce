@@ -8,45 +8,16 @@ import {
   parseJsonArray,
 } from '@/lib/page-layout-runtime';
 import { parseSocialLinksJsonWithFallback } from '@/lib/social-links';
-
-const fallbackNav = {
-  es: [
-    { label: 'Sobre', href: '/sobre' },
-    { label: 'Soluciones', href: '/solucoes' },
-    { label: 'Aliados e Inversores', href: '/aliados' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contacto', href: '/contacto' },
-  ],
-  'pt-BR': [
-    { label: 'Sobre', href: '/sobre' },
-    { label: 'Soluções', href: '/solucoes' },
-    { label: 'Aliados e Investidores', href: '/aliados' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contato', href: '/contacto' },
-  ],
-  en: [
-    { label: 'About', href: '/sobre' },
-    { label: 'Solutions', href: '/solucoes' },
-    { label: 'Partners & Investors', href: '/aliados' },
-    { label: 'Blog', href: '/blog' },
-    { label: 'Contact', href: '/contacto' },
-  ],
-} as const;
-
-type LocaleKey = 'es' | 'pt-BR' | 'en';
-
-function getLocaleKey(locale: string): LocaleKey {
-  return locale === 'pt-BR' || locale === 'en' ? locale : 'es';
-}
+import { defaultProjectHeaderNav, getProjectLocaleKey } from '@/lib/project-locale';
 
 export async function loadBlogSiteChrome(localeParam: string, searchParams?: LayoutSearchParams) {
-  const localeKey = getLocaleKey(localeParam);
+  const localeKey = getProjectLocaleKey(localeParam);
   const siteLayout = await getManagedPageLayout('homepage', searchParams, localeParam);
   const headerProps = getBlockProps(siteLayout, 'site-header');
   const footerProps = getBlockProps(siteLayout, 'site-footer');
   const headerNavItems = parseJsonArray<{ label: string; href: string }>(
     headerProps.navItemsJson,
-    [...fallbackNav[localeKey]]
+    [...defaultProjectHeaderNav[localeKey]]
   );
   const footerLinks = parseJsonArray<{ group: string; items: { label: string; href: string }[] }>(
     footerProps.footerLinksJson,
@@ -61,14 +32,12 @@ export async function loadBlogSiteChrome(localeParam: string, searchParams?: Lay
 
   const footer = createElement(RuralCommerceFooter, {
     title: String(footerProps.title || 'Rural Commerce'),
-    copyright: String(
-      footerProps.copyright || `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`
-    ),
-    contactTitle: String(footerProps.contactTitle || 'Contacto'),
-    contactAddress: String(footerProps.contactAddress || 'Uruguay - dirección comercial (completar)'),
-    contactPhone: String(footerProps.contactPhone || '+598 - - - - -'),
+    copyright: String(footerProps.copyright || ''),
+    contactTitle: String(footerProps.contactTitle || ''),
+    contactAddress: String(footerProps.contactAddress || ''),
+    contactPhone: String(footerProps.contactPhone || ''),
     contactEmail: String(footerProps.contactEmail || 'contacto@ruralcommerce.com'),
-    socialLabel: String(footerProps.socialLabel || 'Redes sociales'),
+    socialLabel: String(footerProps.socialLabel || ''),
     footerLinks,
     socialLinks,
     locale: localeParam,

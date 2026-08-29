@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ProjectDiagnosisForm } from '@/components/ProjectDiagnosisForm';
 import { readTeamSession } from '@/lib/project-team-session-client';
+import { getProjectLocaleKey, type ProjectLocaleKey } from '@/lib/project-locale';
 
 type AssistRecord = {
   id: string;
@@ -21,6 +22,63 @@ type AssistRecord = {
   };
 };
 
+const copy: Record<
+  ProjectLocaleKey,
+  {
+    loginRequired: string;
+    goIntranet: string;
+    loadError: string;
+    loadGeneric: string;
+    loading: string;
+    notFound: string;
+    backPanel: string;
+    notApproved: string;
+    assistEyebrow: string;
+    technician: string;
+    lastTeamUpdate: string;
+  }
+> = {
+  es: {
+    loginRequired: 'Inicia sesión en la intranet del equipo para continuar.',
+    goIntranet: 'Ir a la intranet del equipo',
+    loadError: 'No fue posible cargar el registro.',
+    loadGeneric: 'Error al cargar el registro.',
+    loading: 'Cargando asistencia técnica...',
+    notFound: 'Participante no encontrado.',
+    backPanel: 'Volver al panel',
+    notApproved: 'Este registro aún no está aprobado para el diagnóstico.',
+    assistEyebrow: 'Asistencia técnica',
+    technician: 'Técnico',
+    lastTeamUpdate: 'Última actualización del equipo',
+  },
+  'pt-BR': {
+    loginRequired: 'Faça login na intranet da equipe para continuar.',
+    goIntranet: 'Ir para intranet da equipe',
+    loadError: 'Não foi possível carregar o cadastro.',
+    loadGeneric: 'Erro ao carregar o cadastro.',
+    loading: 'Carregando assistência técnica...',
+    notFound: 'Participante não encontrado.',
+    backPanel: 'Voltar ao painel',
+    notApproved: 'Este cadastro ainda não está aprovado para diagnóstico.',
+    assistEyebrow: 'Assistência técnica',
+    technician: 'Técnico',
+    lastTeamUpdate: 'Última atualização pela equipe',
+  },
+  en: {
+    loginRequired: 'Sign in to the team intranet to continue.',
+    goIntranet: 'Go to team intranet',
+    loadError: 'Could not load the record.',
+    loadGeneric: 'Error loading the record.',
+    loading: 'Loading technical assistance...',
+    notFound: 'Participant not found.',
+    backPanel: 'Back to dashboard',
+    notApproved: 'This record is not yet approved for diagnosis.',
+    assistEyebrow: 'Technical assistance',
+    technician: 'Technician',
+    lastTeamUpdate: 'Last team update',
+  },
+};
+
 export function ProjectTeamDiagnosisAssist({
   locale,
   candidateId,
@@ -28,6 +86,7 @@ export function ProjectTeamDiagnosisAssist({
   locale: string;
   candidateId: string;
 }) {
+  const t = copy[getProjectLocaleKey(locale)];
   const [records, setRecords] = useState<AssistRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -36,7 +95,7 @@ export function ProjectTeamDiagnosisAssist({
   useEffect(() => {
     if (!session?.token) {
       setLoading(false);
-      setError('Faça login na intranet da equipe para continuar.');
+      setError(t.loginRequired);
       return;
     }
 
@@ -47,22 +106,22 @@ export function ProjectTeamDiagnosisAssist({
         });
         const payload = await response.json();
         if (!response.ok || !payload.ok) {
-          setError('Não foi possível carregar o cadastro.');
+          setError(t.loadError);
           return;
         }
         setRecords(payload.records || []);
       } catch {
-        setError('Erro ao carregar o cadastro.');
+        setError(t.loadGeneric);
       } finally {
         setLoading(false);
       }
     })();
-  }, [session?.token]);
+  }, [session?.token, t.loginRequired, t.loadError, t.loadGeneric]);
 
   const record = records.find((item) => item.id === candidateId) || null;
 
   if (loading) {
-    return <p className="text-sm text-[#2F3336]/70">Carregando assistência técnica...</p>;
+    return <p className="text-sm text-[#2F3336]/70">{t.loading}</p>;
   }
 
   if (!session?.token) {
@@ -70,7 +129,7 @@ export function ProjectTeamDiagnosisAssist({
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white p-6">
         <p className="text-sm text-red-700">{error}</p>
         <Link href={`/${locale}/admin`} className="mt-4 inline-flex rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]">
-          Ir para intranet da equipe
+          {t.goIntranet}
         </Link>
       </div>
     );
@@ -79,9 +138,9 @@ export function ProjectTeamDiagnosisAssist({
   if (!record) {
     return (
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white p-6">
-        <p className="text-sm text-red-700">Participante não encontrado.</p>
+        <p className="text-sm text-red-700">{t.notFound}</p>
         <Link href={`/${locale}/admin`} className="mt-4 inline-flex rounded-full border border-[#D9E3EC] px-5 py-2.5 text-sm font-semibold text-[#071F5E]">
-          Voltar ao painel
+          {t.backPanel}
         </Link>
       </div>
     );
@@ -90,7 +149,7 @@ export function ProjectTeamDiagnosisAssist({
   if (record.status !== 'approved') {
     return (
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white p-6">
-        <p className="text-sm text-[#2F3336]/80">Este cadastro ainda não está aprovado para diagnóstico.</p>
+        <p className="text-sm text-[#2F3336]/80">{t.notApproved}</p>
       </div>
     );
   }
@@ -98,14 +157,14 @@ export function ProjectTeamDiagnosisAssist({
   return (
     <div className="space-y-4">
       <div className="rounded-[24px] border border-[#CFE8E8] bg-[#F3FAFA] p-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">Assistência técnica</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{t.assistEyebrow}</p>
         <h1 className="mt-2 text-2xl font-semibold text-[#071F5E]">{record.profile.name || record.user.email}</h1>
         <p className="mt-1 text-sm text-[#2F3336]/80">
-          Técnico: <strong>{session.name}</strong> ({session.email}) · ID {session.memberId}
+          {t.technician}: <strong>{session.name}</strong> ({session.email}) · ID {session.memberId}
         </p>
         {record.profile.diagnosis?.submittedBy?.type === 'team' ? (
           <p className="mt-2 text-sm text-[#1D6359]">
-            Última atualização pela equipe: {record.profile.diagnosis.submittedBy.teamMemberName || '—'}
+            {t.lastTeamUpdate}: {record.profile.diagnosis.submittedBy.teamMemberName || '—'}
           </p>
         ) : null}
       </div>

@@ -17,6 +17,7 @@ import { BlockTranslateModal } from './BlockTranslateModal';
 import { getJsonValidationMessage as getSharedJsonValidationMessage } from '@/lib/json-prop-validation';
 import { StatsIndicatorsEditor } from './StatsIndicatorsEditor';
 import { SocialLinksArrayEditor } from './SocialLinksArrayEditor';
+import { useEditorUi } from '../editor-ui-context';
 
 type JsonEditorValue = string | number | boolean | null | JsonEditorValue[] | { [key: string]: JsonEditorValue };
 
@@ -354,6 +355,7 @@ export function PropertyEditor({
   /** Após gravar traduções de um bloco nos layouts em disco (locales afetados). */
   onBlockLayoutTranslationsApplied?: (locales: string[]) => void;
 } = {}) {
+  const ui = useEditorUi();
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectedBlockId = useEditorStore((s) => s.selectedBlockId);
   const updateBlock = useEditorStore((s) => s.updateBlock);
@@ -434,10 +436,10 @@ export function PropertyEditor({
     return (
       <div className={`flex h-full min-h-0 flex-col bg-slate-50 ${embedded ? '' : 'border-l border-slate-200'}`}>
         <div className="p-4 border-b border-slate-200">
-          <h2 className="font-semibold text-sm text-slate-900">Propriedades</h2>
+          <h2 className="font-semibold text-sm text-slate-900">{ui.properties}</h2>
         </div>
         <div className="flex-1 flex items-center justify-center text-slate-400 text-sm p-4 text-center">
-          Selecione um bloco para editar suas propriedades
+          {ui.selectBlock}
         </div>
       </div>
     );
@@ -593,7 +595,7 @@ export function PropertyEditor({
       className={`flex h-full min-h-0 flex-col bg-gradient-to-b from-slate-50/95 via-white to-slate-50/90 ${embedded ? '' : 'border-l border-slate-200/90'}`}
     >
       <div className="border-b border-slate-200/80 bg-white/70 px-4 py-3 backdrop-blur-sm">
-        <h2 className="text-[13px] font-semibold tracking-tight text-slate-900">Propriedades</h2>
+        <h2 className="text-[13px] font-semibold tracking-tight text-slate-900">{ui.properties}</h2>
         <div className="mt-1 line-clamp-2 text-[11px] leading-snug text-slate-500">{blockDef.label}</div>
       </div>
 
@@ -610,7 +612,7 @@ export function PropertyEditor({
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              {t === 'content' ? 'Conteúdo' : t === 'style' ? 'Estilo' : 'Avançado'}
+              {t === 'content' ? ui.tabContent : t === 'style' ? ui.tabStyle : ui.tabAdvanced}
             </button>
           ))}
         </div>
@@ -618,39 +620,36 @@ export function PropertyEditor({
 
       {selectedBlock.type === 'blog-featured' || selectedBlock.type === 'blog-posts-grid' ? (
         <div className="border-b border-violet-200/80 bg-violet-50/90 px-4 py-3">
-          <p className="text-[11px] font-semibold text-violet-900">Conteúdo real dos artigos</p>
+          <p className="text-[11px] font-semibold text-violet-900">{ui.realArticles}</p>
           <p className="mt-1 text-[10px] leading-snug text-violet-800/90">
-            O texto dos posts está em <code className="rounded bg-white/80 px-1">public/blog-posts</code>. Traduzir
-            ou comparar os três idiomas aqui — não depende do histórico «Traduzir» do layout.
+            {ui.realArticlesHint}
           </p>
           <button
             type="button"
             onClick={() => setBlogTranslateOpen(true)}
             className="mt-2 w-full rounded-lg border border-violet-300 bg-white px-3 py-2 text-[11px] font-semibold text-violet-900 shadow-sm hover:bg-violet-50"
           >
-            Tradução e comparar (ES / PT / EN)…
+            {ui.translateCompareLocales}
           </button>
         </div>
       ) : null}
 
       <div className="border-b border-emerald-200/80 bg-emerald-50/90 px-4 py-3">
-        <p className="text-[11px] font-semibold text-emerald-950">Tradução do layout (este bloco)</p>
-        <p className="mt-1 text-[10px] leading-snug text-emerald-900/90">
-          Inclui títulos, subtítulos, HTML, menus/listas em JSON (indicadores, segmentos, rodapé, etc.). Não usa o
-          histórico «Traduzir» global. Grava neste bloco nos ficheiros{' '}
-          <code className="rounded bg-white/80 px-1">page-layouts</code>.
-        </p>
-        <button
-          type="button"
-          onClick={() => setBlockTranslateOpen(true)}
-          className="mt-2 w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-[11px] font-semibold text-emerald-950 shadow-sm hover:bg-emerald-50"
-        >
-          Tradução e comparar (layout)…
+          <p className="text-[11px] font-semibold text-emerald-950">{ui.layoutTranslateTitle}</p>
+          <p className="mt-1 text-[10px] leading-snug text-emerald-900/90">
+            {ui.layoutTranslateHint}
+          </p>
+          <button
+            type="button"
+            onClick={() => setBlockTranslateOpen(true)}
+            className="mt-2 w-full rounded-lg border border-emerald-300 bg-white px-3 py-2 text-[11px] font-semibold text-emerald-950 shadow-sm hover:bg-emerald-50"
+          >
+            {ui.layoutTranslateBtn}
         </button>
       </div>
 
       <div className="editor-scroll flex-1 space-y-4 p-4">
-        {visiblePropKeys.length === 0 ? <p className="text-xs text-slate-500">Nenhum campo nesta aba.</p> : null}
+        {visiblePropKeys.length === 0 ? <p className="text-xs text-slate-500">{ui.noFieldsTab}</p> : null}
         {visiblePropKeys.map((propKey) => {
           const rawValue = selectedBlock.props[propKey];
           const value = rawValue === undefined || rawValue === null ? '' : rawValue;

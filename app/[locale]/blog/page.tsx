@@ -27,13 +27,20 @@ export default async function BlogPage({
   const cards = postsToCards(posts);
   const { header, footer } = await loadBlogSiteChrome(params.locale, searchParams);
 
+  const emptyCopy =
+    localeKey === 'pt-BR'
+      ? 'Sem artigos publicados no momento.'
+      : localeKey === 'en'
+        ? 'No articles published at the moment.'
+        : 'No hay artículos publicados en este momento.';
+
   if (!featured) {
     return (
       <div className="flex min-h-screen flex-col">
         {header}
         <main className="flex-1 bg-white pt-24 sm:pt-28">
           <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-            <p className="text-sm text-[#3D4352]">Sem artigos publicados no momento.</p>
+            <p className="text-sm text-[#3D4352]">{emptyCopy}</p>
           </section>
         </main>
         {footer}

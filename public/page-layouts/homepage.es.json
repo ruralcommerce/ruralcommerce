@@ -17,7 +17,7 @@
       "type": "hero-section",
       "props": {
         "title": "Transformamos pérdidas en negocios sostenibles.",
-        "subtitle": "Convertimos excedentes en oportunidades reales. Integramos tecnología, innovación y conocimientos  para profesionalizar  la gestión rural y potencialr el crecimiento.",
+        "subtitle": "Convertimos excedentes en oportunidades reales. Integramos tecnología, innovación y conocimientos para profesionalizar la gestión rural y potenciar el crecimiento.",
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Saber+",
         "ctaUrl": "#soluciones",
@@ -77,7 +77,7 @@
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Redes sociales",
         "socialLinksJson": "[\n  {\n    \"label\": \"YouTube\",\n    \"href\": \"https://www.youtube.com/@ruralcommerce\"\n  },\n  {\n    \"label\": \"Instagram\",\n    \"href\": \"https://www.instagram.com/ruralcommerce/\"\n  },\n  {\n    \"label\": \"Linkedin\",\n    \"href\": \"https://www.linkedin.com/company/ruralcommerce\"\n  }\n]",
-        "footerLinksJson": "[\n  {\n    \"group\": \"Página Web\",\n    \"items\": [\n      {\n        \"label\": \"Sobre\",\n        \"href\": \"/#sobre\"\n      },\n      {\n        \"label\": \"Soluciones\",\n        \"href\": \"/#soluciones\"\n      },\n      {\n        \"label\": \"Aliados\",\n        \"href\": \"/#aliados\"\n      }\n    ]\n  },\n  {\n    \"group\": \"Termos\",\n    \"items\": [\n      {\n        \"label\": \"Termos de Uso\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Privacidad\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Cookies\",\n        \"href\": \"\"\n      }\n    ]\n  }\n]"
+        "footerLinksJson": "[\n  {\n    \"group\": \"Página Web\",\n    \"items\": [\n      {\n        \"label\": \"Sobre\",\n        \"href\": \"/#sobre\"\n      },\n      {\n        \"label\": \"Soluciones\",\n        \"href\": \"/#soluciones\"\n      },\n      {\n        \"label\": \"Aliados\",\n        \"href\": \"/#aliados\"\n      }\n    ]\n  },\n  {\n    \"group\": \"Términos\",\n    \"items\": [\n      {\n        \"label\": \"Términos de Uso\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Privacidad\",\n        \"href\": \"\"\n      },\n      {\n        \"label\": \"Política de Cookies\",\n        \"href\": \"\"\n      }\n    ]\n  }\n]"
       }
     }
   ],

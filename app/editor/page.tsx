@@ -13,6 +13,7 @@ import { EditorLoadingSkeleton } from './components/EditorLoadingSkeleton';
 import { BLOCK_LIBRARY } from '@/lib/editor-types';
 import { createDefaultLayoutForPage, reconcilePageBlocks } from '@/lib/editor-pages';
 import { locales, type Locale } from '@/i18n/request';
+import { getEditorUi } from '@/lib/editor-ui-i18n';
 
 function editorBackupKey(pageKey: string) {
   return `rc-editor-layout-backup:v1:${pageKey}`;
@@ -168,7 +169,7 @@ export default function EditorPage() {
         }
       } catch (error) {
         console.error('Erro ao carregar página:', error);
-        const message = error instanceof Error ? error.message : 'Erro desconhecido';
+        const message = error instanceof Error ? error.message : getEditorUi(currentLocale).unknownError;
         const fallback: PageSchema = {
           ...createDefaultLayoutForPage(currentPageSlug),
           locale: currentLocale,
@@ -197,14 +198,15 @@ export default function EditorPage() {
     return <EditorLoadingSkeleton />;
   }
 
+  const t = getEditorUi(currentLocale);
+
   return (
     <>
       {loadError ? (
         <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-950">
-          <span className="font-medium">Aviso:</span> não foi possível sincronizar com o servidor ({loadError}). Está a
-          editar um <strong>layout local de segurança</strong>.{' '}
+          <span className="font-medium">{t.loadErrorTitle}</span> {t.loadErrorBody(loadError)}{' '}
           <button type="button" className="font-semibold text-blue-700 underline hover:text-blue-900" onClick={bumpRetry}>
-            Tentar novamente
+            {t.retry}
           </button>
           {typeof window !== 'undefined' && localStorage.getItem(editorBackupKey(`${currentPageSlug}:${currentLocale}`)) ? (
             <>
@@ -227,7 +229,7 @@ export default function EditorPage() {
                   }
                 }}
               >
-                Restaurar última cópia guardada neste browser
+                {t.restoreLocal}
               </button>
             </>
           ) : null}

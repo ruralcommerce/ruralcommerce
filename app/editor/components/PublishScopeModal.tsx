@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { EDITOR_PAGES } from '@/lib/editor-pages';
 import { locales } from '@/i18n/request';
 import { X } from 'lucide-react';
+import { useEditorUi } from '../editor-ui-context';
 
 export type PublishScopeSelection = {
   pageSlugs: string[];
@@ -21,12 +22,6 @@ interface PublishScopeModalProps {
   isPublishing?: boolean;
 }
 
-const LOCALE_LABEL: Record<string, string> = {
-  es: 'Español (ES)',
-  'pt-BR': 'Português (PT-BR)',
-  en: 'English (EN)',
-};
-
 export function PublishScopeModal({
   isOpen,
   onClose,
@@ -35,6 +30,8 @@ export function PublishScopeModal({
   onConfirm,
   isPublishing = false,
 }: PublishScopeModalProps) {
+  const t = useEditorUi();
+  const pageLabel = (slug: string, fallback: string) => t.pages[slug] || fallback;
   const [allPages, setAllPages] = useState(false);
   const [allLocales, setAllLocales] = useState(false);
   const [selectedPages, setSelectedPages] = useState<Set<string>>(new Set());
@@ -93,8 +90,8 @@ export function PublishScopeModal({
 
   const handleConfirm = async () => {
     if (pageSlugs.length === 0 || localeList.length === 0) {
-      toast.error('Seleção incompleta', {
-        description: 'Escolha pelo menos uma página e um idioma (ou use "Todas").',
+      toast.error(t.incompleteSelection, {
+        description: t.incompleteSelectionHint,
       });
       return;
     }
@@ -117,10 +114,10 @@ export function PublishScopeModal({
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
           <div>
             <h2 id="publish-scope-title" className="text-lg font-semibold text-slate-900">
-              Publicar no site e no Git
+              {t.publishScopeTitle}
             </h2>
             <p className="text-sm text-slate-600">
-              Escolha quais páginas e idiomas recebem status <strong>publicado</strong> agora.
+              {t.publishScopeHint}
             </p>
           </div>
           <button
@@ -128,7 +125,7 @@ export function PublishScopeModal({
             onClick={onClose}
             disabled={isPublishing}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 disabled:opacity-50"
-            aria-label="Fechar"
+            aria-label={t.close}
           >
             <X className="h-5 w-5" />
           </button>
@@ -150,7 +147,7 @@ export function PublishScopeModal({
                 }}
                 className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
               />
-              Todas as páginas ({EDITOR_PAGES.length})
+              {t.allPages} ({EDITOR_PAGES.length})
             </label>
             <div className="mt-2 grid gap-1.5 pl-1">
               {EDITOR_PAGES.map((p) => (
@@ -168,7 +165,7 @@ export function PublishScopeModal({
                     className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
                   />
                   <span>{p.icon}</span>
-                  <span>{p.name}</span>
+                  <span>{pageLabel(p.slug, p.name)}</span>
                 </label>
               ))}
             </div>
@@ -189,7 +186,7 @@ export function PublishScopeModal({
                 }}
                 className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
               />
-              Todos os idiomas ({locales.length})
+              {t.allLocales} ({locales.length})
             </label>
             <div className="mt-2 grid gap-1.5 pl-1">
               {locales.map((loc) => (
@@ -206,17 +203,14 @@ export function PublishScopeModal({
                     onChange={() => toggleLocale(loc)}
                     className="h-4 w-4 rounded border-slate-300 text-green-600 focus:ring-green-500"
                   />
-                  {LOCALE_LABEL[loc] ?? loc}
+                  {t.localeName(loc)}
                 </label>
               ))}
             </div>
           </section>
 
           <p className="rounded-md bg-slate-50 px-3 py-2 text-xs text-slate-600">
-            Serão enviadas <strong>{totalPairs}</strong> publicação{totalPairs !== 1 ? 'ões' : ''} (uma por arquivo de
-            layout). A página aberta no editor usa o conteúdo atual; as outras combinações usam o que já está salvo no
-            servidor. Se faltar ficheiro para um par, o sistema tenta criar uma cópia a partir de outro idioma do mesmo
-            slug e em seguida publicar.
+            {t.publishScopeBody(totalPairs)}
           </p>
         </div>
 
@@ -227,7 +221,7 @@ export function PublishScopeModal({
             disabled={isPublishing}
             className="rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
           >
-            Cancelar
+            {t.cancel}
           </button>
           <button
             type="button"
@@ -235,7 +229,7 @@ export function PublishScopeModal({
             disabled={isPublishing || totalPairs === 0}
             className="rounded bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {isPublishing ? 'Publicando...' : `Confirmar (${totalPairs})`}
+            {isPublishing ? t.publishing : t.confirmCount(totalPairs)}
           </button>
         </div>
       </div>

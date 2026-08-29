@@ -1,7 +1,7 @@
 {
   "id": "aliados",
   "name": "Aliados",
-  "title": "Aliados e Investidores",
+  "title": "Aliados e Inversores",
   "slug": "aliados",
   "blocks": [
     {
@@ -13,7 +13,7 @@
         "bgImage": "/images/home/hero-1.png",
         "ctaText": "Contactar",
         "ctaUrl": "/contacto",
-        "secondaryText": "Como funciona",
+        "secondaryText": "Cómo funciona",
         "secondaryUrl": "#sistema"
       }
     },
@@ -22,9 +22,9 @@
       "type": "system-section",
       "props": {
         "backgroundColor": "#071F5E",
-        "title": "O campo enfrenta grandes desafios",
-        "subtitle": "Perdas pós-colheita, oscilações de mercado e pressão por sustentabilidade continuam limitando o crescimento rural.",
-        "pillarsJson": "[{\"title\":\"Hardware de Precisão\",\"body\":\"Equipamentos modulares para otimizar processos, reduzir custos e agregar valor à produção.\"},{\"title\":\"Software de Inteligência e Gestão\",\"body\":\"Ferramentas que centralizam a gestão do negócio e o monitoramento da produção, oferecendo indicadores e segurança para decisão.\"},{\"title\":\"Gestão de Resgate e Valorização\",\"body\":\"Processos comerciais que transformam perdas em produtos vendáveis com vida útil estendida, evitando emissões por descarte.\"},{\"title\":\"Metodologia de Aceleração\",\"body\":\"Estrutura prática para padronizar qualidade, estruturar margens e abrir canais comerciais.\"}]"
+        "title": "El campo enfrenta grandes desafíos",
+        "subtitle": "Pérdidas post-cosecha, oscilaciones de mercado y presión por sostenibilidad siguen limitando el crecimiento rural.",
+        "pillarsJson": "[{\"title\":\"Hardware de Precisión\",\"body\":\"Equipos modulares para optimizar procesos, reducir costos y agregar valor a la producción.\"},{\"title\":\"Software de Inteligencia y Gestión\",\"body\":\"Herramientas que centralizan la gestión del negocio y el monitoreo de la producción, ofreciendo indicadores y seguridad para la toma de decisiones.\"},{\"title\":\"Gestión de Rescate y Valorización\",\"body\":\"Procesos comerciales que transforman pérdidas en productos vendibles con vida útil extendida, evitando emisiones por descarte.\"},{\"title\":\"Metodología de Aceleración\",\"body\":\"Marco práctico para estandarizar calidad, estructurar márgenes y abrir canales comerciales.\"}]"
       }
     },
     {
@@ -32,8 +32,8 @@
       "type": "solutions-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Um caminho claro para transformar sua produção",
-        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiência\",\"body\":\"Descubra onde seu negócio está perdendo dinheiro.\",\"cta\":\"Saiba mais\",\"variant\":\"navy\"},{\"title\":\"Curso de Processamento e Gestão\",\"body\":\"Capacitação técnica para o padrão de varejo.\",\"cta\":\"Saiba mais\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementação Rápida\",\"body\":\"Tecnologia e metodologia para começar a gerar ganhos hoje.\",\"cta\":\"Saiba mais\",\"variant\":\"royal\"}]"
+        "title": "Un camino claro para transformar su producción",
+        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiencia\",\"body\":\"Descubra dónde está perdiendo dinero su negocio.\",\"cta\":\"Saber más\",\"variant\":\"navy\"},{\"title\":\"Curso de Procesamiento y Gestión\",\"body\":\"Capacitación técnica para el estándar de retail.\",\"cta\":\"Saber más\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementación Rápida\",\"body\":\"Tecnología y metodología para comenzar a generar ganancias hoy.\",\"cta\":\"Saber más\",\"variant\":\"royal\"}]"
       }
     },
     {
@@ -41,8 +41,8 @@
       "type": "stats-section",
       "props": {
         "backgroundColor": "#EEF3F7",
-        "title": "Números que falam",
-        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
+        "title": "Números que hablan",
+        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales)."
       }
     }
   ],

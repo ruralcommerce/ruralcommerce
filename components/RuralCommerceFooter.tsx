@@ -29,9 +29,38 @@ type RuralCommerceFooterProps = {
   socialLinks?: FooterSocialLink[];
 };
 
+function footerChrome(locale: string) {
+  const year = new Date().getFullYear();
+  if (locale === 'pt-BR') {
+    return {
+      copyright: `Rural Commerce ${year} — Todos os direitos reservados`,
+      contactTitle: 'Contato',
+      contactAddress: 'Uruguai — endereço comercial (completar)',
+      socialLabel: 'Redes sociais',
+      phoneLabel: 'WhatsApp / tel.:',
+    };
+  }
+  if (locale === 'en') {
+    return {
+      copyright: `Rural Commerce ${year} — All rights reserved`,
+      contactTitle: 'Contact',
+      contactAddress: 'Uruguay — business address (to complete)',
+      socialLabel: 'Social media',
+      phoneLabel: 'WhatsApp / tel.:',
+    };
+  }
+  return {
+    copyright: `Rural Commerce ${year} - Todos los derechos reservados`,
+    contactTitle: 'Contacto',
+    contactAddress: 'Uruguay - dirección comercial (completar)',
+    socialLabel: 'Redes sociales',
+    phoneLabel: 'WhatsApp / tel.:',
+  };
+}
+
 const defaultFooterLinks: FooterLinkGroup[] = [
   {
-    group: 'Otra seccion',
+    group: 'Otra sección',
     items: [
       { label: 'Inicio', href: '/#hero' },
       { label: 'Soluciones', href: '/#soluciones' },
@@ -41,8 +70,8 @@ const defaultFooterLinks: FooterLinkGroup[] = [
   {
     group: 'Sobre',
     items: [
-      { label: 'Historia y proposito', href: '/sobre' },
-      { label: 'Como funciona', href: '/#sistema' },
+      { label: 'Historia y propósito', href: '/sobre' },
+      { label: 'Cómo funciona', href: '/#sistema' },
       { label: 'Socios', href: '/#socios' },
     ],
   },
@@ -58,17 +87,17 @@ function getDefaultFooterLinks(locale: string): FooterLinkGroup[] {
   if (locale === 'pt-BR') {
     return [
       {
-        group: 'Outra secao',
+        group: 'Outra seção',
         items: [
-          { label: 'Inicio', href: '/#hero' },
-          { label: 'Solucoes', href: '/#soluciones' },
+          { label: 'Início', href: '/#hero' },
+          { label: 'Soluções', href: '/#soluciones' },
           { label: 'Segmentos', href: '/#segmentos' },
         ],
       },
       {
         group: 'Sobre',
         items: [
-          { label: 'Historia e proposito', href: '/sobre' },
+          { label: 'História e propósito', href: '/sobre' },
           { label: 'Como funciona', href: '/#sistema' },
           { label: 'Parceiros', href: '/#socios' },
         ],
@@ -130,15 +159,20 @@ function localizeHref(href: string, locale: string): string {
 export function RuralCommerceFooter({
   locale = 'es',
   title = 'Rural Commerce',
-  copyright = `Rural Commerce ${new Date().getFullYear()} - Todos los derechos reservados`,
-  contactTitle = 'Contacto',
-  contactAddress = 'Uruguay - direccion comercial (completar)',
+  copyright,
+  contactTitle,
+  contactAddress,
   contactPhone = '+598 · · · · ·',
   contactEmail = 'contacto@ruralcommerce.com',
-  socialLabel = 'Redes sociales',
+  socialLabel,
   footerLinks,
   socialLinks = defaultSocialLinks,
 }: RuralCommerceFooterProps) {
+  const chrome = footerChrome(locale);
+  const resolvedCopyright = copyright || chrome.copyright;
+  const resolvedContactTitle = contactTitle || chrome.contactTitle;
+  const resolvedContactAddress = contactAddress || chrome.contactAddress;
+  const resolvedSocialLabel = socialLabel || chrome.socialLabel;
   const resolvedFooterLinks = footerLinks && footerLinks.length > 0 ? footerLinks : getDefaultFooterLinks(locale);
 
   return (
@@ -155,7 +189,7 @@ export function RuralCommerceFooter({
                 className="h-12 w-auto object-contain"
               />
             </div>
-            <p className="sr-only">{socialLabel}</p>
+            <p className="sr-only">{resolvedSocialLabel}</p>
             <div className="mt-5 flex items-center gap-4 text-[#071F5E]">
               {socialLinks
                 .filter((link) => link.href.trim())
@@ -201,11 +235,11 @@ export function RuralCommerceFooter({
           </div>
 
           <div>
-            <p className="text-sm font-bold text-[#009179]">{contactTitle}</p>
+            <p className="text-sm font-bold text-[#009179]">{resolvedContactTitle}</p>
             <ul className="mt-4 space-y-3 text-sm">
-              <li>{contactAddress}</li>
+              <li>{resolvedContactAddress}</li>
               <li>
-                <span className="text-[#1E1E1E]/80">WhatsApp / tel.:</span> {contactPhone}
+                <span className="text-[#1E1E1E]/80">{chrome.phoneLabel}</span> {contactPhone}
               </li>
               <li>
                 <a
@@ -219,7 +253,7 @@ export function RuralCommerceFooter({
           </div>
         </div>
         <p className="mt-12 text-center text-sm font-bold text-[#009179]">
-          {copyright}
+          {resolvedCopyright}
         </p>
       </div>
     </footer>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Newspaper, Plus, Trash2, ImageIcon, Languages } from 'lucide-react';
 import { toast } from 'sonner';
 import type { BlogPostGalleryItem, BlogPostRecord } from '@/lib/blog-posts-shared';
@@ -8,6 +8,7 @@ import { isValidBlogSlug } from '@/lib/blog-posts-shared';
 import { MediaLibraryModal } from './MediaLibraryModal';
 import { BlogRichTextEditor } from './BlogRichTextEditor';
 import { BlogTranslateModal } from './BlogTranslateModal';
+import { useEditorUi } from '../editor-ui-context';
 
 function clonePosts(posts: BlogPostRecord[]): BlogPostRecord[] {
   return JSON.parse(JSON.stringify(posts)) as BlogPostRecord[];
@@ -30,6 +31,7 @@ export function BlogPostsEditorModal({
   /** Chamado após guardar com sucesso (para actualizar baseline de tradução em ES). */
   onSaved?: () => void;
 }) {
+  const t = useEditorUi();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [posts, setPosts] = useState<BlogPostRecord[]>([]);
@@ -64,7 +66,7 @@ export function BlogPostsEditorModal({
         credentials: 'include',
       });
       if (!res.ok) {
-        toast.error('Não foi possível carregar os artigos do blog.');
+        toast.error(t.blogLoadError);
         return;
       }
       const data = (await res.json()) as { posts?: BlogPostRecord[]; status?: string };
@@ -75,7 +77,7 @@ export function BlogPostsEditorModal({
     } finally {
       setLoading(false);
     }
-  }, [locale]);
+  }, [locale, t]);
 
   useEffect(() => {
     if (!open) return;
@@ -108,7 +110,7 @@ export function BlogPostsEditorModal({
       const featured = prev.length === 0;
       const row: BlogPostRecord = {
         slug,
-        title: 'Novo artigo',
+        title: t.newArticle,
         category: 'NOTÍCIAS',
         author: '',
         coverImage: '/images/home/hero-1.png',
@@ -129,11 +131,11 @@ export function BlogPostsEditorModal({
       setSelectedIdx(next.length - 1);
       return next;
     });
-  }, []);
+  }, [t]);
 
   const removeSelected = useCallback(() => {
     if (posts.length <= 1) {
-      toast.message('É necessário pelo menos um artigo.');
+      toast.message(t.needOneArticle);
       return;
     }
     setPosts((prev) => {
@@ -145,19 +147,19 @@ export function BlogPostsEditorModal({
       });
       return next;
     });
-  }, [posts.length, selectedIdx]);
+  }, [posts.length, selectedIdx, t]);
 
   const persist = useCallback(
     async (status: 'draft' | 'published') => {
       for (const p of posts) {
         if (!isValidBlogSlug(p.slug)) {
-          toast.error(`Slug inválido: "${p.slug}" (use letras minúsculas, números e hífens).`);
+          toast.error(t.invalidSlug(p.slug));
           return;
         }
       }
       const slugSet = new Set(posts.map((p) => p.slug));
       if (slugSet.size !== posts.length) {
-        toast.error('Cada artigo precisa de um slug único.');
+        toast.error(t.uniqueSlug);
         return;
       }
       setSaving(true);
@@ -170,18 +172,18 @@ export function BlogPostsEditorModal({
         });
         if (!res.ok) {
           const err = (await res.json().catch(() => ({}))) as { error?: string };
-          toast.error(err.error || 'Erro ao guardar.');
+          toast.error(err.error || t.saveErrorShort);
           return;
         }
         const data = (await res.json()) as { status?: string };
         setFileStatus(data.status === 'draft' ? 'draft' : 'published');
-        toast.success(status === 'published' ? 'Blog publicado.' : 'Rascunho guardado.');
+        toast.success(status === 'published' ? t.blogPublished : t.draftSaved);
         onSaved?.();
       } finally {
         setSaving(false);
       }
     },
-    [locale, posts, onSaved]
+    [locale, posts, onSaved, t]
   );
 
   const openMediaFor = (target: MediaTarget) => {
@@ -248,11 +250,7 @@ export function BlogPostsEditorModal({
     });
   };
 
-  const hint = useMemo(
-    () =>
-      'Corpo em HTML (negrito, listas, cores, imagens, links). Use «Tradução / comparar» para gerar PT/EN a partir deste ou de outro idioma — não precisa do menu global «Traduzir».',
-    []
-  );
+  const hint = t.bodyHint;
 
   if (!open) return null;
 
@@ -263,8 +261,8 @@ export function BlogPostsEditorModal({
           <div className="flex min-w-0 items-center gap-2">
             <Newspaper className="h-5 w-5 shrink-0 text-emerald-700" />
             <div className="min-w-0">
-              <h2 className="text-sm font-bold text-slate-900">Artigos do blog</h2>
-              <p className="truncate text-[11px] text-slate-600">Idioma: {locale} · ficheiro JSON em public/blog-posts</p>
+              <h2 className="text-sm font-bold text-slate-900">{t.blogArticles}</h2>
+              <p className="truncate text-[11px] text-slate-600">{t.localeFile(locale)}</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -274,7 +272,7 @@ export function BlogPostsEditorModal({
               onClick={() => void persist('draft')}
               className="rounded-md border border-slate-300 bg-white px-2 py-1 text-[11px] font-semibold text-slate-800 hover:bg-slate-50 disabled:opacity-50"
             >
-              Rascunho
+              {t.draft}
             </button>
             <button
               type="button"
@@ -282,7 +280,7 @@ export function BlogPostsEditorModal({
               onClick={() => void persist('published')}
               className="rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
             >
-              Publicar
+              {t.publish}
             </button>
             <button
               type="button"
@@ -290,38 +288,38 @@ export function BlogPostsEditorModal({
               className="inline-flex items-center gap-1 rounded-md border border-violet-200 bg-violet-50 px-2 py-1 text-[11px] font-semibold text-violet-900 hover:bg-violet-100"
             >
               <Languages className="h-3.5 w-3.5" />
-              Tradução / comparar
+              {t.translationCompare}
             </button>
             <button
               type="button"
               onClick={onClose}
               className="rounded-md px-2 py-1 text-[11px] font-semibold text-slate-600 hover:bg-slate-200/80"
             >
-              Fechar
+              {t.close}
             </button>
           </div>
         </div>
 
         <p className="border-b border-slate-100 bg-amber-50/80 px-4 py-2 text-[11px] text-amber-950">
-          Estado no servidor: <span className="font-semibold">{fileStatus}</span>. {hint}
+          {t.serverStatus} <span className="font-semibold">{fileStatus}</span>. {hint}
         </p>
 
         <div className="flex min-h-0 flex-1 flex-col md:flex-row">
           <aside className="flex w-full flex-shrink-0 flex-col border-b border-slate-200 md:w-56 md:border-b-0 md:border-r">
             <div className="flex items-center justify-between border-b border-slate-100 px-2 py-2">
-              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">Lista</span>
+              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{t.list}</span>
               <button
                 type="button"
                 onClick={addPost}
                 className="inline-flex items-center gap-1 rounded border border-emerald-200 bg-emerald-50 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-900"
               >
                 <Plus className="h-3 w-3" />
-                Novo
+                {t.newPost}
               </button>
             </div>
             <div className="min-h-0 flex-1 overflow-y-auto p-2">
               {loading ? (
-                <p className="p-2 text-xs text-slate-500">A carregar…</p>
+                <p className="p-2 text-xs text-slate-500">{t.loadingEllipsis}</p>
               ) : (
                 <ul className="space-y-1">
                   {posts.map((p, i) => (
@@ -339,7 +337,7 @@ export function BlogPostsEditorModal({
                         <span className="mt-0.5 truncate font-mono text-[10px] text-slate-500">{p.slug}</span>
                         {p.featured ? (
                           <span className="mt-1 inline-block w-fit rounded bg-amber-100 px-1 py-0 text-[9px] font-bold text-amber-900">
-                            Destaque
+                            {t.featured}
                           </span>
                         ) : null}
                       </button>
@@ -352,7 +350,7 @@ export function BlogPostsEditorModal({
 
           <div className="min-h-0 flex-1 overflow-y-auto p-4">
             {!selected ? (
-              <p className="text-sm text-slate-600">Sem artigos.</p>
+              <p className="text-sm text-slate-600">{t.noArticles}</p>
             ) : (
               <div className="mx-auto max-w-xl space-y-3">
                 <div className="flex items-center gap-2">
@@ -365,7 +363,7 @@ export function BlogPostsEditorModal({
                         else setPosts((prev) => prev.map((p, i) => ({ ...p, featured: i === 0 })));
                       }}
                     />
-                    Destaque (aparece em grande na página do blog)
+                    {t.featured}
                   </label>
                   <button
                     type="button"
@@ -378,7 +376,7 @@ export function BlogPostsEditorModal({
                 </div>
 
                 <label className="block">
-                  <span className="text-[11px] font-semibold text-slate-700">Slug (URL)</span>
+                  <span className="text-[11px] font-semibold text-slate-700">{t.slugUrl}</span>
                   <input
                     className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
                     value={selected.slug}
@@ -387,7 +385,7 @@ export function BlogPostsEditorModal({
                 </label>
 
                 <label className="block">
-                  <span className="text-[11px] font-semibold text-slate-700">Título</span>
+                  <span className="text-[11px] font-semibold text-slate-700">{t.title}</span>
                   <input
                     className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
                     value={selected.title}
@@ -397,7 +395,7 @@ export function BlogPostsEditorModal({
 
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block">
-                    <span className="text-[11px] font-semibold text-slate-700">Categoria</span>
+                    <span className="text-[11px] font-semibold text-slate-700">{t.category}</span>
                     <input
                       className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
                       value={selected.category}
@@ -405,7 +403,7 @@ export function BlogPostsEditorModal({
                     />
                   </label>
                   <label className="block">
-                    <span className="text-[11px] font-semibold text-slate-700">Autor</span>
+                    <span className="text-[11px] font-semibold text-slate-700">{t.author}</span>
                     <input
                       className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
                       value={selected.author}
@@ -415,7 +413,7 @@ export function BlogPostsEditorModal({
                 </div>
 
                 <label className="block">
-                  <span className="text-[11px] font-semibold text-slate-700">Resumo (chapéu)</span>
+                  <span className="text-[11px] font-semibold text-slate-700">{t.excerptHat}</span>
                   <textarea
                     className="mt-0.5 min-h-[72px] w-full rounded border border-slate-300 px-2 py-1.5 text-sm"
                     value={selected.excerpt}
@@ -424,7 +422,7 @@ export function BlogPostsEditorModal({
                 </label>
 
                 <div>
-                  <span className="text-[11px] font-semibold text-slate-700">Imagem de capa</span>
+                  <span className="text-[11px] font-semibold text-slate-700">{t.coverImage}</span>
                   <div className="mt-1 flex gap-2">
                     <input
                       className="min-w-0 flex-1 rounded border border-slate-300 px-2 py-1.5 text-sm"
@@ -441,7 +439,7 @@ export function BlogPostsEditorModal({
                     </button>
                   </div>
                   <label className="mt-1 block">
-                    <span className="text-[10px] text-slate-500">Alt da capa</span>
+                    <span className="text-[10px] text-slate-500">{t.coverAlt}</span>
                     <input
                       className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
                       value={selected.coverImageAlt || ''}
@@ -451,7 +449,7 @@ export function BlogPostsEditorModal({
                 </div>
 
                 <div className="block">
-                  <span className="text-[11px] font-semibold text-slate-700">Corpo do artigo</span>
+                  <span className="text-[11px] font-semibold text-slate-700">{t.articleBody}</span>
                   <p className="mb-1 text-[10px] text-slate-500">
                     Use a barra de ferramentas; o ícone de imagem abre a biblioteca de media para inserir no texto.
                   </p>
@@ -469,7 +467,7 @@ export function BlogPostsEditorModal({
                 </div>
 
                 <div className="rounded-lg border border-slate-200 bg-slate-50/80 p-3">
-                  <p className="text-[11px] font-bold text-slate-800">Banner CTA (fim do artigo)</p>
+                  <p className="text-[11px] font-bold text-slate-800">{t.ctaBanner}</p>
                   <label className="mt-2 flex items-center gap-2 text-[11px] font-semibold text-slate-700">
                     <input
                       type="checkbox"
@@ -490,7 +488,7 @@ export function BlogPostsEditorModal({
                     Mostrar CTA no fim da página do artigo
                   </label>
                   <label className="mt-2 block">
-                    <span className="text-[10px] font-semibold text-slate-600">Título do CTA</span>
+                    <span className="text-[10px] font-semibold text-slate-600">{t.ctaTitle}</span>
                     <input
                       className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
                       value={selected.cta?.title ?? ''}
@@ -509,7 +507,7 @@ export function BlogPostsEditorModal({
                     />
                   </label>
                   <label className="mt-2 block">
-                    <span className="text-[10px] font-semibold text-slate-600">Texto do CTA</span>
+                    <span className="text-[10px] font-semibold text-slate-600">{t.ctaText}</span>
                     <textarea
                       className="mt-0.5 min-h-[56px] w-full rounded border border-slate-300 px-2 py-1 text-sm"
                       value={selected.cta?.body ?? ''}
@@ -529,7 +527,7 @@ export function BlogPostsEditorModal({
                   </label>
                   <div className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <label className="block">
-                      <span className="text-[10px] font-semibold text-slate-600">Texto do botão</span>
+                      <span className="text-[10px] font-semibold text-slate-600">{t.ctaButton}</span>
                       <input
                         className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 text-sm"
                         value={selected.cta?.buttonLabel ?? ''}
@@ -548,7 +546,7 @@ export function BlogPostsEditorModal({
                       />
                     </label>
                     <label className="block">
-                      <span className="text-[10px] font-semibold text-slate-600">Link (ex: /contacto)</span>
+                      <span className="text-[10px] font-semibold text-slate-600">{t.ctaLink}</span>
                       <input
                         className="mt-0.5 w-full rounded border border-slate-300 px-2 py-1 font-mono text-xs"
                         value={selected.cta?.buttonHref ?? ''}
@@ -571,7 +569,7 @@ export function BlogPostsEditorModal({
 
                 <div>
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-semibold text-slate-700">Galeria (carrossel)</span>
+                    <span className="text-[11px] font-semibold text-slate-700">{t.galleryCarousel}</span>
                     <button
                       type="button"
                       onClick={addGalleryRow}

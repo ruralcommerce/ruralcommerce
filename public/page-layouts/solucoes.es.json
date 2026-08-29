@@ -1,7 +1,7 @@
 {
   "id": "solucoes",
-  "name": "Soluções",
-  "title": "Soluções",
+  "name": "Soluciones",
+  "title": "Soluciones",
   "slug": "solucoes",
   "blocks": [
     {
@@ -22,8 +22,8 @@
       "type": "solutions-section",
       "props": {
         "backgroundColor": "#F5F7FB",
-        "title": "Um caminho claro para transformar sua produção",
-        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiência\",\"body\":\"Descubra onde seu negócio está perdendo dinheiro.\",\"cta\":\"Saiba mais\",\"variant\":\"navy\"},{\"title\":\"Curso de Processamento e Gestão\",\"body\":\"Capacitação técnica para o padrão de varejo.\",\"cta\":\"Saiba mais\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementação Rápida\",\"body\":\"Tecnologia e metodologia para começar a gerar ganhos hoje.\",\"cta\":\"Saiba mais\",\"variant\":\"royal\"}]"
+        "title": "Un camino claro para transformar su producción",
+        "itemsJson": "[{\"title\":\"Diagnóstico de Eficiencia\",\"body\":\"Descubra dónde está perdiendo dinero su negocio.\",\"cta\":\"Saber más\",\"variant\":\"navy\"},{\"title\":\"Curso de Procesamiento y Gestión\",\"body\":\"Capacitación técnica para el estándar de retail.\",\"cta\":\"Saber más\",\"variant\":\"sage\"},{\"title\":\"Kit de Implementación Rápida\",\"body\":\"Tecnología y metodología para comenzar a generar ganancias hoy.\",\"cta\":\"Saber más\",\"variant\":\"royal\"}]"
       }
     },
     {
@@ -31,8 +31,8 @@
       "type": "stats-section",
       "props": {
         "backgroundColor": "#EEF3F7",
-        "title": "Números que falam",
-        "subtitle": "Indicadores de impacto e eficiência em redes acompanhadas (valores referenciais)."
+        "title": "Números que hablan",
+        "subtitle": "Indicadores de impacto y eficiencia en redes acompañadas (valores referenciales)."
       }
     },
     {

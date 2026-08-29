@@ -53,7 +53,7 @@
         "backgroundColor": "#EEF3F7",
         "title": "Numbers that speak",
         "subtitle": "Impact and efficiency indicators across supported networks (reference values).",
-        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Emprendimientos atendidos por nuestro ecosistema.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"de CO2e evitados a cada 5kg de alimentos rescatados.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"de AGUA virtual preservadas a cada 5kg de alimento rescatados.\"}]"
+        "statsJson": "[{\"icon\":\"building2\",\"digits\":\"1000\",\"symbol\":\"+\",\"label\":\"Ventures served by our ecosystem.\"},{\"icon\":\"wind\",\"digits\":\"16,5\",\"symbol\":\"kg\",\"label\":\"of CO2e avoided for every 5kg of food rescued.\"},{\"icon\":\"droplets\",\"digits\":\"4.000\",\"symbol\":\"L\",\"label\":\"of virtual WATER preserved for every 5kg of food rescued.\"}]"
       }
     },
     {
@@ -77,7 +77,7 @@
         "contactEmail": "ruralcommerce@ruralcommerceglobal.com",
         "socialLabel": "Social media",
         "socialLinksJson": "[{\"label\":\"YouTube\",\"href\":\"https://www.youtube.com/@ruralcommerce\"},{\"label\":\"Instagram\",\"href\":\"https://www.instagram.com/ruralcommerce/\"},{\"label\":\"Linkedin\",\"href\":\"https://www.linkedin.com/company/ruralcommerce\"}]",
-        "footerLinksJson": "[{\"group\":\"Website\",\"items\":[{\"label\":\"About\",\"href\":\"/#sobre\"},{\"label\":\"rivacy Policy\",\"href\":\"/#soluciones\"},{\"label\":\"Cookies Policy\",\"href\":\"/#aliados\"}]},{\"group\":\"Terms\",\"items\":[{\"label\":\"Terms and Conditions\",\"href\":\"\"},{\"label\":\"rivacy Policy\",\"href\":\"\"},{\"label\":\"Cookies Policy\",\"href\":\"\"}]}]"
+        "footerLinksJson": "[{\"group\":\"Website\",\"items\":[{\"label\":\"About\",\"href\":\"/#sobre\"},{\"label\":\"Solutions\",\"href\":\"/#soluciones\"},{\"label\":\"Partners\",\"href\":\"/#aliados\"}]},{\"group\":\"Terms\",\"items\":[{\"label\":\"Terms of Use\",\"href\":\"\"},{\"label\":\"Privacy Policy\",\"href\":\"\"},{\"label\":\"Cookies Policy\",\"href\":\"\"}]}]"
       }
     }
   ],

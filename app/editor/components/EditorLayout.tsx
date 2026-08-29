@@ -39,6 +39,8 @@ import { applyStructureSyncFromSource } from '@/lib/structure-sync-utils';
 import { locales as editorLocales } from '@/i18n/request';
 import { toast } from 'sonner';
 import { useEditorCanvasShortcuts } from '../hooks/useEditorCanvasShortcuts';
+import { getEditorUi } from '@/lib/editor-ui-i18n';
+import { EditorUiProvider } from '../editor-ui-context';
 
 function hasInvalidJsonProps(page: PageSchema | null): boolean {
   if (!page) return false;
@@ -87,6 +89,7 @@ export function EditorLayout({
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isPublishingBulk, setIsPublishingBulk] = useState(false);
   const [isSyncingLayout, setIsSyncingLayout] = useState(false);
+  const t = getEditorUi(currentLocale);
   const [translationPreviews, setTranslationPreviews] = useState<TranslationPreview[]>([]);
   const [isGeneratingTranslations, setIsGeneratingTranslations] = useState(false);
   const [centerTab, setCenterTab] = useState<'preview' | 'blocks'>('preview');
@@ -198,7 +201,7 @@ export function EditorLayout({
     });
 
     if (!response.ok) {
-      throw new Error('Falha ao salvar layout');
+      throw new Error(t.saveFail);
     }
 
     const updated = (await response.json()) as PageSchema & {
@@ -208,7 +211,7 @@ export function EditorLayout({
     syncPageFromPersist(pagePayload as PageSchema);
     setPreviewTick((value) => value + 1);
     if (_sync?.git === 'failed' && _sync.message) {
-      toast.warning('Layout salvo no servidor, mas o envio para o Git falhou.', {
+      toast.warning(t.gitWarn, {
         description: _sync.message,
         duration: 20000,
       });
@@ -219,25 +222,18 @@ export function EditorLayout({
   const syncStructureToOtherLocales = async () => {
     if (!currentPage) return;
     if (invalidJson) {
-      toast.error('JSON inválido', { description: 'Corrija antes de sincronizar o layout.' });
+      toast.error(t.invalidJson, { description: t.fixBeforeSync });
       return;
     }
 
     const slug = currentPage.slug || currentPageSlug;
     const targets = editorLocales.filter((l) => l !== currentLocale);
     if (targets.length === 0) {
-      toast.message('Nada a sincronizar', { description: 'Só há um idioma na configuração.' });
+      toast.message(t.nothingToSync, { description: t.onlyOneLocale });
       return;
     }
 
-    const ok = window.confirm(
-      `Atualizar estrutura desta página em ${targets.join(' e ')} a partir do idioma aberto (${currentLocale})?\n\n` +
-        'Alinha cada bloco pelo tipo (ex.: Parceiros, Menu, Indicadores), não só pela ordem na lista. ' +
-        'Copia cores, imagens, logos, listas JSON completas (número de parceiros, ícones, links…) e preserva textos já traduzidos nos outros idiomas. ' +
-        'Guarde a página em ' +
-        currentLocale +
-        ' antes se editou sem salvar.'
-    );
+    const ok = window.confirm(t.syncConfirm(targets.join(' / '), currentLocale));
     if (!ok) return;
 
     setIsSyncingLayout(true);
@@ -336,25 +332,24 @@ export function EditorLayout({
       }
 
       if (savedOk.length > 0) {
-        toast.success(`Estrutura sincronizada: ${savedOk.join(', ')}.`, {
-          description:
-            'Blocos e listas JSON alinhados à página aberta; títulos/descrições traduzidos nos destinos foram mantidos quando existiam.',
+        toast.success(t.syncOkNamed(savedOk.join(', ')), {
+          description: t.syncOkDesc,
           duration: 10000,
         });
       }
       if (allWarnings.length > 0) {
-        toast.warning('Avisos na sincronização', {
+        toast.warning(t.syncWarn, {
           description: allWarnings.slice(0, 8).join('\n') + (allWarnings.length > 8 ? '\n…' : ''),
           duration: 14000,
         });
       }
       if (errors.length > 0) {
-        toast.error('Alguns idiomas falharam', {
+        toast.error(t.someLocalesFailed, {
           description: errors.slice(0, 8).join('\n'),
           duration: 16000,
         });
       } else if (savedOk.length === 0 && allWarnings.length === 0) {
-        toast.message('Nada foi salvo.');
+        toast.message(t.nothingSaved);
       }
     } finally {
       setIsSyncingLayout(false);
@@ -374,8 +369,8 @@ export function EditorLayout({
       pairs.some((p) => p.slug === (currentPage.slug || currentPageSlug) && p.locale === currentLocale);
 
     if (touchesCurrent && invalidJson) {
-      toast.error('JSON inválido', {
-        description: 'Corrija os campos na página atual antes de publicar.',
+      toast.error(t.invalidJson, {
+        description: t.fixBeforePublish,
       });
       return;
     }
@@ -491,18 +486,16 @@ export function EditorLayout({
       }
 
       if (successes.length === 0) {
-        toast.error('Nenhuma publicação concluída.', {
+      toast.error(t.noPublishDone, {
           description: failures.length
             ? failures.slice(0, 16).join('\n') + (failures.length > 16 ? '\n…' : '')
-            : 'Verifique a consola e tente novamente.',
+            : t.checkConsoleRetry,
           duration: 22000,
         });
       } else {
-        toast.success(`Publicado(s): ${successes.length} de ${pairs.length}.`, {
+        toast.success(t.publishedCount(successes.length, pairs.length), {
           description: [
-            autoCreatedLayouts > 0
-              ? `${autoCreatedLayouts} ficheiro(s) criado(s) a partir de outro idioma/modelo.`
-              : null,
+            autoCreatedLayouts > 0 ? t.filesCreated(autoCreatedLayouts) : null,
             successes.length <= 8 ? `OK: ${successes.join(', ')}` : null,
           ]
             .filter(Boolean)
@@ -510,7 +503,7 @@ export function EditorLayout({
           duration: 9000,
         });
         if (failures.length > 0) {
-          toast.warning(`Avisos ou falhas: ${failures.length}`, {
+          toast.warning(t.warningsOrFailures(failures.length), {
             description: failures.slice(0, 14).join('\n') + (failures.length > 14 ? '\n…' : ''),
             duration: 22000,
           });
@@ -525,14 +518,14 @@ export function EditorLayout({
   // Função para gerar preview das traduções
   const generateTranslationPreviews = async () => {
     if (currentLocale !== 'es') {
-      toast.info('Tradução assistida só está disponível com o idioma do editor em Español (ES).');
+      toast.info(t.translateOnlyEs);
       return;
     }
 
     if (currentPageSlug === 'blog') {
       if (!blogEnvelopeBaseline) {
-        toast.warning('Baseline do blog (ES) ainda não carregou.', {
-          description: 'Recarregue o editor ou aguarde um momento.',
+        toast.warning(t.blogBaselineMissing, {
+          description: t.waitOrReload,
         });
         return;
       }
@@ -544,15 +537,15 @@ export function EditorLayout({
           cache: 'no-store',
         });
         if (!res.ok) {
-          throw new Error('Não foi possível ler o blog em ES.');
+          throw new Error(t.cannotReadBlogEs);
         }
         const data = (await res.json()) as { posts?: unknown };
         const currentEnv = blogPostsToEnvelope(Array.isArray(data.posts) ? (data.posts as BlogPostRecord[]) : []);
         const changedFields = detectTextChanges(blogEnvelopeBaseline, currentEnv);
 
         if (changedFields.length === 0) {
-          toast.message('Sem alterações de texto no blog', {
-            description: 'Guarde o painel «Artigos» em ES se fez alterações.',
+          toast.message(t.noBlogTextChanges, {
+            description: t.noBlogTextHint,
           });
           return;
         }
@@ -562,7 +555,7 @@ export function EditorLayout({
         setTranslationModalOpen(true);
       } catch (error) {
         console.error('Erro ao gerar previews de tradução (blog):', error);
-        toast.error(error instanceof Error ? error.message : 'Erro ao gerar traduções. Verifique o console.');
+        toast.error(error instanceof Error ? error.message : t.translateError);
       } finally {
         setIsGeneratingTranslations(false);
       }
@@ -572,8 +565,8 @@ export function EditorLayout({
     const baselineKey = `${currentPageSlug}:${currentLocale}`;
     if (!currentPage || !translationBaselinePage || translationBaselineKey !== baselineKey) {
       if (!translationBaselinePage) {
-        toast.warning('Baseline de tradução ainda não carregou.', {
-          description: 'Recarregue a página do editor.',
+        toast.warning(t.translationBaselineMissing, {
+          description: t.reloadEditor,
         });
       }
       return;
@@ -584,8 +577,8 @@ export function EditorLayout({
       const changedFields = detectTextChanges(translationBaselinePage, currentPage);
 
       if (changedFields.length === 0) {
-        toast.message('Sem alterações de texto', {
-          description: 'Nada mudou em relação ao último carregamento desta página em ES.',
+        toast.message(t.noTextChanges, {
+          description: t.noTextHint,
         });
         return;
       }
@@ -596,7 +589,7 @@ export function EditorLayout({
       setTranslationModalOpen(true);
     } catch (error) {
       console.error('Erro ao gerar previews de tradução:', error);
-      toast.error(error instanceof Error ? error.message : 'Erro ao gerar traduções. Verifique o console.');
+        toast.error(error instanceof Error ? error.message : t.translateError);
     } finally {
       setIsGeneratingTranslations(false);
     }
@@ -642,11 +635,11 @@ export function EditorLayout({
           }
         }
 
-        toast.success(`Tradução do blog aplicada em ${Object.keys(changesByLocale).length} idioma(s).`);
+        toast.success(t.blogTranslated(Object.keys(changesByLocale).length));
         await refreshBlogEnvelopeBaselineEs();
       } catch (error) {
         console.error('Erro ao aplicar traduções (blog):', error);
-        toast.error('Erro ao aplicar traduções do blog. Verifique o console.');
+        toast.error(t.blogTranslateError);
       }
       return;
     }
@@ -684,7 +677,7 @@ export function EditorLayout({
         }
       }
 
-      toast.success(`Tradução aplicada em ${Object.keys(changesByLocale).length} idioma(s).`);
+      toast.success(t.translated(Object.keys(changesByLocale).length));
 
       const page = useEditorStore.getState().currentPage;
       if (page && currentLocale === 'es') {
@@ -692,7 +685,7 @@ export function EditorLayout({
       }
     } catch (error) {
       console.error('Erro ao aplicar traduções:', error);
-      toast.error('Erro ao aplicar traduções. Verifique o console.');
+      toast.error(t.applyTranslateError);
     }
   };
 
@@ -707,7 +700,7 @@ export function EditorLayout({
         setAutoSaveError(null);
         await persistLayout('draft');
       } catch {
-        setAutoSaveError('Falha no autosave. Use o botao Salvar.');
+        setAutoSaveError(t.autosaveFail);
       } finally {
         setIsAutoSaving(false);
       }
@@ -940,9 +933,7 @@ export function EditorLayout({
   const restoreDefaultLayout = () => {
     if (!currentPage) return;
 
-    const confirmRestore = window.confirm(
-      `Restaurar o layout padrao de ${pageConfig.name}? Isso vai substituir os blocos atuais (nao publicados ainda).`
-    );
+    const confirmRestore = window.confirm(t.restoreConfirm(t.pages[pageConfig.slug] || pageConfig.name));
 
     if (!confirmRestore) return;
 
@@ -960,7 +951,7 @@ export function EditorLayout({
   const saveLayout = async (status: 'draft' | 'published') => {
     if (!currentPage) return;
     if (invalidJson) {
-      toast.error('JSON inválido', { description: 'Corrija antes de salvar ou publicar.' });
+      toast.error(t.invalidJson, { description: t.fixBeforeSave });
       return;
     }
 
@@ -968,21 +959,22 @@ export function EditorLayout({
     try {
       await persistLayout(status);
       if (status === 'draft') {
-        toast.success('Rascunho guardado no servidor.');
+        toast.success(t.draftSaved);
       } else {
-        toast.success('Página publicada com sucesso.', {
+        toast.success(t.publishedOk, {
           description: currentPage.title || currentPage.slug,
         });
       }
     } catch (error) {
       console.error(error);
-      toast.error('Erro ao salvar layout. Verifique o console.');
+      toast.error(t.saveError);
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
+    <EditorUiProvider locale={currentLocale}>
     <div className="flex h-full min-h-0 bg-white">
       <div
         className={`flex shrink-0 transition-[width] duration-200 ${sidebarCollapsed ? '' : 'min-w-0'}`}
@@ -1003,7 +995,7 @@ export function EditorLayout({
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Widgets
+                {t.widgets}
               </button>
               <button
                 type="button"
@@ -1014,7 +1006,7 @@ export function EditorLayout({
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
-                Propriedades
+                {t.properties}
               </button>
             </div>
           </div>
@@ -1034,7 +1026,7 @@ export function EditorLayout({
                     ? 'border-violet-400 bg-violet-50 text-violet-700 shadow-sm'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 }`}
-                title="Widgets"
+                title={t.widgets}
               >
                 <LayoutGrid className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -1049,7 +1041,7 @@ export function EditorLayout({
                     ? 'border-violet-400 bg-violet-50 text-violet-700 shadow-sm'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 }`}
-                title="Propriedades"
+                title={t.properties}
               >
                 <SlidersHorizontal className="h-4 w-4" strokeWidth={2} />
               </button>
@@ -1091,8 +1083,8 @@ export function EditorLayout({
             type="button"
             onClick={() => setSidebarCollapsed(true)}
             className="absolute right-2 top-2 z-10 inline-flex h-8 w-8 items-center justify-center rounded-xl border border-slate-200/90 bg-white text-slate-600 shadow-sm transition hover:border-violet-200 hover:bg-violet-50/80 hover:text-violet-700"
-            aria-label="Minimizar sidebar"
-            title="Minimizar sidebar"
+            aria-label={t.minimizeSidebar}
+            title={t.minimizeSidebar}
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -1101,8 +1093,8 @@ export function EditorLayout({
             type="button"
             onClick={() => setSidebarCollapsed(false)}
             className="absolute inset-y-0 right-0 flex w-8 items-center justify-center bg-slate-100 text-slate-500 hover:bg-slate-200"
-            aria-label="Expandir sidebar"
-            title="Expandir sidebar"
+            aria-label={t.expandSidebar}
+            title={t.expandSidebar}
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -1112,10 +1104,10 @@ export function EditorLayout({
           <div
             role="separator"
             aria-orientation="vertical"
-            aria-label="Redimensionar painel"
+            aria-label={t.resizePanel}
             onMouseDown={() => setIsResizingSidebar(true)}
             className="w-2.5 shrink-0 cursor-col-resize self-stretch border-l border-slate-200/80 bg-slate-100/90 hover:bg-violet-200/35 active:bg-violet-300/45"
-            title="Arraste para redimensionar (não sobrepõe o scroll)"
+            title={t.resizeHint}
           />
         ) : null}
       </div>
@@ -1136,7 +1128,7 @@ export function EditorLayout({
               </span>
             )}
             {isDirty ? (
-              <span className="text-[10px] font-medium text-orange-600" title="Alterações não guardadas">
+              <span className="text-[10px] font-medium text-orange-600" title={t.unsaved}>
                 •
               </span>
             ) : null}
@@ -1158,10 +1150,10 @@ export function EditorLayout({
                 type="button"
                 onClick={() => setBlogPostsModalOpen(true)}
                 className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-900 shadow-sm hover:bg-emerald-100"
-                title="Editar notícias, corpo do texto, destaque e galeria"
+                title={t.articlesTitle}
               >
                 <Newspaper className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-                Artigos
+                {t.articles}
               </button>
             ) : null}
             {esTranslationChangeCount > 0 ? (
@@ -1180,7 +1172,7 @@ export function EditorLayout({
                   centerTab === 'preview' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                Preview
+                {t.preview}
               </button>
               <button
                 type="button"
@@ -1189,7 +1181,7 @@ export function EditorLayout({
                   centerTab === 'blocks' ? 'bg-slate-800 text-white' : 'text-slate-600 hover:bg-slate-50'
                 }`}
               >
-                Lista
+                {t.list}
               </button>
             </div>
             {centerTab === 'blocks' ? (
@@ -1200,12 +1192,12 @@ export function EditorLayout({
                   checked={canvasDirectEdit}
                   onChange={(e) => setCanvasDirectEdit(e.target.checked)}
                 />
-                Editar na lista
+                {t.editInList}
               </label>
             ) : null}
             {centerTab === 'preview' ? (
               <label className="inline-flex items-center gap-1">
-                <span className="sr-only">Largura do preview</span>
+                <span className="sr-only">{t.previewWidth}</span>
                 <select
                   value={previewFrame}
                   onChange={(e) => setPreviewFrame(e.target.value as 'desktop' | 'tablet' | 'mobile')}
@@ -1225,7 +1217,7 @@ export function EditorLayout({
             </span>
             <details ref={maisMenuRef} className="relative">
               <summary className="cursor-pointer list-none rounded-md border border-slate-200 bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 shadow-sm hover:bg-slate-50 [&::-webkit-details-marker]:hidden">
-                Mais
+                {t.more}
               </summary>
               <div className="absolute right-0 top-full z-[70] mt-1 min-w-[12rem] rounded-md border border-slate-200 bg-white py-1 shadow-lg">
                 <button
@@ -1238,7 +1230,7 @@ export function EditorLayout({
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <Undo2 className="h-3.5 w-3.5 shrink-0" />
-                  Desfazer
+                  {t.undo}
                 </button>
                 <button
                   type="button"
@@ -1250,7 +1242,7 @@ export function EditorLayout({
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <Redo2 className="h-3.5 w-3.5 shrink-0" />
-                  Refazer
+                  {t.redo}
                 </button>
                 <button
                   type="button"
@@ -1260,7 +1252,7 @@ export function EditorLayout({
                   }}
                   className="w-full px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50"
                 >
-                  Visualizar (nova aba)
+                  {t.openPreview}
                 </button>
                 <button
                   type="button"
@@ -1279,7 +1271,7 @@ export function EditorLayout({
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <Languages className="h-3.5 w-3.5 shrink-0" />
-                  Traduzir
+                  {t.translate}
                 </button>
                 <button
                   type="button"
@@ -1298,7 +1290,7 @@ export function EditorLayout({
                   className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
                   <LayoutTemplate className="h-3.5 w-3.5 shrink-0" />
-                  Sincronizar estrutura
+                  {t.syncStructure}
                 </button>
                 <button
                   type="button"
@@ -1309,7 +1301,7 @@ export function EditorLayout({
                   }}
                   className="w-full px-3 py-1.5 text-left text-xs text-slate-700 hover:bg-slate-50 disabled:opacity-40"
                 >
-                  Restaurar padrão
+                  {t.restoreDefault}
                 </button>
               </div>
             </details>
@@ -1319,7 +1311,7 @@ export function EditorLayout({
               onClick={() => saveLayout('draft')}
               className="rounded-md bg-blue-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm hover:bg-blue-700 disabled:opacity-50"
             >
-              {isSaving ? '…' : 'Salvar'}
+              {isSaving ? '…' : t.save}
             </button>
             <button
               type="button"
@@ -1327,7 +1319,7 @@ export function EditorLayout({
               onClick={() => setPublishModalOpen(true)}
               className="rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm hover:bg-emerald-700 disabled:opacity-50"
             >
-              Publicar
+              {t.publish}
             </button>
           </div>
         </div>
@@ -1397,5 +1389,6 @@ export function EditorLayout({
         }}
       />
     </div>
+    </EditorUiProvider>
   );
 }

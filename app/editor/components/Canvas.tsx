@@ -9,6 +9,7 @@ import { Fragment, useState } from 'react';
 import { useEditorStore } from '@/lib/editor-store';
 import { BlockRenderer } from './BlockRenderer';
 import { PaletteInsertZone } from './PaletteInsertZone';
+import { useEditorUi } from '../editor-ui-context';
 import {
   DndContext,
   DragEndEvent,
@@ -23,6 +24,7 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
 export function Canvas() {
+  const t = useEditorUi();
   const currentPage = useEditorStore((s) => s.currentPage);
   const selectBlock = useEditorStore((s) => s.selectBlock);
   const moveBlock = useEditorStore((s) => s.moveBlock);
@@ -70,8 +72,8 @@ export function Canvas() {
     return (
       <div className="flex items-center justify-center h-full bg-white">
         <div className="text-center text-slate-500">
-          <div className="text-lg font-semibold mb-2">Nenhuma página carregada</div>
-          <div className="text-sm">Crie ou carregue uma página para começar</div>
+          <div className="text-lg font-semibold mb-2">{t.noPageLoaded}</div>
+          <div className="text-sm">{t.noPageLoadedHint}</div>
         </div>
       </div>
     );
@@ -102,7 +104,7 @@ export function Canvas() {
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-slate-900">{currentPage.title}</h1>
           <div className="text-sm text-slate-500 mt-1">
-            {currentPage.blocks.length} bloco{currentPage.blocks.length !== 1 ? 's' : ''}
+            {t.blockCount(currentPage.blocks.length)}
           </div>
         </div>
 
@@ -148,7 +150,7 @@ export function Canvas() {
                       (activeBlock.props as { text?: string }).text ??
                       (activeBlock.props as { label?: string }).label ??
                       (activeBlock.props as { content?: string }).content ??
-                      'Arrastar…'
+                      t.dragging
                   )}
                 </p>
               </div>
@@ -160,8 +162,8 @@ export function Canvas() {
 
         {currentPage.blocks.length === 0 && (
           <div className="text-center py-12 text-slate-400">
-            <div className="text-lg font-semibold mb-2">Página vazia</div>
-            <div className="text-sm">Use o painel de blocos para adicionar elementos</div>
+            <div className="text-lg font-semibold mb-2">{t.emptyPage}</div>
+            <div className="text-sm">{t.emptyPageHint}</div>
           </div>
         )}
       </div>

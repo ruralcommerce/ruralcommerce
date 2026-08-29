@@ -22,7 +22,7 @@ const copy = {
     submitting: 'Guardando...',
     success: 'Tu acceso quedó listo. Ya puedes entrar a la intranet.',
     loginCta: 'Ir a la intranet',
-    invalid: 'Este enlace no es válido o ya venció. Pide un nuevo convite al administrador.',
+    invalid: 'Este enlace no es válido o ya venció. Pide una nueva invitación al administrador.',
     mismatch: 'Las contraseñas no coinciden.',
     short: 'La contraseña debe tener al menos 8 caracteres.',
     error: 'No fue posible completar el acceso.',
