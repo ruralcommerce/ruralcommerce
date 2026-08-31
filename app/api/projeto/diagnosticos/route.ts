@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { appendAuditEntry } from '@/lib/project-audit-log';
+import { hasAllDiagnosisAnswers, sanitizeDiagnosisAnswers } from '@/lib/project-diagnosis';
 import { readTeamSessionFromRequest } from '@/lib/project-team-session';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -50,15 +51,6 @@ function sanitizeRecord(record: RecordItem) {
   };
 }
 
-function hasAllAnswers(answers: Record<string, unknown>) {
-  const expectedKeys = Array.from({ length: 26 }, (_, index) => `q${index + 1}`);
-  return expectedKeys.every((key) => {
-    const value = answers[key];
-    if (Array.isArray(value)) return value.length > 0;
-    return typeof value === 'string' ? value.trim().length > 0 : value !== null && typeof value !== 'undefined';
-  });
-}
-
 export async function POST(request: Request) {
   let payload: unknown;
 
@@ -72,11 +64,11 @@ export async function POST(request: Request) {
   const candidateId = trimField(body.candidateId, 160);
   const email = trimField(body.email, 254).toLowerCase();
   const locale = trimField(body.locale, 12) || 'es';
-  const answers = typeof body.answers === 'object' && body.answers !== null ? body.answers : null;
+  const answers = sanitizeDiagnosisAnswers(body.answers);
   const teamSession = readTeamSessionFromRequest(request);
   const teamAssist = body.teamAssist === true;
 
-  if (!candidateId || !email || !answers) {
+  if (!candidateId || !email || !Object.keys(answers).length) {
     return NextResponse.json({ ok: false, message: 'Dados de diagnóstico incompletos.' }, { status: 400 });
   }
 
@@ -84,7 +76,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: 'E-mail inválido.' }, { status: 400 });
   }
 
-  if (!hasAllAnswers(answers)) {
+  if (!hasAllDiagnosisAnswers(answers)) {
     return NextResponse.json({ ok: false, message: 'Complete todas as respostas do diagnóstico.' }, { status: 400 });
   }
 

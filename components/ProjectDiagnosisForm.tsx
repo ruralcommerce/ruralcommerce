@@ -8,6 +8,7 @@ import {
   writeCandidateSession,
 } from '@/lib/project-candidate-session';
 import { mapProjectApiMessage } from '@/lib/project-locale';
+import { countFilledDiagnosisAnswers } from '@/lib/project-diagnosis';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -22,6 +23,16 @@ type CandidateRecord = {
     locale?: string;
     agreement?: {
       signed?: boolean;
+    };
+    diagnosis?: {
+      answers?: Record<string, string>;
+      draft?: {
+        answers?: Record<string, string>;
+        currentStep?: number;
+        updatedAt?: string;
+      };
+      updatedAt?: string;
+      submittedAt?: string;
     };
   };
 };
@@ -418,6 +429,9 @@ const copy: Record<
     percentPlaceholder: string;
     requiredError: string;
     stepIncompleteError: string;
+    draftSaving: string;
+    draftSaved: string;
+    draftRestored: string;
   }
 > = {
   es: {
@@ -448,6 +462,9 @@ const copy: Record<
     percentPlaceholder: 'Ingrese %',
     requiredError: 'Faltan respuestas. Te llevamos a la primera pregunta incompleta.',
     stepIncompleteError: 'Completa todas las respuestas de esta sección antes de continuar.',
+    draftSaving: 'Guardando borrador...',
+    draftSaved: 'Borrador guardado. Puedes salir y volver más tarde.',
+    draftRestored: 'Recuperamos tu progreso anterior.',
   },
   'pt-BR': {
     eyebrow: 'Diagnóstico',
@@ -477,6 +494,9 @@ const copy: Record<
     percentPlaceholder: 'Informe %',
     requiredError: 'Faltam respostas. Levamos você à primeira pergunta incompleta.',
     stepIncompleteError: 'Complete todas as respostas desta seção antes de continuar.',
+    draftSaving: 'Salvando rascunho...',
+    draftSaved: 'Rascunho salvo. Você pode sair e voltar depois.',
+    draftRestored: 'Recuperamos seu progresso anterior.',
   },
   en: {
     eyebrow: 'Diagnosis',
@@ -506,6 +526,9 @@ const copy: Record<
     percentPlaceholder: 'Enter %',
     requiredError: 'Some answers are missing. We took you to the first incomplete question.',
     stepIncompleteError: 'Complete all answers in this section before continuing.',
+    draftSaving: 'Saving draft...',
+    draftSaved: 'Draft saved. You can leave and come back later.',
+    draftRestored: 'We restored your previous progress.',
   },
 };
 
@@ -524,6 +547,37 @@ function isAnswerFilled(value: string | undefined) {
 function stepIndexForQuestion(questionId: string) {
   const question = questions.find((item) => item.id === questionId);
   return question ? question.section : 0;
+}
+
+const LOCAL_DRAFT_PREFIX = 'rc_diagnosis_draft_';
+
+type LocalDiagnosisDraft = {
+  answers: Record<string, string>;
+  currentStep: number;
+  updatedAt: string;
+};
+
+function readLocalDraft(recordId: string): LocalDiagnosisDraft | null {
+  if (typeof window === 'undefined' || !recordId) return null;
+  try {
+    const raw = window.localStorage.getItem(`${LOCAL_DRAFT_PREFIX}${recordId}`);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as LocalDiagnosisDraft;
+    if (!parsed?.answers || typeof parsed.answers !== 'object') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function writeLocalDraft(recordId: string, draft: LocalDiagnosisDraft) {
+  if (typeof window === 'undefined' || !recordId) return;
+  window.localStorage.setItem(`${LOCAL_DRAFT_PREFIX}${recordId}`, JSON.stringify(draft));
+}
+
+function clearLocalDraft(recordId: string) {
+  if (typeof window === 'undefined' || !recordId) return;
+  window.localStorage.removeItem(`${LOCAL_DRAFT_PREFIX}${recordId}`);
 }
 
 export function ProjectDiagnosisForm({
@@ -551,6 +605,10 @@ export function ProjectDiagnosisForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [draftNotice, setDraftNotice] = useState('');
+  const [draftStatus, setDraftStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const draftReadyRef = useRef(false);
+  const saveDraftTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sections = useMemo(
     () => [1, 2, 3, 4, 5].map((section) => ({ section, items: questions.filter((question) => question.section === section) })),
@@ -601,19 +659,172 @@ export function ProjectDiagnosisForm({
     });
   };
 
+  const applyDiagnosisFromProfile = (loadedRecord: CandidateRecord, showRestored = false) => {
+    const diagnosis = loadedRecord.profile.diagnosis;
+    const serverAnswers = diagnosis?.answers || diagnosis?.draft?.answers || {};
+    const serverStep =
+      typeof diagnosis?.draft?.currentStep === 'number'
+        ? diagnosis.draft.currentStep
+        : diagnosis?.answers
+          ? totalSteps - 1
+          : 0;
+    const serverUpdated =
+      diagnosis?.draft?.updatedAt || diagnosis?.updatedAt || diagnosis?.submittedAt || '';
+
+    const localDraft = readLocalDraft(loadedRecord.id);
+    const useLocal =
+      Boolean(localDraft?.updatedAt) &&
+      (!serverUpdated || new Date(localDraft!.updatedAt).getTime() > new Date(serverUpdated).getTime());
+
+    const mergedAnswers = {
+      ...buildEmptyAnswers(),
+      ...(useLocal ? localDraft!.answers : serverAnswers),
+    };
+    const mergedStep = useLocal ? localDraft!.currentStep : serverStep;
+
+    setAnswers(mergedAnswers);
+    setCurrentStep(Math.min(Math.max(0, mergedStep), totalSteps - 1));
+
+    if (showRestored && countFilledDiagnosisAnswers(mergedAnswers) > 0) {
+      setDraftNotice(t.draftRestored);
+    }
+
+    draftReadyRef.current = true;
+
+    if (useLocal && countFilledDiagnosisAnswers(mergedAnswers) > 0) {
+      void saveDraftToServer(loadedRecord, mergedAnswers, mergedStep, true);
+    }
+  };
+
+  const saveDraftToServer = async (
+    activeRecord: CandidateRecord,
+    nextAnswers: Record<string, string>,
+    nextStep: number,
+    silent = false
+  ) => {
+    if (activeRecord.status !== 'approved' || activeRecord.profile.agreement?.signed !== true) return;
+    if (success) return;
+
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    const body: Record<string, unknown> = {
+      candidateId: activeRecord.id,
+      email: activeRecord.user.email,
+      locale: localeKey,
+      answers: nextAnswers,
+      currentStep: nextStep,
+    };
+
+    if (teamAssist?.token) {
+      headers.Authorization = `Bearer ${teamAssist.token}`;
+      body.teamAssist = true;
+    } else {
+      const session = readCandidateSession();
+      const activePassword = password || session?.password;
+      if (!activePassword) return;
+      body.password = activePassword;
+    }
+
+    if (!silent) setDraftStatus('saving');
+
+    try {
+      const response = await fetch('/api/projeto/diagnosticos/draft', {
+        method: 'PUT',
+        headers,
+        body: JSON.stringify(body),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) return;
+
+      writeLocalDraft(activeRecord.id, {
+        answers: nextAnswers,
+        currentStep: nextStep,
+        updatedAt: payload.updatedAt || new Date().toISOString(),
+      });
+
+      if (!silent) {
+        setDraftStatus('saved');
+        setDraftNotice(t.draftSaved);
+      }
+    } catch {
+      if (!silent) setDraftStatus('idle');
+    }
+  };
+
+  const restoreCandidateSession = async () => {
+    const session = readCandidateSession();
+    if (!session?.email || !session.password || session.status !== 'approved') {
+      hydrateFromSession();
+      return;
+    }
+
+    setEmail(session.email);
+    setPassword(session.password);
+
+    try {
+      const response = await fetch('/api/projeto/auth/candidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.email, password: session.password }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        hydrateFromSession();
+        return;
+      }
+
+      const loadedRecord = payload.record as CandidateRecord;
+      setRecord(loadedRecord);
+      if (loadedRecord.status === 'approved') {
+        applyDiagnosisFromProfile(loadedRecord, true);
+      }
+    } catch {
+      hydrateFromSession();
+    }
+  };
+
   useEffect(() => {
+    draftReadyRef.current = false;
+
     if (teamAssist) {
       setRecord(teamAssist.record);
       setEmail(teamAssist.record.user.email);
-      const existing = (teamAssist.record.profile as { diagnosis?: { answers?: Record<string, string> } }).diagnosis
-        ?.answers;
-      if (existing) {
-        setAnswers((prev) => ({ ...prev, ...existing }));
-      }
+      applyDiagnosisFromProfile(teamAssist.record, true);
       return;
     }
-    hydrateFromSession();
+
+    void restoreCandidateSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [teamAssist]);
+
+  useEffect(() => {
+    if (!record?.id || !draftReadyRef.current || success) return;
+
+    writeLocalDraft(record.id, {
+      answers,
+      currentStep,
+      updatedAt: new Date().toISOString(),
+    });
+  }, [answers, currentStep, record?.id, success]);
+
+  useEffect(() => {
+    if (!record?.id || !draftReadyRef.current || success) return;
+    if (!isApproved || !agreementSigned) return;
+
+    if (saveDraftTimerRef.current) {
+      clearTimeout(saveDraftTimerRef.current);
+    }
+
+    saveDraftTimerRef.current = setTimeout(() => {
+      void saveDraftToServer(record, answers, currentStep);
+    }, 1200);
+
+    return () => {
+      if (saveDraftTimerRef.current) {
+        clearTimeout(saveDraftTimerRef.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, currentStep, record, isApproved, agreementSigned, success]);
 
   const handleLogin = async () => {
     setIsCheckingLogin(true);
@@ -643,6 +854,7 @@ export function ProjectDiagnosisForm({
         name: loadedRecord.profile.name || '',
         agreementSigned: loadedRecord.profile.agreement?.signed === true,
       });
+      applyDiagnosisFromProfile(loadedRecord, true);
     } catch {
       setError(t.loginText);
     } finally {
@@ -711,6 +923,7 @@ export function ProjectDiagnosisForm({
         showFeedback(mapProjectApiMessage(payload.message, localeKey, t.requiredError));
         return;
       }
+      if (record?.id) clearLocalDraft(record.id);
       patchCandidateSession({ id: record.id, email: record.user.email });
       showFeedback(t.success, 'success');
     } catch {
@@ -994,6 +1207,10 @@ export function ProjectDiagnosisForm({
       </div>
 
       <div ref={feedbackRef} className="mt-2 flex-none space-y-2">
+        {draftNotice ? <p className="rounded-2xl bg-[#F6FAFA] p-3 text-sm text-[#1D6359]">{draftNotice}</p> : null}
+        {draftStatus === 'saving' ? (
+          <p className="rounded-2xl bg-[#F6FAFA] p-3 text-sm text-[#2F3336]/70">{t.draftSaving}</p>
+        ) : null}
         {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
         {success ? (
           <div className="rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">

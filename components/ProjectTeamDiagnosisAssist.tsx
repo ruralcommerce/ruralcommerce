@@ -14,6 +14,12 @@ type AssistRecord = {
     name?: string;
     agreement?: { signed?: boolean };
     diagnosis?: {
+      answers?: Record<string, string>;
+      draft?: {
+        answers?: Record<string, string>;
+        currentStep?: number;
+        updatedAt?: string;
+      };
       submittedBy?: {
         type?: string;
         teamMemberName?: string;
