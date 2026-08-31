@@ -992,12 +992,12 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
             {t.filterStatusLabel}
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="min-w-[10rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[10rem]"
             >
               <option value="all">{t.filterAll}</option>
               <option value="pending">{t.filterPending}</option>
@@ -1005,36 +1005,36 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
               <option value="rejected">{t.filterRejected}</option>
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
             {t.filterConvenioLabel}
             <select
               value={convenioFilter}
               onChange={(e) => setConvenioFilter(e.target.value as 'all' | 'signed' | 'pending')}
-              className="min-w-[11rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[11rem]"
             >
               <option value="all">{t.filterConvenioAll}</option>
               <option value="signed">{t.filterConvenioSigned}</option>
               <option value="pending">{t.filterConvenioPending}</option>
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
             {t.filterDiagnosisLabel}
             <select
               value={diagnosisFilter}
               onChange={(e) => setDiagnosisFilter(e.target.value as 'all' | 'done' | 'pending')}
-              className="min-w-[12rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[12rem]"
             >
               <option value="all">{t.filterDiagnosisAll}</option>
               <option value="done">{t.filterDiagnosisDone}</option>
               <option value="pending">{t.filterDiagnosisPending}</option>
             </select>
           </label>
-          <label className="flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
             {t.filterTagLabel}
             <select
               value={tagFilter}
               onChange={(e) => setTagFilter(e.target.value as ProjectTeamTagFilter)}
-              className="min-w-[12rem] rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[12rem]"
             >
               <option value="all">{t.filterTagAll}</option>
               <option value="none">{t.filterTagNone}</option>
@@ -1146,7 +1146,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           {filteredRecords.map((record) => (
             <article
               key={record.id}
-              className={`rounded-3xl border bg-white p-6 shadow-sm ${
+              className={`rounded-3xl border bg-white p-4 shadow-sm sm:p-6 ${
                 selectedIds.has(record.id) ? 'border-[#52ADAD] ring-1 ring-[#52ADAD]/30' : 'border-[#E6EBF1]'
               }`}
             >

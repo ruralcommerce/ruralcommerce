@@ -14,7 +14,7 @@ export default function PerfilPage({
     <ProjectPageShell
       locale={params.locale}
       currentPage="perfil"
-      contentClassName="mx-auto flex w-full max-w-6xl flex-col px-4 sm:px-6 lg:px-8"
+      contentClassName="mx-auto flex w-full max-w-6xl flex-col px-3 sm:px-6 lg:px-8"
     >
       <ProjectProfileDashboard locale={params.locale} initialEmail={email} />
     </ProjectPageShell>

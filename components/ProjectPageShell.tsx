@@ -31,13 +31,13 @@ export function ProjectPageShell({
           className={
             fullViewport
               ? 'flex h-full w-full items-stretch pb-1 sm:pb-2 lg:pb-3'
-              : 'w-full py-8 sm:py-10'
+              : 'w-full py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:py-8 sm:pb-10'
           }
         >
           <div
             className={
               contentClassName ||
-              'mx-auto flex h-full w-full max-w-5xl flex-col px-4 sm:px-6 lg:px-8'
+              'mx-auto flex h-full w-full max-w-5xl flex-col px-3 sm:px-6 lg:px-8'
             }
           >
             <p className="mb-2 px-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1D6359]">

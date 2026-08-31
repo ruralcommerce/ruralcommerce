@@ -6,7 +6,7 @@ export default function AdminPage({ params }: { params: { locale: string } }) {
     <ProjectPageShell
       locale={params.locale}
       currentPage="admin"
-      contentClassName="mx-auto flex w-full max-w-7xl flex-col px-4 sm:px-6 lg:px-8"
+      contentClassName="mx-auto flex w-full max-w-7xl flex-col px-3 sm:px-6 lg:px-8"
     >
       <ProjectAdminDashboard locale={params.locale} />
     </ProjectPageShell>

@@ -492,7 +492,7 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
         <h2 className="mt-1 text-xl font-semibold text-[#071F5E]">{agreement.title}</h2>
         <p className="mt-1 text-sm text-[#2F3336]/75">{agreement.intro}</p>
 
-        <div className="mt-4 max-h-[50vh] space-y-3 overflow-y-auto rounded-2xl border border-[#E6EBF1] bg-[#FBFCFD] p-4 text-sm leading-6 text-[#2F3336]/85">
+        <div className="mt-4 max-h-[min(60vh,28rem)] space-y-3 overflow-y-auto rounded-2xl border border-[#E6EBF1] bg-[#FBFCFD] p-4 text-sm leading-6 text-[#2F3336]/85 sm:max-h-[50vh]">
           <p className="font-semibold text-[#071F5E]">{agreement.agreementHeading}</p>
           {agreement.agreementParagraphs.map((paragraph) => (
             <p key={paragraph.slice(0, 32)}>{paragraph}</p>
@@ -551,7 +551,7 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
           type="button"
           onClick={handleSign}
           disabled={isSigning}
-          className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-2.5 text-sm font-semibold text-[#071F5E] disabled:cursor-not-allowed disabled:opacity-70"
+            className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E] disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSigning ? t.signing : t.signCta}
         </button>

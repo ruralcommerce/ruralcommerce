@@ -212,7 +212,7 @@ export function ProjectSiteHeader({
 
         <button
           type="button"
-          className="inline-flex rounded-lg p-2 text-white lg:hidden"
+          className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-white lg:hidden"
           aria-label={mobileOpen ? t.closeMenu : t.openMenu}
           aria-expanded={mobileOpen}
           onClick={() => setMobileOpen((value) => !value)}
@@ -224,12 +224,12 @@ export function ProjectSiteHeader({
       {mobileOpen ? (
         <div className="projeto-site-header-inner lg:hidden">
           <nav className="projeto-site-nav-mobile w-full" aria-label="Navegación principal">
-            <Link href={homeHref} className="projeto-site-nav-btn px-3 py-2 text-sm" onClick={() => setMobileOpen(false)}>
+            <Link href={homeHref} className="projeto-site-nav-btn min-h-11 px-3 py-3 text-sm" onClick={() => setMobileOpen(false)}>
               {RURAL_COMMERCE_HOME_LABEL}
             </Link>
             <Link
               href={projectHref}
-              className={`rounded-lg px-2 py-2 text-sm ${isProjectActive ? 'opacity-100' : 'opacity-90'}`}
+              className={`min-h-11 rounded-lg px-2 py-3 text-sm ${isProjectActive ? 'opacity-100' : 'opacity-90'}`}
               onClick={() => setMobileOpen(false)}
             >
               {t.projectLabel}
@@ -244,7 +244,7 @@ export function ProjectSiteHeader({
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`rounded-lg px-2 py-2 text-sm ${active ? 'opacity-100' : 'opacity-90'}`}
+                  className={`min-h-11 rounded-lg px-2 py-3 text-sm ${active ? 'opacity-100' : 'opacity-90'}`}
                   onClick={() => setMobileOpen(false)}
                 >
                   {item.label}
@@ -253,7 +253,7 @@ export function ProjectSiteHeader({
             })}
             <Link
               href={intranetHref}
-              className="projeto-site-nav-intranet mt-2 inline-flex w-fit px-3 py-2 text-sm"
+              className="projeto-site-nav-intranet mt-2 inline-flex min-h-11 w-fit px-3 py-3 text-sm"
               onClick={() => setMobileOpen(false)}
             >
               {t.intranet}

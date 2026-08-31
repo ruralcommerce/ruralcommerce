@@ -327,15 +327,253 @@ export function ProjectEnrollmentForm({
     setCurrentStep((value) => Math.max(value - 1, 0));
   }
 
+  function renderStepPanel(step: number) {
+    const panelCls = step === 0
+      ? 'flex flex-col rounded-[22px] bg-white p-2 sm:p-2.5'
+      : 'flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3';
+
+    if (step === 0) {
+      return (
+        <div className={panelCls}>
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
+            <ScrollText size={22} />
+          </div>
+          <h2 className="mt-2 text-lg font-semibold text-[#071F5E]">{introTitle}</h2>
+          <p className="mt-1.5 text-sm leading-5 text-[#2F3336]/75">{introText}</p>
+          <p className="mt-1 text-sm leading-5 text-[#2F3336]/75">{introNote}</p>
+          <div className="mt-2 rounded-2xl bg-[#F6FAFA] p-2.5 text-sm leading-5 text-[#2F3336]/80">
+            <p className="font-semibold text-[#071F5E]">{nextStepsTitle}</p>
+            <ul className="mt-1.5 space-y-1">
+              {nextSteps.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="mt-2 flex justify-end">
+            <button
+              type="button"
+              onClick={goNext}
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E]"
+            >
+              {t.introCta}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    if (step === 1) {
+      return (
+        <div className={panelCls}>
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            <label className="block">
+              <span className="block text-sm font-medium text-[#071F5E]">1. {t.q1}</span>
+              <input required value={form.q1} onChange={(e) => set('q1', e.target.value)} className={`mt-1 ${inputCls}`} />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium text-[#071F5E]">2. {t.q2}</span>
+              <input required value={form.q2} onChange={(e) => set('q2', e.target.value)} className={`mt-1 ${inputCls}`} />
+            </label>
+          </div>
+          <div className="grid gap-2.5 sm:grid-cols-2">
+            <label className="block">
+              <span className="block text-sm font-medium text-[#071F5E]">3. {t.q3}</span>
+              <input value={form.q3} onChange={(e) => set('q3', e.target.value)} className={`mt-1 ${inputCls}`} />
+            </label>
+            <label className="block">
+              <span className="block text-sm font-medium text-[#071F5E]">4. {t.q4}</span>
+              <input type="email" required value={form.q4} onChange={(e) => set('q4', e.target.value)} className={`mt-1 ${inputCls}`} />
+            </label>
+          </div>
+          <label className="block">
+            <span className="block text-sm font-medium text-[#071F5E]">5. {t.q5}</span>
+            <input value={form.q5} onChange={(e) => set('q5', e.target.value)} className={`mt-1 ${inputCls}`} />
+          </label>
+        </div>
+      );
+    }
+
+    if (step === 2) {
+      return (
+        <div className={panelCls}>
+          <fieldset>
+            <legend className={legendCls}>6. {t.q6}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {t.q6opts.map((opt) => (
+                <Radio key={opt} name="q6" value={opt} checked={form.q6 === opt} onChange={(v) => set('q6', v)} label={opt} />
+              ))}
+            </div>
+          </fieldset>
+          <label className="block">
+            <span className="block text-sm font-medium text-[#071F5E]">7. {t.q7}</span>
+            <textarea rows={2} value={form.q7} onChange={(e) => set('q7', e.target.value)} className={`mt-1 ${inputCls} resize-none`} />
+          </label>
+        </div>
+      );
+    }
+
+    if (step === 3) {
+      return (
+        <div className={panelCls}>
+          <fieldset>
+            <legend className={legendCls}>8. {t.q8}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {t.q8opts.map((opt) => (
+                <Radio key={opt} name="q8" value={opt} checked={form.q8 === opt} onChange={(v) => set('q8', v)} label={opt} />
+              ))}
+            </div>
+          </fieldset>
+        </div>
+      );
+    }
+
+    if (step === 4) {
+      return (
+        <div className={panelCls}>
+          <fieldset>
+            <legend className={legendCls}>9. {t.q9}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {t.q9opts.map((opt) => (
+                <Checkbox key={opt} value={opt} checked={form.q9.includes(opt)} onChange={toggleCheck} label={opt} />
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend className={legendCls}>10. {t.q10}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {t.q10opts.map((opt) => (
+                <Radio key={opt} name="q10" value={opt} checked={form.q10 === opt} onChange={(v) => set('q10', v)} label={opt} />
+              ))}
+            </div>
+          </fieldset>
+        </div>
+      );
+    }
+
+    if (step === 5) {
+      return (
+        <div className={panelCls}>
+          <fieldset>
+            <legend className={legendCls}>11. {t.q11}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {t.q11opts.map((opt) => (
+                <Radio key={opt} name="q11" value={opt} checked={form.q11 === opt} onChange={(v) => set('q11', v)} label={opt} />
+              ))}
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend className={legendCls}>12. {t.q12}</legend>
+            <div className="flex flex-wrap items-center gap-2.5">
+              <span className="text-xs text-[#2F3336]/60">{t.q12low}</span>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => set('q12', n)}
+                  onMouseDown={(event) => event.preventDefault()}
+                  className={`flex h-11 w-11 items-center justify-center rounded-full border-2 text-sm font-semibold transition ${
+                    form.q12 === n ? 'border-[#1D6359] bg-[#1D6359] text-white' : 'border-[#D9E3EC] text-[#2F3336] hover:border-[#52ADAD]'
+                  }`}
+                >
+                  {n}
+                </button>
+              ))}
+              <span className="text-xs text-[#2F3336]/60">{t.q12high}</span>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend className={legendCls}>13. {t.q13}</legend>
+            <select required value={form.q13} onChange={(e) => set('q13', e.target.value)} className={inputCls}>
+              <option value="" disabled>
+                {t.q13SelectPlaceholder}
+              </option>
+              {t.q13opts.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </select>
+          </fieldset>
+        </div>
+      );
+    }
+
+    if (step === 6) {
+      return (
+        <div className={panelCls}>
+          <fieldset>
+            <legend className={legendCls}>14. {t.q14}</legend>
+            <div className="grid gap-2 sm:grid-cols-2">
+              {t.q14opts.map((opt) => (
+                <Radio key={opt} name="q14" value={opt} checked={form.q14 === opt} onChange={(v) => set('q14', v)} label={opt} />
+              ))}
+            </div>
+          </fieldset>
+          <label className="block">
+            <span className="block text-sm font-medium text-[#071F5E]">15. {t.q15}</span>
+            <textarea rows={2} required value={form.q15} onChange={(e) => set('q15', e.target.value)} className={`mt-1 ${inputCls} resize-none`} />
+          </label>
+        </div>
+      );
+    }
+
+    return (
+      <div className={panelCls}>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="block">
+            <span className="block text-sm font-medium text-[#071F5E]">{t.labelPassword}</span>
+            <div className="relative mt-1.5">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                minLength={6}
+                value={form.password}
+                onChange={(e) => set('password', e.target.value)}
+                className={inputCls}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-4 top-1/2 -translate-y-1/2 min-h-11 px-2 text-xs text-[#1D6359] underline"
+              >
+                {showPassword ? '🙈' : '👁️'}
+              </button>
+            </div>
+          </label>
+          <label className="block">
+            <span className="block text-sm font-medium text-[#071F5E]">{t.labelPasswordConfirm}</span>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              required
+              minLength={6}
+              value={form.passwordConfirm}
+              onChange={(e) => set('passwordConfirm', e.target.value)}
+              className={`mt-1.5 ${inputCls}`}
+            />
+          </label>
+        </div>
+
+        {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
+        {success ? (
+          <div className="rounded-2xl bg-[#EEF7F7] p-4 text-sm text-[#1D6359]">
+            <p>{success}</p>
+            {recordId ? <p className="mt-1 text-xs opacity-70">ID: {recordId}</p> : null}
+            <a href={profileHref} className="mt-3 inline-flex min-h-11 items-center text-sm font-semibold text-[#071F5E] underline">{t.profileLink}</a>
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex min-h-0 flex-col gap-0">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-0 lg:min-h-0 lg:flex-1">
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white px-2 py-1.5 sm:px-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div className="flex items-baseline gap-1.5">
+          <div className="min-w-0 flex-1 flex items-baseline gap-1.5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">{eyebrow}</p>
-            <p className="text-xs text-[#2F3336]/60">{stepTitle}</p>
+            <p className="truncate text-xs text-[#2F3336]/60">{stepTitle}</p>
           </div>
-          <div className="text-xs font-medium text-[#2F3336]/60">
+          <div className="shrink-0 text-xs font-medium text-[#2F3336]/60">
             {currentStep + 1}/{totalSteps}
           </div>
         </div>
@@ -344,242 +582,31 @@ export function ProjectEnrollmentForm({
         </div>
       </div>
 
-      <div className={isFirstStep ? 'overflow-hidden rounded-[22px] bg-white' : 'min-h-0 flex-1 overflow-hidden rounded-[22px] bg-white'}>
-        <div
-          className={isFirstStep ? 'flex w-full items-start transition-transform duration-500 ease-out' : 'flex h-full w-full items-stretch transition-transform duration-500 ease-out'}
-          style={{ transform: `translateX(-${currentStep * 100}%)` }}
-        >
-          <div className={isFirstStep ? 'w-full self-start shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5' : 'h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5'}>
-            <div className={isFirstStep ? 'flex flex-col rounded-[22px] bg-white p-2 sm:p-2.5' : 'flex h-full flex-col rounded-[22px] bg-white p-2.5 sm:p-3'}>
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
-                <ScrollText size={22} />
+      <div className="rounded-[22px] bg-white lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+        <div className="lg:hidden px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
+          {renderStepPanel(currentStep)}
+        </div>
+
+        <div className="hidden overflow-x-hidden lg:block lg:h-full">
+          <div
+            className="flex h-full w-full items-stretch transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${currentStep * 100}%)` }}
+          >
+            {Array.from({ length: totalSteps }, (_, index) => (
+              <div key={index} className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
+                {renderStepPanel(index)}
               </div>
-              <h2 className="mt-2 text-lg font-semibold text-[#071F5E]">{introTitle}</h2>
-              <p className="mt-1.5 text-sm leading-5 text-[#2F3336]/75">{introText}</p>
-              <p className="mt-1 text-sm leading-5 text-[#2F3336]/75">{introNote}</p>
-              <div className="mt-2 rounded-2xl bg-[#F6FAFA] p-2.5 text-sm leading-5 text-[#2F3336]/80">
-                <p className="font-semibold text-[#071F5E]">{nextStepsTitle}</p>
-                <ul className="mt-1.5 space-y-1">
-                  {nextSteps.map((step) => (
-                    <li key={step}>• {step}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="mt-2 flex justify-end">
-                <button
-                  type="button"
-                  onClick={goNext}
-                  className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2 text-sm font-semibold text-[#071F5E]"
-                >
-                  {t.introCta}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                <label className="block">
-                  <span className="block text-sm font-medium text-[#071F5E]">1. {t.q1}</span>
-                  <input required value={form.q1} onChange={(e) => set('q1', e.target.value)} className={`mt-1 ${inputCls}`} />
-                </label>
-                <label className="block">
-                  <span className="block text-sm font-medium text-[#071F5E]">2. {t.q2}</span>
-                  <input required value={form.q2} onChange={(e) => set('q2', e.target.value)} className={`mt-1 ${inputCls}`} />
-                </label>
-              </div>
-              <div className="grid gap-2.5 sm:grid-cols-2">
-                <label className="block">
-                  <span className="block text-sm font-medium text-[#071F5E]">3. {t.q3}</span>
-                  <input value={form.q3} onChange={(e) => set('q3', e.target.value)} className={`mt-1 ${inputCls}`} />
-                </label>
-                <label className="block">
-                  <span className="block text-sm font-medium text-[#071F5E]">4. {t.q4}</span>
-                  <input type="email" required value={form.q4} onChange={(e) => set('q4', e.target.value)} className={`mt-1 ${inputCls}`} />
-                </label>
-              </div>
-              <label className="block">
-                <span className="block text-sm font-medium text-[#071F5E]">5. {t.q5}</span>
-                <input value={form.q5} onChange={(e) => set('q5', e.target.value)} className={`mt-1 ${inputCls}`} />
-              </label>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <fieldset>
-                <legend className={legendCls}>6. {t.q6}</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {t.q6opts.map((opt) => (
-                    <Radio key={opt} name="q6" value={opt} checked={form.q6 === opt} onChange={(v) => set('q6', v)} label={opt} />
-                  ))}
-                </div>
-              </fieldset>
-              <label className="block">
-                <span className="block text-sm font-medium text-[#071F5E]">7. {t.q7}</span>
-                <textarea rows={2} value={form.q7} onChange={(e) => set('q7', e.target.value)} className={`mt-1 ${inputCls} resize-none`} />
-              </label>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <fieldset>
-                <legend className={legendCls}>8. {t.q8}</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {t.q8opts.map((opt) => (
-                    <Radio key={opt} name="q8" value={opt} checked={form.q8 === opt} onChange={(v) => set('q8', v)} label={opt} />
-                  ))}
-                </div>
-              </fieldset>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <fieldset>
-                <legend className={legendCls}>9. {t.q9}</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {t.q9opts.map((opt) => (
-                    <Checkbox key={opt} value={opt} checked={form.q9.includes(opt)} onChange={toggleCheck} label={opt} />
-                  ))}
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend className={legendCls}>10. {t.q10}</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {t.q10opts.map((opt) => (
-                    <Radio key={opt} name="q10" value={opt} checked={form.q10 === opt} onChange={(v) => set('q10', v)} label={opt} />
-                  ))}
-                </div>
-              </fieldset>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <fieldset>
-                <legend className={legendCls}>11. {t.q11}</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {t.q11opts.map((opt) => (
-                    <Radio key={opt} name="q11" value={opt} checked={form.q11 === opt} onChange={(v) => set('q11', v)} label={opt} />
-                  ))}
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend className={legendCls}>12. {t.q12}</legend>
-                <div className="flex flex-wrap items-center gap-2.5">
-                  <span className="text-xs text-[#2F3336]/60">{t.q12low}</span>
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() => set('q12', n)}
-                      onMouseDown={(event) => event.preventDefault()}
-                      className={`flex h-[21px] w-[21px] items-center justify-center rounded-full border-2 text-[9px] font-semibold transition ${
-                        form.q12 === n ? 'border-[#1D6359] bg-[#1D6359] text-white' : 'border-[#D9E3EC] text-[#2F3336] hover:border-[#52ADAD]'
-                      }`}
-                    >
-                      {n}
-                    </button>
-                  ))}
-                  <span className="text-xs text-[#2F3336]/60">{t.q12high}</span>
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend className={legendCls}>13. {t.q13}</legend>
-                <select
-                  required
-                  value={form.q13}
-                  onChange={(e) => set('q13', e.target.value)}
-                  className={inputCls}
-                >
-                  <option value="" disabled>
-                    {t.q13SelectPlaceholder}
-                  </option>
-                  {t.q13opts.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </fieldset>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <fieldset>
-                <legend className={legendCls}>14. {t.q14}</legend>
-                <div className="grid gap-2 sm:grid-cols-2">
-                  {t.q14opts.map((opt) => (
-                    <Radio key={opt} name="q14" value={opt} checked={form.q14 === opt} onChange={(v) => set('q14', v)} label={opt} />
-                  ))}
-                </div>
-              </fieldset>
-              <label className="block">
-                <span className="block text-sm font-medium text-[#071F5E]">15. {t.q15}</span>
-                <textarea rows={2} required value={form.q15} onChange={(e) => set('q15', e.target.value)} className={`mt-1 ${inputCls} resize-none`} />
-              </label>
-            </div>
-          </div>
-
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col gap-2.5 rounded-[22px] bg-white p-2.5 sm:p-3">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="block">
-                  <span className="block text-sm font-medium text-[#071F5E]">{t.labelPassword}</span>
-                  <div className="relative mt-1.5">
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      minLength={6}
-                      value={form.password}
-                      onChange={(e) => set('password', e.target.value)}
-                      className={inputCls}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((v) => !v)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-[#1D6359] underline"
-                    >
-                      {showPassword ? '🙈' : '👁️'}
-                    </button>
-                  </div>
-                </label>
-                <label className="block">
-                  <span className="block text-sm font-medium text-[#071F5E]">{t.labelPasswordConfirm}</span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    minLength={6}
-                    value={form.passwordConfirm}
-                    onChange={(e) => set('passwordConfirm', e.target.value)}
-                    className={`mt-1.5 ${inputCls}`}
-                  />
-                </label>
-              </div>
-
-              {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-              {success ? (
-                <div className="rounded-2xl bg-[#EEF7F7] p-4 text-sm text-[#1D6359]">
-                  <p>{success}</p>
-                  {recordId ? <p className="mt-1 text-xs opacity-70">ID: {recordId}</p> : null}
-                  <a href={profileHref} className="mt-3 inline-flex text-sm font-semibold text-[#071F5E] underline">{t.profileLink}</a>
-                </div>
-              ) : null}
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
       {showFooterNavigation ? (
-        <div className="mt-2 flex flex-none items-center justify-between gap-2">
+        <div className="mt-2 flex flex-none items-center justify-between gap-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
           <button
             type="button"
             onClick={goPrevious}
-            className="inline-flex items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#071F5E] transition"
+            className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-4 py-3 text-sm font-semibold text-[#071F5E] transition"
           >
             {t.previous}
           </button>
@@ -588,7 +615,7 @@ export function ProjectEnrollmentForm({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-2.5 text-sm font-semibold text-[#071F5E] disabled:cursor-not-allowed disabled:opacity-70"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E] disabled:cursor-not-allowed disabled:opacity-70"
             >
               {isSubmitting ? t.submitting : t.submit}
             </button>
@@ -596,7 +623,7 @@ export function ProjectEnrollmentForm({
             <button
               type="button"
               onClick={goNext}
-              className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-2.5 text-sm font-semibold text-[#071F5E]"
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E]"
             >
               {t.next}
             </button>

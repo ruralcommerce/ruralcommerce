@@ -13,7 +13,7 @@ export function ProjectPortalHero({
 }) {
   return (
     <div className="overflow-hidden rounded-[28px] bg-[#061F5B] text-white shadow-lg shadow-[#061F5B]/10">
-      <div className="relative px-6 py-7 sm:px-8 sm:py-8">
+      <div className="relative px-4 py-6 sm:px-8 sm:py-8">
         <div className="absolute inset-y-0 right-0 w-1/3 bg-gradient-to-l from-[#23B8B5]/20 to-transparent" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-2xl">
@@ -67,7 +67,7 @@ export function ProjectPortalPanel({
         : 'border-[#E6EBF1] bg-white';
 
   return (
-    <section className={`rounded-[24px] border p-5 shadow-sm sm:p-6 ${toneClass}`}>
+    <section className={`rounded-[24px] border p-4 shadow-sm sm:p-6 ${toneClass}`}>
       {title ? (
         <div className="mb-4">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{title}</p>

@@ -801,105 +801,195 @@ export function ProjectDiagnosisForm({
     <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-0 lg:min-h-0 lg:flex-1">
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white px-2 py-1.5 sm:px-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div className="flex items-baseline gap-1.5">
+          <div className="min-w-0 flex-1 flex items-baseline gap-1.5">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">{t.eyebrow}</p>
-            <p className="text-xs text-[#2F3336]/60">{stepTitle}</p>
+            <p className="truncate text-xs text-[#2F3336]/60">{stepTitle}</p>
           </div>
-          <div className="text-xs font-medium text-[#2F3336]/60">{currentStep + 1}/{totalSteps}</div>
+          <div className="shrink-0 text-xs font-medium text-[#2F3336]/60">{currentStep + 1}/{totalSteps}</div>
         </div>
         <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white">
           <div className="h-full rounded-full bg-[#1D6359] transition-[width] duration-500" style={{ width: `${progress}%` }} />
         </div>
       </div>
 
-      <div className="overflow-x-hidden rounded-[22px] bg-white lg:min-h-0 lg:flex-1 lg:overflow-hidden">
-        <div
-          className="flex w-full items-stretch transition-transform duration-500 ease-out lg:h-full"
-          style={{ transform: `translateX(-${currentStep * 100}%)` }}
-        >
-          <div className="w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5 lg:h-full">
-            <div className="flex flex-col rounded-[22px] bg-white p-2.5 sm:p-3 lg:h-full">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
-                <ClipboardList size={22} />
-              </div>
-              <h2 className="mt-2 text-lg font-semibold text-[#071F5E]">{t.introTitle}</h2>
-              <p className="mt-1.5 text-sm leading-5 text-[#2F3336]/75">{t.introText}</p>
-              <p className="mt-1 text-sm leading-5 text-[#2F3336]/75">{t.introNote}</p>
-              <div className="mt-3 rounded-2xl bg-[#F6FAFA] p-2.5 text-sm text-[#2F3336]/80">
-                {record.profile.name ? `${record.profile.name} · ` : ''}{record.user.email}
-              </div>
-            </div>
-          </div>
-
-          {sections.map(({ section, items }) => (
-            <div key={section} className="w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5 lg:h-full">
-              <div className="flex flex-col rounded-[22px] bg-white p-2.5 sm:p-3 lg:h-full">
-                <div className="space-y-2 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-0 lg:pr-1">
-                  {items.map((question) => {
-                    const isIncomplete = incompleteIds.includes(question.id);
-                    return (
-                      <div
-                        key={question.id}
-                        className={`rounded-2xl border bg-[#FBFCFD] p-2.5 ${
-                          isIncomplete ? 'border-red-300 ring-1 ring-red-200' : 'border-[#E6EBF1]'
-                        }`}
-                      >
-                        <p className="text-sm leading-5 text-[#071F5E]">
-                          <span className="font-semibold text-[#1D6359]">{question.subcategory}:</span> {question.prompt}
-                        </p>
-
-                        {question.kind === 'select' ? (
-                          <select
-                            value={answers[question.id] || ''}
-                            onChange={(e) => setAnswer(question.id, e.target.value)}
-                            className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
-                          >
-                            <option value="" disabled>
-                              {t.selectPlaceholder}
-                            </option>
-                            {(question.options || []).map((option) => (
-                              <option key={option} value={option}>
-                                {option}
-                              </option>
-                            ))}
-                          </select>
-                        ) : null}
-
-                        {question.kind === 'binary' ? (
-                          <select
-                            value={answers[question.id] || ''}
-                            onChange={(e) => setAnswer(question.id, e.target.value)}
-                            className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
-                          >
-                            <option value="" disabled>
-                              {t.selectPlaceholder}
-                            </option>
-                            <option value={t.yes}>{t.yes}</option>
-                            <option value={t.no}>{t.no}</option>
-                          </select>
-                        ) : null}
-
-                        {question.kind === 'percent' ? (
-                          <div className="mt-2 flex items-center gap-2">
-                            <input
-                              type="number"
-                              min={0}
-                              max={100}
-                              value={answers[question.id] || ''}
-                              onChange={(e) => setAnswer(question.id, e.target.value)}
-                              placeholder={t.percentPlaceholder}
-                              className="w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-2 text-sm"
-                            />
-                            <span className="text-sm text-[#2F3336]/70">%</span>
-                          </div>
-                        ) : null}
-                      </div>
-                    );
-                  })}
+      <div className="rounded-[22px] bg-white lg:min-h-0 lg:flex-1 lg:overflow-hidden">
+        <div className="lg:hidden">
+          {isFirstStep ? (
+            <div className="px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
+              <div className="flex flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
+                  <ClipboardList size={22} />
+                </div>
+                <h2 className="mt-2 text-lg font-semibold text-[#071F5E]">{t.introTitle}</h2>
+                <p className="mt-1.5 text-sm leading-5 text-[#2F3336]/75">{t.introText}</p>
+                <p className="mt-1 text-sm leading-5 text-[#2F3336]/75">{t.introNote}</p>
+                <div className="mt-3 rounded-2xl bg-[#F6FAFA] p-2.5 text-sm text-[#2F3336]/80">
+                  {record.profile.name ? `${record.profile.name} · ` : ''}{record.user.email}
                 </div>
               </div>
             </div>
-          ))}
+          ) : (
+            sections.slice(currentStep - 1, currentStep).map(({ section, items }) => (
+              <div key={section} className="px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
+                <div className="flex flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
+                  <div className="space-y-2 pb-4">
+                    {items.map((question) => {
+                      const isIncomplete = incompleteIds.includes(question.id);
+                      return (
+                        <div
+                          key={question.id}
+                          className={`rounded-2xl border bg-[#FBFCFD] p-2.5 ${
+                            isIncomplete ? 'border-red-300 ring-1 ring-red-200' : 'border-[#E6EBF1]'
+                          }`}
+                        >
+                          <p className="text-sm leading-5 text-[#071F5E]">
+                            <span className="font-semibold text-[#1D6359]">{question.subcategory}:</span> {question.prompt}
+                          </p>
+
+                          {question.kind === 'select' ? (
+                            <select
+                              value={answers[question.id] || ''}
+                              onChange={(e) => setAnswer(question.id, e.target.value)}
+                              className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-3 text-sm"
+                            >
+                              <option value="" disabled>
+                                {t.selectPlaceholder}
+                              </option>
+                              {(question.options || []).map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          ) : null}
+
+                          {question.kind === 'binary' ? (
+                            <select
+                              value={answers[question.id] || ''}
+                              onChange={(e) => setAnswer(question.id, e.target.value)}
+                              className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-3 text-sm"
+                            >
+                              <option value="" disabled>
+                                {t.selectPlaceholder}
+                              </option>
+                              <option value={t.yes}>{t.yes}</option>
+                              <option value={t.no}>{t.no}</option>
+                            </select>
+                          ) : null}
+
+                          {question.kind === 'percent' ? (
+                            <div className="mt-2 flex items-center gap-2">
+                              <input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={answers[question.id] || ''}
+                                onChange={(e) => setAnswer(question.id, e.target.value)}
+                                placeholder={t.percentPlaceholder}
+                                className="w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-3 text-sm"
+                              />
+                              <span className="text-sm text-[#2F3336]/70">%</span>
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="hidden overflow-x-hidden lg:block lg:h-full">
+          <div
+            className="flex h-full w-full items-stretch transition-transform duration-500 ease-out"
+            style={{ transform: `translateX(-${currentStep * 100}%)` }}
+          >
+            <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
+              <div className="flex h-full flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
+                  <ClipboardList size={22} />
+                </div>
+                <h2 className="mt-2 text-lg font-semibold text-[#071F5E]">{t.introTitle}</h2>
+                <p className="mt-1.5 text-sm leading-5 text-[#2F3336]/75">{t.introText}</p>
+                <p className="mt-1 text-sm leading-5 text-[#2F3336]/75">{t.introNote}</p>
+                <div className="mt-3 rounded-2xl bg-[#F6FAFA] p-2.5 text-sm text-[#2F3336]/80">
+                  {record.profile.name ? `${record.profile.name} · ` : ''}{record.user.email}
+                </div>
+              </div>
+            </div>
+
+            {sections.map(({ section, items }) => (
+              <div key={section} className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
+                <div className="flex h-full flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
+                  <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+                    {items.map((question) => {
+                      const isIncomplete = incompleteIds.includes(question.id);
+                      return (
+                        <div
+                          key={question.id}
+                          className={`rounded-2xl border bg-[#FBFCFD] p-2.5 ${
+                            isIncomplete ? 'border-red-300 ring-1 ring-red-200' : 'border-[#E6EBF1]'
+                          }`}
+                        >
+                          <p className="text-sm leading-5 text-[#071F5E]">
+                            <span className="font-semibold text-[#1D6359]">{question.subcategory}:</span> {question.prompt}
+                          </p>
+
+                          {question.kind === 'select' ? (
+                            <select
+                              value={answers[question.id] || ''}
+                              onChange={(e) => setAnswer(question.id, e.target.value)}
+                              className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-3 text-sm"
+                            >
+                              <option value="" disabled>
+                                {t.selectPlaceholder}
+                              </option>
+                              {(question.options || []).map((option) => (
+                                <option key={option} value={option}>
+                                  {option}
+                                </option>
+                              ))}
+                            </select>
+                          ) : null}
+
+                          {question.kind === 'binary' ? (
+                            <select
+                              value={answers[question.id] || ''}
+                              onChange={(e) => setAnswer(question.id, e.target.value)}
+                              className="mt-2 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-3 text-sm"
+                            >
+                              <option value="" disabled>
+                                {t.selectPlaceholder}
+                              </option>
+                              <option value={t.yes}>{t.yes}</option>
+                              <option value={t.no}>{t.no}</option>
+                            </select>
+                          ) : null}
+
+                          {question.kind === 'percent' ? (
+                            <div className="mt-2 flex items-center gap-2">
+                              <input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={answers[question.id] || ''}
+                                onChange={(e) => setAnswer(question.id, e.target.value)}
+                                placeholder={t.percentPlaceholder}
+                                className="w-full rounded-xl border border-[#D9E3EC] bg-white px-3 py-3 text-sm"
+                              />
+                              <span className="text-sm text-[#2F3336]/70">%</span>
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -923,7 +1013,7 @@ export function ProjectDiagnosisForm({
             setCurrentStep((value) => Math.max(0, value - 1));
           }}
           disabled={isFirstStep || isSubmitting}
-          className="inline-flex items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-4 py-2.5 text-sm font-semibold text-[#071F5E] disabled:opacity-50"
+          className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-4 py-3 text-sm font-semibold text-[#071F5E] disabled:opacity-50"
         >
           {t.previous}
         </button>
@@ -932,7 +1022,7 @@ export function ProjectDiagnosisForm({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-2.5 text-sm font-semibold text-[#071F5E] disabled:cursor-not-allowed disabled:opacity-70"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E] disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isSubmitting ? t.submitting : t.submit}
           </button>
@@ -940,7 +1030,7 @@ export function ProjectDiagnosisForm({
           <button
             type="button"
             onClick={goToNextStep}
-            className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-2.5 text-sm font-semibold text-[#071F5E]"
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E]"
           >
             {t.continue}
           </button>

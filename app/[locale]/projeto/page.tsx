@@ -468,8 +468,8 @@ export default async function ProjetoPage({
         </section>
 
         <section className="bg-[#071F5E] py-16 text-white">
-          <div className="mx-auto max-w-5xl px-6 text-center sm:px-8 lg:px-10">
-            <h2 className="text-3xl font-semibold tracking-tight">{current.sectionClosingTitle}</h2>
+          <div className="mx-auto max-w-5xl px-4 text-center sm:px-8 lg:px-10">
+            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">{current.sectionClosingTitle}</h2>
             <p className="mt-4 text-base leading-7 text-white/80">{current.sectionClosingText}</p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <a href={`/${locale}/projeto/inscricao`} className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-6 py-3 text-sm font-semibold text-[#071F5E]">

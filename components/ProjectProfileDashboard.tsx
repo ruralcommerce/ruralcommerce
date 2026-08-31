@@ -385,7 +385,7 @@ export function ProjectProfileDashboard({
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <button
               onClick={() => loadRecord(email)}
-              className="rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E]"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E] sm:w-auto"
             >
               {t.loginCta}
             </button>
