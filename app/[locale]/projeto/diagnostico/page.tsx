@@ -36,13 +36,9 @@ export default function ProjectDiagnosticoPage({ params }: { params: { locale: s
   const locale = getLocaleKey(params.locale);
 
   return (
-    <ProjectPageShell locale={locale} fullViewport currentPage="diagnostico">
-      <div className="flex max-h-[calc(100vh-theme(spacing.28))] min-h-0 flex-col overflow-hidden rounded-[28px] bg-white p-2 shadow-sm ring-1 ring-[#E6EBF1] sm:p-3">
-        <div className="flex h-full min-h-0 flex-col rounded-[26px] bg-white text-[#2F3336]">
-          <div className="flex h-full min-h-0 flex-col p-2.5 sm:p-3 lg:p-4">
-            <ProjectDiagnosisForm locale={locale} />
-          </div>
-        </div>
+    <ProjectPageShell locale={locale} currentPage="diagnostico">
+      <div className="rounded-[28px] bg-white p-2 shadow-sm ring-1 ring-[#E6EBF1] sm:p-3 lg:p-4">
+        <ProjectDiagnosisForm locale={locale} />
       </div>
     </ProjectPageShell>
   );

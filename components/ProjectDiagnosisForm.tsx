@@ -798,7 +798,7 @@ export function ProjectDiagnosisForm({
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit} className="flex min-h-0 flex-col gap-0">
+    <form noValidate onSubmit={handleSubmit} className="flex flex-col gap-0 lg:min-h-0 lg:flex-1">
       <div className="rounded-[24px] border border-[#E6EBF1] bg-white px-2 py-1.5 sm:px-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="flex items-baseline gap-1.5">
@@ -812,13 +812,13 @@ export function ProjectDiagnosisForm({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-hidden rounded-[22px] bg-white">
+      <div className="overflow-x-hidden rounded-[22px] bg-white lg:min-h-0 lg:flex-1 lg:overflow-hidden">
         <div
-          className="flex h-full w-full items-stretch transition-transform duration-500 ease-out"
+          className="flex w-full items-stretch transition-transform duration-500 ease-out lg:h-full"
           style={{ transform: `translateX(-${currentStep * 100}%)` }}
         >
-          <div className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-            <div className="flex h-full flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
+          <div className="w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5 lg:h-full">
+            <div className="flex flex-col rounded-[22px] bg-white p-2.5 sm:p-3 lg:h-full">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
                 <ClipboardList size={22} />
               </div>
@@ -832,9 +832,9 @@ export function ProjectDiagnosisForm({
           </div>
 
           {sections.map(({ section, items }) => (
-            <div key={section} className="h-full w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5">
-              <div className="flex h-full flex-col rounded-[22px] bg-white p-2.5 sm:p-3">
-                <div className="min-h-0 flex-1 space-y-2 overflow-y-auto pr-1">
+            <div key={section} className="w-full shrink-0 px-0.25 py-0.25 sm:px-0.5 sm:py-0.5 lg:h-full">
+              <div className="flex flex-col rounded-[22px] bg-white p-2.5 sm:p-3 lg:h-full">
+                <div className="space-y-2 pb-4 lg:min-h-0 lg:flex-1 lg:overflow-y-auto lg:pb-0 lg:pr-1">
                   {items.map((question) => {
                     const isIncomplete = incompleteIds.includes(question.id);
                     return (
@@ -915,7 +915,7 @@ export function ProjectDiagnosisForm({
         ) : null}
       </div>
 
-      <div className="mt-2 flex flex-none items-center justify-between gap-2">
+      <div className="mt-2 flex flex-none items-center justify-between gap-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <button
           type="button"
           onClick={() => {
