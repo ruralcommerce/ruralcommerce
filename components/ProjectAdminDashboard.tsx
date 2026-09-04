@@ -21,6 +21,18 @@ import {
   type ProjectTeamTag,
   type ProjectTeamTagFilter,
 } from '@/lib/project-team-tags';
+import {
+  buildBeneficiaryListCsv,
+  buildBeneficiaryListExcelHtml,
+  buildBeneficiaryListPrintHtml,
+  buildDiagnosisCsv,
+  buildDiagnosisExcelHtml,
+  buildDiagnosisPrintHtml,
+  openPrintDocument,
+  triggerBrowserDownload,
+  type BeneficiaryExportRow,
+  type DiagnosisExportDoc,
+} from '@/lib/project-export-documents';
 
 type EnrollmentRecord = {
   id: string;
@@ -299,6 +311,21 @@ const uiCopy = {
     remindConvenioSelected: 'Recordatorio convenio ({count})',
     remindDiagnosisSelected: 'Recordatorio diagnóstico ({count})',
     reminding: 'Enviando recordatorio...',
+    exportEyebrow: 'Exportar',
+    exportListPrint: 'Imprimir lista',
+    exportListExcel: 'Excel / tabla',
+    exportListCsv: 'CSV',
+    exportDiagnosesPrint: 'Imprimir diagnósticos',
+    exportDiagnosesExcel: 'Diagnósticos Excel',
+    exportDiagnosesCsv: 'Diagnósticos CSV',
+    exportFilteredHint: 'Usa los filtros de arriba. Se exporta la lista visible ({count}).',
+    exportSelectedHint: 'Con selección: se usan los seleccionados elegibles.',
+    exportNoDiagnosis: 'No hay diagnósticos enviados en la selección o filtro actual.',
+    exportFilterAll: 'Sin filtros (todas)',
+    exportFilterStatus: 'Estado',
+    exportFilterConvenio: 'Convenio',
+    exportFilterDiagnosis: 'Diagnóstico',
+    exportFilterTag: 'Etiqueta',
   },
   'pt-BR': {
     loginEyebrow: 'Intranet da equipe',
@@ -382,6 +409,21 @@ const uiCopy = {
     remindConvenioSelected: 'Lembrete convênio ({count})',
     remindDiagnosisSelected: 'Lembrete diagnóstico ({count})',
     reminding: 'Enviando lembrete...',
+    exportEyebrow: 'Exportar',
+    exportListPrint: 'Imprimir lista',
+    exportListExcel: 'Excel / tabela',
+    exportListCsv: 'CSV',
+    exportDiagnosesPrint: 'Imprimir diagnósticos',
+    exportDiagnosesExcel: 'Diagnósticos Excel',
+    exportDiagnosesCsv: 'Diagnósticos CSV',
+    exportFilteredHint: 'Usa os filtros acima. Exporta a lista visível ({count}).',
+    exportSelectedHint: 'Com seleção: usa os selecionados elegíveis.',
+    exportNoDiagnosis: 'Não há diagnósticos enviados na seleção ou filtro atual.',
+    exportFilterAll: 'Sem filtros (todas)',
+    exportFilterStatus: 'Status',
+    exportFilterConvenio: 'Convênio',
+    exportFilterDiagnosis: 'Diagnóstico',
+    exportFilterTag: 'Etiqueta',
   },
   en: {
     loginEyebrow: 'Team intranet',
@@ -465,6 +507,21 @@ const uiCopy = {
     remindConvenioSelected: 'Agreement reminder ({count})',
     remindDiagnosisSelected: 'Diagnosis reminder ({count})',
     reminding: 'Sending reminder...',
+    exportEyebrow: 'Export',
+    exportListPrint: 'Print list',
+    exportListExcel: 'Excel / table',
+    exportListCsv: 'CSV',
+    exportDiagnosesPrint: 'Print diagnoses',
+    exportDiagnosesExcel: 'Diagnoses Excel',
+    exportDiagnosesCsv: 'Diagnoses CSV',
+    exportFilteredHint: 'Uses the filters above. Exports the visible list ({count}).',
+    exportSelectedHint: 'With selection: uses eligible selected records.',
+    exportNoDiagnosis: 'No submitted diagnoses in the current selection or filter.',
+    exportFilterAll: 'No filters (all)',
+    exportFilterStatus: 'Status',
+    exportFilterConvenio: 'Agreement',
+    exportFilterDiagnosis: 'Diagnosis',
+    exportFilterTag: 'Tag',
   },
 } as const;
 
@@ -488,18 +545,6 @@ function getDiagnosisAnswerLabel(key: string, locale?: string) {
   const normalized = key.toLowerCase();
   const labels = diagnosisQuestionLabels[getProjectLocaleKey(locale)];
   return labels[normalized] || normalized.toUpperCase();
-}
-
-function triggerDownload(content: string, fileName: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }
 
 function needsConvenioReminder(record: EnrollmentRecord) {
@@ -544,62 +589,6 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       getDiagnosisAnswerLabel(key, record.profile.diagnosis?.locale || record.profile.locale),
       formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
-
-  const toCsv = (rows: Array<[string, string]>) => {
-    const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
-    return [t.csvHeader, ...rows.map(([question, answer]) => `${escape(question)},${escape(answer)}`)].join('\n');
-  };
-
-  const downloadDiagnosisCsv = (record: EnrollmentRecord) => {
-    triggerDownload(toCsv(getDiagnosisRows(record)), `diagnostico-${record.id}.csv`, 'text/csv;charset=utf-8;');
-  };
-
-  const downloadDiagnosisWord = (record: EnrollmentRecord) => {
-    const rows = getDiagnosisRows(record)
-      .map(([question, answer]) => `<tr><td style="border:1px solid #ccc;padding:6px;"><strong>${question}</strong></td><td style="border:1px solid #ccc;padding:6px;">${answer}</td></tr>`)
-      .join('');
-    const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><h2>${t.fullDiagnosis} - ${record.profile.name}</h2><table style="border-collapse:collapse;width:100%;">${rows}</table></body></html>`;
-    triggerDownload(html, `diagnostico-${record.id}.doc`, 'application/msword');
-  };
-
-  const downloadDiagnosisExcel = (record: EnrollmentRecord) => {
-    const rows = getDiagnosisRows(record)
-      .map(([question, answer]) => `<tr><td style="border:1px solid #ccc;padding:6px;"><strong>${question}</strong></td><td style="border:1px solid #ccc;padding:6px;">${answer}</td></tr>`)
-      .join('');
-    const html = `<!doctype html><html><head><meta charset="utf-8"></head><body><table>${rows}</table></body></html>`;
-    triggerDownload(html, `diagnostico-${record.id}.xls`, 'application/vnd.ms-excel');
-  };
-
-  const downloadDiagnosisPdf = (record: EnrollmentRecord) => {
-    const rows = getDiagnosisRows(record);
-    const tableRows = rows
-      .map(
-        ([question, answer]) =>
-          `<tr><td style="border:1px solid #d9e3ec;padding:6px;vertical-align:top;"><strong>${question}</strong></td><td style="border:1px solid #d9e3ec;padding:6px;">${answer}</td></tr>`
-      )
-      .join('');
-
-    const html = `<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>diagnostico-${record.id}</title>
-  </head>
-  <body style="font-family: Arial, sans-serif; padding: 20px; color: #1f2937;">
-    <h2 style="margin: 0 0 4px;">${t.fullDiagnosis} - ${record.profile.name || t.participantFallback}</h2>
-    <p style="margin: 0 0 16px; color: #4b5563;">${record.user.email || ''}</p>
-    <table style="width:100%; border-collapse:collapse; font-size:12px;">${tableRows}</table>
-  </body>
-</html>`;
-
-    const popup = window.open('', '_blank', 'width=1024,height=768');
-    if (!popup) return;
-    popup.document.open();
-    popup.document.write(html);
-    popup.document.close();
-    popup.focus();
-    popup.print();
-  };
 
   async function authenticateTeam() {
     setLoading(true);
@@ -710,6 +699,179 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     () => records.filter((record) => selectedIds.has(record.id) && needsDiagnosisReminder(record)).map((r) => r.id),
     [records, selectedIds]
   );
+
+  const stamp = () => {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+  };
+
+  const filterSummary = useMemo(() => {
+    const parts: string[] = [];
+    if (filter !== 'all') {
+      const statusLabel =
+        filter === 'pending' ? t.filterPending : filter === 'approved' ? t.filterApproved : t.filterRejected;
+      parts.push(`${t.exportFilterStatus}: ${statusLabel}`);
+    }
+    if (convenioFilter !== 'all') {
+      parts.push(
+        `${t.exportFilterConvenio}: ${
+          convenioFilter === 'signed' ? t.filterConvenioSigned : t.filterConvenioPending
+        }`
+      );
+    }
+    if (diagnosisFilter !== 'all') {
+      parts.push(
+        `${t.exportFilterDiagnosis}: ${
+          diagnosisFilter === 'done' ? t.filterDiagnosisDone : t.filterDiagnosisPending
+        }`
+      );
+    }
+    if (tagFilter !== 'all') {
+      parts.push(
+        `${t.exportFilterTag}: ${tagFilter === 'none' ? t.filterTagNone : getProjectTeamTagLabel(tagFilter)}`
+      );
+    }
+    return parts.length ? parts.join(' · ') : t.exportFilterAll;
+  }, [convenioFilter, diagnosisFilter, filter, t, tagFilter]);
+
+  const exportSourceRecords = useMemo(() => {
+    if (selectedIds.size > 0) {
+      return filteredRecords.filter((record) => selectedIds.has(record.id));
+    }
+    return filteredRecords;
+  }, [filteredRecords, selectedIds]);
+
+  const toBeneficiaryRows = (source: EnrollmentRecord[]): BeneficiaryExportRow[] =>
+    source.map((record) => ({
+      id: record.id,
+      name: record.profile.name || t.participantFallback,
+      email: record.user.email || record.profile.email || '',
+      phone: record.profile.phone || '',
+      organization: record.profile.organization || '',
+      city: record.profile.city || '',
+      status: getProjectStatusLabel(record.status, localeKey),
+      tag: record.teamTag ? getProjectTeamTagLabel(record.teamTag) : t.tagNone,
+      convenio: record.profile.agreement?.signed ? t.convenioSignedBadge : t.convenioPendingBadge,
+      diagnosis: record.profile.diagnosis?.answers ? t.diagnosisDoneBadge : t.diagnosisPendingBadge,
+      createdAt: formatProjectDate(record.createdAt, localeKey),
+      interest: record.profile.interest || '',
+    }));
+
+  const toDiagnosisDocs = (source: EnrollmentRecord[]): DiagnosisExportDoc[] =>
+    source
+      .filter((record) => Boolean(record.profile.diagnosis?.answers))
+      .map((record) => ({
+        id: record.id,
+        name: record.profile.name || t.participantFallback,
+        email: record.user.email || record.profile.email || '',
+        organization: record.profile.organization || '',
+        submittedAt: record.profile.diagnosis?.submittedAt
+          ? formatProjectDate(record.profile.diagnosis.submittedAt, localeKey)
+          : '',
+        rows: getDiagnosisRows(record),
+      }));
+
+  const downloadListExcel = () => {
+    const rows = toBeneficiaryRows(exportSourceRecords);
+    triggerBrowserDownload(
+      buildBeneficiaryListExcelHtml({
+        locale: localeKey,
+        rows,
+        filterSummary,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+      }),
+      `beneficiarios-${stamp()}.xls`,
+      'application/vnd.ms-excel'
+    );
+  };
+
+  const downloadListCsv = () => {
+    const rows = toBeneficiaryRows(exportSourceRecords);
+    triggerBrowserDownload(
+      buildBeneficiaryListCsv({ locale: localeKey, rows }),
+      `beneficiarios-${stamp()}.csv`,
+      'text/csv;charset=utf-8;'
+    );
+  };
+
+  const printList = () => {
+    const rows = toBeneficiaryRows(exportSourceRecords);
+    openPrintDocument(
+      buildBeneficiaryListPrintHtml({
+        locale: localeKey,
+        rows,
+        filterSummary,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+      }),
+      `beneficiarios-${stamp()}`
+    );
+  };
+
+  const downloadDiagnosesExcel = (source?: EnrollmentRecord[]) => {
+    const docs = toDiagnosisDocs(source || exportSourceRecords);
+    if (!docs.length) {
+      window.alert(t.exportNoDiagnosis);
+      return;
+    }
+    triggerBrowserDownload(
+      buildDiagnosisExcelHtml({ locale: localeKey, docs }),
+      `diagnosticos-${stamp()}.xls`,
+      'application/vnd.ms-excel'
+    );
+  };
+
+  const downloadDiagnosesCsv = (source?: EnrollmentRecord[]) => {
+    const docs = toDiagnosisDocs(source || exportSourceRecords);
+    if (!docs.length) {
+      window.alert(t.exportNoDiagnosis);
+      return;
+    }
+    triggerBrowserDownload(
+      buildDiagnosisCsv({ locale: localeKey, docs }),
+      `diagnosticos-${stamp()}.csv`,
+      'text/csv;charset=utf-8;'
+    );
+  };
+
+  const printDiagnoses = (source?: EnrollmentRecord[]) => {
+    const docs = toDiagnosisDocs(source || exportSourceRecords);
+    if (!docs.length) {
+      window.alert(t.exportNoDiagnosis);
+      return;
+    }
+    openPrintDocument(
+      buildDiagnosisPrintHtml({
+        locale: localeKey,
+        docs,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+      }),
+      `diagnosticos-${stamp()}`
+    );
+  };
+
+  const downloadDiagnosisCsv = (record: EnrollmentRecord) => {
+    downloadDiagnosesCsv([record]);
+  };
+
+  const downloadDiagnosisExcel = (record: EnrollmentRecord) => {
+    downloadDiagnosesExcel([record]);
+  };
+
+  const downloadDiagnosisPdf = (record: EnrollmentRecord) => {
+    printDiagnoses([record]);
+  };
+
+  const downloadDiagnosisWord = (record: EnrollmentRecord) => {
+    const docs = toDiagnosisDocs([record]);
+    if (!docs.length) return;
+    const html = buildDiagnosisPrintHtml({
+      locale: localeKey,
+      docs,
+      generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+    });
+    triggerBrowserDownload(html, `diagnostico-${record.id}.doc`, 'application/msword');
+  };
 
   function toggleRecordSelection(recordId: string) {
     setSelectedIds((current) => {
@@ -1048,6 +1210,65 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         </div>
       </div>
 
+      <div className="rounded-2xl border border-[#E6EBF1] bg-[#F7FAFB] p-4 shadow-sm">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{t.exportEyebrow}</p>
+            <p className="mt-1 text-sm text-[#2F3336]/75">
+              {t.exportFilteredHint.replace('{count}', String(exportSourceRecords.length))}
+            </p>
+            {selectedCount > 0 ? (
+              <p className="mt-1 text-xs text-[#1D6359]">{t.exportSelectedHint}</p>
+            ) : null}
+            <p className="mt-1 text-xs text-[#2F3336]/55">{filterSummary}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={printList}
+              className="rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E]"
+            >
+              {t.exportListPrint}
+            </button>
+            <button
+              type="button"
+              onClick={downloadListExcel}
+              className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+            >
+              {t.exportListExcel}
+            </button>
+            <button
+              type="button"
+              onClick={downloadListCsv}
+              className="rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E]"
+            >
+              {t.exportListCsv}
+            </button>
+            <button
+              type="button"
+              onClick={() => printDiagnoses()}
+              className="rounded-full border border-[#CFE8E8] bg-white px-4 py-2 text-sm font-semibold text-[#1D6359]"
+            >
+              {t.exportDiagnosesPrint}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadDiagnosesExcel()}
+              className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359]"
+            >
+              {t.exportDiagnosesExcel}
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadDiagnosesCsv()}
+              className="rounded-full border border-[#CFE8E8] bg-white px-4 py-2 text-sm font-semibold text-[#1D6359]"
+            >
+              {t.exportDiagnosesCsv}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="flex flex-col gap-3 rounded-2xl border border-[#E6EBF1] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <label className="inline-flex items-center gap-2 text-sm text-[#071F5E]">
           <input
@@ -1371,7 +1592,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   onClick={() => downloadDiagnosisPdf(selectedDiagnosisRecord)}
                   className="rounded-full border border-[#D9E3EC] px-3 py-1.5 text-xs font-semibold text-[#071F5E]"
                 >
-                  PDF
+                  PDF / Print
                 </button>
                 <button
                   type="button"
