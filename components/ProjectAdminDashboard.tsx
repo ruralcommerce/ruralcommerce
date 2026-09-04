@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Download } from 'lucide-react';
 import {
   formatProjectAnswerValue,
   formatProjectDate,
@@ -313,19 +314,19 @@ const uiCopy = {
     reminding: 'Enviando recordatorio...',
     exportEyebrow: 'Exportar',
     exportListPrint: 'Imprimir lista',
-    exportListExcel: 'Excel / tabla',
-    exportListCsv: 'CSV',
+    exportListExcel: 'Lista Excel / tabla',
+    exportListCsv: 'Lista CSV',
     exportDiagnosesPrint: 'Imprimir diagnósticos',
     exportDiagnosesExcel: 'Diagnósticos Excel',
     exportDiagnosesCsv: 'Diagnósticos CSV',
-    exportFilteredHint: 'Usa los filtros de arriba. Se exporta la lista visible ({count}).',
-    exportSelectedHint: 'Con selección: se usan los seleccionados elegibles.',
     exportNoDiagnosis: 'No hay diagnósticos enviados en la selección o filtro actual.',
     exportFilterAll: 'Sin filtros (todas)',
     exportFilterStatus: 'Estado',
     exportFilterConvenio: 'Convenio',
     exportFilterDiagnosis: 'Diagnóstico',
     exportFilterTag: 'Etiqueta',
+    exportListGroup: 'Lista de beneficiarios',
+    exportDiagnosisGroup: 'Diagnósticos',
   },
   'pt-BR': {
     loginEyebrow: 'Intranet da equipe',
@@ -411,19 +412,19 @@ const uiCopy = {
     reminding: 'Enviando lembrete...',
     exportEyebrow: 'Exportar',
     exportListPrint: 'Imprimir lista',
-    exportListExcel: 'Excel / tabela',
-    exportListCsv: 'CSV',
+    exportListExcel: 'Lista Excel / tabela',
+    exportListCsv: 'Lista CSV',
     exportDiagnosesPrint: 'Imprimir diagnósticos',
     exportDiagnosesExcel: 'Diagnósticos Excel',
     exportDiagnosesCsv: 'Diagnósticos CSV',
-    exportFilteredHint: 'Usa os filtros acima. Exporta a lista visível ({count}).',
-    exportSelectedHint: 'Com seleção: usa os selecionados elegíveis.',
     exportNoDiagnosis: 'Não há diagnósticos enviados na seleção ou filtro atual.',
     exportFilterAll: 'Sem filtros (todas)',
     exportFilterStatus: 'Status',
     exportFilterConvenio: 'Convênio',
     exportFilterDiagnosis: 'Diagnóstico',
     exportFilterTag: 'Etiqueta',
+    exportListGroup: 'Lista de beneficiários',
+    exportDiagnosisGroup: 'Diagnósticos',
   },
   en: {
     loginEyebrow: 'Team intranet',
@@ -509,19 +510,19 @@ const uiCopy = {
     reminding: 'Sending reminder...',
     exportEyebrow: 'Export',
     exportListPrint: 'Print list',
-    exportListExcel: 'Excel / table',
-    exportListCsv: 'CSV',
+    exportListExcel: 'List Excel / table',
+    exportListCsv: 'List CSV',
     exportDiagnosesPrint: 'Print diagnoses',
     exportDiagnosesExcel: 'Diagnoses Excel',
     exportDiagnosesCsv: 'Diagnoses CSV',
-    exportFilteredHint: 'Uses the filters above. Exports the visible list ({count}).',
-    exportSelectedHint: 'With selection: uses eligible selected records.',
     exportNoDiagnosis: 'No submitted diagnoses in the current selection or filter.',
     exportFilterAll: 'No filters (all)',
     exportFilterStatus: 'Status',
     exportFilterConvenio: 'Agreement',
     exportFilterDiagnosis: 'Diagnosis',
     exportFilterTag: 'Tag',
+    exportListGroup: 'Beneficiary list',
+    exportDiagnosisGroup: 'Diagnoses',
   },
 } as const;
 
@@ -583,6 +584,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedRecord, setSelectedRecord] = useState<EnrollmentRecord | null>(null);
   const [selectedDiagnosisRecord, setSelectedDiagnosisRecord] = useState<EnrollmentRecord | null>(null);
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const exportMenuRef = useRef<HTMLDivElement>(null);
 
   const getDiagnosisRows = (record: EnrollmentRecord) =>
     getOrderedAnswerEntries(record.profile.diagnosis?.answers).map(([key, value]) => [
@@ -665,6 +668,17 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       loadRecords();
     }
   }, [authenticated, teamToken]);
+
+  useEffect(() => {
+    if (!exportMenuOpen) return;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!exportMenuRef.current?.contains(event.target as Node)) {
+        setExportMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [exportMenuOpen]);
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) => {
@@ -1210,65 +1224,6 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[#E6EBF1] bg-[#F7FAFB] p-4 shadow-sm">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{t.exportEyebrow}</p>
-            <p className="mt-1 text-sm text-[#2F3336]/75">
-              {t.exportFilteredHint.replace('{count}', String(exportSourceRecords.length))}
-            </p>
-            {selectedCount > 0 ? (
-              <p className="mt-1 text-xs text-[#1D6359]">{t.exportSelectedHint}</p>
-            ) : null}
-            <p className="mt-1 text-xs text-[#2F3336]/55">{filterSummary}</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={printList}
-              className="rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E]"
-            >
-              {t.exportListPrint}
-            </button>
-            <button
-              type="button"
-              onClick={downloadListExcel}
-              className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E]"
-            >
-              {t.exportListExcel}
-            </button>
-            <button
-              type="button"
-              onClick={downloadListCsv}
-              className="rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E]"
-            >
-              {t.exportListCsv}
-            </button>
-            <button
-              type="button"
-              onClick={() => printDiagnoses()}
-              className="rounded-full border border-[#CFE8E8] bg-white px-4 py-2 text-sm font-semibold text-[#1D6359]"
-            >
-              {t.exportDiagnosesPrint}
-            </button>
-            <button
-              type="button"
-              onClick={() => downloadDiagnosesExcel()}
-              className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359]"
-            >
-              {t.exportDiagnosesExcel}
-            </button>
-            <button
-              type="button"
-              onClick={() => downloadDiagnosesCsv()}
-              className="rounded-full border border-[#CFE8E8] bg-white px-4 py-2 text-sm font-semibold text-[#1D6359]"
-            >
-              {t.exportDiagnosesCsv}
-            </button>
-          </div>
-        </div>
-      </div>
-
       <div className="flex flex-col gap-3 rounded-2xl border border-[#E6EBF1] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <label className="inline-flex items-center gap-2 text-sm text-[#071F5E]">
           <input
@@ -1280,8 +1235,92 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           {t.selectAll}
         </label>
 
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <div className="relative" ref={exportMenuRef}>
+            <button
+              type="button"
+              onClick={() => setExportMenuOpen((open) => !open)}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D9E3EC] bg-white text-[#071F5E] hover:bg-[#F7FAFB]"
+              aria-label={t.exportEyebrow}
+              title={t.exportEyebrow}
+            >
+              <Download size={18} />
+            </button>
+            {exportMenuOpen ? (
+              <div className="absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-2xl border border-[#E6EBF1] bg-white py-2 shadow-lg">
+                <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
+                  {t.exportListGroup}
+                </p>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    printList();
+                    setExportMenuOpen(false);
+                  }}
+                >
+                  {t.exportListPrint}
+                </button>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    downloadListExcel();
+                    setExportMenuOpen(false);
+                  }}
+                >
+                  {t.exportListExcel}
+                </button>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    downloadListCsv();
+                    setExportMenuOpen(false);
+                  }}
+                >
+                  {t.exportListCsv}
+                </button>
+                <div className="my-2 border-t border-[#E6EBF1]" />
+                <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
+                  {t.exportDiagnosisGroup}
+                </p>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    printDiagnoses();
+                    setExportMenuOpen(false);
+                  }}
+                >
+                  {t.exportDiagnosesPrint}
+                </button>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    downloadDiagnosesExcel();
+                    setExportMenuOpen(false);
+                  }}
+                >
+                  {t.exportDiagnosesExcel}
+                </button>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    downloadDiagnosesCsv();
+                    setExportMenuOpen(false);
+                  }}
+                >
+                  {t.exportDiagnosesCsv}
+                </button>
+              </div>
+            ) : null}
+          </div>
+
         {selectedCount > 0 ? (
-          <div className="flex flex-wrap items-center gap-2">
+          <>
             <span className="text-sm font-medium text-[#2F3336]/75">
               {t.selectedCount.replace('{count}', String(selectedCount))}
             </span>
@@ -1354,8 +1393,9 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   : t.remindDiagnosisSelected.replace('{count}', String(selectedDiagnosisIds.length))}
               </button>
             ) : null}
-          </div>
+          </>
         ) : null}
+        </div>
       </div>
 
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
