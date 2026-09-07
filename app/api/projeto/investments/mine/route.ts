@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { authenticateCandidate, isApprovedWithAgreement, sanitizeInscriptionRecord } from '@/lib/project-candidate-auth';
-import { readInvestments } from '@/lib/project-investments';
+import { readInvestments } from '@/lib/project-investment-store';
 
 function trimField(value: unknown, max: number) {
   if (typeof value !== 'string') return '';

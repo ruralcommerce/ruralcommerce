@@ -137,7 +137,7 @@ export async function buildInvestmentDigest(month: string, investments: Investme
 }
 
 export async function sendInvestmentMonthlyDigest(options?: { month?: string; remindBeneficiaries?: boolean }) {
-  const { readInvestments } = await import('@/lib/project-investments');
+  const { readInvestments } = await import('@/lib/project-investment-store');
   const month = options?.month || monthKey();
   const investments = await readInvestments();
   const digest = await buildInvestmentDigest(month, investments);

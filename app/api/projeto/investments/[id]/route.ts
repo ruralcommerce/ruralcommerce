@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { verifyTeamAccess } from '@/lib/project-team-auth-request';
 import { appendAuditEntry } from '@/lib/project-audit-log';
-import { estimateUsd, getCrcPerUsd, canAcceptInvestmentFor18a, readInvestments, writeInvestments } from '@/lib/project-investments';
+import { estimateUsd, getCrcPerUsd, canAcceptInvestmentFor18a } from '@/lib/project-investments';
+import { readInvestments, writeInvestments } from '@/lib/project-investment-store';
 
 function trimField(value: unknown, max: number) {
   if (typeof value !== 'string') return '';

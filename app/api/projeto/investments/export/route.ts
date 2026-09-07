@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { verifyTeamAccess } from '@/lib/project-team-auth-request';
 import { inscriptionEmail, inscriptionProfile, readInscriptionRecords } from '@/lib/project-candidate-auth';
-import { indicatorUsd, readInvestments } from '@/lib/project-investments';
+import { indicatorUsd } from '@/lib/project-investments';
+import { readInvestments } from '@/lib/project-investment-store';
 
 export async function GET(request: Request) {
   const auth = verifyTeamAccess(request);

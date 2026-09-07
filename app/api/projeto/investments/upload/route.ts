@@ -1,15 +1,13 @@
 import { NextResponse } from 'next/server';
 import { authenticateCandidate, isApprovedWithAgreement } from '@/lib/project-candidate-auth';
 import {
-  createInvestmentFileId,
   isAllowedInvestmentFile,
   MAX_INVESTMENT_FILE_BYTES,
   MAX_RECEIPT_FILES,
-  readInvestments,
   sanitizeFileName,
-  writeInvestments,
   type InvestmentFileKind,
 } from '@/lib/project-investments';
+import { createInvestmentFileId, readInvestments, writeInvestments } from '@/lib/project-investment-store';
 import { putProjectR2Object, r2ObjectKey, isProjectR2Configured } from '@/lib/project-r2';
 
 export const runtime = 'nodejs';

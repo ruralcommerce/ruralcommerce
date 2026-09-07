@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyTeamAccess } from '@/lib/project-team-auth-request';
 import { authenticateCandidate } from '@/lib/project-candidate-auth';
 import { getProjectR2DownloadUrl } from '@/lib/project-r2';
-import { readInvestments } from '@/lib/project-investments';
+import { readInvestments } from '@/lib/project-investment-store';
 
 function trimField(value: unknown, max: number) {
   if (typeof value !== 'string') return '';

@@ -11,19 +11,21 @@ import {
 } from '@/lib/project-candidate-auth';
 import {
   canSubmitInvestment,
-  createInvestmentDocumentIds,
-  createInvestmentId,
   estimateUsd,
   getCrcPerUsd,
   isInvestmentCategory,
   isPendingDocumentation,
-  readInvestments,
-  writeInvestments,
   type InvestmentAmountKind,
   type InvestmentAttributable,
   type InvestmentCurrency,
   type InvestmentRecord,
 } from '@/lib/project-investments';
+import {
+  createInvestmentDocumentIds,
+  createInvestmentId,
+  readInvestments,
+  writeInvestments,
+} from '@/lib/project-investment-store';
 import { notifyTeamInvestmentSubmitted } from '@/lib/project-investment-notify';
 import { appendAuditEntry } from '@/lib/project-audit-log';
 

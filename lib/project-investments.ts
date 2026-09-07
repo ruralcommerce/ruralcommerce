@@ -1,7 +1,3 @@
-import { mkdir, readFile, writeFile } from 'fs/promises';
-import path from 'path';
-import { randomBytes } from 'crypto';
-
 export const INVESTMENT_CATEGORIES = [
   'tool',
   'premises',
@@ -82,9 +78,6 @@ export type InvestmentRecord = {
   submittedAt?: string;
 };
 
-const DATA_DIR = path.join(process.cwd(), 'data');
-const DATA_FILE = path.join(DATA_DIR, 'project-investments.json');
-
 export const ALLOWED_INVESTMENT_TYPES = [
   'image/jpeg',
   'image/png',
@@ -110,36 +103,6 @@ export function indicatorUsd(record: InvestmentRecord) {
   if (record.status !== 'accepted_18a') return 0;
   if (typeof record.review?.amountUsdFinal === 'number') return record.review.amountUsdFinal;
   return record.amountUsdEstimated || 0;
-}
-
-export async function readInvestments(): Promise<InvestmentRecord[]> {
-  try {
-    const text = await readFile(DATA_FILE, 'utf8');
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed) ? (parsed as InvestmentRecord[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-export async function writeInvestments(records: InvestmentRecord[]) {
-  await mkdir(DATA_DIR, { recursive: true });
-  await writeFile(DATA_FILE, JSON.stringify(records, null, 2), 'utf8');
-}
-
-export function createInvestmentId() {
-  return `inv_${Date.now()}_${randomBytes(4).toString('hex')}`;
-}
-
-export function createInvestmentFileId() {
-  return `file_${Date.now()}_${randomBytes(3).toString('hex')}`;
-}
-
-export function createInvestmentDocumentIds() {
-  return {
-    documentId: `IMLS-INV-${Date.now().toString(36).toUpperCase()}-${randomBytes(3).toString('hex').toUpperCase()}`,
-    verificationCode: randomBytes(4).toString('hex').toUpperCase(),
-  };
 }
 
 export function isInvestmentCategory(value: unknown): value is InvestmentCategory {
