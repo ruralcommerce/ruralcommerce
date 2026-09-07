@@ -90,6 +90,24 @@ checks.push(
   )
 );
 
+console.log('\nCloudflare R2 (comprobantes; bucket privado):');
+const r2Ok =
+  Boolean(get('R2_ACCOUNT_ID')) &&
+  Boolean(get('R2_BUCKET')) &&
+  Boolean(get('R2_ACCESS_KEY_ID')) &&
+  Boolean(get('R2_SECRET_ACCESS_KEY'));
+checks.push(status(r2Ok, 'R2_ACCOUNT_ID + R2_BUCKET + keys'));
+checks.push(
+  status(
+    true,
+    'R2_FOLDER_PREFIX',
+    get('R2_FOLDER_PREFIX') || 'Inversión Beneficiários/ (default)'
+  )
+);
+if (r2Ok) {
+  console.log('  Probar: npm run test:r2');
+}
+
 console.log('\nPush web (opcional — pula se vazio):');
 const pushOk = Boolean(get('VAPID_PUBLIC_KEY')) && Boolean(get('VAPID_PRIVATE_KEY'));
 checks.push(status(pushOk, 'VAPID_PUBLIC_KEY + VAPID_PRIVATE_KEY'));

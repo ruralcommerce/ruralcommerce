@@ -56,6 +56,7 @@ log "Starting backup in $BACKUP"
 backup_path "data/project-inscriptions.json"
 backup_path "data/project-push-subscriptions.json"
 backup_path "data/project-broadcast-log.json"
+backup_path "data/project-investments.json"
 
 # Production secrets (gitignored)
 backup_path ".env.production.local"
@@ -128,6 +129,20 @@ if [ -f "$BACKUP/data/project-broadcast-log.json" ]; then
   mkdir -p "$ROOT/data"
   cp -a "$BACKUP/data/project-broadcast-log.json" "$ROOT/data/project-broadcast-log.json"
   log "restored: data/project-broadcast-log.json"
+fi
+
+if [ -f "$BACKUP/data/project-investments.json" ]; then
+  mkdir -p "$ROOT/data"
+  cp -a "$BACKUP/data/project-investments.json" "$ROOT/data/project-investments.json"
+  log "restored: data/project-investments.json"
+elif [ ! -f "$ROOT/data/project-investments.json" ]; then
+  mkdir -p "$ROOT/data"
+  if [ -f "$ROOT/data/project-investments.example.json" ]; then
+    cp "$ROOT/data/project-investments.example.json" "$ROOT/data/project-investments.json"
+  else
+    printf '[]\n' > "$ROOT/data/project-investments.json"
+  fi
+  log "seeded: data/project-investments.json"
 fi
 
 if [ -f "$BACKUP/.env.production.local" ]; then

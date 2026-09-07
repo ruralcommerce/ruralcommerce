@@ -10,7 +10,9 @@ export type AuditAction =
   | 'team_invite'
   | 'team_invite_complete'
   | 'team_reminder_convenio'
-  | 'team_reminder_diagnosis';
+  | 'team_reminder_diagnosis'
+  | 'investment_submit'
+  | 'investment_review';
 
 export type AuditEntry = {
   id: string;

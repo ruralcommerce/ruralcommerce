@@ -11,5 +11,6 @@ data/project-push-subscriptions.json
 data/project-broadcast-log.json
 data/project-team-members.json
 data/project-audit-log.json
+data/project-investments.json
 public/images/uploads/*
 !public/images/uploads/.gitkeep

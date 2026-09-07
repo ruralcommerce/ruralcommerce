@@ -138,6 +138,10 @@ const uiCopy = {
     noMessage: 'Sin mensaje adicional.',
     formAnswers: 'Respuestas del formulario',
     diagnosticCta: 'Ir al diagnóstico',
+    investmentCta: 'Registrar una compra o mejora',
+    investmentBoxTitle: 'Inversiones de tu negocio',
+    investmentBoxText:
+      'Si compraste o mejoraste algo por el proyecto, súbelo aquí. Necesitamos factura o recibo, y tu firma.',
     convenioSignedTitle: 'Convenio firmado',
     convenioSignedText: 'Tu convenio está registrado. Puedes descargarlo cuando lo necesites.',
     convenioSignedBy: 'Firmado por',
@@ -181,6 +185,10 @@ const uiCopy = {
     noMessage: 'Sem mensagem adicional.',
     formAnswers: 'Respostas do formulário',
     diagnosticCta: 'Ir para o diagnóstico',
+    investmentCta: 'Registrar uma compra ou melhoria',
+    investmentBoxTitle: 'Investimentos do seu negócio',
+    investmentBoxText:
+      'Se comprou ou melhorou algo por causa do projeto, envie aqui. Precisamos da fatura ou recibo, e da sua assinatura.',
     convenioSignedTitle: 'Convênio assinado',
     convenioSignedText: 'Seu convênio está registrado. Você pode baixá-lo quando precisar.',
     convenioSignedBy: 'Assinado por',
@@ -224,6 +232,10 @@ const uiCopy = {
     noMessage: 'No additional message.',
     formAnswers: 'Form answers',
     diagnosticCta: 'Go to diagnosis',
+    investmentCta: 'Record a purchase or improvement',
+    investmentBoxTitle: 'Investments in your business',
+    investmentBoxText:
+      'If you bought or improved something because of the project, submit it here. We need an invoice or receipt, and your signature.',
     convenioSignedTitle: 'Agreement signed',
     convenioSignedText: 'Your agreement is on record. You can download it whenever you need it.',
     convenioSignedBy: 'Signed by',
@@ -424,6 +436,7 @@ export function ProjectProfileDashboard({
 
               {record.status === 'approved' ? (
                 record.profile.agreement?.signed ? (
+                  <>
                   <ProjectPortalPanel title={t.convenioSignedTitle} subtitle={t.convenioSignedText} tone="accent">
                     <p className="text-sm text-[#2F3336]/85">
                       <span className="font-semibold text-[#071F5E]">{t.convenioSignedBy}:</span>{' '}
@@ -466,6 +479,15 @@ export function ProjectProfileDashboard({
                       </a>
                     </div>
                   </ProjectPortalPanel>
+                  <ProjectPortalPanel title={t.investmentBoxTitle} subtitle={t.investmentBoxText} tone="accent">
+                    <a
+                      href={`/${localeKey}/projeto/inversiones`}
+                      className="inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+                    >
+                      {t.investmentCta}
+                    </a>
+                  </ProjectPortalPanel>
+                  </>
                 ) : (
                   <ProjectPortalPanel title={t.convenioBoxTitle} subtitle={t.convenioPending} tone="accent">
                     <ol className="list-decimal space-y-1 pl-5 text-sm text-[#2F3336]/85">

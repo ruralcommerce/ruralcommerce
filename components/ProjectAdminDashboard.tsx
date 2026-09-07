@@ -12,6 +12,7 @@ import {
 } from '@/lib/project-locale';
 import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
 import { ProjectTeamMembersPanel } from '@/components/ProjectTeamMembersPanel';
+import { ProjectInvestmentAdminPanel } from '@/components/ProjectInvestmentAdminPanel';
 import {
   readTeamSession,
   writeTeamSession,
@@ -80,7 +81,7 @@ type EnrollmentRecord = {
 };
 
 type BulkAction = 'approve' | 'reject' | 'delete' | 'set-tag';
-type AdminSection = 'hub' | 'inscriptions' | 'communications' | 'team';
+type AdminSection = 'hub' | 'inscriptions' | 'investments' | 'communications' | 'team';
 
 const teamTagBadgeClass: Record<ProjectTeamTag, string> = {
   frutalcoop: 'bg-[#E8F0FF] text-[#1D3A7A]',
@@ -242,6 +243,8 @@ const uiCopy = {
     hubHint: 'Elige una sección. Cada área tiene una función específica para no mezclar todo en la misma pantalla.',
     sectionInscriptionsTitle: 'Inscripciones',
     sectionInscriptionsText: 'Revisar, aprobar, rechazar o eliminar participantes. Ver convenio y diagnóstico.',
+    sectionInvestmentsTitle: 'Inversiones (18a)',
+    sectionInvestmentsText: 'Revisar facturas firmadas, aceptar el monto en USD y enviar el informe mensual.',
     sectionCommsTitle: 'Comunicaciones',
     sectionCommsText: 'Enviar e-mails, ver ejemplo del mensaje, reenviar invitación al convenio.',
     sectionTeamTitle: 'Usuarios del equipo',
@@ -340,6 +343,8 @@ const uiCopy = {
     hubHint: 'Escolha uma seção. Cada área tem uma função específica para não misturar tudo na mesma tela.',
     sectionInscriptionsTitle: 'Inscrições',
     sectionInscriptionsText: 'Revisar, aprovar, rejeitar ou apagar participantes. Ver convênio e diagnóstico.',
+    sectionInvestmentsTitle: 'Investimentos (18a)',
+    sectionInvestmentsText: 'Revisar faturas assinadas, aceitar o valor em USD e enviar o informe mensal.',
     sectionCommsTitle: 'Comunicações',
     sectionCommsText: 'Enviar e-mails, ver exemplo da mensagem, reenviar convite do convênio.',
     sectionTeamTitle: 'Usuários da equipe',
@@ -438,6 +443,8 @@ const uiCopy = {
     hubHint: 'Choose a section. Each area has a specific job so everything is not mixed on one screen.',
     sectionInscriptionsTitle: 'Applications',
     sectionInscriptionsText: 'Review, approve, reject or delete participants. View agreement and diagnosis.',
+    sectionInvestmentsTitle: 'Investments (18a)',
+    sectionInvestmentsText: 'Review signed invoices, accept the USD amount and send the monthly report.',
     sectionCommsTitle: 'Communications',
     sectionCommsText: 'Send emails, preview the message, resend the agreement invitation.',
     sectionTeamTitle: 'Team users',
@@ -1105,10 +1112,19 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             </button>
             <button
               type="button"
-              onClick={() => setSection('communications')}
+              onClick={() => setSection('investments')}
               className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
             >
               <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">02</p>
+              <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionInvestmentsTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionInvestmentsText}</p>
+            </button>
+            <button
+              type="button"
+              onClick={() => setSection('communications')}
+              className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">03</p>
               <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionCommsTitle}</h2>
               <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionCommsText}</p>
             </button>
@@ -1118,12 +1134,25 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 onClick={() => setSection('team')}
                 className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
               >
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">03</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">04</p>
                 <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionTeamTitle}</h2>
                 <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionTeamText}</p>
               </button>
             ) : null}
           </div>
+        </div>
+      ) : null}
+
+      {section === 'investments' ? (
+        <div className="space-y-4">
+          <button
+            type="button"
+            onClick={() => setSection('hub')}
+            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+          >
+            ← {t.backToHub}
+          </button>
+          <ProjectInvestmentAdminPanel locale={locale} teamToken={teamToken} />
         </div>
       ) : null}
 

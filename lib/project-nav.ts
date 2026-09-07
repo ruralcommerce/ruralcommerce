@@ -3,6 +3,7 @@ export type ProjectNavPage =
   | 'inscricao'
   | 'convenio'
   | 'diagnostico'
+  | 'inversiones'
   | 'perfil'
   | 'admin'
   | 'recuperar-senha';
@@ -15,6 +16,7 @@ const pageTitles: Record<LocaleKey, Record<ProjectNavPage, string>> = {
     inscricao: 'Inscripción',
     convenio: 'Convenio',
     diagnostico: 'Diagnóstico',
+    inversiones: 'Mis compras',
     perfil: 'Mi perfil',
     admin: 'Intranet',
     'recuperar-senha': 'Restablecer contraseña',
@@ -24,6 +26,7 @@ const pageTitles: Record<LocaleKey, Record<ProjectNavPage, string>> = {
     inscricao: 'Inscrição',
     convenio: 'Convênio',
     diagnostico: 'Diagnóstico',
+    inversiones: 'Minhas compras',
     perfil: 'Meu perfil',
     admin: 'Intranet',
     'recuperar-senha': 'Redefinir senha',
@@ -33,6 +36,7 @@ const pageTitles: Record<LocaleKey, Record<ProjectNavPage, string>> = {
     inscricao: 'Application',
     convenio: 'Agreement',
     diagnostico: 'Diagnosis',
+    inversiones: 'My purchases',
     perfil: 'My profile',
     admin: 'Intranet',
     'recuperar-senha': 'Reset password',
