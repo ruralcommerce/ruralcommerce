@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Download } from 'lucide-react';
+import { Download, MoreHorizontal } from 'lucide-react';
 import {
   formatProjectAnswerValue,
   formatProjectDate,
@@ -333,6 +333,7 @@ const uiCopy = {
     exportFilterTag: 'Etiqueta',
     exportListGroup: 'Lista de beneficiarios',
     exportDiagnosisGroup: 'Diagnósticos',
+    moreActions: 'Más acciones',
   },
   'pt-BR': {
     loginEyebrow: 'Intranet da equipe',
@@ -436,6 +437,7 @@ const uiCopy = {
     exportFilterTag: 'Etiqueta',
     exportListGroup: 'Lista de beneficiários',
     exportDiagnosisGroup: 'Diagnósticos',
+    moreActions: 'Mais ações',
   },
   en: {
     loginEyebrow: 'Team intranet',
@@ -539,6 +541,7 @@ const uiCopy = {
     exportFilterTag: 'Tag',
     exportListGroup: 'Beneficiary list',
     exportDiagnosisGroup: 'Diagnoses',
+    moreActions: 'More actions',
   },
 } as const;
 
@@ -601,7 +604,9 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [selectedRecord, setSelectedRecord] = useState<EnrollmentRecord | null>(null);
   const [selectedDiagnosisRecord, setSelectedDiagnosisRecord] = useState<EnrollmentRecord | null>(null);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
   const exportMenuRef = useRef<HTMLDivElement>(null);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
 
   const getDiagnosisRows = (record: EnrollmentRecord) =>
     getOrderedAnswerEntries(record.profile.diagnosis?.answers).map(([key, value]) => [
@@ -686,15 +691,19 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   }, [authenticated, teamToken]);
 
   useEffect(() => {
-    if (!exportMenuOpen) return;
+    if (!exportMenuOpen && !openActionMenuId) return;
     const onPointerDown = (event: MouseEvent) => {
-      if (!exportMenuRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (exportMenuOpen && exportMenuRef.current && !exportMenuRef.current.contains(target)) {
         setExportMenuOpen(false);
+      }
+      if (openActionMenuId && actionMenuRef.current && !actionMenuRef.current.contains(target)) {
+        setOpenActionMenuId(null);
       }
     };
     document.addEventListener('mousedown', onPointerDown);
     return () => document.removeEventListener('mousedown', onPointerDown);
-  }, [exportMenuOpen]);
+  }, [exportMenuOpen, openActionMenuId]);
 
   const filteredRecords = useMemo(() => {
     return records.filter((record) => {
@@ -1262,8 +1271,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-3 rounded-2xl border border-[#E6EBF1] bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <label className="inline-flex items-center gap-2 text-sm text-[#071F5E]">
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-2xl border border-[#E6EBF1] bg-white px-4 py-3 shadow-sm">
+        <label className="inline-flex shrink-0 items-center gap-2 text-sm text-[#071F5E]">
           <input
             type="checkbox"
             checked={allFilteredSelected && filteredRecords.length > 0}
@@ -1273,16 +1282,16 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           {t.selectAll}
         </label>
 
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          <div className="relative" ref={exportMenuRef}>
+        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-2">
+          <div className="relative shrink-0" ref={exportMenuRef}>
             <button
               type="button"
               onClick={() => setExportMenuOpen((open) => !open)}
-              className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-[#D9E3EC] bg-white text-[#071F5E] hover:bg-[#F7FAFB]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#D9E3EC] bg-white text-[#071F5E] hover:bg-[#F7FAFB]"
               aria-label={t.exportEyebrow}
               title={t.exportEyebrow}
             >
-              <Download size={18} />
+              <Download size={17} />
             </button>
             {exportMenuOpen ? (
               <div className="absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-2xl border border-[#E6EBF1] bg-white py-2 shadow-lg">
@@ -1357,82 +1366,98 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             ) : null}
           </div>
 
-        {selectedCount > 0 ? (
-          <>
-            <span className="text-sm font-medium text-[#2F3336]/75">
-              {t.selectedCount.replace('{count}', String(selectedCount))}
-            </span>
-            <button
-              type="button"
-              disabled={bulkLoading}
-              onClick={() => runBulkAction('approve')}
-              className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
-            >
-              {t.approveSelected}
-            </button>
-            <button
-              type="button"
-              disabled={bulkLoading}
-              onClick={() => runBulkAction('reject')}
-              className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
-            >
-              {t.rejectSelected}
-            </button>
-            <button
-              type="button"
-              disabled={bulkLoading}
-              onClick={() => runBulkAction('delete')}
-              className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700 disabled:opacity-60"
-            >
-              {t.deleteSelected}
-            </button>
-            <select
-              value={bulkTag}
-              onChange={(e) => setBulkTag(e.target.value as '' | ProjectTeamTag | 'none')}
-              className="rounded-full border border-[#D9E3EC] px-3 py-2 text-sm text-[#071F5E]"
-            >
-              <option value="">{t.tagLabel}</option>
-              <option value="none">{t.tagNone}</option>
-              {PROJECT_TEAM_TAGS.map((tag) => (
-                <option key={tag} value={tag}>
-                  {getProjectTeamTagLabel(tag)}
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              disabled={bulkLoading || reminderLoading || !bulkTag}
-              onClick={applyBulkTag}
-              className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
-            >
-              {t.tagApplySelected}
-            </button>
-            {selectedConvenioIds.length > 0 ? (
-              <button
-                type="button"
-                disabled={bulkLoading || reminderLoading}
-                onClick={() => void sendReminders('convenio', selectedConvenioIds)}
-                className="rounded-full border border-[#FDF3E7] bg-[#FDF8F0] px-4 py-2 text-sm font-semibold text-[#9A6A1B] disabled:opacity-60"
-              >
-                {reminderLoading
-                  ? t.reminding
-                  : t.remindConvenioSelected.replace('{count}', String(selectedConvenioIds.length))}
-              </button>
-            ) : null}
-            {selectedDiagnosisIds.length > 0 ? (
-              <button
-                type="button"
-                disabled={bulkLoading || reminderLoading}
-                onClick={() => void sendReminders('diagnosis', selectedDiagnosisIds)}
-                className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359] disabled:opacity-60"
-              >
-                {reminderLoading
-                  ? t.reminding
-                  : t.remindDiagnosisSelected.replace('{count}', String(selectedDiagnosisIds.length))}
-              </button>
-            ) : null}
-          </>
-        ) : null}
+          {selectedCount > 0 ? (
+            <>
+              <span className="hidden h-5 w-px shrink-0 bg-[#E6EBF1] sm:block" aria-hidden />
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-sm font-medium text-[#2F3336]/65">
+                  {t.selectedCount.replace('{count}', String(selectedCount))}
+                </span>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => runBulkAction('approve')}
+                  className="rounded-full bg-[#52ADAD] px-3.5 py-1.5 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+                >
+                  {t.approveSelected}
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => runBulkAction('reject')}
+                  className="rounded-full border border-[#D9E3EC] px-3.5 py-1.5 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+                >
+                  {t.rejectSelected}
+                </button>
+                <button
+                  type="button"
+                  disabled={bulkLoading}
+                  onClick={() => runBulkAction('delete')}
+                  className="rounded-full border border-red-200 bg-red-50 px-3.5 py-1.5 text-sm font-semibold text-red-700 disabled:opacity-60"
+                >
+                  {t.deleteSelected}
+                </button>
+              </div>
+
+              <span className="hidden h-5 w-px shrink-0 bg-[#E6EBF1] sm:block" aria-hidden />
+              <div className="flex flex-wrap items-center gap-2">
+                <select
+                  value={bulkTag}
+                  onChange={(e) => setBulkTag(e.target.value as '' | ProjectTeamTag | 'none')}
+                  className="rounded-full border border-[#D9E3EC] px-3 py-1.5 text-sm text-[#071F5E]"
+                  aria-label={t.tagLabel}
+                >
+                  <option value="">{t.tagLabel}</option>
+                  <option value="none">{t.tagNone}</option>
+                  {PROJECT_TEAM_TAGS.map((tag) => (
+                    <option key={tag} value={tag}>
+                      {getProjectTeamTagLabel(tag)}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  disabled={bulkLoading || reminderLoading || !bulkTag}
+                  onClick={applyBulkTag}
+                  className="rounded-full border border-[#D9E3EC] px-3.5 py-1.5 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+                >
+                  {t.tagApplySelected}
+                </button>
+              </div>
+
+              {selectedConvenioIds.length > 0 || selectedDiagnosisIds.length > 0 ? (
+                <>
+                  <span className="hidden h-5 w-px shrink-0 bg-[#E6EBF1] sm:block" aria-hidden />
+                  <div className="flex flex-wrap items-center gap-2">
+                    {selectedConvenioIds.length > 0 ? (
+                      <button
+                        type="button"
+                        disabled={bulkLoading || reminderLoading}
+                        onClick={() => void sendReminders('convenio', selectedConvenioIds)}
+                        className="rounded-full border border-[#FDF3E7] bg-[#FDF8F0] px-3.5 py-1.5 text-sm font-semibold text-[#9A6A1B] disabled:opacity-60"
+                      >
+                        {reminderLoading
+                          ? t.reminding
+                          : t.remindConvenioSelected.replace('{count}', String(selectedConvenioIds.length))}
+                      </button>
+                    ) : null}
+                    {selectedDiagnosisIds.length > 0 ? (
+                      <button
+                        type="button"
+                        disabled={bulkLoading || reminderLoading}
+                        onClick={() => void sendReminders('diagnosis', selectedDiagnosisIds)}
+                        className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-3.5 py-1.5 text-sm font-semibold text-[#1D6359] disabled:opacity-60"
+                      >
+                        {reminderLoading
+                          ? t.reminding
+                          : t.remindDiagnosisSelected.replace('{count}', String(selectedDiagnosisIds.length))}
+                      </button>
+                    ) : null}
+                  </div>
+                </>
+              ) : null}
+            </>
+          ) : null}
         </div>
       </div>
 
@@ -1442,181 +1467,235 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         <p className="text-sm text-[#2F3336]/70">{t.loading}</p>
       ) : (
         <div className="space-y-4">
-          {filteredRecords.map((record) => (
+          {filteredRecords.map((record) => {
+            const organizationTitle =
+              record.profile.organization || record.profile.name || t.participantFallback;
+            const representativeName = record.profile.name || t.participantFallback;
+            const hasDiagnosis = Boolean(record.profile.diagnosis?.answers);
+            const metaParts = [
+              record.user.email,
+              record.profile.city || null,
+              formatProjectDate(record.createdAt, localeKey),
+            ].filter(Boolean);
+            const activityLine = record.profile.interest || t.noInterest;
+            const phoneLine = record.profile.phone || t.noPhone;
+            const showConvenioReminder = needsConvenioReminder(record);
+            const showDiagnosisReminder = needsDiagnosisReminder(record);
+
+            return (
             <article
               key={record.id}
-              className={`rounded-3xl border bg-white p-4 shadow-sm sm:p-6 ${
+              className={`rounded-3xl border bg-white p-4 shadow-sm sm:p-5 ${
                 selectedIds.has(record.id) ? 'border-[#52ADAD] ring-1 ring-[#52ADAD]/30' : 'border-[#E6EBF1]'
               }`}
             >
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="flex items-start gap-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(record.id)}
-                    onChange={() => toggleRecordSelection(record.id)}
-                    className="mt-1.5 h-4 w-4 rounded border-[#D9E3EC] text-[#52ADAD]"
-                    aria-label={record.profile.organization || record.profile.name}
-                  />
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-semibold text-[#071F5E]">
-                        {record.profile.organization || record.profile.name || t.participantFallback}
-                      </h2>
-                      <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold text-[#1D6359]">
-                        {getProjectStatusLabel(record.status, localeKey)}
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={selectedIds.has(record.id)}
+                  onChange={() => toggleRecordSelection(record.id)}
+                  className="mt-1.5 h-4 w-4 shrink-0 rounded border-[#D9E3EC] text-[#52ADAD]"
+                  aria-label={organizationTitle}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-lg font-semibold leading-snug text-[#071F5E] sm:text-xl">
+                      {organizationTitle}
+                    </h2>
+                    <span className="rounded-full bg-[#EEF7F7] px-2.5 py-0.5 text-[11px] font-semibold text-[#1D6359]">
+                      {getProjectStatusLabel(record.status, localeKey)}
+                    </span>
+                    {record.teamTag ? (
+                      <span
+                        className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${teamTagBadgeClass[record.teamTag]}`}
+                      >
+                        {getProjectTeamTagLabel(record.teamTag)}
                       </span>
-                      {record.teamTag ? (
-                        <span className={`rounded-full px-3 py-1 text-xs font-semibold ${teamTagBadgeClass[record.teamTag]}`}>
-                          {getProjectTeamTagLabel(record.teamTag)}
+                    ) : null}
+                    {record.status === 'approved' ? (
+                      <>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                            record.profile.agreement?.signed
+                              ? 'bg-[#E7F6EC] text-[#1D6359]'
+                              : 'bg-[#FDF3E7] text-[#9A6A1B]'
+                          }`}
+                        >
+                          {record.profile.agreement?.signed
+                            ? t.convenioSignedBadge
+                            : t.convenioPendingBadge}
                         </span>
-                      ) : null}
-                      {record.status === 'approved' ? (
-                        <>
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              record.profile.agreement?.signed
-                                ? 'bg-[#E7F6EC] text-[#1D6359]'
-                                : 'bg-[#FDF3E7] text-[#9A6A1B]'
-                            }`}
-                          >
-                            {record.profile.agreement?.signed ? t.convenioSignedBadge : t.convenioPendingBadge}
-                          </span>
-                          <span
-                            className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                              record.profile.diagnosis?.answers
-                                ? 'bg-[#E7F6EC] text-[#1D6359]'
-                                : 'bg-[#FDF3E7] text-[#9A6A1B]'
-                            }`}
-                          >
-                            {record.profile.diagnosis?.answers ? t.diagnosisDoneBadge : t.diagnosisPendingBadge}
-                          </span>
-                        </>
-                      ) : null}
-                      {record.profile.marketingConsent ? (
-                        <span className="rounded-full bg-[#EEF1F7] px-3 py-1 text-xs font-semibold text-[#3A4B7A]">
-                          {t.consentBadge}
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${
+                            hasDiagnosis
+                              ? 'bg-[#E7F6EC] text-[#1D6359]'
+                              : 'bg-[#FDF3E7] text-[#9A6A1B]'
+                          }`}
+                        >
+                          {hasDiagnosis ? t.diagnosisDoneBadge : t.diagnosisPendingBadge}
                         </span>
+                      </>
+                    ) : null}
+                  </div>
+
+                  <p className="mt-1 text-sm text-[#2F3336]/80">{representativeName}</p>
+                  <p className="mt-1 text-xs text-[#2F3336]/55">{metaParts.join(' · ')}</p>
+                  {record.profile.marketingConsent ? (
+                    <p className="mt-1 text-[11px] text-[#2F3336]/45">{t.consentBadge}</p>
+                  ) : null}
+
+                  <label className="mt-3 inline-flex max-w-full flex-col gap-1 text-[11px] font-medium uppercase tracking-[0.12em] text-[#2F3336]/45">
+                    {t.tagLabel}
+                    <select
+                      value={record.teamTag || ''}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        void updateTeamTag(record.id, value ? (value as ProjectTeamTag) : null);
+                      }}
+                      className="min-w-[11rem] rounded-xl border border-[#E6EBF1] bg-[#FBFCFD] px-3 py-1.5 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+                    >
+                      <option value="">{t.tagNone}</option>
+                      {PROJECT_TEAM_TAGS.map((tag) => (
+                        <option key={tag} value={tag}>
+                          {getProjectTeamTagLabel(tag)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedRecord(record)}
+                      className="rounded-full border border-[#D9E3EC] px-3.5 py-1.5 text-sm font-semibold text-[#071F5E]"
+                    >
+                      {t.viewForm}
+                    </button>
+                    {hasDiagnosis ? (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedDiagnosisRecord(record)}
+                        className="rounded-full border border-[#D9E3EC] px-3.5 py-1.5 text-sm font-semibold text-[#071F5E]"
+                      >
+                        {t.viewDiagnosis}
+                      </button>
+                    ) : null}
+                    {record.status === 'approved' ? (
+                      <a
+                        href={`/${localeKey}/admin/assist/${record.id}`}
+                        className="rounded-full border border-[#52ADAD] bg-[#F3FAFA] px-3.5 py-1.5 text-sm font-semibold text-[#1D6359]"
+                      >
+                        {t.assistDiagnosis}
+                      </a>
+                    ) : null}
+
+                    <div
+                      className="relative"
+                      ref={openActionMenuId === record.id ? actionMenuRef : undefined}
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenActionMenuId((current) => (current === record.id ? null : record.id))
+                        }
+                        className="inline-flex items-center gap-1.5 rounded-full border border-transparent px-2.5 py-1.5 text-sm font-medium text-[#2F3336]/70 hover:border-[#D9E3EC] hover:bg-[#F7FAFB]"
+                        aria-expanded={openActionMenuId === record.id}
+                        aria-haspopup="menu"
+                      >
+                        <MoreHorizontal size={16} />
+                        {t.moreActions}
+                      </button>
+                      {openActionMenuId === record.id ? (
+                        <div
+                          role="menu"
+                          className="absolute left-0 z-20 mt-1.5 min-w-[13rem] overflow-hidden rounded-xl border border-[#E6EBF1] bg-white py-1 shadow-lg sm:left-auto sm:right-0"
+                        >
+                          {record.status !== 'approved' ? (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="block w-full px-3.5 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                              onClick={() => {
+                                setOpenActionMenuId(null);
+                                void updateStatus(record.id, 'approved');
+                              }}
+                            >
+                              {t.approve}
+                            </button>
+                          ) : null}
+                          {record.status !== 'rejected' ? (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              className="block w-full px-3.5 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                              onClick={() => {
+                                setOpenActionMenuId(null);
+                                void updateStatus(record.id, 'rejected');
+                              }}
+                            >
+                              {t.reject}
+                            </button>
+                          ) : null}
+                          {showConvenioReminder ? (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              disabled={reminderLoading}
+                              className="block w-full px-3.5 py-2 text-left text-sm text-[#9A6A1B] hover:bg-[#FDF8F0] disabled:opacity-60"
+                              onClick={() => {
+                                setOpenActionMenuId(null);
+                                void sendReminders('convenio', [record.id]);
+                              }}
+                            >
+                              {t.remindConvenio}
+                            </button>
+                          ) : null}
+                          {showDiagnosisReminder ? (
+                            <button
+                              type="button"
+                              role="menuitem"
+                              disabled={reminderLoading}
+                              className="block w-full px-3.5 py-2 text-left text-sm text-[#1D6359] hover:bg-[#F3FAFA] disabled:opacity-60"
+                              onClick={() => {
+                                setOpenActionMenuId(null);
+                                void sendReminders('diagnosis', [record.id]);
+                              }}
+                            >
+                              {t.remindDiagnosis}
+                            </button>
+                          ) : null}
+                          <div className="my-1 border-t border-[#E6EBF1]" />
+                          <button
+                            type="button"
+                            role="menuitem"
+                            className="block w-full px-3.5 py-2 text-left text-sm text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              setOpenActionMenuId(null);
+                              void deleteRecord(record.id);
+                            }}
+                          >
+                            {t.deleteOne}
+                          </button>
+                        </div>
                       ) : null}
                     </div>
-                    <p className="mt-1 text-base font-medium text-[#071F5E]/85">
-                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/45">
-                        {t.representativeLabel}:{' '}
-                      </span>
-                      {record.profile.name || t.participantFallback}
-                    </p>
-                    <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
-                    {record.profile.city ? (
-                      <p className="mt-1 text-sm text-[#2F3336]/70">{record.profile.city}</p>
-                    ) : null}
-                    <p className="mt-1 text-xs text-[#2F3336]/55">{formatProjectDate(record.createdAt, localeKey)}</p>
-                    <label className="mt-3 flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
-                      {t.tagLabel}
-                      <select
-                        value={record.teamTag || ''}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          void updateTeamTag(record.id, value ? (value as ProjectTeamTag) : null);
-                        }}
-                        className="min-w-[12rem] rounded-2xl border border-[#D9E3EC] px-3 py-2 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
-                      >
-                        <option value="">{t.tagNone}</option>
-                        {PROJECT_TEAM_TAGS.map((tag) => (
-                          <option key={tag} value={tag}>
-                            {getProjectTeamTagLabel(tag)}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedRecord(record)}
-                    className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
-                  >
-                    {t.viewForm}
-                  </button>
-                  <button
-                    onClick={() => setSelectedDiagnosisRecord(record)}
-                    className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-40"
-                    disabled={!record.profile.diagnosis?.answers}
-                  >
-                    {t.viewDiagnosis}
-                  </button>
-                  {needsConvenioReminder(record) ? (
-                    <button
-                      type="button"
-                      disabled={reminderLoading}
-                      onClick={() => void sendReminders('convenio', [record.id])}
-                      className="rounded-full border border-[#FDF3E7] bg-[#FDF8F0] px-4 py-2 text-sm font-semibold text-[#9A6A1B] disabled:opacity-60"
-                    >
-                      {t.remindConvenio}
-                    </button>
+
+                  <p className="mt-4 text-sm text-[#2F3336]/65">
+                    {activityLine}
+                    <span className="mx-1.5 text-[#2F3336]/30">·</span>
+                    {phoneLine}
+                  </p>
+                  {record.profile.message ? (
+                    <p className="mt-2 text-sm leading-relaxed text-[#2F3336]/55">
+                      {record.profile.message}
+                    </p>
                   ) : null}
-                  {needsDiagnosisReminder(record) ? (
-                    <button
-                      type="button"
-                      disabled={reminderLoading}
-                      onClick={() => void sendReminders('diagnosis', [record.id])}
-                      className="rounded-full border border-[#CFE8E8] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359] disabled:opacity-60"
-                    >
-                      {t.remindDiagnosis}
-                    </button>
-                  ) : null}
-                  {record.status === 'approved' ? (
-                    <a
-                      href={`/${localeKey}/admin/assist/${record.id}`}
-                      className="rounded-full border border-[#52ADAD] bg-[#F3FAFA] px-4 py-2 text-sm font-semibold text-[#1D6359]"
-                    >
-                      {t.assistDiagnosis}
-                    </a>
-                  ) : null}
-                  <button
-                    onClick={() => updateStatus(record.id, 'approved')}
-                    className="rounded-full bg-[#52ADAD] px-4 py-2 text-sm font-semibold text-[#071F5E]"
-                  >
-                    {t.approve}
-                  </button>
-                  <button
-                    onClick={() => updateStatus(record.id, 'rejected')}
-                    className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
-                  >
-                    {t.reject}
-                  </button>
-                  <button
-                    onClick={() => deleteRecord(record.id)}
-                    className="rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700"
-                  >
-                    {t.deleteOne}
-                  </button>
                 </div>
               </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.profileSection}</p>
-                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#2F3336]/45">
-                    {t.representativeLabel}
-                  </p>
-                  <p className="text-sm text-[#2F3336]/80">
-                    {record.profile.role?.trim() || t.representativeLabel}
-                  </p>
-                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#2F3336]/45">
-                    {t.activityLabel}
-                  </p>
-                  <p className="text-sm text-[#2F3336]/80">{record.profile.interest || t.noInterest}</p>
-                </div>
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.contactSection}</p>
-                  <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.phone || t.noPhone}</p>
-                  <p className="text-sm text-[#2F3336]/80">{record.profile.locale || t.localeUnknown}</p>
-                </div>
-              </div>
-              <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm text-[#2F3336]/80">
-                {record.profile.message || t.noMessage}
-              </p>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
       </div>
