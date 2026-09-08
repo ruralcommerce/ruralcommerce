@@ -164,7 +164,12 @@ export function ProjectTeamDiagnosisAssist({
     <div className="space-y-4">
       <div className="rounded-[24px] border border-[#CFE8E8] bg-[#F3FAFA] p-5">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{t.assistEyebrow}</p>
-        <h1 className="mt-2 text-2xl font-semibold text-[#071F5E]">{record.profile.name || record.user.email}</h1>
+        <h1 className="mt-2 text-2xl font-semibold text-[#071F5E]">
+          {record.profile.organization || record.profile.name || record.user.email}
+        </h1>
+        <p className="mt-1 text-base font-medium text-[#071F5E]/85">
+          {record.profile.name || record.user.email}
+        </p>
         <p className="mt-1 text-sm text-[#2F3336]/80">
           {t.technician}: <strong>{session.name}</strong> ({session.email}) · ID {session.memberId}
         </p>

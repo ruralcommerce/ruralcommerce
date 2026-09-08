@@ -1456,11 +1456,13 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                     checked={selectedIds.has(record.id)}
                     onChange={() => toggleRecordSelection(record.id)}
                     className="mt-1.5 h-4 w-4 rounded border-[#D9E3EC] text-[#52ADAD]"
-                    aria-label={record.profile.name}
+                    aria-label={record.profile.organization || record.profile.name}
                   />
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="text-xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
+                      <h2 className="text-xl font-semibold text-[#071F5E]">
+                        {record.profile.organization || record.profile.name || t.participantFallback}
+                      </h2>
                       <span className="rounded-full bg-[#EEF7F7] px-3 py-1 text-xs font-semibold text-[#1D6359]">
                         {getProjectStatusLabel(record.status, localeKey)}
                       </span>
@@ -1497,18 +1499,16 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                         </span>
                       ) : null}
                     </div>
+                    <p className="mt-1 text-base font-medium text-[#071F5E]/85">
+                      <span className="text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/45">
+                        {t.representativeLabel}:{' '}
+                      </span>
+                      {record.profile.name || t.participantFallback}
+                    </p>
                     <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
-                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/45">
-                      {t.representativeLabel}
-                    </p>
-                    <p className="text-sm font-medium text-[#071F5E]">{record.profile.name || t.participantFallback}</p>
-                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/45">
-                      {t.organizationLabel}
-                    </p>
-                    <p className="text-sm text-[#2F3336]/80">
-                      {record.profile.organization || t.noOrganization}
-                      {record.profile.city ? ` · ${record.profile.city}` : ''}
-                    </p>
+                    {record.profile.city ? (
+                      <p className="mt-1 text-sm text-[#2F3336]/70">{record.profile.city}</p>
+                    ) : null}
                     <p className="mt-1 text-xs text-[#2F3336]/55">{formatProjectDate(record.createdAt, localeKey)}</p>
                     <label className="mt-3 flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
                       {t.tagLabel}
@@ -1631,7 +1631,12 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.fullForm}</p>
-                <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">{selectedRecord.profile.name}</h3>
+                <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">
+                  {selectedRecord.profile.organization || selectedRecord.profile.name || t.participantFallback}
+                </h3>
+                <p className="mt-1 text-base font-medium text-[#071F5E]/85">
+                  {t.representativeLabel}: {selectedRecord.profile.name || t.participantFallback}
+                </p>
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedRecord.user.email}</p>
                 {selectedRecord.profile.agreement?.signed ? (
                   <p className="mt-1 text-sm text-[#1D6359]">
@@ -1677,7 +1682,14 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.fullDiagnosis}</p>
-                <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">{selectedDiagnosisRecord.profile.name}</h3>
+                <h3 className="mt-1 text-xl font-semibold text-[#071F5E]">
+                  {selectedDiagnosisRecord.profile.organization ||
+                    selectedDiagnosisRecord.profile.name ||
+                    t.participantFallback}
+                </h3>
+                <p className="mt-1 text-base font-medium text-[#071F5E]/85">
+                  {t.representativeLabel}: {selectedDiagnosisRecord.profile.name || t.participantFallback}
+                </p>
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedDiagnosisRecord.user.email}</p>
               </div>
               <div className="flex flex-wrap gap-2">

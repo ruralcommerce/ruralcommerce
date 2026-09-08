@@ -421,9 +421,14 @@ export function ProjectProfileDashboard({
               <ProjectPortalPanel title={t.statusSection} tone="accent">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h2 className="text-xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
-                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
-                      {record.profile.role?.trim() || (localeKey === 'en' ? 'Legal representative' : 'Representante legal')}
+                    <h2 className="text-xl font-semibold text-[#071F5E]">
+                      {record.profile.organization || record.profile.name || record.user.email}
+                    </h2>
+                    <p className="mt-1 text-base font-medium text-[#071F5E]/85">
+                      {(record.profile.role?.trim() ||
+                        (localeKey === 'en' ? 'Legal representative' : 'Representante legal')) +
+                        ': '}
+                      {record.profile.name || record.user.email}
                     </p>
                     <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
                   </div>
