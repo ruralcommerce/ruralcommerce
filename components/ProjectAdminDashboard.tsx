@@ -1213,77 +1213,20 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
 
       {section === 'inscriptions' ? (
       <div className="space-y-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <button
-            type="button"
-            onClick={() => setSection('hub')}
-            className="mb-3 rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
-          >
-            ← {t.backToHub}
-          </button>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
-          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
-            {t.filterStatusLabel}
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[10rem]"
-            >
-              <option value="all">{t.filterAll}</option>
-              <option value="pending">{t.filterPending}</option>
-              <option value="approved">{t.filterApproved}</option>
-              <option value="rejected">{t.filterRejected}</option>
-            </select>
-          </label>
-          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
-            {t.filterConvenioLabel}
-            <select
-              value={convenioFilter}
-              onChange={(e) => setConvenioFilter(e.target.value as 'all' | 'signed' | 'pending')}
-              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[11rem]"
-            >
-              <option value="all">{t.filterConvenioAll}</option>
-              <option value="signed">{t.filterConvenioSigned}</option>
-              <option value="pending">{t.filterConvenioPending}</option>
-            </select>
-          </label>
-          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
-            {t.filterDiagnosisLabel}
-            <select
-              value={diagnosisFilter}
-              onChange={(e) => setDiagnosisFilter(e.target.value as 'all' | 'done' | 'pending')}
-              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[12rem]"
-            >
-              <option value="all">{t.filterDiagnosisAll}</option>
-              <option value="done">{t.filterDiagnosisDone}</option>
-              <option value="pending">{t.filterDiagnosisPending}</option>
-            </select>
-          </label>
-          <label className="flex w-full flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:w-auto">
-            {t.filterTagLabel}
-            <select
-              value={tagFilter}
-              onChange={(e) => setTagFilter(e.target.value as ProjectTeamTagFilter)}
-              className="w-full min-w-0 rounded-2xl border border-[#D9E3EC] px-4 py-3 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[12rem]"
-            >
-              <option value="all">{t.filterTagAll}</option>
-              <option value="none">{t.filterTagNone}</option>
-              {PROJECT_TEAM_TAGS.map((tag) => (
-                <option key={tag} value={tag}>
-                  {getProjectTeamTagLabel(tag)}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
+      <div>
+        <button
+          type="button"
+          onClick={() => setSection('hub')}
+          className="mb-3 rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E]"
+        >
+          ← {t.backToHub}
+        </button>
+        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
+        <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
       </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-2xl border border-[#E6EBF1] bg-white px-4 py-3 shadow-sm">
-        <label className="inline-flex shrink-0 items-center gap-2 text-sm text-[#071F5E]">
+      <div className="flex flex-wrap items-end gap-x-3 gap-y-3">
+        <label className="inline-flex h-9 shrink-0 items-center gap-2 self-end text-sm text-[#071F5E]">
           <input
             type="checkbox"
             checked={allFilteredSelected && filteredRecords.length > 0}
@@ -1293,7 +1236,61 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           {t.selectAll}
         </label>
 
-        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-3 gap-y-2">
+        <label className="flex min-w-[8.5rem] flex-1 flex-col gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:flex-none">
+          {t.filterStatusLabel}
+          <select
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            className="h-9 w-full min-w-0 rounded-full border border-[#D9E3EC] bg-white px-3.5 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[9.5rem]"
+          >
+            <option value="all">{t.filterAll}</option>
+            <option value="pending">{t.filterPending}</option>
+            <option value="approved">{t.filterApproved}</option>
+            <option value="rejected">{t.filterRejected}</option>
+          </select>
+        </label>
+        <label className="flex min-w-[9rem] flex-1 flex-col gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:flex-none">
+          {t.filterConvenioLabel}
+          <select
+            value={convenioFilter}
+            onChange={(e) => setConvenioFilter(e.target.value as 'all' | 'signed' | 'pending')}
+            className="h-9 w-full min-w-0 rounded-full border border-[#D9E3EC] bg-white px-3.5 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[10.5rem]"
+          >
+            <option value="all">{t.filterConvenioAll}</option>
+            <option value="signed">{t.filterConvenioSigned}</option>
+            <option value="pending">{t.filterConvenioPending}</option>
+          </select>
+        </label>
+        <label className="flex min-w-[9.5rem] flex-1 flex-col gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:flex-none">
+          {t.filterDiagnosisLabel}
+          <select
+            value={diagnosisFilter}
+            onChange={(e) => setDiagnosisFilter(e.target.value as 'all' | 'done' | 'pending')}
+            className="h-9 w-full min-w-0 rounded-full border border-[#D9E3EC] bg-white px-3.5 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[11.5rem]"
+          >
+            <option value="all">{t.filterDiagnosisAll}</option>
+            <option value="done">{t.filterDiagnosisDone}</option>
+            <option value="pending">{t.filterDiagnosisPending}</option>
+          </select>
+        </label>
+        <label className="flex min-w-[9.5rem] flex-1 flex-col gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55 sm:flex-none">
+          {t.filterTagLabel}
+          <select
+            value={tagFilter}
+            onChange={(e) => setTagFilter(e.target.value as ProjectTeamTagFilter)}
+            className="h-9 w-full min-w-0 rounded-full border border-[#D9E3EC] bg-white px-3.5 text-sm font-medium normal-case tracking-normal text-[#071F5E] sm:min-w-[11.5rem]"
+          >
+            <option value="all">{t.filterTagAll}</option>
+            <option value="none">{t.filterTagNone}</option>
+            {PROJECT_TEAM_TAGS.map((tag) => (
+              <option key={tag} value={tag}>
+                {getProjectTeamTagLabel(tag)}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-x-3 gap-y-2 self-end">
           <div className="relative shrink-0" ref={exportMenuRef}>
             <button
               type="button"
