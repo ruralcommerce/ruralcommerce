@@ -23,6 +23,7 @@ import {
   type ProjectTeamTag,
   type ProjectTeamTagFilter,
 } from '@/lib/project-team-tags';
+import { getProjectPageTitle } from '@/lib/project-nav';
 import {
   buildBeneficiaryListCsv,
   buildBeneficiaryListExcelHtml,
@@ -582,6 +583,32 @@ function getDiagnosisAnswerLabel(key: string, locale?: string) {
   return labels[normalized] || normalized.toUpperCase();
 }
 
+function AdminSectionCrumb({
+  parentLabel,
+  title,
+  onBack,
+}: {
+  parentLabel: string;
+  title: string;
+  onBack: () => void;
+}) {
+  return (
+    <div className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+      <button
+        type="button"
+        onClick={onBack}
+        className="shrink-0 text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
+      >
+        {parentLabel}
+      </button>
+      <span className="shrink-0 text-sm text-[#2F3336]/35" aria-hidden>
+        /
+      </span>
+      <h1 className="min-w-0 text-xl font-semibold leading-snug text-[#071F5E] sm:text-2xl">{title}</h1>
+    </div>
+  );
+}
+
 function needsConvenioReminder(record: EnrollmentRecord) {
   return record.status === 'approved' && record.profile.agreement?.signed !== true;
 }
@@ -597,6 +624,7 @@ function needsDiagnosisReminder(record: EnrollmentRecord) {
 export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const localeKey = getProjectLocaleKey(locale);
   const t = uiCopy[localeKey];
+  const intranetLabel = getProjectPageTitle(locale, 'admin');
 
   const [records, setRecords] = useState<EnrollmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -1151,7 +1179,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             </p>
           ) : null}
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.hubEyebrow}</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{intranetLabel}</p>
             <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.hubTitle}</h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-[#2F3336]/75">{t.hubHint}</p>
           </div>
@@ -1200,55 +1228,44 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
 
       {section === 'investments' ? (
         <div className="space-y-4">
-          <button
-            type="button"
-            onClick={() => setSection('hub')}
-            className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
-          >
-            ← {t.backToHub}
-          </button>
+          <AdminSectionCrumb
+            parentLabel={intranetLabel}
+            title={t.sectionInvestmentsTitle}
+            onBack={() => setSection('hub')}
+          />
           <ProjectInvestmentAdminPanel locale={locale} teamToken={teamToken} />
         </div>
       ) : null}
 
       {section === 'team' ? (
         <div className="space-y-4">
-          <button
-            type="button"
-            onClick={() => setSection('hub')}
-            className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
-          >
-            ← {t.backToHub}
-          </button>
+          <AdminSectionCrumb
+            parentLabel={intranetLabel}
+            title={t.sectionTeamTitle}
+            onBack={() => setSection('hub')}
+          />
           <ProjectTeamMembersPanel locale={locale} teamToken={teamToken} />
         </div>
       ) : null}
 
       {section === 'communications' ? (
         <div className="space-y-4">
-          <button
-            type="button"
-            onClick={() => setSection('hub')}
-            className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
-          >
-            ← {t.backToHub}
-          </button>
+          <AdminSectionCrumb
+            parentLabel={intranetLabel}
+            title={t.sectionCommsTitle}
+            onBack={() => setSection('hub')}
+          />
           <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} teamToken={teamToken} />
         </div>
       ) : null}
 
       {section === 'inscriptions' ? (
-      <div className="space-y-6">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <button
-          type="button"
-          onClick={() => setSection('hub')}
-          className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
-        >
-          ← {t.backToHub}
-        </button>
-        <h1 className="text-2xl font-semibold text-[#071F5E] sm:text-3xl">{t.panelTitle}</h1>
-      </div>
+      <div className="space-y-4">
+      <AdminSectionCrumb
+        parentLabel={intranetLabel}
+        title={t.panelTitle}
+        onBack={() => setSection('hub')}
+      />
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <label className="inline-flex h-9 shrink-0 items-center gap-2 text-sm text-[#071F5E]">

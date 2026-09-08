@@ -8,12 +8,14 @@ export function ProjectPageShell({
   children,
   fullViewport = false,
   contentClassName,
+  showPageTitle = true,
 }: {
   locale: string;
   currentPage: ProjectNavPage;
   children: ReactNode;
   fullViewport?: boolean;
   contentClassName?: string;
+  showPageTitle?: boolean;
 }) {
   const pageTitle = getProjectPageTitle(locale, currentPage);
 
@@ -40,9 +42,11 @@ export function ProjectPageShell({
               'mx-auto flex h-full w-full max-w-5xl flex-col px-3 sm:px-6 lg:px-8'
             }
           >
-            <p className="mb-2 px-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1D6359]">
-              {pageTitle}
-            </p>
+            {showPageTitle ? (
+              <p className="mb-2 px-0.5 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1D6359]">
+                {pageTitle}
+              </p>
+            ) : null}
             {children}
           </div>
         </section>
