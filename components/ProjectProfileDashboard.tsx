@@ -131,10 +131,10 @@ const uiCopy = {
     createdLabel: 'Creado el',
     accessLabel: 'Acceso',
     projectInfo: 'Información del proyecto',
-    organization: 'Organización',
+    organization: 'Organización / empresa',
     city: 'Ciudad',
-    profile: 'Perfil',
-    interest: 'Interés',
+    profile: 'Función',
+    interest: 'Actividad / producto',
     noMessage: 'Sin mensaje adicional.',
     formAnswers: 'Respuestas del formulario',
     diagnosticCta: 'Ir al diagnóstico',
@@ -178,10 +178,10 @@ const uiCopy = {
     createdLabel: 'Criado em',
     accessLabel: 'Acesso',
     projectInfo: 'Informações do projeto',
-    organization: 'Organização',
+    organization: 'Organização / empresa',
     city: 'Cidade',
-    profile: 'Perfil',
-    interest: 'Interesse',
+    profile: 'Função',
+    interest: 'Atividade / produto',
     noMessage: 'Sem mensagem adicional.',
     formAnswers: 'Respostas do formulário',
     diagnosticCta: 'Ir para o diagnóstico',
@@ -225,10 +225,10 @@ const uiCopy = {
     createdLabel: 'Created on',
     accessLabel: 'Access',
     projectInfo: 'Project information',
-    organization: 'Organization',
+    organization: 'Organization / company',
     city: 'City',
-    profile: 'Profile',
-    interest: 'Interest',
+    profile: 'Role',
+    interest: 'Activity / product',
     noMessage: 'No additional message.',
     formAnswers: 'Form answers',
     diagnosticCta: 'Go to diagnosis',
@@ -422,6 +422,9 @@ export function ProjectProfileDashboard({
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h2 className="text-xl font-semibold text-[#071F5E]">{record.profile.name}</h2>
+                    <p className="mt-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
+                      {record.profile.role?.trim() || (localeKey === 'en' ? 'Legal representative' : 'Representante legal')}
+                    </p>
                     <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
                   </div>
                   <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#1D6359]">
@@ -535,7 +538,13 @@ export function ProjectProfileDashboard({
             <ProjectPortalStatGrid>
               <ProjectPortalStat label={t.organization} value={record.profile.organization || '—'} />
               <ProjectPortalStat label={t.city} value={record.profile.city || '—'} />
-              <ProjectPortalStat label={t.profile} value={record.profile.role || '—'} />
+              <ProjectPortalStat
+                label={t.profile}
+                value={
+                  record.profile.role?.trim() ||
+                  (localeKey === 'en' ? 'Legal representative' : 'Representante legal')
+                }
+              />
               <ProjectPortalStat label={t.interest} value={record.profile.interest || '—'} />
             </ProjectPortalStatGrid>
             <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm leading-6 text-[#2F3336]/80">

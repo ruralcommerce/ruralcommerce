@@ -288,6 +288,9 @@ const uiCopy = {
     approve: 'Aprobar',
     reject: 'Rechazar',
     profileSection: 'Perfil',
+    representativeLabel: 'Representante legal',
+    organizationLabel: 'Organización / empresa',
+    activityLabel: 'Actividad / producto',
     contactSection: 'Contacto',
     noOrganization: 'Sin organización',
     noCity: 'Sin ciudad',
@@ -388,6 +391,9 @@ const uiCopy = {
     approve: 'Aprovar',
     reject: 'Rejeitar',
     profileSection: 'Perfil',
+    representativeLabel: 'Representante legal',
+    organizationLabel: 'Organização / empresa',
+    activityLabel: 'Atividade / produto',
     contactSection: 'Contato',
     noOrganization: 'Sem organização',
     noCity: 'Sem cidade',
@@ -488,6 +494,9 @@ const uiCopy = {
     approve: 'Approve',
     reject: 'Reject',
     profileSection: 'Profile',
+    representativeLabel: 'Legal representative',
+    organizationLabel: 'Organization / company',
+    activityLabel: 'Activity / product',
     contactSection: 'Contact',
     noOrganization: 'No organization',
     noCity: 'No city',
@@ -1489,8 +1498,16 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                       ) : null}
                     </div>
                     <p className="mt-1 text-sm text-[#2F3336]/75">{record.user.email}</p>
-                    <p className="mt-1 text-sm text-[#2F3336]/75">
-                      {record.profile.organization || t.noOrganization} · {record.profile.city || t.noCity}
+                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/45">
+                      {t.representativeLabel}
+                    </p>
+                    <p className="text-sm font-medium text-[#071F5E]">{record.profile.name || t.participantFallback}</p>
+                    <p className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/45">
+                      {t.organizationLabel}
+                    </p>
+                    <p className="text-sm text-[#2F3336]/80">
+                      {record.profile.organization || t.noOrganization}
+                      {record.profile.city ? ` · ${record.profile.city}` : ''}
                     </p>
                     <p className="mt-1 text-xs text-[#2F3336]/55">{formatProjectDate(record.createdAt, localeKey)}</p>
                     <label className="mt-3 flex flex-col gap-1 text-xs font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
@@ -1578,7 +1595,15 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div>
                   <p className="text-xs uppercase tracking-[0.2em] text-[#1D6359]">{t.profileSection}</p>
-                  <p className="mt-1 text-sm text-[#2F3336]/80">{record.profile.role || t.noRole}</p>
+                  <p className="mt-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#2F3336]/45">
+                    {t.representativeLabel}
+                  </p>
+                  <p className="text-sm text-[#2F3336]/80">
+                    {record.profile.role?.trim() || t.representativeLabel}
+                  </p>
+                  <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#2F3336]/45">
+                    {t.activityLabel}
+                  </p>
                   <p className="text-sm text-[#2F3336]/80">{record.profile.interest || t.noInterest}</p>
                 </div>
                 <div>

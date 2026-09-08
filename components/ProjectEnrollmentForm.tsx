@@ -275,7 +275,7 @@ export function ProjectEnrollmentForm({
           phone: form.q3,
           organization: form.q1,
           city: form.q5,
-          role: '',
+          role: locale === 'en' ? 'Legal representative' : locale === 'pt-BR' ? 'Representante legal' : 'Representante legal',
           interest: form.q7,
           message: form.q15,
           password: form.password,
