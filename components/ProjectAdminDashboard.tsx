@@ -1203,7 +1203,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           <button
             type="button"
             onClick={() => setSection('hub')}
-            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+            className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
           >
             ← {t.backToHub}
           </button>
@@ -1216,7 +1216,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           <button
             type="button"
             onClick={() => setSection('hub')}
-            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+            className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
           >
             ← {t.backToHub}
           </button>
@@ -1229,7 +1229,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
           <button
             type="button"
             onClick={() => setSection('hub')}
-            className="rounded-full border border-[#D9E3EC] px-4 py-2 text-sm font-semibold text-[#071F5E]"
+            className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
           >
             ← {t.backToHub}
           </button>
@@ -1239,16 +1239,15 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
 
       {section === 'inscriptions' ? (
       <div className="space-y-6">
-      <div>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         <button
           type="button"
           onClick={() => setSection('hub')}
-          className="mb-3 rounded-full border border-[#D9E3EC] bg-white px-4 py-2 text-sm font-semibold text-[#071F5E]"
+          className="text-sm font-semibold text-[#1D6359] hover:text-[#071F5E]"
         >
           ← {t.backToHub}
         </button>
-        <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[#1D6359]">{t.panelEyebrow}</p>
-        <h1 className="mt-2 text-3xl font-semibold text-[#071F5E]">{t.panelTitle}</h1>
+        <h1 className="text-2xl font-semibold text-[#071F5E] sm:text-3xl">{t.panelTitle}</h1>
       </div>
 
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
