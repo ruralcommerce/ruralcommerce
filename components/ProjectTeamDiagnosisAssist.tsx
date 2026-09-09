@@ -13,6 +13,7 @@ type AssistRecord = {
   profile: {
     name?: string;
     organization?: string;
+    cooperative?: string;
     agreement?: { signed?: boolean };
     diagnosis?: {
       answers?: Record<string, string>;

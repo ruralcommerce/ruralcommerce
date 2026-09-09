@@ -54,6 +54,7 @@ type EnrollmentRecord = {
     email?: string;
     phone?: string;
     organization?: string;
+    cooperative?: string;
     city?: string;
     role?: string;
     interest?: string;
@@ -291,6 +292,8 @@ const uiCopy = {
     profileSection: 'Perfil',
     representativeLabel: 'Representante legal',
     organizationLabel: 'Organización / empresa',
+    cooperativeLabel: 'Afiliación',
+    cooperativeAssociate: 'Asociado de {name}',
     activityLabel: 'Actividad / producto',
     contactSection: 'Contacto',
     noOrganization: 'Sin organización',
@@ -400,6 +403,8 @@ const uiCopy = {
     profileSection: 'Perfil',
     representativeLabel: 'Representante legal',
     organizationLabel: 'Organização / empresa',
+    cooperativeLabel: 'Afiliação',
+    cooperativeAssociate: 'Associado de {name}',
     activityLabel: 'Atividade / produto',
     contactSection: 'Contato',
     noOrganization: 'Sem organização',
@@ -509,6 +514,8 @@ const uiCopy = {
     profileSection: 'Profile',
     representativeLabel: 'Legal representative',
     organizationLabel: 'Organization / company',
+    cooperativeLabel: 'Affiliation',
+    cooperativeAssociate: 'Associate of {name}',
     activityLabel: 'Activity / product',
     contactSection: 'Contact',
     noOrganization: 'No organization',
@@ -1618,6 +1625,16 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             const organizationTitle =
               record.profile.organization || record.profile.name || t.participantFallback;
             const representativeName = record.profile.name || t.participantFallback;
+            const showRepresentativeSubtitle =
+              Boolean(record.profile.organization) &&
+              representativeName !== organizationTitle;
+            const cooperativeLabel = record.profile.cooperative?.trim() || '';
+            const subtitleParts = [
+              showRepresentativeSubtitle ? representativeName : '',
+              cooperativeLabel
+                ? t.cooperativeAssociate.replace('{name}', cooperativeLabel)
+                : '',
+            ].filter(Boolean);
             const hasDiagnosis = Boolean(record.profile.diagnosis?.answers);
             const showConvenioReminder = needsConvenioReminder(record);
             const showDiagnosisReminder = needsDiagnosisReminder(record);
@@ -1643,7 +1660,11 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                     <p className="truncate text-sm font-semibold leading-snug text-[#071F5E] sm:text-base">
                       {organizationTitle}
                     </p>
-                    <p className="mt-0.5 truncate text-sm text-[#2F3336]/70">{representativeName}</p>
+                    {subtitleParts.length > 0 ? (
+                      <p className="mt-0.5 truncate text-sm text-[#2F3336]/70">
+                        {subtitleParts.join(' · ')}
+                      </p>
+                    ) : null}
                   </div>
                 </div>
 
@@ -1857,6 +1878,12 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 <p className="mt-1 text-base font-medium text-[#071F5E]/85">
                   {t.representativeLabel}: {selectedRecord.profile.name || t.participantFallback}
                 </p>
+                {selectedRecord.profile.cooperative ? (
+                  <p className="mt-1 text-sm text-[#1D6359]">
+                    {t.cooperativeLabel}:{' '}
+                    {t.cooperativeAssociate.replace('{name}', selectedRecord.profile.cooperative)}
+                  </p>
+                ) : null}
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedRecord.user.email}</p>
                 {selectedRecord.profile.agreement?.signed ? (
                   <p className="mt-1 text-sm text-[#1D6359]">
@@ -1910,6 +1937,15 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 <p className="mt-1 text-base font-medium text-[#071F5E]/85">
                   {t.representativeLabel}: {selectedDiagnosisRecord.profile.name || t.participantFallback}
                 </p>
+                {selectedDiagnosisRecord.profile.cooperative ? (
+                  <p className="mt-1 text-sm text-[#1D6359]">
+                    {t.cooperativeLabel}:{' '}
+                    {t.cooperativeAssociate.replace(
+                      '{name}',
+                      selectedDiagnosisRecord.profile.cooperative
+                    )}
+                  </p>
+                ) : null}
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedDiagnosisRecord.user.email}</p>
               </div>
               <div className="flex flex-wrap gap-2">

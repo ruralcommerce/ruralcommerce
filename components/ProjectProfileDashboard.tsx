@@ -44,6 +44,7 @@ type EnrollmentRecord = {
     name: string;
     phone?: string;
     organization?: string;
+    cooperative?: string;
     city?: string;
     role?: string;
     interest?: string;
@@ -132,6 +133,7 @@ const uiCopy = {
     accessLabel: 'Acceso',
     projectInfo: 'Información del proyecto',
     organization: 'Organización / empresa',
+    cooperative: 'Afiliación',
     city: 'Ciudad',
     profile: 'Función',
     interest: 'Actividad / producto',
@@ -179,6 +181,7 @@ const uiCopy = {
     accessLabel: 'Acesso',
     projectInfo: 'Informações do projeto',
     organization: 'Organização / empresa',
+    cooperative: 'Afiliação',
     city: 'Cidade',
     profile: 'Função',
     interest: 'Atividade / produto',
@@ -226,6 +229,7 @@ const uiCopy = {
     accessLabel: 'Access',
     projectInfo: 'Project information',
     organization: 'Organization / company',
+    cooperative: 'Affiliation',
     city: 'City',
     profile: 'Role',
     interest: 'Activity / product',
@@ -542,6 +546,9 @@ export function ProjectProfileDashboard({
           <ProjectPortalPanel title={t.projectInfo}>
             <ProjectPortalStatGrid>
               <ProjectPortalStat label={t.organization} value={record.profile.organization || '—'} />
+              {record.profile.cooperative ? (
+                <ProjectPortalStat label={t.cooperative} value={record.profile.cooperative} />
+              ) : null}
               <ProjectPortalStat label={t.city} value={record.profile.city || '—'} />
               <ProjectPortalStat
                 label={t.profile}
