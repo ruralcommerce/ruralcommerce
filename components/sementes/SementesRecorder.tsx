@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import {
+  inspectSementesVideo,
   prepareSementesVideo,
   SEMENTES_VIDEO_SECONDS,
   SEMENTES_VIDEO_TARGET_BYTES,
@@ -95,15 +96,25 @@ export function SementesRecorder({
     setError('');
     setNotice('');
     onResetError?.();
-    setPreparing(true);
     setFile(null);
     stopTracks();
+    if (!fromGallery) {
+      showPreview(raw);
+      return;
+    }
+    setPreparing(true);
     try {
-      const prepared = await prepareSementesVideo(raw);
-      showPreview(prepared.file);
-      if (prepared.trimmed) setNotice(copy.recordTrimmed);
-      else if (prepared.compressed) setNotice(copy.recordCompressed);
-      else if (fromGallery) setNotice('');
+      if (raw.size > SEMENTES_VIDEO_TARGET_BYTES) {
+        setNotice(copy.recordCompressing);
+        const prepared = await prepareSementesVideo(raw);
+        showPreview(prepared.file);
+        if (prepared.trimmed) setNotice(copy.recordTrimmed);
+        else if (prepared.compressed) setNotice(copy.recordCompressed);
+        return;
+      }
+      showPreview(raw);
+      const { duration } = await inspectSementesVideo(raw);
+      if (duration > SEMENTES_VIDEO_SECONDS + 0.8) setNotice(copy.recordTrimmed);
     } catch {
       setError(copy.recordTooHeavy);
       setFile(null);
@@ -148,7 +159,7 @@ export function SementesRecorder({
   function onFile(list: FileList | null) {
     const chosen = list?.[0];
     if (!chosen) return;
-    setNotice(chosen.size > SEMENTES_VIDEO_TARGET_BYTES ? copy.recordCompressing : copy.recordPreparing);
+    if (chosen.size > SEMENTES_VIDEO_TARGET_BYTES) setNotice(copy.recordCompressing);
     void adoptFile(chosen, true);
   }
 

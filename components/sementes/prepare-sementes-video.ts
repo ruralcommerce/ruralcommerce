@@ -1,5 +1,5 @@
 export const SEMENTES_VIDEO_SECONDS = 15;
-export const SEMENTES_VIDEO_TARGET_BYTES = 2.5 * 1024 * 1024;
+export const SEMENTES_VIDEO_TARGET_BYTES = 18 * 1024 * 1024;
 
 function pickMime() {
   if (typeof MediaRecorder === 'undefined') return '';
@@ -28,13 +28,48 @@ function when(el: HTMLVideoElement, event: string) {
   });
 }
 
+function attachHiddenVideo(url: string) {
+  const video = document.createElement('video');
+  video.playsInline = true;
+  video.preload = 'metadata';
+  video.muted = true;
+  video.controls = false;
+  video.src = url;
+  video.setAttribute('playsinline', 'true');
+  video.setAttribute('webkit-playsinline', 'true');
+  video.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
+  document.body.appendChild(video);
+  return video;
+}
+
+function disposeVideo(video: HTMLVideoElement, url: string) {
+  video.pause();
+  video.removeAttribute('src');
+  video.load();
+  video.remove();
+  URL.revokeObjectURL(url);
+}
+
+export async function inspectSementesVideo(file: File): Promise<{ duration: number }> {
+  const url = URL.createObjectURL(file);
+  const video = attachHiddenVideo(url);
+  try {
+    await Promise.race([when(video, 'loadedmetadata'), wait(2500).then(() => Promise.reject(new Error('timeout')))]);
+    return { duration: Number.isFinite(video.duration) ? video.duration : 0 };
+  } catch {
+    return { duration: 0 };
+  } finally {
+    disposeVideo(video, url);
+  }
+}
+
 function canvasSize(video: HTMLVideoElement) {
   const width = video.videoWidth || 480;
   const height = video.videoHeight || 854;
   const scale = Math.min(1, 480 / width, 854 / height);
   return {
-    width: Math.max(2, Math.round(width * scale / 2) * 2),
-    height: Math.max(2, Math.round(height * scale / 2) * 2),
+    width: Math.max(2, Math.round((width * scale) / 2) * 2),
+    height: Math.max(2, Math.round((height * scale) / 2) * 2),
   };
 }
 
@@ -109,7 +144,10 @@ async function recodeClip(video: HTMLVideoElement, seconds: number): Promise<Fil
 
   const limit = Math.max(0.6, seconds);
   await new Promise<void>((resolve) => {
+    let done = false;
     const finish = () => {
+      if (done) return;
+      done = true;
       video.removeEventListener('timeupdate', onTime);
       video.removeEventListener('ended', finish);
       window.clearTimeout(timer);
@@ -137,43 +175,24 @@ async function recodeClip(video: HTMLVideoElement, seconds: number): Promise<Fil
 
 export async function prepareSementesVideo(file: File): Promise<{ file: File; trimmed: boolean; compressed: boolean }> {
   if (!file.size) throw new Error('empty');
+  if (file.size <= SEMENTES_VIDEO_TARGET_BYTES) {
+    return { file, trimmed: false, compressed: false };
+  }
 
-  const compressedNeeded = file.size > SEMENTES_VIDEO_TARGET_BYTES;
   const url = URL.createObjectURL(file);
-  const video = document.createElement('video');
-  video.playsInline = true;
+  const video = attachHiddenVideo(url);
   video.preload = 'auto';
-  video.controls = false;
-  video.src = url;
-  video.setAttribute('playsinline', 'true');
-  video.setAttribute('webkit-playsinline', 'true');
-  video.style.cssText = 'position:fixed;left:0;top:0;width:2px;height:2px;opacity:0;pointer-events:none';
-  document.body.appendChild(video);
 
-  let trimmed = false;
   try {
-    await Promise.race([when(video, 'loadedmetadata'), wait(12000).then(() => Promise.reject(new Error('timeout')))]);
+    await Promise.race([when(video, 'loadedmetadata'), wait(4000).then(() => Promise.reject(new Error('timeout')))]);
     const duration = Number.isFinite(video.duration) ? video.duration : 0;
-    trimmed = duration > SEMENTES_VIDEO_SECONDS + 0.8;
-
-    if (!trimmed && !compressedNeeded) {
-      return { file, trimmed: false, compressed: false };
-    }
-
     const recoded = await recodeClip(video, Math.min(duration || SEMENTES_VIDEO_SECONDS, SEMENTES_VIDEO_SECONDS));
     if (recoded.size > SEMENTES_VIDEO_TARGET_BYTES) throw new Error('heavy');
-    return { file: recoded, trimmed, compressed: recoded.size < file.size };
+    return { file: recoded, trimmed: duration > SEMENTES_VIDEO_SECONDS + 0.8, compressed: recoded.size < file.size };
   } catch (err) {
     if (err instanceof Error && err.message === 'heavy') throw err;
-    if (!trimmed && !compressedNeeded && file.type.startsWith('video/')) {
-      return { file, trimmed: false, compressed: false };
-    }
     throw new Error('heavy');
   } finally {
-    video.pause();
-    video.removeAttribute('src');
-    video.load();
-    video.remove();
-    URL.revokeObjectURL(url);
+    disposeVideo(video, url);
   }
 }

@@ -256,55 +256,18 @@ export function SementesPlay({ locale }: { locale: string }) {
     if (!token) return;
     setBusy(true);
     setError('');
-    const contentType =
-      file.type ||
-      (file.name.toLowerCase().endsWith('.mov') ? 'video/quicktime' : file.name.toLowerCase().endsWith('.mp4') ? 'video/mp4' : 'video/webm');
     try {
-      const signed = await sementesJson<{ uploadUrl: string; key: string; contentType?: string }>('/api/sementes/video', {
-        method: 'POST',
-        token,
-        body: JSON.stringify({
-          action: 'sign',
-          contentType,
-          size: file.size,
-          fileName: file.name,
-        }),
-      });
-      const put = await fetch(signed.uploadUrl, {
-        method: 'PUT',
-        headers: { 'Content-Type': signed.contentType || contentType },
-        body: file,
-      });
-      if (!put.ok) throw new Error('PUT_FAIL');
+      const form = new FormData();
+      form.append('file', file);
       const data = await sementesJson<{ seed: SementeOwnerView }>('/api/sementes/video', {
         method: 'POST',
         token,
-        body: JSON.stringify({
-          action: 'complete',
-          key: signed.key,
-          contentType: signed.contentType || contentType,
-        }),
+        body: form,
       });
       setSeed(data.seed);
     } catch (err) {
-      const first = err instanceof Error ? err.message : '';
-      if (first === 'Sessão não encontrada.') {
-        setError(first);
-        return;
-      }
-      try {
-        const form = new FormData();
-        form.append('file', file);
-        const data = await sementesJson<{ seed: SementeOwnerView }>('/api/sementes/video', {
-          method: 'POST',
-          token,
-          body: form,
-        });
-        setSeed(data.seed);
-      } catch (fallback) {
-        const message = fallback instanceof Error ? fallback.message : first;
-        setError(message === 'SEMENTES_VIDEO_HEAVY' || message === 'heavy' || message === 'PUT_FAIL' ? t.recordTooHeavy : message || t.recordNeedCam);
-      }
+      const message = err instanceof Error ? err.message : '';
+      setError(message === 'SEMENTES_VIDEO_HEAVY' || message === 'heavy' ? t.recordTooHeavy : message || t.recordNeedCam);
     } finally {
       setBusy(false);
     }

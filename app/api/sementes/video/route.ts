@@ -13,6 +13,7 @@ import {
   isOwnedSementesVideoKey,
   normalizeSementesVideoType,
 } from '@/lib/sementes-r2';
+import { trimSementesVideoBuffer } from '@/lib/sementes-video-trim';
 import type { SementeRecord } from '@/lib/sementes-types';
 
 export const runtime = 'nodejs';
@@ -142,10 +143,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const key = sementesVideoKey(current.publicId, videoExtension(contentType, file.name));
-    await putSementesVideo(key, buffer, contentType);
-    return saveVideoKey(current, key, contentType);
+    const raw = Buffer.from(await file.arrayBuffer());
+    const trimmed = await trimSementesVideoBuffer(raw, videoExtension(contentType, file.name));
+    const buffer = trimmed?.buffer || raw;
+    const storedType = trimmed?.contentType || contentType;
+    const key = sementesVideoKey(current.publicId, videoExtension(storedType, file.name));
+    await putSementesVideo(key, buffer, storedType);
+    return saveVideoKey(current, key, storedType);
   } catch {
     return jsonError('Não deu para guardar o vídeo. Tenta de novo.', 502);
   }
