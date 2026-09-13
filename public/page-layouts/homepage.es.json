@@ -62,7 +62,7 @@
       "props": {
         "backgroundColor": "#F5F7FB",
         "title": "Clientes y Aliados",
-        "partnersJson": "[{\"name\":\"NBC\",\"src\":\"/images/home/aliados/NBC Color.png?v=2\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Incubacoop\",\"src\":\"/images/home/aliados/incubacoop.svg\",\"href\":\"https://incubacoop.org.uy/\",\"circle\":\"#017284\"},{\"name\":\"IICA\",\"src\":\"/images/home/aliados/iica.svg\",\"href\":\"https://iica.int/\",\"circle\":\"#071F5E\"},{\"name\":\"Fazenda Santarém\",\"src\":\"/images/home/aliados/fazenda-santarem.svg\",\"href\":\"\",\"circle\":\"#111111\"},{\"name\":\"FAO\",\"src\":\"/images/home/aliados/fao.svg\",\"href\":\"https://www.fao.org/\"},{\"name\":\"Tandem Global\",\"src\":\"/images/home/aliados/tandem.svg\",\"href\":\"https://tandemglobal.org/\"},{\"name\":\"La Red de Innovación e Impacto\",\"src\":\"/images/home/aliados/la red de innovacion e impacto.png?v=2\",\"href\":\"https://laredinnovacionimpacto.com/\"}]"
+        "partnersJson": "[{\"name\":\"NBC\",\"src\":\"/images/home/aliados/nbc.svg\",\"href\":\"https://nbcpucv.cl/\"},{\"name\":\"Incubacoop\",\"src\":\"/images/home/aliados/incubacoop.svg\",\"href\":\"https://incubacoop.org.uy/\"},{\"name\":\"IICA\",\"src\":\"/images/home/aliados/iica.svg\",\"href\":\"https://iica.int/\"},{\"name\":\"Fazenda Santarém\",\"src\":\"/images/home/aliados/fazenda-santarem.svg\",\"href\":\"\"},{\"name\":\"FAO\",\"src\":\"/images/home/aliados/fao.svg\",\"href\":\"https://www.fao.org/\"},{\"name\":\"Tandem Global\",\"src\":\"/images/home/aliados/tandem.svg\",\"href\":\"https://tandemglobal.org/\"},{\"name\":\"La Red de Innovación e Impacto\",\"src\":\"/images/home/aliados/la-red.svg\",\"href\":\"https://laredinnovacionimpacto.com/\"}]"
       }
     },
     {
