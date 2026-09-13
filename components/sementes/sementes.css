@@ -777,9 +777,13 @@ html.sementes-fill body {
   display: flex;
   width: 100%;
   gap: 0.55rem;
-  margin-top: auto;
-  padding-top: 0.55rem;
+  margin-top: 0.5rem;
   flex-shrink: 0;
+}
+
+.sem-step > .sem-actions {
+  margin-top: auto;
+  padding-top: 0.45rem;
 }
 
 .sem-actions .sem-cta,
@@ -807,9 +811,28 @@ html.sementes-fill body {
   line-height: 1.15;
 }
 
-.sem-quest.is-on {
-  border-color: #52adad;
-  background: rgba(0, 145, 121, 0.28);
+.sem-record {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.4rem;
+}
+
+.sem-record-frame {
+  position: relative;
+  flex: 0 0 auto;
+  height: min(22vh, 10.5rem);
+  width: auto;
+  aspect-ratio: 9 / 14;
+  overflow: hidden;
+  border-radius: 22px;
+  border: 2px solid rgba(82, 173, 173, 0.5);
+  background: #000;
+  box-shadow: 0 0 0 5px rgba(82, 173, 173, 0.12);
 }
 
 .sem-resume {

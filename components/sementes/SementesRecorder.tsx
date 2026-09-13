@@ -118,8 +118,8 @@ export function SementesRecorder({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="relative mx-auto overflow-hidden rounded-[28px] bg-black aspect-[9/14] max-h-[42vh] w-full max-w-[220px] border-2 border-[#52ADAD]/50 shadow-[0_0_0_6px_rgba(82,173,173,0.12)]">
+    <div className="sem-record">
+      <div className="sem-record-frame">
         {previewUrl ? (
           <video className="h-full w-full object-cover" src={previewUrl} controls playsInline />
         ) : (
@@ -131,20 +131,20 @@ export function SementesRecorder({
           </div>
         ) : null}
         {recording ? (
-          <div className="absolute right-3 top-3 rounded-full bg-red-500 px-3 py-1 text-xs font-bold text-white">
+          <div className="absolute right-2 top-2 rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-bold text-white">
             {secondsLeft}s
           </div>
         ) : null}
       </div>
       {error ? <p className="text-sm text-[#A5D9EF]">{error}</p> : null}
-      <div className="sem-actions">
+      <div className="flex w-full shrink-0 gap-2">
         {!live && !previewUrl ? (
-          <button type="button" className="sem-cta" onClick={openCam} disabled={disabled}>
+          <button type="button" className="sem-cta flex-1" onClick={openCam} disabled={disabled}>
             {copy.recordCta}
           </button>
         ) : null}
         {live && !recording && !previewUrl ? (
-          <button type="button" className="sem-cta" onClick={startRecording} disabled={disabled}>
+          <button type="button" className="sem-cta flex-1" onClick={startRecording} disabled={disabled}>
             {copy.recordCta}
           </button>
         ) : null}
@@ -152,7 +152,7 @@ export function SementesRecorder({
           <>
             <button
               type="button"
-              className="sem-ghost"
+              className="sem-ghost flex-1"
               onClick={() => {
                 setFile(null);
                 setPreviewUrl('');
@@ -164,7 +164,7 @@ export function SementesRecorder({
             </button>
             <button
               type="button"
-              className="sem-cta"
+              className="sem-cta flex-1"
               disabled={!file || disabled}
               onClick={() => file && onReady(file)}
             >

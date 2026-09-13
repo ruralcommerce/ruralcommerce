@@ -610,7 +610,7 @@ export function SementesPlay({ locale }: { locale: string }) {
         {step === 6 ? (
           <section className="sem-step w-full">
             <SemGuide speaker={t.guideName} title={t.recordTitle} text={t.recordHint} info={t.recordInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
-            <div className="mt-2 w-full">
+            <div className="flex min-h-0 w-full flex-1 flex-col">
               <SementesRecorder copy={t} disabled={busy} onReady={(file) => void uploadVideo(file)} />
             </div>
             {error ? <p className="mt-2 text-sm text-[#A5D9EF]">{error}</p> : null}
