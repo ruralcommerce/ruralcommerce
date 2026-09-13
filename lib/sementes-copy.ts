@@ -142,8 +142,8 @@ const pt: Copy = {
   impactNoteLabel: 'Como isso acontece?',
   impactPlaceholder: 'Ex.: pago melhor o vizinho e deixo de jogar fruta fora.',
   fuelTitle: 'Qual é o primeiro teste amanhã?',
-  fuelHint: 'Uma ação concreta. O que você faz de manhã para ver se a ideia cola.',
-  fuelPlaceholder: 'Ex.: levo 10 unidades na feira e pergunto quem compra.',
+  fuelHint: 'Uma ação concreta para ver se a ideia cola.',
+  fuelPlaceholder: 'Ex.: levo 10 na feira e pergunto quem compra.',
   fuelChips: [
     'falar com 3 pessoas',
     'postar no WhatsApp',

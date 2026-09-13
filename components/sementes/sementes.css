@@ -243,6 +243,11 @@
 }
 
 .sem-step {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  flex-direction: column;
   animation: semPop 0.42s cubic-bezier(0.2, 0.9, 0.2, 1) both;
 }
 
@@ -337,16 +342,16 @@
 }
 
 .sem-cta {
-  min-height: 3.1rem;
+  min-height: 2.65rem;
   border-radius: 999px;
   background: #52adad;
   color: #071f5e;
   font-family: var(--font-title);
   font-weight: 700;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.75rem 1.3rem;
+  padding: 0.5rem 1.1rem;
 }
 
 .sem-cta:disabled {
@@ -354,12 +359,12 @@
 }
 
 .sem-ghost {
-  min-height: 3.25rem;
+  min-height: 2.65rem;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
   font-weight: 600;
-  padding: 0.75rem 1.2rem;
+  padding: 0.5rem 1.1rem;
 }
 
 .sem-path {
@@ -468,33 +473,40 @@ html.sementes-fill body {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: max(0.75rem, env(safe-area-inset-top)) 1.1rem 0.4rem;
+  padding: max(0.45rem, env(safe-area-inset-top)) 1rem 0.15rem;
+}
+
+.sem-hudline {
+  flex-shrink: 0;
+  padding: 0 0.75rem 0.15rem;
 }
 
 .sem-xp {
   display: flex;
   justify-content: center;
   gap: 6px;
-  padding: 0 1rem 0.2rem;
+  padding: 0.15rem 0;
 }
 
 .sem-bancada {
   display: flex;
   justify-content: center;
-  gap: 0.35rem;
-  padding: 0.2rem 1rem 0.15rem;
+  flex-wrap: nowrap;
+  gap: 0.28rem;
 }
 
 .sem-bancada span {
   display: grid;
-  min-width: 3.6rem;
+  min-width: 0;
+  flex: 1;
+  max-width: 4.6rem;
   place-items: center;
-  border-radius: 9px;
+  border-radius: 8px;
   border: 1px dashed rgba(82, 173, 173, 0.32);
-  padding: 0.28rem 0.35rem;
-  font-size: 0.58rem;
+  padding: 0.22rem 0.2rem;
+  font-size: 0.52rem;
   font-weight: 700;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.38);
 }
@@ -512,10 +524,10 @@ html.sementes-fill body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: min(100%, 22.5rem);
   margin: 0 auto;
-  padding: 0.35rem 1.1rem max(1.1rem, env(safe-area-inset-bottom));
+  padding: 0.15rem 1rem max(0.75rem, env(safe-area-inset-bottom));
   text-align: center;
   overflow: hidden;
   scrollbar-width: none;
@@ -541,13 +553,14 @@ html.sementes-fill body {
 
 .sem-guide {
   position: relative;
+  flex-shrink: 0;
   width: 100%;
   text-align: left;
   border: 2px solid rgba(82, 173, 173, 0.5);
   background: rgba(0, 7, 27, 0.55);
-  border-radius: 6px 22px 22px 22px;
-  padding: 0.95rem 1rem 1.05rem;
-  box-shadow: 0 16px 40px rgba(0, 7, 27, 0.28);
+  border-radius: 6px 18px 18px 18px;
+  padding: 0.55rem 0.8rem 0.65rem;
+  box-shadow: 0 10px 24px rgba(0, 7, 27, 0.22);
 }
 
 .sem-guide-top {
@@ -608,36 +621,36 @@ html.sementes-fill body {
 }
 
 .sem-guide .sem-display {
-  margin-top: 0.4rem;
-  font-size: clamp(1.35rem, 6vw, 1.85rem);
-  line-height: 0.98;
+  margin-top: 0.2rem;
+  font-size: clamp(1.12rem, 4.6vw, 1.45rem);
+  line-height: 1.02;
 }
 
 .sem-prompt {
-  margin-top: 0.55rem;
-  font-size: 0.88rem;
-  line-height: 1.4;
+  margin-top: 0.28rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
   color: rgba(255, 255, 255, 0.72);
 }
 
 .sem-class-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
+  gap: 0.6rem;
   width: min(100%, 20rem);
-  margin: 1.15rem auto 0;
+  margin: 0.7rem auto 0;
 }
 
 .sem-class {
   position: relative;
   display: flex;
-  min-height: 9.6rem;
+  min-height: 7.4rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 1.05rem 0.55rem 0.9rem;
-  border-radius: 24px;
+  gap: 0.3rem;
+  padding: 0.85rem 0.45rem 0.7rem;
+  border-radius: 22px;
   border: 2px solid rgba(82, 173, 173, 0.35);
   background: rgba(0, 7, 27, 0.42);
   color: white;
@@ -677,7 +690,7 @@ html.sementes-fill body {
 
 .sem-say {
   width: 100%;
-  margin-top: 1.35rem;
+  margin-top: 0.7rem;
   border: 0;
   border-bottom: 2px solid #52adad;
   border-radius: 0;
@@ -685,9 +698,9 @@ html.sementes-fill body {
   color: white;
   text-align: center;
   font-family: var(--font-title);
-  font-size: 1.45rem;
-  line-height: 1.3;
-  padding: 0.55rem 0.2rem;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  padding: 0.4rem 0.2rem;
   outline: none;
 }
 
@@ -697,43 +710,43 @@ html.sementes-fill body {
 
 .sem-dialogue {
   width: 100%;
-  margin-top: 1.25rem;
+  margin-top: 0.7rem;
   border: 2px solid rgba(82, 173, 173, 0.45);
   background: rgba(0, 7, 27, 0.42);
-  border-radius: 22px;
-  padding: 0.95rem 1rem;
+  border-radius: 18px;
+  padding: 0.7rem 0.85rem;
 }
 
 .sem-dialogue textarea {
   width: 100%;
-  min-height: 6.2rem;
+  min-height: 4.4rem;
   resize: none;
   border: 0;
   background: transparent;
   color: white;
   text-align: left;
-  font-size: 1.05rem;
-  line-height: 1.45;
+  font-size: 0.98rem;
+  line-height: 1.4;
   outline: none;
 }
 
 .sem-orbs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.7rem;
+  gap: 0.5rem;
   width: 100%;
-  margin-top: 1.35rem;
+  margin-top: 0.7rem;
 }
 
 .sem-orb {
   display: flex;
-  min-height: 6.5rem;
+  min-height: 5.2rem;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0.12rem;
-  padding: 0.7rem 0.35rem 0.65rem;
-  border-radius: 22px;
+  gap: 0.08rem;
+  padding: 0.45rem 0.25rem 0.4rem;
+  border-radius: 18px;
   border: 2px solid rgba(82, 173, 173, 0.35);
   background: rgba(0, 7, 27, 0.35);
   color: white;
@@ -763,8 +776,10 @@ html.sementes-fill body {
 .sem-actions {
   display: flex;
   width: 100%;
-  gap: 0.6rem;
-  margin-top: 1.35rem;
+  gap: 0.55rem;
+  margin-top: auto;
+  padding-top: 0.55rem;
+  flex-shrink: 0;
 }
 
 .sem-actions .sem-cta,
@@ -775,21 +790,21 @@ html.sementes-fill body {
 .sem-inventory {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.55rem;
+  gap: 0.4rem;
   width: 100%;
-  margin-top: 1.05rem;
+  margin-top: 0.7rem;
 }
 
 .sem-quest {
-  min-height: 3.05rem;
+  min-height: 2.45rem;
   border: 2px solid rgba(82, 173, 173, 0.32);
   background: rgba(0, 7, 27, 0.4);
   color: white;
-  border-radius: 16px;
-  padding: 0.55rem 0.65rem;
-  font-size: 0.82rem;
+  border-radius: 14px;
+  padding: 0.4rem 0.5rem;
+  font-size: 0.76rem;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.15;
 }
 
 .sem-quest.is-on {
@@ -800,31 +815,35 @@ html.sementes-fill body {
 .sem-resume {
   display: inline-block;
   width: 100%;
-  margin-top: 1.1rem;
+  margin-top: 0.45rem;
   border: 0;
   background: transparent;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.42);
   cursor: pointer;
 }
 
-@media (max-height: 720px) {
+@media (max-height: 760px) {
   .sem-class {
-    min-height: 7.8rem;
+    min-height: 6.6rem;
   }
 
   .sem-orb {
-    min-height: 5.4rem;
-  }
-
-  .sem-dialogue textarea {
     min-height: 4.6rem;
   }
 
-  .sem-arena-main {
-    justify-content: center;
-    padding-top: 0.2rem;
+  .sem-dialogue textarea {
+    min-height: 3.6rem;
+  }
+
+  .sem-quest {
+    min-height: 2.2rem;
+    font-size: 0.72rem;
+  }
+
+  .sem-guide .sem-display {
+    font-size: 1.12rem;
   }
 }

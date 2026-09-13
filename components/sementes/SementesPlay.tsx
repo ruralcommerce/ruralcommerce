@@ -324,20 +324,23 @@ export function SementesPlay({ locale }: { locale: string }) {
           </p>
         </div>
       </header>
-      <div className="sem-xp relative z-10">
-        {Array.from({ length: 7 }).map((_, index) => (
-          <span key={index} className={`sem-seed-dot ${step > index ? 'is-on' : ''}`} />
-        ))}
+      <div className="sem-hudline relative z-10">
+        {step === 0 ? (
+          <div className="sem-xp">
+            {Array.from({ length: 7 }).map((_, index) => (
+              <span key={index} className={`sem-seed-dot ${step > index ? 'is-on' : ''}`} />
+            ))}
+          </div>
+        ) : (
+          <div className="sem-bancada" aria-hidden>
+            <span className={path ? 'is-on' : ''}>{path === 'servico' ? t.servico : path === 'produto' ? t.produto : t.buildPath}</span>
+            <span className={problem.trim().length >= 8 ? 'is-on' : ''}>{t.buildProblem}</span>
+            <span className={solution.trim().length >= 8 ? 'is-on' : ''}>{t.buildIdea}</span>
+            <span className={impacts.length ? 'is-on' : ''}>{t.buildImpact}</span>
+            <span className={fuel.trim() || fuelChips.length ? 'is-on' : ''}>{t.buildTest}</span>
+          </div>
+        )}
       </div>
-      {step > 0 ? (
-        <div className="sem-bancada relative z-10" aria-hidden>
-          <span className={path ? 'is-on' : ''}>{path === 'servico' ? t.servico : path === 'produto' ? t.produto : t.buildPath}</span>
-          <span className={problem.trim().length >= 8 ? 'is-on' : ''}>{t.buildProblem}</span>
-          <span className={solution.trim().length >= 8 ? 'is-on' : ''}>{t.buildIdea}</span>
-          <span className={impacts.length ? 'is-on' : ''}>{t.buildImpact}</span>
-          <span className={fuel.trim() || fuelChips.length ? 'is-on' : ''}>{t.buildTest}</span>
-        </div>
-      ) : null}
 
       {flipCountdown > 0 && flipCountdown <= 8 ? (
         <div className="relative z-20 mx-auto mt-2 rounded-full bg-[#009179] px-4 py-2 text-center text-xs font-bold text-white">
@@ -607,7 +610,7 @@ export function SementesPlay({ locale }: { locale: string }) {
         {step === 6 ? (
           <section className="sem-step w-full">
             <SemGuide speaker={t.guideName} title={t.recordTitle} text={t.recordHint} info={t.recordInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
-            <div className="mt-4 w-full">
+            <div className="mt-2 w-full">
               <SementesRecorder copy={t} disabled={busy} onReady={(file) => void uploadVideo(file)} />
             </div>
             {error ? <p className="mt-2 text-sm text-[#A5D9EF]">{error}</p> : null}
@@ -626,7 +629,7 @@ export function SementesPlay({ locale }: { locale: string }) {
         {step === 7 ? (
           <section className="sem-step w-full">
             <SemGuide speaker={t.guideName} title={t.doneTitle} text={t.doneText} info={t.doneInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
-            <div className="mt-5 text-left">
+            <div className="mt-3 text-left">
               <SementesCard alias={liveSeed.alias} path={path} hook={hook} impacts={impacts} />
             </div>
             <div className="sem-actions">
