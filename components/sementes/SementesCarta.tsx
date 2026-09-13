@@ -76,8 +76,7 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
-  const [flipped, setFlipped] = useState(false);
-  useSementesLock('fill');
+  useSementesLock(seed ? 'lock' : 'fill');
 
   useEffect(() => {
     const existing = readSementesToken();
@@ -116,58 +115,64 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
   }
 
   return (
-    <div className="sementes-app sementes-arena sementes-scroll relative overflow-y-auto">
+    <div
+      className={`sementes-app sementes-arena relative ${
+        seed ? 'h-full overflow-hidden' : 'sementes-scroll overflow-y-auto'
+      }`}
+    >
       <SementesStage />
       <SementesHud />
-      <div className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col px-4 pb-12 pt-[max(1.2rem,env(safe-area-inset-top))]">
-        <SementesLogo size="sm" />
-        <h1 className="sem-display mt-6 text-4xl">{seed ? t.cartaTitle : t.entrarTitle}</h1>
-        {!seed ? (
-          <>
-            <p className="mt-3 text-sm text-white/70">{t.entrarText}</p>
-            <input className="sem-input mt-6" inputMode="tel" placeholder={t.whatsappLabel} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
-            <input className="sem-input mt-3" inputMode="numeric" maxLength={4} placeholder={t.pinLabel} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
-            {error ? <p className="mt-3 text-sm text-[#A5D9EF]">{error}</p> : null}
-            <button type="button" className="sem-cta mt-5" onClick={() => void entrar()}>
-              {t.entrarCta}
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="mt-2 text-sm text-white/60">
+      {!seed ? (
+        <div className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col px-4 pb-12 pt-[max(1.2rem,env(safe-area-inset-top))]">
+          <SementesLogo size="sm" />
+          <h1 className="sem-display mt-6 text-4xl">{t.entrarTitle}</h1>
+          <p className="mt-3 text-sm text-white/70">{t.entrarText}</p>
+          <input className="sem-input mt-6" inputMode="tel" placeholder={t.whatsappLabel} value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} />
+          <input className="sem-input mt-3" inputMode="numeric" maxLength={4} placeholder={t.pinLabel} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
+          {error ? <p className="mt-3 text-sm text-[#A5D9EF]">{error}</p> : null}
+          <button type="button" className="sem-cta mt-5" onClick={() => void entrar()}>
+            {t.entrarCta}
+          </button>
+        </div>
+      ) : (
+        <div className="sem-carta">
+          <header className="sem-carta-top">
+            <SementesLogo size="sm" />
+            <h1 className="sem-display">{t.cartaTitle}</h1>
+            <p>
               {seed.name} · {seed.status}
             </p>
-            <button type="button" className="mt-5 text-left" onClick={() => setFlipped((value) => !value)}>
-              <div className={`sem-card-3d ${flipped ? 'is-back' : ''}`}>
-                <div className="sem-card-face">
-                  <SementesCard alias={seed.alias} path={seed.path} hook={seed.hook} impacts={seed.impacts} heat={seed.heat} />
-                </div>
-              </div>
+          </header>
+          <div className="sem-carta-board">
+            <div className="sem-carta-front">
+              <SementesCard alias={seed.alias} path={seed.path} hook={seed.hook} impacts={seed.impacts} heat={seed.heat} />
+            </div>
+            <div className="sem-carta-verso">
+              {videoUrl ? (
+                <video src={videoUrl} controls playsInline />
+              ) : (
+                <p className="sem-carta-verso-empty">{t.recordHint}</p>
+              )}
+            </div>
+          </div>
+          <div className="sem-carta-actions">
+            <button type="button" className="sem-cta" onClick={() => void downloadCard(seed)}>
+              {t.exportPng}
             </button>
             {videoUrl ? (
-              <video className="mt-4 w-full rounded-[24px] bg-black" src={videoUrl} controls playsInline />
-            ) : (
-              <p className="mt-4 text-sm text-white/55">{t.recordHint}</p>
-            )}
-            <div className="mt-6 grid gap-2">
-              <button type="button" className="sem-cta" onClick={() => void downloadCard(seed)}>
-                {t.exportPng}
-              </button>
-              {videoUrl ? (
-                <a className="sem-ghost flex items-center justify-center" href={videoUrl} download>
-                  {t.exportVideo}
-                </a>
-              ) : null}
-              <Link href={`/${locale}/sementes`} className="sem-ghost flex items-center justify-center">
-                {t.editSeed}
-              </Link>
-              <Link href={`/${locale}/sementes/palco`} className="text-center text-sm text-white/60 underline">
-                {t.seePalco}
-              </Link>
-            </div>
-          </>
-        )}
-      </div>
+              <a className="sem-ghost" href={videoUrl} download>
+                {t.exportVideo}
+              </a>
+            ) : null}
+            <Link href={`/${locale}/sementes`} className="sem-ghost">
+              {t.editSeed}
+            </Link>
+            <Link href={`/${locale}/sementes/palco`} className="sem-carta-link">
+              {t.seePalco}
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
