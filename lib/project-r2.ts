@@ -130,6 +130,23 @@ export async function getProjectR2DownloadUrl(key: string, expiresIn = 3600) {
   );
 }
 
+export async function getProjectR2UploadUrl(key: string, contentType: string, expiresIn = 600) {
+  const config = getProjectR2Config();
+  if (!config) {
+    throw new Error('Cloudflare R2 no está configurado.');
+  }
+  const s3 = createProjectR2Client(config);
+  return getSignedUrl(
+    s3,
+    new PutObjectCommand({
+      Bucket: config.bucket,
+      Key: key,
+      ContentType: contentType || 'application/octet-stream',
+    }),
+    { expiresIn }
+  );
+}
+
 export async function deleteProjectR2Object(key: string) {
   const config = getProjectR2Config();
   if (!config) {

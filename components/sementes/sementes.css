@@ -1,0 +1,280 @@
+.sementes-app {
+  --sem-navy: #071f5e;
+  --sem-deep: #00071b;
+  --sem-teal: #009179;
+  --sem-mint: #52adad;
+  --sem-forest: #1d6359;
+  --sem-sky: #a5d9ef;
+  --sem-paper: #f4f4f4;
+  --sem-ink: #1e1e1e;
+  --font-title: Arboria, 'Lexend Projeto', var(--font-lexend), Lexend, system-ui, sans-serif;
+  --font-body: 'Lexend Projeto', var(--font-lexend), Lexend, system-ui, sans-serif;
+  font-family: var(--font-body);
+  color: white;
+  background: var(--sem-deep);
+}
+
+.sementes-app h1,
+.sementes-app h2,
+.sementes-app .sem-display {
+  font-family: var(--font-title);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+.sementes-wave {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sementes-wave svg {
+  position: absolute;
+  right: -8%;
+  top: -20%;
+  width: 92%;
+  height: 140%;
+  opacity: 0.42;
+  animation: semWaveDrift 22s ease-in-out infinite alternate;
+}
+
+@keyframes semWaveDrift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-18px, 12px, 0) scale(1.04);
+  }
+}
+
+@keyframes semSprout {
+  0% {
+    transform: scale(0.7) rotate(-8deg);
+    opacity: 0.4;
+  }
+  55% {
+    transform: scale(1.08) rotate(3deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes semPop {
+  0% {
+    transform: scale(0.92) translateY(12px);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes semPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 145, 121, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 14px rgba(0, 145, 121, 0);
+  }
+}
+
+@keyframes semHeat {
+  0% {
+    transform: translateY(6px) scale(0.8);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-18px) scale(1.1);
+    opacity: 0;
+  }
+}
+
+.sem-step {
+  animation: semPop 0.42s cubic-bezier(0.2, 0.9, 0.2, 1) both;
+}
+
+.sem-seed-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.22);
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.sem-seed-dot.is-on {
+  background: #009179;
+  transform: scale(1.25);
+  animation: semSprout 0.35s ease both;
+}
+
+.sem-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.sem-card-3d.is-back {
+  transform: rotateY(180deg);
+}
+
+.sem-card-face {
+  backface-visibility: hidden;
+}
+
+.sem-card-face.is-verso {
+  transform: rotateY(180deg);
+}
+
+.sem-progress {
+  height: 3px;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sem-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #009179, #52adad);
+  transition: width 0.45s ease;
+}
+
+.sem-chip {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  border-radius: 999px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.sem-chip.is-on {
+  border-color: #009179;
+  background: rgba(0, 145, 121, 0.22);
+}
+
+.sem-input,
+.sem-area {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+  border-radius: 18px;
+  padding: 0.95rem 1rem;
+  font-size: 1rem;
+  outline: none;
+}
+
+.sem-area {
+  min-height: 8.2rem;
+  resize: none;
+  line-height: 1.45;
+}
+
+.sem-input::placeholder,
+.sem-area::placeholder {
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.sem-input:focus,
+.sem-area:focus {
+  border-color: #52adad;
+  box-shadow: 0 0 0 4px rgba(82, 173, 173, 0.18);
+}
+
+.sem-cta {
+  min-height: 3.25rem;
+  border-radius: 999px;
+  background: #52adad;
+  color: #071f5e;
+  font-weight: 800;
+  font-size: 1rem;
+  padding: 0.75rem 1.4rem;
+}
+
+.sem-cta:disabled {
+  opacity: 0.45;
+}
+
+.sem-ghost {
+  min-height: 3.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.2rem;
+}
+
+.sem-path {
+  text-align: left;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1.15rem 1.15rem 1.2rem;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.sem-path.is-on {
+  border-color: #52adad;
+  background: linear-gradient(180deg, rgba(0, 145, 121, 0.28), rgba(7, 31, 94, 0.2));
+  animation: semPulse 1.8s ease-out 1;
+}
+
+.sem-impact {
+  border-radius: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.9rem;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sem-impact.is-on {
+  border-color: #009179;
+  background: rgba(0, 145, 121, 0.2);
+}
+
+.sem-live-card {
+  border-radius: 24px;
+  background: linear-gradient(165deg, #0e345b 0%, #071f5e 48%, #021b47 100%);
+  border: 1px solid rgba(165, 217, 239, 0.18);
+  box-shadow: 0 18px 40px rgba(0, 7, 27, 0.35);
+}
+
+.sem-palco-card {
+  border-radius: 26px;
+  background: #071f5e;
+  color: white;
+  overflow: hidden;
+  border: 1px solid rgba(165, 217, 239, 0.14);
+  animation: semPop 0.5s ease both;
+}
+
+.sem-heat-burst {
+  animation: semHeat 0.7s ease forwards;
+}
+
+.sem-timer {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+.sementes-shell-light {
+  background: #f4f4f4;
+  color: #1e1e1e;
+}
+
+.sementes-shell-light h1,
+.sementes-shell-light h2,
+.sementes-shell-light .sem-display {
+  font-family: var(--font-title);
+  color: #071f5e;
+}
