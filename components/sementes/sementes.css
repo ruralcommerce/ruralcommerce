@@ -478,6 +478,34 @@ html.sementes-fill body {
   padding: 0 1rem 0.2rem;
 }
 
+.sem-bancada {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0.2rem 1rem 0.15rem;
+}
+
+.sem-bancada span {
+  display: grid;
+  min-width: 3.6rem;
+  place-items: center;
+  border-radius: 9px;
+  border: 1px dashed rgba(82, 173, 173, 0.32);
+  padding: 0.28rem 0.35rem;
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.38);
+}
+
+.sem-bancada span.is-on {
+  border-style: solid;
+  border-color: #52adad;
+  background: rgba(0, 145, 121, 0.28);
+  color: #a5d9ef;
+}
+
 .sem-arena-main {
   flex: 1;
   min-height: 0;
@@ -495,10 +523,15 @@ html.sementes-fill body {
 }
 
 .sementes-play,
-.sementes-play .sementes-arena,
 .sementes-play .sem-arena-main {
   overflow: hidden;
   overscroll-behavior: none;
+}
+
+.sem-arena-main::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .sem-arena-main h1 {
@@ -552,19 +585,9 @@ html.sementes-fill body {
 }
 
 .sem-why {
-  position: absolute;
-  top: 2.15rem;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  z-index: 4;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 0.7rem 0.9rem 0.85rem;
-  border-radius: 0 0 20px 20px;
-  background: rgba(0, 7, 27, 0.96);
+  margin: 0.45rem 0 0;
+  padding: 0;
+  background: transparent;
   border: 0;
 }
 
@@ -750,11 +773,28 @@ html.sementes-fill body {
 }
 
 .sem-inventory {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+  width: 100%;
+  margin-top: 1.05rem;
+}
+
+.sem-quest {
+  min-height: 3.05rem;
+  border: 2px solid rgba(82, 173, 173, 0.32);
+  background: rgba(0, 7, 27, 0.4);
+  color: white;
+  border-radius: 16px;
+  padding: 0.55rem 0.65rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sem-quest.is-on {
+  border-color: #52adad;
+  background: rgba(0, 145, 121, 0.28);
 }
 
 .sem-resume {

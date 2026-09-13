@@ -61,8 +61,6 @@ function SemGuide({
           </button>
         ) : null}
       </div>
-      <h1 className="sem-display">{title}</h1>
-      {text ? <p className="sem-prompt">{text}</p> : null}
       {open && info ? (
         <div className="sem-why">
           <p>{info}</p>
@@ -70,7 +68,12 @@ function SemGuide({
             {whyClose}
           </button>
         </div>
-      ) : null}
+      ) : (
+        <>
+          <h1 className="sem-display">{title}</h1>
+          {text ? <p className="sem-prompt">{text}</p> : null}
+        </>
+      )}
     </div>
   );
 }
@@ -326,6 +329,15 @@ export function SementesPlay({ locale }: { locale: string }) {
           <span key={index} className={`sem-seed-dot ${step > index ? 'is-on' : ''}`} />
         ))}
       </div>
+      {step > 0 ? (
+        <div className="sem-bancada relative z-10" aria-hidden>
+          <span className={path ? 'is-on' : ''}>{path === 'servico' ? t.servico : path === 'produto' ? t.produto : t.buildPath}</span>
+          <span className={problem.trim().length >= 8 ? 'is-on' : ''}>{t.buildProblem}</span>
+          <span className={solution.trim().length >= 8 ? 'is-on' : ''}>{t.buildIdea}</span>
+          <span className={impacts.length ? 'is-on' : ''}>{t.buildImpact}</span>
+          <span className={fuel.trim() || fuelChips.length ? 'is-on' : ''}>{t.buildTest}</span>
+        </div>
+      ) : null}
 
       {flipCountdown > 0 && flipCountdown <= 8 ? (
         <div className="relative z-20 mx-auto mt-2 rounded-full bg-[#009179] px-4 py-2 text-center text-xs font-bold text-white">
@@ -560,7 +572,7 @@ export function SementesPlay({ locale }: { locale: string }) {
                 <button
                   key={chip}
                   type="button"
-                  className={`sem-chip ${fuelChips.includes(chip) ? 'is-on' : ''}`}
+                  className={`sem-quest ${fuelChips.includes(chip) ? 'is-on' : ''}`}
                   onClick={() => toggleChip(chip)}
                 >
                   {chip}

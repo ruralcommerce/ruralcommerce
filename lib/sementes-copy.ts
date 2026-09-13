@@ -96,6 +96,11 @@ type Copy = {
   economicoHint: string;
   ambientalHint: string;
   socialHint: string;
+  buildPath: string;
+  buildProblem: string;
+  buildIdea: string;
+  buildImpact: string;
+  buildTest: string;
 };
 
 const pt: Copy = {
@@ -136,10 +141,17 @@ const pt: Copy = {
   social: 'Gente',
   impactNoteLabel: 'Como isso acontece?',
   impactPlaceholder: 'Ex.: pago melhor o vizinho e deixo de jogar fruta fora.',
-  fuelTitle: 'Para testar amanhã de manhã?',
-  fuelHint: 'Seja realista. O mínimo para o primeiro teste.',
-  fuelPlaceholder: 'Ex.: R$ 180, panela e o celular.',
-  fuelChips: ['celular', 'WhatsApp', 'R$ 50', 'R$ 200', 'moto', '2 amigos', '1 dia', 'ferramentas'],
+  fuelTitle: 'Qual é o primeiro teste amanhã?',
+  fuelHint: 'Uma ação concreta. O que você faz de manhã para ver se a ideia cola.',
+  fuelPlaceholder: 'Ex.: levo 10 unidades na feira e pergunto quem compra.',
+  fuelChips: [
+    'falar com 3 pessoas',
+    'postar no WhatsApp',
+    'fazer 1 unidade',
+    'ir à feira',
+    'perguntar o preço',
+    'testar o dia todo',
+  ],
   recordTitle: 'Vira a carta.',
   recordHint: '15 segundos. Olha pra câmera e conta a ideia. Pode repetir até curtir.',
   recordCta: 'Gravar o verso',
@@ -192,13 +204,19 @@ const pt: Copy = {
   solutionInfo: 'Agora diz como a ideia resolve aquele problema. O que você faz, na prática, que o vizinho não faz.',
   impactInfo:
     'Impacto é o efeito da ideia no mundo. Renda = gera ou melhora dinheiro. Terra = ajuda o ambiente (menos desperdício, mais cuidado). Gente = ajuda pessoas daqui. Podes marcar um, dois ou três. Depois escreve como isso acontece.',
-  fuelInfo: 'O mínimo para testar amanhã: dinheiro, ferramenta, gente ou tempo. Não o plano grande — o primeiro passo.',
+  fuelInfo:
+    'Aqui não é o plano grande nem a lista do que você tem. É a primeira ação de amanhã: falar com alguém, fazer uma unidade, ir à feira. Marca o que vais fazer, ou escreve a tua.',
   recordInfo:
     'Um vídeo de 15 segundos olhando para a câmera, contando a ideia. Fica no verso da carta. Só tu e a equipe veem, se não quiseres mostrar no telão.',
   doneInfo: 'A ideia já está no telão, sem o teu nome. Daqui vês o canteiro ou abres tua carta para editar.',
   economicoHint: 'dinheiro',
   ambientalHint: 'ambiente',
   socialHint: 'pessoas',
+  buildPath: 'caminho',
+  buildProblem: 'problema',
+  buildIdea: 'ideia',
+  buildImpact: 'impacto',
+  buildTest: 'teste',
 };
 
 const es: Copy = {
@@ -232,10 +250,17 @@ const es: Copy = {
   social: 'Gente',
   impactNoteLabel: '¿Cómo pasa?',
   impactPlaceholder: 'Ej.: pago mejor al vecino y dejo de tirar fruta.',
-  fuelTitle: '¿Para probar mañana por la mañana?',
-  fuelHint: 'Sé realista. El mínimo para el primer test.',
-  fuelPlaceholder: 'Ej.: $180, una olla y el celular.',
-  fuelChips: ['celular', 'WhatsApp', '$50', '$200', 'moto', '2 amigos', '1 día', 'herramientas'],
+  fuelTitle: '¿Cuál es la primera prueba de mañana?',
+  fuelHint: 'Una acción concreta. Lo que haces por la mañana para ver si la idea pega.',
+  fuelPlaceholder: 'Ej.: llevo 10 unidades a la feria y pregunto quién compra.',
+  fuelChips: [
+    'hablar con 3 personas',
+    'publicar en WhatsApp',
+    'hacer 1 unidad',
+    'ir a la feria',
+    'preguntar el precio',
+    'probar el día entero',
+  ],
   recordTitle: 'Voltea la carta.',
   recordHint: '15 segundos. Mira a cámara y cuenta la idea. Puedes repetir.',
   recordCta: 'Grabar el reverso',
@@ -294,13 +319,19 @@ const es: Copy = {
   solutionInfo: 'Ahora di cómo la idea resuelve ese problema. Lo que haces, en la práctica, distinto a tu vecino.',
   impactInfo:
     'Impacto es el efecto de la idea en el mundo. Renta = genera o mejora dinero. Tierra = ayuda al ambiente (menos desperdicio, más cuidado). Gente = ayuda a personas de aquí. Puedes marcar uno, dos o tres. Después escribe cómo pasa.',
-  fuelInfo: 'Lo mínimo para probar mañana: dinero, herramienta, gente o tiempo. No el plan grande — el primer paso.',
+  fuelInfo:
+    'Aquí no es el plan grande ni la lista de lo que tienes. Es la primera acción de mañana: hablar con alguien, hacer una unidad, ir a la feria. Marca lo que vas a hacer, o escribe la tuya.',
   recordInfo:
     'Un video de 15 segundos mirando a cámara, contando la idea. Queda en el reverso de la carta. Solo tú y el equipo lo ven, si no quieres mostrarlo.',
   doneInfo: 'La idea ya está en la pantalla, sin tu nombre. Desde aquí ves el cantero o abres tu carta para editar.',
   economicoHint: 'dinero',
   ambientalHint: 'ambiente',
   socialHint: 'personas',
+  buildPath: 'camino',
+  buildProblem: 'problema',
+  buildIdea: 'idea',
+  buildImpact: 'impacto',
+  buildTest: 'prueba',
 };
 
 const en: Copy = {
@@ -351,13 +382,30 @@ const en: Copy = {
   solutionInfo: 'Now say how the idea solves that problem. What you actually do that your neighbor does not.',
   impactInfo:
     'Impact is the effect of the idea. Income = makes or improves money. Land = helps the environment (less waste, more care). People = helps people here. You can mark one, two, or three. Then write how that happens.',
-  fuelInfo: 'The minimum to test tomorrow: money, a tool, people, or time. Not the big plan — the first step.',
+  fuelTitle: 'What is tomorrow’s first test?',
+  fuelHint: 'One concrete action. What you do in the morning to see if it works.',
+  fuelPlaceholder: 'Ex.: I take 10 units to the market and ask who buys.',
+  fuelChips: [
+    'talk to 3 people',
+    'post on WhatsApp',
+    'make 1 unit',
+    'go to the market',
+    'ask the price',
+    'test the whole day',
+  ],
+  fuelInfo:
+    'This is not the big plan or a list of what you already have. It is the first action tomorrow: talk to someone, make one unit, go to the market. Mark what you will do, or write your own.',
   recordInfo:
     'A 15-second video looking at the camera, telling the idea. It lives on the back of the card. Only you and the team see it unless you want it shown.',
   doneInfo: 'The idea is already on the big screen, without your name. From here you can see the seedbed or open your card to edit.',
   economicoHint: 'money',
   ambientalHint: 'environment',
   socialHint: 'people',
+  buildPath: 'path',
+  buildProblem: 'problem',
+  buildIdea: 'idea',
+  buildImpact: 'impact',
+  buildTest: 'test',
 };
 
 export function sementesCopy(locale: string): Copy {
