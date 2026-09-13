@@ -81,6 +81,21 @@ type Copy = {
   playerSetupText: string;
   guideName: string;
   resumeSeed: string;
+  whyClose: string;
+  infoAria: string;
+  nameInfo: string;
+  whatsappInfo: string;
+  pinInfo: string;
+  pathInfo: string;
+  problemInfo: string;
+  solutionInfo: string;
+  impactInfo: string;
+  fuelInfo: string;
+  recordInfo: string;
+  doneInfo: string;
+  economicoHint: string;
+  ambientalHint: string;
+  socialHint: string;
 };
 
 const pt: Copy = {
@@ -114,8 +129,8 @@ const pt: Copy = {
   solutionTitle: 'Como a tua ideia resolve isso?',
   solutionHint: 'Uma frase. O que você faz que o vizinho não faz.',
   solutionPlaceholder: 'Ex.: transformo o excedente em snack com a história do sítio no QR.',
-  impactTitle: 'Tua semente alimenta o quê?',
-  impactHint: 'Toca nos orbes que forem verdade. Depois uma linha.',
+  impactTitle: 'Que impacto a tua ideia gera?',
+  impactHint: 'Marca o que for verdade. Depois explica em uma linha.',
   economico: 'Renda',
   ambiental: 'Terra',
   social: 'Gente',
@@ -165,6 +180,25 @@ const pt: Copy = {
   playerSetupText: 'No palco você vira um codinome. Nome e Zap ficam só com a gente.',
   guideName: 'Guia',
   resumeSeed: 'Já plantei',
+  whyClose: 'Entendi',
+  infoAria: 'Por que esta pergunta',
+  nameInfo: 'É o teu nome, só para a equipe. No telão aparece um apelido — ninguém lê o teu nome.',
+  whatsappInfo: 'Para a equipe te chamar se a ideia for selecionada. Não aparece no palco.',
+  pinInfo: 'Quatro números para abrir tua semente noutro celular. Guarda. Sem o PIN, não entra de novo.',
+  pathInfo:
+    'Produto: algo que a pessoa leva, prova ou usa. Serviço: visita, consulta ou fazer por alguém. Escolhe o que mais parece tua ideia. Dá para mudar depois.',
+  problemInfo:
+    'Queremos o problema ou a necessidade que a ideia ataca. Exemplo: fruta madura vai embora porque ninguém processa.',
+  solutionInfo: 'Agora diz como a ideia resolve aquele problema. O que você faz, na prática, que o vizinho não faz.',
+  impactInfo:
+    'Impacto é o efeito da ideia no mundo. Renda = gera ou melhora dinheiro. Terra = ajuda o ambiente (menos desperdício, mais cuidado). Gente = ajuda pessoas daqui. Podes marcar um, dois ou três. Depois escreve como isso acontece.',
+  fuelInfo: 'O mínimo para testar amanhã: dinheiro, ferramenta, gente ou tempo. Não o plano grande — o primeiro passo.',
+  recordInfo:
+    'Um vídeo de 15 segundos olhando para a câmera, contando a ideia. Fica no verso da carta. Só tu e a equipe veem, se não quiseres mostrar no telão.',
+  doneInfo: 'A ideia já está no telão, sem o teu nome. Daqui vês o canteiro ou abres tua carta para editar.',
+  economicoHint: 'dinheiro',
+  ambientalHint: 'ambiente',
+  socialHint: 'pessoas',
 };
 
 const es: Copy = {
@@ -191,8 +225,8 @@ const es: Copy = {
   solutionTitle: '¿Cómo lo resuelve tu idea?',
   solutionHint: 'Una frase. Lo que haces distinto a tu vecino.',
   solutionPlaceholder: 'Ej.: transformo el excedente en snack con la historia del sitio en el QR.',
-  impactTitle: '¿Qué alimenta tu semilla?',
-  impactHint: 'Toca lo que sea verdad. Después explícalo en una línea.',
+  impactTitle: '¿Qué impacto genera tu idea?',
+  impactHint: 'Marca lo que sea verdad. Después explícalo en una línea.',
   economico: 'Renta',
   ambiental: 'Tierra',
   social: 'Gente',
@@ -248,6 +282,25 @@ const es: Copy = {
   saveNow: 'guardado ahora',
   saving: 'guardando…',
   saved: 'quedó guardado',
+  whyClose: 'Entendido',
+  infoAria: 'Por qué esta pregunta',
+  nameInfo: 'Es tu nombre, solo para el equipo. En la pantalla aparece un alias — nadie lee tu nombre.',
+  whatsappInfo: 'Para que el equipo te llame si la idea sale. No aparece en el palco.',
+  pinInfo: 'Cuatro números para abrir tu semilla en otro celular. Guárdalos. Sin el PIN, no entras de nuevo.',
+  pathInfo:
+    'Producto: algo que la persona lleva, prueba o usa. Servicio: visita, consulta o hacer por alguien. Elige lo que más se parece a tu idea. Se puede cambiar después.',
+  problemInfo:
+    'Queremos el problema o la necesidad que ataca la idea. Ejemplo: la fruta madura se pierde porque nadie la procesa.',
+  solutionInfo: 'Ahora di cómo la idea resuelve ese problema. Lo que haces, en la práctica, distinto a tu vecino.',
+  impactInfo:
+    'Impacto es el efecto de la idea en el mundo. Renta = genera o mejora dinero. Tierra = ayuda al ambiente (menos desperdicio, más cuidado). Gente = ayuda a personas de aquí. Puedes marcar uno, dos o tres. Después escribe cómo pasa.',
+  fuelInfo: 'Lo mínimo para probar mañana: dinero, herramienta, gente o tiempo. No el plan grande — el primer paso.',
+  recordInfo:
+    'Un video de 15 segundos mirando a cámara, contando la idea. Queda en el reverso de la carta. Solo tú y el equipo lo ven, si no quieres mostrarlo.',
+  doneInfo: 'La idea ya está en la pantalla, sin tu nombre. Desde aquí ves el cantero o abres tu carta para editar.',
+  economicoHint: 'dinero',
+  ambientalHint: 'ambiente',
+  socialHint: 'personas',
 };
 
 const en: Copy = {
@@ -284,6 +337,27 @@ const en: Copy = {
   missionTag: 'Mission · 15 minutes',
   playerSetup: 'Create your profile',
   playerSetupText: 'On stage you become an alias. Name and WhatsApp stay with the team.',
+  impactTitle: 'What impact does your idea create?',
+  impactHint: 'Mark what is true. Then explain in one line.',
+  whyClose: 'Got it',
+  infoAria: 'Why this question',
+  nameInfo: 'Your name is only for the team. On the big screen you get an alias — nobody reads your name.',
+  whatsappInfo: 'So the team can reach you if the idea is selected. It never appears on stage.',
+  pinInfo: 'Four digits to open your seed on another phone. Keep them. Without the PIN, you cannot come back.',
+  pathInfo:
+    'Product: something a person takes, tastes, or uses. Service: a visit, consult, or doing work for someone. Pick what your idea is. You can change later.',
+  problemInfo:
+    'We want the problem or need your idea attacks. Example: ripe fruit is wasted because nobody processes it.',
+  solutionInfo: 'Now say how the idea solves that problem. What you actually do that your neighbor does not.',
+  impactInfo:
+    'Impact is the effect of the idea. Income = makes or improves money. Land = helps the environment (less waste, more care). People = helps people here. You can mark one, two, or three. Then write how that happens.',
+  fuelInfo: 'The minimum to test tomorrow: money, a tool, people, or time. Not the big plan — the first step.',
+  recordInfo:
+    'A 15-second video looking at the camera, telling the idea. It lives on the back of the card. Only you and the team see it unless you want it shown.',
+  doneInfo: 'The idea is already on the big screen, without your name. From here you can see the seedbed or open your card to edit.',
+  economicoHint: 'money',
+  ambientalHint: 'environment',
+  socialHint: 'people',
 };
 
 export function sementesCopy(locale: string): Copy {

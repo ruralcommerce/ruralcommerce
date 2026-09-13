@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Briefcase, Coins, Leaf, Package, Users } from 'lucide-react';
+import { Briefcase, Coins, Info, Leaf, Package, Users } from 'lucide-react';
 import { sementesCopy, sementesLocale } from '@/lib/sementes-copy';
 import type { SementeImpact, SementeOwnerView, SementePath } from '@/lib/sementes-types';
 import { SementesCard } from '@/components/sementes/SementesCard';
@@ -26,12 +26,51 @@ function vibrate() {
   }
 }
 
-function SemGuide({ speaker, title, text }: { speaker: string; title: string; text?: string }) {
+function SemGuide({
+  speaker,
+  title,
+  text,
+  info,
+  whyClose,
+  infoAria,
+}: {
+  speaker: string;
+  title: string;
+  text?: string;
+  info?: string;
+  whyClose: string;
+  infoAria: string;
+}) {
+  const [open, setOpen] = useState(false);
   return (
     <div className="sem-guide">
-      <p className="sem-guide-name">{speaker}</p>
+      <div className="sem-guide-top">
+        <p className="sem-guide-name">{speaker}</p>
+        {info ? (
+          <button
+            type="button"
+            className={`sem-info ${open ? 'is-on' : ''}`}
+            aria-label={infoAria}
+            aria-expanded={open}
+            onClick={() => {
+              setOpen((value) => !value);
+              vibrate();
+            }}
+          >
+            <Info className="h-3.5 w-3.5" strokeWidth={2.6} />
+          </button>
+        ) : null}
+      </div>
       <h1 className="sem-display">{title}</h1>
       {text ? <p className="sem-prompt">{text}</p> : null}
+      {open && info ? (
+        <div className="sem-why">
+          <p>{info}</p>
+          <button type="button" className="sem-why-ok" onClick={() => setOpen(false)}>
+            {whyClose}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -298,9 +337,13 @@ export function SementesPlay({ locale }: { locale: string }) {
         {step === 0 ? (
           <section className="sem-step w-full">
             <SemGuide
+              key={introBeat}
               speaker={t.guideName}
               title={introBeat === 0 ? t.nameLabel : introBeat === 1 ? t.whatsappLabel : t.pinLabel}
               text={introBeat === 2 ? t.pinHint : t.playerSetupText}
+              info={introBeat === 0 ? t.nameInfo : introBeat === 1 ? t.whatsappInfo : t.pinInfo}
+              whyClose={t.whyClose}
+              infoAria={t.infoAria}
             />
             {introBeat === 0 ? (
               <input
@@ -381,7 +424,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 1 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.pathTitle} text={t.pathText} />
+            <SemGuide speaker={t.guideName} title={t.pathTitle} text={t.pathText} info={t.pathInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="sem-class-row">
               <button
                 type="button"
@@ -415,7 +458,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 2 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.problemTitle} text={t.problemHint} />
+            <SemGuide speaker={t.guideName} title={t.problemTitle} text={t.problemHint} info={t.problemInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="sem-dialogue">
               <textarea
                 value={problem}
@@ -439,7 +482,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 3 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.solutionTitle} text={t.solutionHint} />
+            <SemGuide speaker={t.guideName} title={t.solutionTitle} text={t.solutionHint} info={t.solutionInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="sem-dialogue">
               <textarea
                 value={solution}
@@ -463,15 +506,15 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 4 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.impactTitle} text={t.impactHint} />
+            <SemGuide speaker={t.guideName} title={t.impactTitle} text={t.impactHint} info={t.impactInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="sem-orbs">
               {(
                 [
-                  ['economico', t.economico, Coins],
-                  ['ambiental', t.ambiental, Leaf],
-                  ['social', t.social, Users],
+                  ['economico', t.economico, t.economicoHint, Coins],
+                  ['ambiental', t.ambiental, t.ambientalHint, Leaf],
+                  ['social', t.social, t.socialHint, Users],
                 ] as const
-              ).map(([key, label, Icon]) => (
+              ).map(([key, label, hint, Icon]) => (
                 <button
                   key={key}
                   type="button"
@@ -479,7 +522,8 @@ export function SementesPlay({ locale }: { locale: string }) {
                   onClick={() => toggleImpact(key)}
                 >
                   <Icon className="h-6 w-6 text-[#52ADAD]" />
-                  {label}
+                  <span className="sem-orb-label">{label}</span>
+                  <span className="sem-orb-hint">{hint}</span>
                 </button>
               ))}
             </div>
@@ -510,7 +554,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 5 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.fuelTitle} text={t.fuelHint} />
+            <SemGuide speaker={t.guideName} title={t.fuelTitle} text={t.fuelHint} info={t.fuelInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="sem-inventory">
               {t.fuelChips.map((chip) => (
                 <button
@@ -550,7 +594,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 6 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.recordTitle} text={t.recordHint} />
+            <SemGuide speaker={t.guideName} title={t.recordTitle} text={t.recordHint} info={t.recordInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="mt-4 w-full">
               <SementesRecorder copy={t} disabled={busy} onReady={(file) => void uploadVideo(file)} />
             </div>
@@ -569,7 +613,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
         {step === 7 ? (
           <section className="sem-step w-full">
-            <SemGuide speaker={t.guideName} title={t.doneTitle} text={t.doneText} />
+            <SemGuide speaker={t.guideName} title={t.doneTitle} text={t.doneText} info={t.doneInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="mt-5 text-left">
               <SementesCard alias={liveSeed.alias} path={path} hook={hook} impacts={impacts} />
             </div>
