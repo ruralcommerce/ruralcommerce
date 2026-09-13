@@ -182,7 +182,7 @@ export const BLOCK_LIBRARY: Record<BlockType, BlockDefinition> = {
   'partners-section': {
     type: 'partners-section',
     label: 'Socios (Homepage)',
-    description: 'Carrusel de logos de socios',
+    description: 'Logos de socios en círculos',
     icon: 'ðŸ¤',
     defaultProps: {
       backgroundColor: '#F5F7FB',

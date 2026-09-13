@@ -488,7 +488,7 @@ export default async function HomePage({
           id="Socios"
               data-editor-section="partners-section"
           style={{ order: sectionOrder('partners-section'), backgroundColor: partnersProps.backgroundColor || '#F5F7FB' }}
-          className="scroll-mt-24 border-y border-[#071F5E]/10 py-14 sm:py-16"
+          className="scroll-mt-24 border-y border-[#071F5E]/10 py-16 sm:py-20"
           aria-labelledby="partners-heading"
         >
           <div className="mx-auto max-w-6xl px-4 sm:px-6">

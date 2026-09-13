@@ -245,8 +245,9 @@ function PartnersArrayEditor({
   return (
     <div className="space-y-3">
       <p className="text-xs leading-relaxed text-slate-600">
-        Cada card é um logo no carrossel. Cole a <strong>URL da imagem</strong> ou clique numa miniatura da biblioteca
-        para preencher o logo. O <strong>link</strong> é o site do parceiro.
+        Cada card é um logo no círculo da grelha. Cole a <strong>URL da imagem</strong> ou clique numa miniatura da
+        biblioteca para preencher o logo. O <strong>link</strong> é o site do parceiro. Fundo escuro: campo{' '}
+        <code>circle</code> (ex. <code>#017284</code>) para wordmarks brancos.
       </p>
       {rows.length === 0 ? (
         <button

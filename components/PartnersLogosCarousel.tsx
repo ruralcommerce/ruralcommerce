@@ -1,12 +1,11 @@
 ﻿'use client';
 
-import { useEffect, useRef, useState } from 'react';
-
 type Partner = {
   name: string;
-  /** SVG (Simple Icons); cores originais so no hover deste logo */
   src: string;
   href: string;
+  /** Fundo do círculo. Escuro = logos brancos (Incubacoop, IICA). */
+  circle?: string;
 };
 
 const defaultPartners: Partner[] = [
@@ -29,95 +28,70 @@ const partnersAriaByLocale: Record<string, string> = {
   en: 'Partner logos',
 };
 
+function isDarkCircle(hex?: string): boolean {
+  const raw = (hex || '').replace('#', '').trim();
+  if (!raw) return false;
+  const full = raw.length === 3 ? raw.split('').map((c) => c + c).join('') : raw;
+  if (full.length !== 6) return false;
+  const n = Number.parseInt(full, 16);
+  if (Number.isNaN(n)) return false;
+  const r = (n >> 16) & 255;
+  const g = (n >> 8) & 255;
+  const b = n & 255;
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b < 150;
+}
+
 export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es' }: PartnersLogosCarouselProps) {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const dragRef = useRef<{ active: boolean; pointerId: number; startX: number; scroll: number }>({
-    active: false,
-    pointerId: -1,
-    startX: 0,
-    scroll: 0,
-  });
-  const [isDragging, setIsDragging] = useState(false);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const onWheel = (e: WheelEvent) => {
-      if (el.scrollWidth <= el.clientWidth) return;
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      e.preventDefault();
-      el.scrollLeft += e.deltaY;
-    };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => el.removeEventListener('wheel', onWheel);
-  }, []);
-
   return (
-    <div className="relative mt-10">
-      <div
-        ref={scrollerRef}
-        className={`flex touch-pan-x gap-10 overflow-x-auto pb-2 pt-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:gap-14 ${
-          isDragging ? 'cursor-grabbing scroll-auto' : 'cursor-grab scroll-smooth'
-        }`}
-        aria-label={partnersAriaByLocale[locale] || partnersAriaByLocale.es}
-        onPointerDown={(e) => {
-          if (e.pointerType !== 'mouse' || e.button !== 0) return;
-          const el = scrollerRef.current;
-          if (!el) return;
-          dragRef.current = {
-            active: true,
-            pointerId: e.pointerId,
-            startX: e.clientX,
-            scroll: el.scrollLeft,
-          };
-          el.setPointerCapture(e.pointerId);
-          setIsDragging(true);
-        }}
-        onPointerMove={(e) => {
-          if (!dragRef.current.active || e.pointerId !== dragRef.current.pointerId) return;
-          const el = scrollerRef.current;
-          if (!el) return;
-          el.scrollLeft = dragRef.current.scroll - (e.clientX - dragRef.current.startX);
-        }}
-        onPointerUp={(e) => {
-          if (!dragRef.current.active || e.pointerId !== dragRef.current.pointerId) return;
-          const el = scrollerRef.current;
-          dragRef.current.active = false;
-          setIsDragging(false);
-          if (el) {
-            try {
-              el.releasePointerCapture(e.pointerId);
-            } catch {
-              /* noop */
-            }
-          }
-        }}
-        onPointerCancel={(e) => {
-          if (e.pointerId !== dragRef.current.pointerId) return;
-          dragRef.current.active = false;
-          setIsDragging(false);
-        }}
-      >
-        {partners.map((p) => (
-          <a
-            key={`${p.name}-${p.href}`}
-            href={p.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group flex h-20 shrink-0 items-center justify-center rounded-md px-3 outline-none ring-offset-2 ring-offset-[var(--rc-bg)] focus-visible:ring-2 focus-visible:ring-[#071F5E]/35 sm:h-24 sm:px-5"
-          >
-            <img
-              src={p.src}
-              alt={p.name}
-              width={220}
-              height={64}
-              className="h-11 w-auto max-w-[180px] object-contain object-center transition-[filter,opacity] duration-300 ease-out motion-reduce:transition-none sm:h-14 sm:max-w-[220px] [filter:grayscale(1)_brightness(0.94)_saturate(0.42)_opacity(0.68)] group-hover:[filter:grayscale(0)_brightness(1)_saturate(1)_opacity(1)] group-focus-visible:[filter:grayscale(0)_brightness(1)_saturate(1)_opacity(1)]"
-              loading="lazy"
-              decoding="async"
-            />
-          </a>
-        ))}
-      </div>
-    </div>
+    <ul
+      className="mt-12 flex flex-wrap items-center justify-center gap-6 sm:gap-8 lg:gap-10"
+      aria-label={partnersAriaByLocale[locale] || partnersAriaByLocale.es}
+    >
+      {partners.map((p) => {
+        const dark = isDarkCircle(p.circle);
+        const href = (p.href || '').trim();
+        const hasLink = href.length > 0 && href !== '#';
+        const className = `group relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full shadow-[0_8px_24px_rgba(7,31,94,0.08)] ring-1 outline-none transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(7,31,94,0.14)] focus-visible:ring-2 focus-visible:ring-[#071F5E]/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:h-40 sm:w-40 ${
+          dark ? 'ring-white/15 hover:ring-white/35' : 'bg-white ring-[#071F5E]/12 hover:ring-[#009179]/40'
+        }`;
+        const img = (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={p.src}
+            alt=""
+            width={160}
+            height={160}
+            className={`h-[82%] w-[82%] object-contain object-center transition-[filter,transform] duration-300 ease-out motion-reduce:transition-none group-hover:scale-[1.04] group-focus-visible:scale-[1.04] ${
+              dark
+                ? ''
+                : '[filter:grayscale(1)_brightness(0.96)_saturate(0.45)_opacity(0.9)] group-hover:[filter:none] group-focus-visible:[filter:none]'
+            }`}
+            loading="lazy"
+            decoding="async"
+          />
+        );
+        const style = { backgroundColor: p.circle || '#ffffff' };
+        return (
+          <li key={`${p.name}-${p.href || p.src}`}>
+            {hasLink ? (
+              <a
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={p.name}
+                className={className}
+                style={style}
+              >
+                {img}
+              </a>
+            ) : (
+              <div aria-label={p.name} className={className} style={style}>
+                {img}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 }
