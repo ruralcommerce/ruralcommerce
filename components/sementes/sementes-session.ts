@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+
 const TOKEN_KEY = 'rc_sementes_token';
 const DEVICE_KEY = 'rc_sementes_device';
 
@@ -22,6 +24,21 @@ export function readSementesDevice() {
     window.localStorage.setItem(DEVICE_KEY, value);
   }
   return value;
+}
+
+export function useSementesLock(mode: 'lock' | 'fill' = 'lock') {
+  useEffect(() => {
+    document.documentElement.classList.add('sementes-lock');
+    document.body.classList.add('sementes-lock');
+    if (mode === 'fill') {
+      document.documentElement.classList.add('sementes-fill');
+      document.body.classList.add('sementes-fill');
+    }
+    return () => {
+      document.documentElement.classList.remove('sementes-lock', 'sementes-fill');
+      document.body.classList.remove('sementes-lock', 'sementes-fill');
+    };
+  }, [mode]);
 }
 
 export async function sementesJson<T>(

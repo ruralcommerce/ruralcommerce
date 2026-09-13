@@ -119,15 +119,15 @@ export function SementesRecorder({
 
   return (
     <div className="space-y-3">
-      <div className="relative overflow-hidden rounded-[28px] bg-black aspect-[9/14] max-h-[52vh]">
+      <div className="relative mx-auto overflow-hidden rounded-[28px] bg-black aspect-[9/14] max-h-[42vh] w-full max-w-[220px] border-2 border-[#52ADAD]/50 shadow-[0_0_0_6px_rgba(82,173,173,0.12)]">
         {previewUrl ? (
           <video className="h-full w-full object-cover" src={previewUrl} controls playsInline />
         ) : (
           <video ref={videoRef} className="h-full w-full object-cover" muted playsInline autoPlay />
         )}
         {!live && !previewUrl ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-[#071F5E]/70 text-sm text-white/80">
-            9:16 · 15s
+          <div className="absolute inset-0 flex items-center justify-center bg-[#071F5E]/70 text-sm font-semibold tracking-[0.18em] text-white/80">
+            15s
           </div>
         ) : null}
         {recording ? (
@@ -137,7 +137,7 @@ export function SementesRecorder({
         ) : null}
       </div>
       {error ? <p className="text-sm text-[#A5D9EF]">{error}</p> : null}
-      <div className="flex flex-wrap gap-2">
+      <div className="sem-actions">
         {!live && !previewUrl ? (
           <button type="button" className="sem-cta" onClick={openCam} disabled={disabled}>
             {copy.recordCta}
@@ -173,17 +173,17 @@ export function SementesRecorder({
           </>
         ) : null}
       </div>
-      <label className="block text-xs text-white/55">
+      <button type="button" className="sem-resume" onClick={() => fileRef.current?.click()}>
         {copy.recordFallback}
-        <input
-          ref={fileRef}
-          type="file"
-          accept="video/*"
-          capture="user"
-          className="mt-2 block w-full text-xs"
-          onChange={(event) => onFile(event.target.files)}
-        />
-      </label>
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="video/*"
+        capture="user"
+        className="sr-only"
+        onChange={(event) => onFile(event.target.files)}
+      />
     </div>
   );
 }

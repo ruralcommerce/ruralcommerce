@@ -14,5 +14,5 @@ export const viewport: Viewport = {
 };
 
 export default function SementesLayout({ children }: { children: ReactNode }) {
-  return children;
+  return <div className="sementes-root">{children}</div>;
 }

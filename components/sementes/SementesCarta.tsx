@@ -9,6 +9,7 @@ import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/
 import {
   readSementesToken,
   sementesJson,
+  useSementesLock,
   writeSementesToken,
 } from '@/components/sementes/sementes-session';
 
@@ -76,6 +77,7 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
   const [error, setError] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [flipped, setFlipped] = useState(false);
+  useSementesLock('fill');
 
   useEffect(() => {
     const existing = readSementesToken();
@@ -114,7 +116,7 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
   }
 
   return (
-    <div className="sementes-app relative min-h-dvh overflow-hidden">
+    <div className="sementes-app sementes-arena relative overflow-y-auto">
       <SementesStage />
       <SementesHud />
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col px-4 pb-12 pt-[max(1.2rem,env(safe-area-inset-top))]">

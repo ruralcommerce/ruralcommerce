@@ -124,7 +124,8 @@
   position: relative;
   display: block;
   width: 100%;
-  min-height: 100dvh;
+  height: 100%;
+  min-height: 100%;
   padding: 0;
   border: 0;
   background: transparent;
@@ -336,13 +337,16 @@
 }
 
 .sem-cta {
-  min-height: 3.25rem;
+  min-height: 3.1rem;
   border-radius: 999px;
   background: #52adad;
   color: #071f5e;
-  font-weight: 800;
-  font-size: 1rem;
-  padding: 0.75rem 1.4rem;
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.75rem 1.3rem;
 }
 
 .sem-cta:disabled {
@@ -420,4 +424,283 @@
 .sementes-shell-light .sem-display {
   font-family: var(--font-title);
   color: #071f5e;
+}
+
+html.sementes-lock,
+html.sementes-lock body,
+body.sementes-lock {
+  background: #071f5e !important;
+  min-height: 100%;
+  height: 100%;
+}
+
+html.sementes-lock:not(.sementes-fill),
+html.sementes-lock:not(.sementes-fill) body {
+  overflow: hidden;
+}
+
+html.sementes-fill,
+html.sementes-fill body {
+  overflow: auto;
+}
+
+.sementes-root {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: auto;
+  background: #071f5e;
+  color: #fff;
+}
+
+.sementes-arena {
+  min-height: 100%;
+  height: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.sem-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: max(0.75rem, env(safe-area-inset-top)) 1.1rem 0.4rem;
+}
+
+.sem-xp {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 0 1rem 0.2rem;
+}
+
+.sem-arena-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 22.5rem);
+  margin: 0 auto;
+  padding: 0.35rem 1.1rem max(1.1rem, env(safe-area-inset-bottom));
+  text-align: center;
+  overflow-y: auto;
+}
+
+.sem-arena-main h1 {
+  max-width: none;
+  margin: 0;
+}
+
+.sem-guide {
+  width: 100%;
+  text-align: left;
+  border: 2px solid rgba(82, 173, 173, 0.5);
+  background: rgba(0, 7, 27, 0.55);
+  border-radius: 6px 22px 22px 22px;
+  padding: 0.95rem 1rem 1.05rem;
+  box-shadow: 0 16px 40px rgba(0, 7, 27, 0.28);
+}
+
+.sem-guide-name {
+  margin: 0;
+  font-size: 0.64rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #52adad;
+}
+
+.sem-guide .sem-display {
+  margin-top: 0.4rem;
+  font-size: clamp(1.35rem, 6vw, 1.85rem);
+  line-height: 0.98;
+}
+
+.sem-prompt {
+  margin-top: 0.55rem;
+  font-size: 0.88rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.sem-class-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  width: min(100%, 20rem);
+  margin: 1.15rem auto 0;
+}
+
+.sem-class {
+  position: relative;
+  display: flex;
+  min-height: 9.6rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 1.05rem 0.55rem 0.9rem;
+  border-radius: 24px;
+  border: 2px solid rgba(82, 173, 173, 0.35);
+  background: rgba(0, 7, 27, 0.42);
+  color: white;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.sem-class:active {
+  transform: scale(0.96);
+}
+
+.sem-class.is-on,
+.sem-class:hover {
+  border-color: #52adad;
+  background: linear-gradient(180deg, rgba(0, 145, 121, 0.38), rgba(7, 31, 94, 0.4));
+  box-shadow: 0 0 0 4px rgba(82, 173, 173, 0.16);
+}
+
+.sem-class-key {
+  position: absolute;
+  top: 0.7rem;
+  left: 0.75rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(82, 173, 173, 0.7);
+  font-size: 0.7rem;
+  font-weight: 800;
+  line-height: 1.5rem;
+  color: #52adad;
+}
+
+.sem-class-icon {
+  width: 2.4rem;
+  height: 2.4rem;
+  color: #52adad;
+}
+
+.sem-say {
+  width: 100%;
+  margin-top: 1.35rem;
+  border: 0;
+  border-bottom: 2px solid #52adad;
+  border-radius: 0;
+  background: transparent;
+  color: white;
+  text-align: center;
+  font-family: var(--font-title);
+  font-size: 1.45rem;
+  line-height: 1.3;
+  padding: 0.55rem 0.2rem;
+  outline: none;
+}
+
+.sem-say::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.sem-dialogue {
+  width: 100%;
+  margin-top: 1.25rem;
+  border: 2px solid rgba(82, 173, 173, 0.45);
+  background: rgba(0, 7, 27, 0.42);
+  border-radius: 22px;
+  padding: 0.95rem 1rem;
+}
+
+.sem-dialogue textarea {
+  width: 100%;
+  min-height: 6.2rem;
+  resize: none;
+  border: 0;
+  background: transparent;
+  color: white;
+  text-align: left;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  outline: none;
+}
+
+.sem-orbs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  width: 100%;
+  margin-top: 1.35rem;
+}
+
+.sem-orb {
+  display: flex;
+  aspect-ratio: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  border-radius: 50%;
+  border: 2px solid rgba(82, 173, 173, 0.35);
+  background: rgba(0, 7, 27, 0.35);
+  color: white;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.sem-orb.is-on {
+  border-color: #52adad;
+  background: rgba(0, 145, 121, 0.28);
+  box-shadow: 0 0 0 6px rgba(82, 173, 173, 0.12);
+}
+
+.sem-actions {
+  display: flex;
+  width: 100%;
+  gap: 0.6rem;
+  margin-top: 1.35rem;
+}
+
+.sem-actions .sem-cta,
+.sem-actions .sem-ghost {
+  flex: 1;
+}
+
+.sem-inventory {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.2rem;
+}
+
+.sem-resume {
+  display: inline-block;
+  width: 100%;
+  margin-top: 1.1rem;
+  border: 0;
+  background: transparent;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  cursor: pointer;
+}
+
+@media (max-height: 720px) {
+  .sem-class {
+    min-height: 7.8rem;
+  }
+
+  .sem-orb {
+    aspect-ratio: auto;
+    min-height: 5.4rem;
+    border-radius: 22px;
+  }
+
+  .sem-arena-main {
+    justify-content: flex-start;
+    padding-top: 0.2rem;
+  }
 }

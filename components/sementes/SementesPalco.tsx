@@ -6,12 +6,13 @@ import { sementesCopy } from '@/lib/sementes-copy';
 import type { SementePublicCard } from '@/lib/sementes-types';
 import { SementesCard } from '@/components/sementes/SementesCard';
 import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/SementesWave';
-import { readSementesDevice, sementesJson } from '@/components/sementes/sementes-session';
+import { readSementesDevice, sementesJson, useSementesLock } from '@/components/sementes/sementes-session';
 
 export function SementesPalco({ locale }: { locale: string }) {
   const t = sementesCopy(locale);
   const [cards, setCards] = useState<SementePublicCard[]>([]);
   const [bursts, setBursts] = useState<Record<string, number>>({});
+  useSementesLock('fill');
 
   async function refresh() {
     const data = await sementesJson<{ cards: SementePublicCard[] }>('/api/sementes/palco');
@@ -38,7 +39,7 @@ export function SementesPalco({ locale }: { locale: string }) {
   }
 
   return (
-    <div className="sementes-app relative min-h-dvh overflow-hidden">
+    <div className="sementes-app sementes-arena relative overflow-y-auto">
       <SementesStage />
       <SementesHud />
       <div className="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-[max(1.2rem,env(safe-area-inset-top))]">

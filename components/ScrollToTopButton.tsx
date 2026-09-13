@@ -1,12 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 
 const SHOW_AFTER_PX = 280;
 
 export function ScrollToTopButton() {
   const t = useTranslations('common');
+  const pathname = usePathname();
   const [visible, setVisible] = useState(false);
 
   const onScroll = useCallback(() => {
@@ -22,6 +24,8 @@ export function ScrollToTopButton() {
   const goTop = useCallback(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, []);
+
+  if (pathname?.includes('/sementes')) return null;
 
   return (
     <button

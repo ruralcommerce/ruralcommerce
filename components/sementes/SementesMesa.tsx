@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { sementesCopy } from '@/lib/sementes-copy';
 import type { SementeStatus, SementeTeamView } from '@/lib/sementes-types';
 import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/SementesWave';
-import { sementesJson } from '@/components/sementes/sementes-session';
+import { sementesJson, useSementesLock } from '@/components/sementes/sementes-session';
 
 const TEAM_KEY = 'rc_sementes_team';
 
@@ -12,6 +12,7 @@ type TeamSeed = SementeTeamView & { videoUrl?: string };
 
 export function SementesMesa({ locale }: { locale: string }) {
   const t = sementesCopy(locale);
+  useSementesLock('fill');
   const [password, setPassword] = useState('');
   const [token, setToken] = useState('');
   const [seeds, setSeeds] = useState<TeamSeed[]>([]);
@@ -74,7 +75,7 @@ export function SementesMesa({ locale }: { locale: string }) {
 
   if (!token) {
     return (
-      <div className="sementes-app relative min-h-dvh">
+      <div className="sementes-app sementes-arena relative">
         <SementesStage />
         <SementesHud />
         <div className="relative z-10 mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
