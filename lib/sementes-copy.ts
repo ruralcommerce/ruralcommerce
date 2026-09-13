@@ -75,6 +75,10 @@ type Copy = {
   wait: string;
   anonymousNote: string;
   timerLabel: string;
+  pressStart: string;
+  missionTag: string;
+  playerSetup: string;
+  playerSetupText: string;
 };
 
 const pt: Copy = {
@@ -152,7 +156,11 @@ const pt: Copy = {
   shortlist: 'Pré-lista',
   wait: 'Espera',
   anonymousNote: 'No palco: sem nome, sem foto, sem WhatsApp.',
-  timerLabel: 'sprint',
+  timerLabel: 'missão',
+  pressStart: 'Toque para começar',
+  missionTag: 'Missão · 15 minutos',
+  playerSetup: 'Crie teu perfil',
+  playerSetupText: 'No palco você vira um codinome. Nome e WhatsApp ficam só com a gente.',
 };
 
 const es: Copy = {
@@ -221,7 +229,11 @@ const es: Copy = {
   shortlist: 'Prelista',
   wait: 'Espera',
   anonymousNote: 'En el palco: sin nombre, sin foto, sin WhatsApp.',
-  timerLabel: 'sprint',
+  timerLabel: 'misión',
+  pressStart: 'Toca para empezar',
+  missionTag: 'Misión · 15 minutos',
+  playerSetup: 'Crea tu perfil',
+  playerSetupText: 'En el palco eres un alias. Nombre y WhatsApp quedan solo con el equipo.',
   next: 'continuar',
   back: 'volver',
   skip: 'saltar',
@@ -249,6 +261,10 @@ const en: Copy = {
   palcoTitle: 'Live seedbed',
   cartaTitle: 'Your seed',
   mesaTitle: 'Sementes desk',
+  pressStart: 'Tap to start',
+  missionTag: 'Mission · 15 minutes',
+  playerSetup: 'Create your profile',
+  playerSetupText: 'On stage you become an alias. Name and WhatsApp stay with the team.',
 };
 
 export function sementesCopy(locale: string): Copy {

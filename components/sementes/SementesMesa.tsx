@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { sementesCopy } from '@/lib/sementes-copy';
 import type { SementeStatus, SementeTeamView } from '@/lib/sementes-types';
-import { SementesWave } from '@/components/sementes/SementesWave';
+import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/SementesWave';
 import { sementesJson } from '@/components/sementes/sementes-session';
 
 const TEAM_KEY = 'rc_sementes_team';
@@ -75,10 +75,11 @@ export function SementesMesa({ locale }: { locale: string }) {
   if (!token) {
     return (
       <div className="sementes-app relative min-h-dvh">
-        <SementesWave />
+        <SementesStage />
+        <SementesHud />
         <div className="relative z-10 mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">Rural Commerce</p>
-          <h1 className="sem-display mt-2 text-4xl">{t.mesaTitle}</h1>
+          <SementesLogo />
+          <h1 className="sem-display mt-6 text-4xl">{t.mesaTitle}</h1>
           <input
             className="sem-input mt-6"
             type="password"
@@ -98,11 +99,11 @@ export function SementesMesa({ locale }: { locale: string }) {
   return (
     <div className="sementes-app sementes-shell-light relative min-h-dvh">
       <header className="relative overflow-hidden bg-[#071F5E] text-white">
-        <SementesWave />
+        <SementesStage />
         <div className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-4 px-4 py-8">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">Rural Commerce</p>
-            <h1 className="sem-display mt-2 text-4xl text-white">{t.mesaTitle}</h1>
+            <SementesLogo size="sm" />
+            <h1 className="sem-display mt-4 text-4xl text-white">{t.mesaTitle}</h1>
             <p className="mt-2 text-sm text-white/70">{seeds.length} {t.palcoCount}</p>
           </div>
           <button type="button" className="sem-cta" onClick={() => void flip()}>

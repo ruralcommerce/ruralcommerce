@@ -1,21 +1,38 @@
-export function SementesWave({ className = '' }: { className?: string }) {
+export function SementesStage({ className = '' }: { className?: string }) {
   return (
-    <div className={`sementes-wave ${className}`} aria-hidden>
-      <svg viewBox="0 0 800 600" fill="none">
-        {Array.from({ length: 14 }).map((_, index) => {
-          const y = 40 + index * 38;
-          const amp = 26 + (index % 4) * 8;
-          return (
-            <path
-              key={index}
-              d={`M-40 ${y} C 140 ${y - amp}, 280 ${y + amp}, 430 ${y} S 680 ${y - amp}, 860 ${y + 8}`}
-              stroke="white"
-              strokeOpacity={0.18 + (index % 5) * 0.03}
-              strokeWidth={index % 3 === 0 ? 1.4 : 0.9}
-            />
-          );
-        })}
-      </svg>
+    <div className={`sementes-stage ${className}`} aria-hidden>
+      <div className="sementes-stage-grid" />
+      <div className="sementes-stage-blob sementes-stage-blob-teal" />
+      <div className="sementes-stage-blob sementes-stage-blob-blue" />
+      <img className="sementes-stage-mark" src="/images/icone-branco.png" alt="" />
     </div>
+  );
+}
+
+export function SementesHud() {
+  return (
+    <div className="sem-hud" aria-hidden>
+      <span className="sem-hud-corner is-tl" />
+      <span className="sem-hud-corner is-tr" />
+      <span className="sem-hud-corner is-bl" />
+      <span className="sem-hud-corner is-br" />
+    </div>
+  );
+}
+
+export function SementesLogo({
+  size = 'md',
+  className = '',
+}: {
+  size?: 'sm' | 'md' | 'lg';
+  className?: string;
+}) {
+  const height = size === 'lg' ? 'h-12 sm:h-14' : size === 'sm' ? 'h-8' : 'h-10';
+  return (
+    <img
+      src="/images/logo-branco.png"
+      alt="Rural Commerce"
+      className={`${height} w-auto object-contain ${className}`}
+    />
   );
 }

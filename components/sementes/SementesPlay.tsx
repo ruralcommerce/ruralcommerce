@@ -7,7 +7,8 @@ import { sementesCopy, sementesLocale } from '@/lib/sementes-copy';
 import type { SementeImpact, SementeOwnerView, SementePath } from '@/lib/sementes-types';
 import { SementesCard } from '@/components/sementes/SementesCard';
 import { SementesRecorder } from '@/components/sementes/SementesRecorder';
-import { SementesWave } from '@/components/sementes/SementesWave';
+import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/SementesWave';
+import { SementesTitle } from '@/components/sementes/SementesTitle';
 import {
   readSementesToken,
   sementesJson,
@@ -42,6 +43,7 @@ export function SementesPlay({ locale }: { locale: string }) {
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [titleOpen, setTitleOpen] = useState(true);
   const [flipAt, setFlipAt] = useState<string | null>(null);
   const [startedAt, setStartedAt] = useState(Date.now());
   const [now, setNow] = useState(Date.now());
@@ -67,6 +69,7 @@ export function SementesPlay({ locale }: { locale: string }) {
     if (nextToken) {
       setToken(nextToken);
       writeSementesToken(nextToken);
+      setTitleOpen(false);
     }
   }
 
@@ -219,18 +222,32 @@ export function SementesPlay({ locale }: { locale: string }) {
 
   const flipCountdown = flipAt ? Math.max(0, Math.ceil((new Date(flipAt).getTime() - now) / 1000)) : 0;
 
+  if (titleOpen && !seed) {
+    return (
+      <div className="sementes-app relative min-h-dvh overflow-hidden">
+        <SementesTitle
+          brand={t.brand}
+          pressStart={t.pressStart}
+          missionTag={t.missionTag}
+          onStart={() => {
+            vibrate();
+            setTitleOpen(false);
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="sementes-app relative flex min-h-dvh flex-col overflow-hidden">
-      <SementesWave />
-      <div className="relative z-10 flex items-center justify-between px-4 pb-2 pt-[max(0.9rem,env(safe-area-inset-top))]">
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55">{t.welcomeKicker}</p>
-          <p className="text-sm font-semibold text-white/90">{t.brand}</p>
-        </div>
+      <SementesStage />
+      <SementesHud />
+      <div className="relative z-10 flex items-center justify-between gap-3 px-4 pb-2 pt-[max(0.9rem,env(safe-area-inset-top))]">
+        <SementesLogo size="sm" />
         <div className="text-right">
           {seed ? <p className="sem-timer text-sm font-semibold text-[#A5D9EF]">{mm}:{ss}</p> : null}
           <p className="text-[11px] text-white/50">
-            {saveState === 'saving' ? t.saving : saveState === 'saved' ? t.saved : seed ? t.saveNow : t.timerLabel}
+            {saveState === 'saving' ? t.saving : saveState === 'saved' ? t.saved : seed ? t.saveNow : t.missionTag}
           </p>
         </div>
       </div>
@@ -254,16 +271,18 @@ export function SementesPlay({ locale }: { locale: string }) {
       <div className="relative z-10 flex min-h-0 flex-1 flex-col px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4">
         {step === 0 ? (
           <section className="sem-step flex flex-1 flex-col">
-            <h1 className="sem-display text-[2.35rem] leading-[0.95] sm:text-5xl">{t.welcomeTitle}</h1>
-            <p className="mt-4 max-w-md text-sm leading-6 text-white/75">{t.welcomeText}</p>
-            <p className="mt-2 text-xs text-[#8DCFCF]">{t.anonymousNote}</p>
-            <label className="mt-6 text-xs font-semibold uppercase tracking-[0.14em] text-white/50">{t.nameLabel}</label>
-            <input className="sem-input mt-2" value={name} placeholder={t.namePlaceholder} onChange={(e) => setName(e.target.value)} />
-            <label className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-white/50">{t.whatsappLabel}</label>
-            <input className="sem-input mt-2" inputMode="tel" value={whatsapp} placeholder={t.whatsappPlaceholder} onChange={(e) => setWhatsapp(e.target.value)} />
-            <label className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-white/50">{t.pinLabel}</label>
-            <input className="sem-input mt-2" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
-            <p className="mt-2 text-xs text-white/45">{t.pinHint}</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.28em] text-[#52ADAD]">{t.missionTag}</p>
+            <h1 className="sem-display mt-2 text-[2.1rem] leading-[0.95] sm:text-5xl">{t.playerSetup}</h1>
+            <p className="mt-3 max-w-md text-sm leading-6 text-white/75">{t.playerSetupText}</p>
+            <div className="sem-player-panel mt-5">
+              <label className="text-xs font-semibold uppercase tracking-[0.14em] text-white/50">{t.nameLabel}</label>
+              <input className="sem-input mt-2" value={name} placeholder={t.namePlaceholder} onChange={(e) => setName(e.target.value)} />
+              <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-white/50">{t.whatsappLabel}</label>
+              <input className="sem-input mt-2" inputMode="tel" value={whatsapp} placeholder={t.whatsappPlaceholder} onChange={(e) => setWhatsapp(e.target.value)} />
+              <label className="mt-4 block text-xs font-semibold uppercase tracking-[0.14em] text-white/50">{t.pinLabel}</label>
+              <input className="sem-input mt-2" inputMode="numeric" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} />
+              <p className="mt-2 text-xs text-white/45">{t.pinHint}</p>
+            </div>
             {error ? <p className="mt-3 text-sm text-[#A5D9EF]">{error}</p> : null}
             <button type="button" className="sem-cta mt-auto" disabled={busy} onClick={() => void plant()}>
               {t.plantCta}

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { sementesCopy } from '@/lib/sementes-copy';
 import type { SementeOwnerView } from '@/lib/sementes-types';
 import { SementesCard } from '@/components/sementes/SementesCard';
-import { SementesWave } from '@/components/sementes/SementesWave';
+import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/SementesWave';
 import {
   readSementesToken,
   sementesJson,
@@ -115,10 +115,11 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
 
   return (
     <div className="sementes-app relative min-h-dvh overflow-hidden">
-      <SementesWave />
+      <SementesStage />
+      <SementesHud />
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col px-4 pb-12 pt-[max(1.2rem,env(safe-area-inset-top))]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">Rural Commerce</p>
-        <h1 className="sem-display mt-2 text-4xl">{seed ? t.cartaTitle : t.entrarTitle}</h1>
+        <SementesLogo size="sm" />
+        <h1 className="sem-display mt-6 text-4xl">{seed ? t.cartaTitle : t.entrarTitle}</h1>
         {!seed ? (
           <>
             <p className="mt-3 text-sm text-white/70">{t.entrarText}</p>

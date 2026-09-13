@@ -11,7 +11,9 @@
   --font-body: 'Lexend Projeto', var(--font-lexend), Lexend, system-ui, sans-serif;
   font-family: var(--font-body);
   color: white;
-  background: var(--sem-deep);
+  background:
+    radial-gradient(circle at 78% 12%, rgba(82, 173, 173, 0.22), transparent 32%),
+    linear-gradient(120deg, #071f5e 0%, #071f5e 68%, #00071b 100%);
 }
 
 .sementes-app h1,
@@ -22,30 +24,171 @@
   letter-spacing: -0.03em;
 }
 
-.sementes-wave {
+.sementes-stage {
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
 }
 
-.sementes-wave svg {
+.sementes-stage-grid {
   position: absolute;
-  right: -8%;
-  top: -20%;
-  width: 92%;
-  height: 140%;
-  opacity: 0.42;
-  animation: semWaveDrift 22s ease-in-out infinite alternate;
+  inset: 0;
+  opacity: 0.1;
+  background-image:
+    linear-gradient(rgba(242, 242, 242, 0.45) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 242, 242, 0.45) 1px, transparent 1px);
+  background-size: 96px 96px;
+  mask-image: radial-gradient(circle at 62% 44%, black, transparent 68%);
 }
 
-@keyframes semWaveDrift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
+.sementes-stage-blob {
+  position: absolute;
+  pointer-events: none;
+}
+
+.sementes-stage-blob-teal {
+  width: min(72vw, 520px);
+  aspect-ratio: 1.2;
+  right: -22vw;
+  top: 4vh;
+  background: rgba(82, 173, 173, 0.55);
+  opacity: 0.42;
+  border-radius: 38% 62% 55% 45% / 42% 38% 62% 58%;
+  transform: rotate(-18deg);
+  animation: floatShape 14s ease-in-out infinite alternate;
+}
+
+.sementes-stage-blob-blue {
+  width: min(48vw, 380px);
+  aspect-ratio: 1;
+  left: -16vw;
+  bottom: -8vh;
+  background: rgba(21, 75, 216, 0.28);
+  border-radius: 58% 42% 46% 54% / 42% 55% 45% 58%;
+  animation: floatShapeAlt 18s ease-in-out infinite alternate;
+}
+
+.sementes-stage-mark {
+  position: absolute;
+  right: 8%;
+  top: 18%;
+  width: min(28vw, 180px);
+  opacity: 0.08;
+  animation: breathe 8s ease-in-out infinite;
+}
+
+.sem-hud {
+  position: absolute;
+  inset: 10px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.sem-hud-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(82, 173, 173, 0.85);
+}
+
+.sem-hud-corner.is-tl {
+  top: 0;
+  left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.sem-hud-corner.is-tr {
+  top: 0;
+  right: 0;
+  border-left: 0;
+  border-bottom: 0;
+}
+
+.sem-hud-corner.is-bl {
+  bottom: 0;
+  left: 0;
+  border-right: 0;
+  border-top: 0;
+}
+
+.sem-hud-corner.is-br {
+  bottom: 0;
+  right: 0;
+  border-left: 0;
+  border-top: 0;
+}
+
+.sementes-title {
+  position: relative;
+  display: block;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.sementes-title-orbit {
+  position: relative;
+  width: min(42vw, 220px);
+  aspect-ratio: 1;
+}
+
+.sementes-title-orbit::before,
+.sementes-title-orbit::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px dashed rgba(82, 173, 173, 0.45);
+  border-radius: 44% 56% 54% 46% / 40% 50% 50% 60%;
+}
+
+.sementes-title-orbit::before {
+  animation: rotateSlow 22s linear infinite;
+}
+
+.sementes-title-orbit::after {
+  inset: 12%;
+  animation: rotateSlow 34s linear infinite reverse;
+}
+
+.sementes-title-icon {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58%;
+  height: auto;
+  transform: translate(-50%, -50%);
+  animation: breathe 6s ease-in-out infinite;
+  filter: drop-shadow(0 18px 30px rgba(0, 7, 27, 0.35));
+}
+
+.sem-press-start {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #52adad;
+  animation: semBlink 1.5s steps(2, end) infinite;
+}
+
+@keyframes semBlink {
+  50% {
+    opacity: 0.2;
   }
-  to {
-    transform: translate3d(-18px, 12px, 0) scale(1.04);
-  }
+}
+
+.sem-player-panel {
+  border: 1px solid rgba(82, 173, 173, 0.28);
+  background: rgba(0, 7, 27, 0.28);
+  border-radius: 28px;
+  padding: 1.15rem 1.1rem 1.25rem;
 }
 
 @keyframes semSprout {

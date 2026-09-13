@@ -5,7 +5,7 @@ import { Flame } from 'lucide-react';
 import { sementesCopy } from '@/lib/sementes-copy';
 import type { SementePublicCard } from '@/lib/sementes-types';
 import { SementesCard } from '@/components/sementes/SementesCard';
-import { SementesWave } from '@/components/sementes/SementesWave';
+import { SementesHud, SementesLogo, SementesStage } from '@/components/sementes/SementesWave';
 import { readSementesDevice, sementesJson } from '@/components/sementes/sementes-session';
 
 export function SementesPalco({ locale }: { locale: string }) {
@@ -39,10 +39,11 @@ export function SementesPalco({ locale }: { locale: string }) {
 
   return (
     <div className="sementes-app relative min-h-dvh overflow-hidden">
-      <SementesWave />
+      <SementesStage />
+      <SementesHud />
       <div className="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-[max(1.2rem,env(safe-area-inset-top))]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/55">Rural Commerce</p>
-        <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
+        <SementesLogo size="sm" />
+        <div className="mt-6 flex flex-wrap items-end justify-between gap-3">
           <h1 className="sem-display text-4xl sm:text-6xl">{t.palcoTitle}</h1>
           <p className="text-sm text-[#A5D9EF]">
             {cards.length} {t.palcoCount}
