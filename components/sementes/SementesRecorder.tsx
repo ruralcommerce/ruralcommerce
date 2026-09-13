@@ -1,8 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import {
+  prepareSementesVideo,
+  SEMENTES_VIDEO_SECONDS,
+  SEMENTES_VIDEO_TARGET_BYTES,
+} from '@/components/sementes/prepare-sementes-video';
 
-const LIMIT_MS = 15000;
+const LIMIT_MS = SEMENTES_VIDEO_SECONDS * 1000;
 
 function pickMime() {
   if (typeof MediaRecorder === 'undefined') return '';
@@ -13,6 +18,7 @@ function pickMime() {
 export function SementesRecorder({
   copy,
   onReady,
+  onResetError,
   disabled,
 }: {
   copy: {
@@ -21,8 +27,14 @@ export function SementesRecorder({
     recordUse: string;
     recordNeedCam: string;
     recordFallback: string;
+    recordPreparing: string;
+    recordTrimmed: string;
+    recordCompressing: string;
+    recordCompressed: string;
+    recordTooHeavy: string;
   };
   onReady: (file: File) => void;
+  onResetError?: () => void;
   disabled?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -32,10 +44,12 @@ export function SementesRecorder({
   const streamRef = useRef<MediaStream | null>(null);
   const [live, setLive] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(15);
+  const [secondsLeft, setSecondsLeft] = useState(SEMENTES_VIDEO_SECONDS);
   const [previewUrl, setPreviewUrl] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [preparing, setPreparing] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -46,6 +60,7 @@ export function SementesRecorder({
 
   async function openCam() {
     setError('');
+    setNotice('');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -69,12 +84,33 @@ export function SementesRecorder({
     setLive(false);
   }
 
-  function consumeBlob(blob: Blob, name: string) {
-    const next = new File([blob], name, { type: blob.type || 'video/webm' });
+  function showPreview(next: File) {
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setFile(next);
     setPreviewUrl(URL.createObjectURL(next));
     stopTracks();
+  }
+
+  async function adoptFile(raw: File, fromGallery: boolean) {
+    setError('');
+    setNotice('');
+    onResetError?.();
+    setPreparing(true);
+    setFile(null);
+    stopTracks();
+    try {
+      const prepared = await prepareSementesVideo(raw);
+      showPreview(prepared.file);
+      if (prepared.trimmed) setNotice(copy.recordTrimmed);
+      else if (prepared.compressed) setNotice(copy.recordCompressed);
+      else if (fromGallery) setNotice('');
+    } catch {
+      setError(copy.recordTooHeavy);
+      setFile(null);
+      setPreviewUrl('');
+    } finally {
+      setPreparing(false);
+    }
   }
 
   function startRecording() {
@@ -83,7 +119,7 @@ export function SementesRecorder({
     chunksRef.current = [];
     const mime = pickMime();
     const recorder = mime
-      ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 1_200_000 })
+      ? new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 800_000, audioBitsPerSecond: 64_000 })
       : new MediaRecorder(stream);
     recorderRef.current = recorder;
     recorder.ondataavailable = (event) => {
@@ -91,11 +127,12 @@ export function SementesRecorder({
     };
     recorder.onstop = () => {
       const type = recorder.mimeType || 'video/webm';
-      consumeBlob(new Blob(chunksRef.current, { type }), type.includes('mp4') ? 'verso.mp4' : 'verso.webm');
+      const blob = new Blob(chunksRef.current, { type });
+      void adoptFile(new File([blob], type.includes('mp4') ? 'verso.mp4' : 'verso.webm', { type }), false);
     };
-    recorder.start();
+    recorder.start(200);
     setRecording(true);
-    setSecondsLeft(15);
+    setSecondsLeft(SEMENTES_VIDEO_SECONDS);
     const started = Date.now();
     const tick = window.setInterval(() => {
       const left = Math.max(0, LIMIT_MS - (Date.now() - started));
@@ -111,11 +148,11 @@ export function SementesRecorder({
   function onFile(list: FileList | null) {
     const chosen = list?.[0];
     if (!chosen) return;
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setFile(chosen);
-    setPreviewUrl(URL.createObjectURL(chosen));
-    stopTracks();
+    setNotice(chosen.size > SEMENTES_VIDEO_TARGET_BYTES ? copy.recordCompressing : copy.recordPreparing);
+    void adoptFile(chosen, true);
   }
+
+  const locked = disabled || preparing;
 
   return (
     <div className="sem-record">
@@ -127,7 +164,7 @@ export function SementesRecorder({
         )}
         {!live && !previewUrl ? (
           <div className="absolute inset-0 flex items-center justify-center bg-[#071F5E]/70 text-sm font-semibold tracking-[0.18em] text-white/80">
-            15s
+            {SEMENTES_VIDEO_SECONDS}s
           </div>
         ) : null}
         {recording ? (
@@ -135,16 +172,22 @@ export function SementesRecorder({
             {secondsLeft}s
           </div>
         ) : null}
+        {preparing ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-[#071F5E]/75 px-4 text-center text-sm font-semibold text-white">
+            {copy.recordPreparing}
+          </div>
+        ) : null}
       </div>
+      {notice ? <p className="text-sm text-[#A5D9EF]">{notice}</p> : null}
       {error ? <p className="text-sm text-[#A5D9EF]">{error}</p> : null}
       <div className="flex w-full shrink-0 gap-2">
         {!live && !previewUrl ? (
-          <button type="button" className="sem-cta flex-1" onClick={openCam} disabled={disabled}>
+          <button type="button" className="sem-cta flex-1" onClick={openCam} disabled={locked}>
             {copy.recordCta}
           </button>
         ) : null}
         {live && !recording && !previewUrl ? (
-          <button type="button" className="sem-cta flex-1" onClick={startRecording} disabled={disabled}>
+          <button type="button" className="sem-cta flex-1" onClick={startRecording} disabled={locked}>
             {copy.recordCta}
           </button>
         ) : null}
@@ -156,16 +199,18 @@ export function SementesRecorder({
               onClick={() => {
                 setFile(null);
                 setPreviewUrl('');
+                setNotice('');
+                setError('');
                 void openCam();
               }}
-              disabled={disabled}
+              disabled={locked}
             >
               {copy.recordAgain}
             </button>
             <button
               type="button"
               className="sem-cta flex-1"
-              disabled={!file || disabled}
+              disabled={!file || locked}
               onClick={() => file && onReady(file)}
             >
               {copy.recordUse}
@@ -173,16 +218,18 @@ export function SementesRecorder({
           </>
         ) : null}
       </div>
-      <button type="button" className="sem-resume" onClick={() => fileRef.current?.click()}>
+      <button type="button" className="sem-resume" onClick={() => fileRef.current?.click()} disabled={locked}>
         {copy.recordFallback}
       </button>
       <input
         ref={fileRef}
         type="file"
         accept="video/*"
-        capture="user"
         className="sr-only"
-        onChange={(event) => onFile(event.target.files)}
+        onChange={(event) => {
+          onFile(event.target.files);
+          event.target.value = '';
+        }}
       />
     </div>
   );

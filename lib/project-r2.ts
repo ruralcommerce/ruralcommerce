@@ -2,7 +2,9 @@ import {
   DeleteObjectCommand,
   GetObjectCommand,
   HeadBucketCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
+  PutBucketCorsCommand,
   PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
@@ -154,4 +156,50 @@ export async function deleteProjectR2Object(key: string) {
   }
   const s3 = createProjectR2Client(config);
   await s3.send(new DeleteObjectCommand({ Bucket: config.bucket, Key: key }));
+}
+
+export async function headProjectR2Object(key: string) {
+  const config = getProjectR2Config();
+  if (!config) {
+    throw new Error('Cloudflare R2 no está configurado.');
+  }
+  const s3 = createProjectR2Client(config);
+  return s3.send(new HeadObjectCommand({ Bucket: config.bucket, Key: key }));
+}
+
+let corsReady: Promise<void> | null = null;
+
+export function ensureProjectR2BrowserCors() {
+  if (!corsReady) {
+    corsReady = (async () => {
+      const config = getProjectR2Config();
+      if (!config) return;
+      const s3 = createProjectR2Client(config);
+      await s3.send(
+        new PutBucketCorsCommand({
+          Bucket: config.bucket,
+          CORSConfiguration: {
+            CORSRules: [
+              {
+                AllowedOrigins: [
+                  'https://ruralcommerceglobal.com',
+                  'https://www.ruralcommerceglobal.com',
+                  'https://testing.ruralcommerceglobal.com',
+                  'http://localhost:3001',
+                  'http://127.0.0.1:3001',
+                ],
+                AllowedMethods: ['GET', 'PUT', 'HEAD'],
+                AllowedHeaders: ['*'],
+                ExposeHeaders: ['ETag', 'Location'],
+                MaxAgeSeconds: 3600,
+              },
+            ],
+          },
+        })
+      );
+    })().catch(() => {
+      corsReady = null;
+    });
+  }
+  return corsReady;
 }

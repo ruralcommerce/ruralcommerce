@@ -41,6 +41,15 @@ export function useSementesLock(mode: 'lock' | 'fill' = 'lock') {
   }, [mode]);
 }
 
+function statusMessage(status: number) {
+  if (status === 401) return 'Sessão não encontrada.';
+  if (status === 413) return 'SEMENTES_VIDEO_HEAVY';
+  if (status === 502 || status === 504) return 'O envio caiu no caminho. Tenta de novo.';
+  if (status === 503) return 'O armazém de vídeo ainda não está ligado neste servidor.';
+  if (status === 500) return 'O servidor travou no vídeo. Tenta de novo, mais curto.';
+  return 'Não rolou. Tenta de novo.';
+}
+
 export async function sementesJson<T>(
   url: string,
   init?: RequestInit & { token?: string }
@@ -51,9 +60,20 @@ export async function sementesJson<T>(
     headers.set('content-type', 'application/json');
   }
   const response = await fetch(url, { ...init, headers });
-  const data = (await response.json().catch(() => ({}))) as T & { message?: string; ok?: boolean };
+  const text = await response.text().catch(() => '');
+  let data = {} as T & { message?: string; ok?: boolean };
+  if (text) {
+    try {
+      data = JSON.parse(text) as T & { message?: string; ok?: boolean };
+    } catch {
+      data = {} as T & { message?: string; ok?: boolean };
+    }
+  }
   if (!response.ok) {
-    throw new Error(data.message || 'Não rolou. Tenta de novo.');
+    if (response.status === 413 || /413|too large|entity too large/i.test(text)) {
+      throw new Error('SEMENTES_VIDEO_HEAVY');
+    }
+    throw new Error(data.message || statusMessage(response.status));
   }
   return data;
 }

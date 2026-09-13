@@ -50,6 +50,11 @@ type Copy = {
   recordUploading: string;
   recordNeedCam: string;
   recordFallback: string;
+  recordPreparing: string;
+  recordTrimmed: string;
+  recordCompressing: string;
+  recordCompressed: string;
+  recordTooHeavy: string;
   flipSoon: string;
   doneTitle: string;
   doneText: string;
@@ -161,6 +166,11 @@ const pt: Copy = {
   recordUploading: 'Subindo teu verso…',
   recordNeedCam: 'Precisa da câmera. Se bloquear, libera nas configurações.',
   recordFallback: 'Ou escolhe da galeria.',
+  recordPreparing: 'Preparando teu verso…',
+  recordTrimmed: 'Ficaram só os primeiros 15 segundos. O resto não entra.',
+  recordCompressing: 'Compactando pra o sistema aceitar…',
+  recordCompressed: 'Compactamos o vídeo pra caber no envio.',
+  recordTooHeavy: 'Ainda pesou demais. Grava de novo pela câmera, 15 segundos.',
   flipSoon: 'Todo mundo vira agora',
   doneTitle: 'Semente no palco.',
   doneText: 'Teu nome ficou fora da tela. A ideia entrou. Dá para editar, regravar e exportar na tua área.',
@@ -207,7 +217,7 @@ const pt: Copy = {
   fuelInfo:
     'Aqui não é o plano grande nem a lista do que você tem. É a primeira ação de amanhã: falar com alguém, fazer uma unidade, ir à feira. Marca o que vais fazer, ou escreve a tua.',
   recordInfo:
-    'Um vídeo de 15 segundos olhando para a câmera, contando a ideia. Fica no verso da carta. Só tu e a equipe veem, se não quiseres mostrar no telão.',
+    'Um vídeo de 15 segundos olhando para a câmera, contando a ideia. Se vier da galeria, usamos só os primeiros 15s e compactamos se estiver pesado. Fica no verso da carta. Só tu e a equipe veem, se não quiseres mostrar no telão.',
   doneInfo: 'A ideia já está no telão, sem o teu nome. Daqui vês o canteiro ou abres tua carta para editar.',
   economicoHint: 'dinheiro',
   ambientalHint: 'ambiente',
@@ -270,6 +280,11 @@ const es: Copy = {
   recordUploading: 'Subiendo tu reverso…',
   recordNeedCam: 'Necesita la cámara. Si se bloquea, actívala en ajustes.',
   recordFallback: 'O elige un video de la galería (vertical, corto).',
+  recordPreparing: 'Preparando tu reverso…',
+  recordTrimmed: 'Quedaron solo los primeros 15 segundos. El resto no entra.',
+  recordCompressing: 'Comprimiendo para que el sistema lo acepte…',
+  recordCompressed: 'Comprimimos el video para que quepa en el envío.',
+  recordTooHeavy: 'Sigue pesando demasiado. Graba de nuevo con la cámara, 15 segundos.',
   flipSoon: 'Todo el mundo voltea ahora',
   doneTitle: 'Semilla en el palco.',
   doneText: 'Tu nombre quedó fuera de la pantalla. La idea entró. Puedes editar, grabar de nuevo y exportar.',
@@ -322,7 +337,7 @@ const es: Copy = {
   fuelInfo:
     'Aquí no es el plan grande ni la lista de lo que tienes. Es la primera acción de mañana: hablar con alguien, hacer una unidad, ir a la feria. Marca lo que vas a hacer, o escribe la tuya.',
   recordInfo:
-    'Un video de 15 segundos mirando a cámara, contando la idea. Queda en el reverso de la carta. Solo tú y el equipo lo ven, si no quieres mostrarlo.',
+    'Un video de 15 segundos mirando a cámara, contando la idea. Si viene de la galería, usamos solo los primeros 15s y comprimimos si pesa. Queda en el reverso de la carta. Solo tú y el equipo lo ven, si no quieres mostrarlo.',
   doneInfo: 'La idea ya está en la pantalla, sin tu nombre. Desde aquí ves el cantero o abres tu carta para editar.',
   economicoHint: 'dinero',
   ambientalHint: 'ambiente',
@@ -360,6 +375,19 @@ const en: Copy = {
   problemHint: 'One sentence. No fluff.',
   solutionTitle: 'How does your idea fix that?',
   recordTitle: 'Flip the card.',
+  recordHint: '15 seconds. Look at the camera and tell the idea.',
+  recordCta: 'Record the back',
+  recordAgain: 'Record again',
+  recordUse: 'Use this one',
+  recordSkip: 'Send without video',
+  recordUploading: 'Uploading your clip…',
+  recordNeedCam: 'Camera is required. If it is blocked, allow it in settings.',
+  recordFallback: 'Or pick one from the gallery.',
+  recordPreparing: 'Preparing your clip…',
+  recordTrimmed: 'Only the first 15 seconds were kept. The rest is out.',
+  recordCompressing: 'Compressing so the system can accept it…',
+  recordCompressed: 'We compressed the video so it can upload.',
+  recordTooHeavy: 'Still too heavy. Record again with the camera, 15 seconds.',
   doneTitle: 'Seed on stage.',
   palcoTitle: 'Live seedbed',
   cartaTitle: 'Your seed',
@@ -396,7 +424,7 @@ const en: Copy = {
   fuelInfo:
     'This is not the big plan or a list of what you already have. It is the first action tomorrow: talk to someone, make one unit, go to the market. Mark what you will do, or write your own.',
   recordInfo:
-    'A 15-second video looking at the camera, telling the idea. It lives on the back of the card. Only you and the team see it unless you want it shown.',
+    'A 15-second video looking at the camera, telling the idea. Gallery clips keep only the first 15s and get compressed if they are heavy. It lives on the back of the card. Only you and the team see it unless you want it shown.',
   doneInfo: 'The idea is already on the big screen, without your name. From here you can see the seedbed or open your card to edit.',
   economicoHint: 'money',
   ambientalHint: 'environment',

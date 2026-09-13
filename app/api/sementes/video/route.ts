@@ -8,9 +8,15 @@ import {
   SEMENTES_MAX_VIDEO_BYTES,
   videoExtension,
   getSementesVideoUrl,
+  getSementesVideoUploadUrl,
+  headSementesVideo,
+  isOwnedSementesVideoKey,
+  normalizeSementesVideoType,
 } from '@/lib/sementes-r2';
+import type { SementeRecord } from '@/lib/sementes-types';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 function findByAuth(request: Request) {
   const token = readBearer(request);
@@ -19,70 +25,11 @@ function findByAuth(request: Request) {
   return { kind: 'owner' as const, token };
 }
 
-export async function GET(request: Request) {
-  const auth = findByAuth(request);
-  const publicId = new URL(request.url).searchParams.get('publicId') || '';
-  if (!publicId) return NextResponse.json({ ok: false, message: 'Semente inválida.' }, { status: 400 });
-
-  const data = await readSementes();
-  const seed = data.seeds.find((item) => item.publicId === publicId);
-  if (!seed?.videoKey) return NextResponse.json({ ok: false, message: 'Sem verso ainda.' }, { status: 404 });
-
-  if (auth.kind === 'none') {
-    return NextResponse.json({ ok: false, message: 'O verso não é público.' }, { status: 403 });
-  }
-  if (auth.kind === 'owner') {
-    const owner = await findSementeByTokenHash(hashToken(auth.token));
-    if (!owner || owner.id !== seed.id) {
-      return NextResponse.json({ ok: false, message: 'O verso não é público.' }, { status: 403 });
-    }
-  }
-
-  if (!isSementesR2Ready()) {
-    return NextResponse.json({ ok: false, message: 'Vídeo não disponível.' }, { status: 503 });
-  }
-
-  const url = await getSementesVideoUrl(seed.videoKey);
-  return NextResponse.json({ ok: true, url, contentType: seed.videoContentType || 'video/webm' });
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ ok: false, message }, { status });
 }
 
-export async function POST(request: Request) {
-  const token = readBearer(request);
-  if (!token) return NextResponse.json({ ok: false, message: 'Sessão não encontrada.' }, { status: 401 });
-  const current = await findSementeByTokenHash(hashToken(token));
-  if (!current) return NextResponse.json({ ok: false, message: 'Sessão não encontrada.' }, { status: 401 });
-
-  if (!isSementesR2Ready()) {
-    return NextResponse.json(
-      { ok: false, message: 'O armazém de vídeo ainda não está ligado neste servidor.' },
-      { status: 503 }
-    );
-  }
-
-  let form: FormData;
-  try {
-    form = await request.formData();
-  } catch {
-    return NextResponse.json({ ok: false, message: 'Não deu para ler o vídeo.' }, { status: 400 });
-  }
-
-  const file = form.get('file');
-  if (!(file instanceof File) || file.size <= 0) {
-    return NextResponse.json({ ok: false, message: 'Manda um vídeo curto, até 15 segundos.' }, { status: 400 });
-  }
-  if (file.size > SEMENTES_MAX_VIDEO_BYTES) {
-    return NextResponse.json({ ok: false, message: 'Esse vídeo pesou demais. Grava de novo, mais curto.' }, { status: 400 });
-  }
-
-  const contentType = file.type || 'video/webm';
-  if (!contentType.startsWith('video/')) {
-    return NextResponse.json({ ok: false, message: 'Precisa ser vídeo.' }, { status: 400 });
-  }
-
-  const buffer = Buffer.from(await file.arrayBuffer());
-  const key = sementesVideoKey(current.publicId, videoExtension(contentType, file.name));
-  await putSementesVideo(key, buffer, contentType);
-
+async function saveVideoKey(current: SementeRecord, key: string, contentType: string) {
   const seed = await mutateSemente(
     (item) => item.id === current.id,
     (item) => ({
@@ -92,6 +39,114 @@ export async function POST(request: Request) {
       step: Math.max(item.step, 6),
     })
   );
-
   return NextResponse.json({ ok: true, seed: seed ? toOwnerView(seed) : toOwnerView(current) });
+}
+
+export async function GET(request: Request) {
+  const auth = findByAuth(request);
+  const publicId = new URL(request.url).searchParams.get('publicId') || '';
+  if (!publicId) return jsonError('Semente inválida.', 400);
+
+  const data = await readSementes();
+  const seed = data.seeds.find((item) => item.publicId === publicId);
+  if (!seed?.videoKey) return jsonError('Sem verso ainda.', 404);
+
+  if (auth.kind === 'none') {
+    return jsonError('O verso não é público.', 403);
+  }
+  if (auth.kind === 'owner') {
+    const owner = await findSementeByTokenHash(hashToken(auth.token));
+    if (!owner || owner.id !== seed.id) {
+      return jsonError('O verso não é público.', 403);
+    }
+  }
+
+  if (!isSementesR2Ready()) {
+    return jsonError('Vídeo não disponível.', 503);
+  }
+
+  const url = await getSementesVideoUrl(seed.videoKey);
+  return NextResponse.json({ ok: true, url, contentType: seed.videoContentType || 'video/webm' });
+}
+
+export async function POST(request: Request) {
+  const token = readBearer(request);
+  if (!token) return jsonError('Sessão não encontrada.', 401);
+  const current = await findSementeByTokenHash(hashToken(token));
+  if (!current) return jsonError('Sessão não encontrada.', 401);
+
+  if (!isSementesR2Ready()) {
+    return jsonError('O armazém de vídeo ainda não está ligado neste servidor.', 503);
+  }
+
+  const headerType = request.headers.get('content-type') || '';
+  if (headerType.includes('application/json')) {
+    let body: { action?: string; contentType?: string; size?: number; fileName?: string; key?: string };
+    try {
+      body = (await request.json()) as typeof body;
+    } catch {
+      return jsonError('Não deu para ler o vídeo.', 400);
+    }
+
+    if (body.action === 'sign') {
+      const contentType = normalizeSementesVideoType(body.contentType || '', body.fileName || '');
+      const size = Number(body.size || 0);
+      if (!contentType) return jsonError('Precisa ser vídeo.', 400);
+      if (!size || size > SEMENTES_MAX_VIDEO_BYTES) {
+        return jsonError('Esse vídeo pesou demais. Grava de novo pela câmera, 15 segundos.', 400);
+      }
+      const key = sementesVideoKey(current.publicId, videoExtension(contentType, body.fileName || ''));
+      try {
+        const uploadUrl = await getSementesVideoUploadUrl(key, contentType);
+        return NextResponse.json({ ok: true, uploadUrl, key, contentType });
+      } catch {
+        return jsonError('Não deu para preparar o envio do vídeo.', 502);
+      }
+    }
+
+    if (body.action === 'complete') {
+      const contentType = normalizeSementesVideoType(body.contentType || '', '') || 'video/webm';
+      const key = String(body.key || '');
+      if (!isOwnedSementesVideoKey(key, current.publicId)) {
+        return jsonError('Vídeo inválido.', 400);
+      }
+      try {
+        await headSementesVideo(key);
+      } catch {
+        return jsonError('O vídeo não chegou inteiro. Tenta de novo.', 400);
+      }
+      return saveVideoKey(current, key, contentType);
+    }
+
+    return jsonError('Pedido inválido.', 400);
+  }
+
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return jsonError('Não deu para ler o vídeo.', 400);
+  }
+
+  const file = form.get('file');
+  if (!(file instanceof File) || file.size <= 0) {
+    return jsonError('Manda um vídeo curto, até 15 segundos.', 400);
+  }
+  if (file.size > SEMENTES_MAX_VIDEO_BYTES) {
+    return jsonError('Esse vídeo pesou demais. O app compacta até 15s; grava de novo se ainda falhar.', 400);
+  }
+
+  const contentType = normalizeSementesVideoType(file.type, file.name);
+  if (!contentType) {
+    return jsonError('Precisa ser vídeo.', 400);
+  }
+
+  try {
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const key = sementesVideoKey(current.publicId, videoExtension(contentType, file.name));
+    await putSementesVideo(key, buffer, contentType);
+    return saveVideoKey(current, key, contentType);
+  } catch {
+    return jsonError('Não deu para guardar o vídeo. Tenta de novo.', 502);
+  }
 }

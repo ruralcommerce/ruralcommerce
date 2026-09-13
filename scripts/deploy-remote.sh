@@ -183,6 +183,10 @@ if [ -d "$BACKUP_ROOT" ]; then
   fi
 fi
 
+if ! grep -q "client_max_body_size 25m" /etc/nginx/sites-available/ruralcommerce 2>/dev/null; then
+  log "WARNING: nginx is missing client_max_body_size 25m — video uploads may fail"
+fi
+
 npm install
 npm run build
 pm2 restart ruralcommerce --update-env

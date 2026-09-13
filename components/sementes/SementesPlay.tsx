@@ -256,17 +256,55 @@ export function SementesPlay({ locale }: { locale: string }) {
     if (!token) return;
     setBusy(true);
     setError('');
+    const contentType =
+      file.type ||
+      (file.name.toLowerCase().endsWith('.mov') ? 'video/quicktime' : file.name.toLowerCase().endsWith('.mp4') ? 'video/mp4' : 'video/webm');
     try {
-      const form = new FormData();
-      form.append('file', file);
+      const signed = await sementesJson<{ uploadUrl: string; key: string; contentType?: string }>('/api/sementes/video', {
+        method: 'POST',
+        token,
+        body: JSON.stringify({
+          action: 'sign',
+          contentType,
+          size: file.size,
+          fileName: file.name,
+        }),
+      });
+      const put = await fetch(signed.uploadUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': signed.contentType || contentType },
+        body: file,
+      });
+      if (!put.ok) throw new Error('PUT_FAIL');
       const data = await sementesJson<{ seed: SementeOwnerView }>('/api/sementes/video', {
         method: 'POST',
         token,
-        body: form,
+        body: JSON.stringify({
+          action: 'complete',
+          key: signed.key,
+          contentType: signed.contentType || contentType,
+        }),
       });
       setSeed(data.seed);
     } catch (err) {
-      setError(err instanceof Error ? err.message : t.recordNeedCam);
+      const first = err instanceof Error ? err.message : '';
+      if (first === 'Sessão não encontrada.') {
+        setError(first);
+        return;
+      }
+      try {
+        const form = new FormData();
+        form.append('file', file);
+        const data = await sementesJson<{ seed: SementeOwnerView }>('/api/sementes/video', {
+          method: 'POST',
+          token,
+          body: form,
+        });
+        setSeed(data.seed);
+      } catch (fallback) {
+        const message = fallback instanceof Error ? fallback.message : first;
+        setError(message === 'SEMENTES_VIDEO_HEAVY' || message === 'heavy' || message === 'PUT_FAIL' ? t.recordTooHeavy : message || t.recordNeedCam);
+      }
     } finally {
       setBusy(false);
     }
@@ -611,7 +649,12 @@ export function SementesPlay({ locale }: { locale: string }) {
           <section className="sem-step w-full">
             <SemGuide speaker={t.guideName} title={t.recordTitle} text={t.recordHint} info={t.recordInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="flex min-h-0 w-full flex-1 flex-col">
-              <SementesRecorder copy={t} disabled={busy} onReady={(file) => void uploadVideo(file)} />
+              <SementesRecorder
+                copy={t}
+                disabled={busy}
+                onResetError={() => setError('')}
+                onReady={(file) => void uploadVideo(file)}
+              />
             </div>
             {error ? <p className="mt-2 text-sm text-[#A5D9EF]">{error}</p> : null}
             {busy ? <p className="mt-2 text-sm text-[#8DCFCF]">{t.recordUploading}</p> : null}
