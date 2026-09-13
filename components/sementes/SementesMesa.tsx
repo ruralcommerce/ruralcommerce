@@ -98,7 +98,7 @@ export function SementesMesa({ locale }: { locale: string }) {
   }
 
   return (
-    <div className="sementes-app sementes-shell-light relative min-h-dvh">
+    <div className="sementes-app sementes-shell-light sementes-scroll relative min-h-full overflow-y-auto">
       <header className="relative overflow-hidden bg-[#071F5E] text-white">
         <SementesStage />
         <div className="relative z-10 mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-4 px-4 py-8">

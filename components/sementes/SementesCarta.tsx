@@ -116,7 +116,7 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
   }
 
   return (
-    <div className="sementes-app sementes-arena relative overflow-y-auto">
+    <div className="sementes-app sementes-arena sementes-scroll relative overflow-y-auto">
       <SementesStage />
       <SementesHud />
       <div className="relative z-10 mx-auto flex min-h-dvh max-w-lg flex-col px-4 pb-12 pt-[max(1.2rem,env(safe-area-inset-top))]">

@@ -39,7 +39,7 @@ export function SementesPalco({ locale }: { locale: string }) {
   }
 
   return (
-    <div className="sementes-app sementes-arena relative overflow-y-auto">
+    <div className="sementes-app sementes-arena sementes-scroll relative overflow-y-auto">
       <SementesStage />
       <SementesHud />
       <div className="relative z-10 mx-auto max-w-6xl px-4 pb-16 pt-[max(1.2rem,env(safe-area-inset-top))]">

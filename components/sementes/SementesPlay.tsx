@@ -294,7 +294,7 @@ export function SementesPlay({ locale }: { locale: string }) {
 
   if (titleOpen && !seed) {
     return (
-      <div className="sementes-app sementes-arena relative overflow-hidden">
+      <div className="sementes-app sementes-arena sementes-play relative overflow-hidden">
         <SementesTitle
           brand={t.brand}
           pressStart={t.pressStart}
@@ -309,7 +309,7 @@ export function SementesPlay({ locale }: { locale: string }) {
   }
 
   return (
-    <div className="sementes-app sementes-arena relative flex flex-col overflow-hidden">
+    <div className="sementes-app sementes-arena sementes-play relative flex flex-col overflow-hidden">
       <SementesStage />
       <SementesHud />
       <header className="sem-top relative z-10">
