@@ -38,7 +38,7 @@ export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es
         const href = (p.href || '').trim();
         const hasLink = href.length > 0 && href !== '#';
         const className =
-          'group relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_rgba(7,31,94,0.08)] ring-1 ring-[#071F5E]/12 outline-none transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(7,31,94,0.14)] hover:ring-[#009179]/40 focus-visible:ring-2 focus-visible:ring-[#071F5E]/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:h-40 sm:w-40';
+          'relative flex h-32 w-32 items-center justify-center overflow-hidden rounded-full bg-white shadow-[0_8px_24px_rgba(7,31,94,0.08)] ring-1 ring-[#071F5E]/12 outline-none transition duration-300 ease-out hover:-translate-y-0.5 hover:shadow-[0_14px_32px_rgba(7,31,94,0.14)] hover:ring-[#009179]/40 focus-visible:ring-2 focus-visible:ring-[#071F5E]/45 motion-reduce:transition-none motion-reduce:hover:translate-y-0 sm:h-40 sm:w-40';
         const img = (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -46,14 +46,22 @@ export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es
             alt=""
             width={160}
             height={160}
-            className="h-[84%] w-[84%] object-contain object-center transition-[filter,transform] duration-300 ease-out [filter:grayscale(1)_brightness(0.92)_saturate(0)_opacity(0.88)] motion-reduce:transition-none group-hover:scale-[1.04] group-hover:[filter:none] group-focus-visible:scale-[1.04] group-focus-visible:[filter:none]"
+            className="h-[84%] w-[84%] object-contain object-center transition-[filter,transform] duration-300 ease-out [filter:grayscale(1)_brightness(0.92)_saturate(0)_opacity(0.88)] motion-reduce:transition-none group-hover:scale-[1.04] group-hover:[filter:none] group-focus-within:scale-[1.04] group-focus-within:[filter:none]"
             loading="lazy"
             decoding="async"
           />
         );
         const style = { backgroundColor: p.circle || '#ffffff' };
+        const tooltip = (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-20 w-max max-w-[min(90vw,18rem)] -translate-x-1/2 translate-y-1 rounded-full bg-[#071F5E] px-3 py-1 text-center text-[11px] font-medium leading-snug text-white opacity-0 shadow-[0_8px_20px_rgba(7,31,94,0.22)] transition duration-200 ease-out after:absolute after:left-1/2 after:top-full after:-translate-x-1/2 after:border-4 after:border-transparent after:border-t-[#071F5E] group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:translate-y-0 group-focus-within:opacity-100 motion-reduce:transition-none sm:text-xs"
+          >
+            {p.name}
+          </span>
+        );
         return (
-          <li key={`${p.name}-${p.href || p.src}`}>
+          <li key={`${p.name}-${p.href || p.src}`} className="group relative">
             {hasLink ? (
               <a
                 href={href}
@@ -70,6 +78,7 @@ export function PartnersLogosCarousel({ partners = defaultPartners, locale = 'es
                 {img}
               </div>
             )}
+            {tooltip}
           </li>
         );
       })}
