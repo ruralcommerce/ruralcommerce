@@ -60,7 +60,6 @@ export async function POST(request: Request) {
 
   let seedPublicId: string | undefined;
   let seedName = '';
-  let seedProduct = '';
   let seedKind: LoteKind = asKind(body.kind);
   const seedToken = typeof body.seedToken === 'string' ? body.seedToken : '';
   if (seedToken) {
@@ -68,13 +67,12 @@ export async function POST(request: Request) {
     if (seed) {
       seedPublicId = seed.publicId;
       seedName = seed.name;
-      seedProduct = seed.solution.trim() || seed.problem.trim();
       if (seed.path === 'servico' || seed.path === 'produto') seedKind = seed.path;
     }
   }
 
-  const product = String(body.product || seedProduct || '').trim();
-  if (product.length < 3) return bad('Diz o que o lote vende. Uma frase.');
+  const product = String(body.product || body.business || '').trim();
+  if (product.length < 3) return bad('Põe o nome na placa da banca.');
   const priceCents = toCents(Number(body.price));
   const costCents = toCents(Number(body.cost));
   const cashCents = toCents(Number(body.cash));

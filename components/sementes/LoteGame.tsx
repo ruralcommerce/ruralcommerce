@@ -4,22 +4,34 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import type { LoteKind, LoteView } from '@/lib/lote-types';
 import { fromCents, upgradeCost } from '@/lib/lote-sim';
-import { LoteWorld } from '@/components/sementes/LoteWorld';
+import { LoteWorld, type LotePhase } from '@/components/sementes/LoteWorld';
 import { readSementesToken, sementesJson, useSementesLock } from '@/components/sementes/sementes-session';
 import '@/components/sementes/lote.css';
 
 const TOKEN_KEY = 'rc_lote_token';
 
-type SeedHint = { name: string; product: string; kind: LoteKind };
+function bump(value: string, delta: number, min: number) {
+  const next = Number(String(value).replace(',', '.')) + delta;
+  if (!Number.isFinite(next)) return String(min);
+  return String(Math.max(min, Math.round(next * 100) / 100));
+}
+
+function talk(phase: LotePhase, playing: boolean, error: string, log: string) {
+  if (error) return error;
+  if (playing) return log;
+  if (phase === 'empty') return 'Terreno vazio. Toca o pedaço de terra.';
+  if (phase === 'pick') return 'Levanta a banca ou a tenda.';
+  if (phase === 'sign') return 'Escreve o nome na placa.';
+    return 'Toca a bandeira vermelha e abre as portas.';
+}
 
 export function LoteGame({ locale }: { locale: string }) {
   const [lote, setLote] = useState<LoteView | null>(null);
   const [token, setToken] = useState('');
-  const [boot, setBoot] = useState(0);
+  const [phase, setPhase] = useState<LotePhase>('empty');
   const [kind, setKind] = useState<LoteKind>('produto');
   const [name, setName] = useState('');
   const [business, setBusiness] = useState('');
-  const [product, setProduct] = useState('');
   const [price, setPrice] = useState('10');
   const [cost, setCost] = useState('4');
   const [cash, setCash] = useState('200');
@@ -28,28 +40,23 @@ export function LoteGame({ locale }: { locale: string }) {
   const [shop, setShop] = useState(false);
   const [you, setYou] = useState({ col: 3, row: 4 });
   const [pops, setPops] = useState<{ id: number; col: number; row: number; text: string }[]>([]);
-  const [seedHint, setSeedHint] = useState<SeedHint | null>(null);
+  const [seedToken, setSeedToken] = useState('');
+  const [seedKind, setSeedKind] = useState<LoteKind | null>(null);
   useSementesLock();
 
   useEffect(() => {
     const saved = window.localStorage.getItem(TOKEN_KEY) || '';
     if (saved) void load(saved);
-    const seedToken = readSementesToken();
-    if (!seedToken) return;
-    void sementesJson<{ seed: { name: string; solution: string; problem: string; path?: LoteKind } }>('/api/sementes/draft', {
-      token: seedToken,
-    })
+    const existing = readSementesToken();
+    if (!existing) return;
+    setSeedToken(existing);
+    void sementesJson<{ seed: { name: string; path?: string } }>('/api/sementes/draft', { token: existing })
       .then((data) => {
-        const next = {
-          name: data.seed.name || '',
-          product: data.seed.solution || data.seed.problem || '',
-          kind: data.seed.path === 'servico' ? 'servico' : 'produto',
-        } as SeedHint;
-        setSeedHint(next);
-        setName((value) => value || next.name);
-        setProduct((value) => value || next.product);
-        setKind(next.kind);
-        setBusiness((value) => value || next.product.slice(0, 32));
+        setName((value) => value || data.seed.name || '');
+        if (data.seed.path === 'servico' || data.seed.path === 'produto') {
+          setKind(data.seed.path);
+          setSeedKind(data.seed.path);
+        }
       })
       .catch(() => undefined);
   }, []);
@@ -68,12 +75,16 @@ export function LoteGame({ locale }: { locale: string }) {
   function popAt(col: number, row: number, text: string) {
     const id = Date.now() + Math.random();
     setPops((current) => [...current, { id, col, row, text }]);
-    window.setTimeout(() => {
-      setPops((current) => current.filter((item) => item.id !== id));
-    }, 1100);
+    window.setTimeout(() => setPops((current) => current.filter((item) => item.id !== id)), 1100);
   }
 
   async function start() {
+    const product = business.trim();
+    if (product.length < 3) {
+      setError('Escreve o nome na placa.');
+      setPhase('sign');
+      return;
+    }
     setBusy(true);
     setError('');
     try {
@@ -82,13 +93,13 @@ export function LoteGame({ locale }: { locale: string }) {
         body: JSON.stringify({
           action: 'start',
           name,
-          business,
+          business: product,
           product,
           kind,
           price: Number(price.replace(',', '.')),
           cost: Number(cost.replace(',', '.')),
           cash: Number(cash.replace(',', '.')),
-          seedToken: readSementesToken() || undefined,
+          seedToken: seedToken || undefined,
         }),
       });
       window.localStorage.setItem(TOKEN_KEY, data.token);
@@ -101,13 +112,17 @@ export function LoteGame({ locale }: { locale: string }) {
     }
   }
 
-  async function act(nextAct: 'produce' | 'sell' | 'upgrade-stall' | 'upgrade-tools' | 'upgrade-sign' | 'rest', col: number, row: number) {
+  async function act(
+    nextAct: 'produce' | 'sell' | 'upgrade-stall' | 'upgrade-tools' | 'upgrade-sign' | 'rest',
+    col: number,
+    row: number
+  ) {
     if (!token || busy) return;
     setYou({ col, row });
     setBusy(true);
     setError('');
     try {
-      const data = await sementesJson<{ lote: LoteView; message?: string }>('/api/sementes/lote', {
+      const data = await sementesJson<{ lote: LoteView }>('/api/sementes/lote', {
         method: 'POST',
         token,
         body: JSON.stringify({ action: 'act', act: nextAct }),
@@ -123,148 +138,151 @@ export function LoteGame({ locale }: { locale: string }) {
     }
   }
 
-  if (!lote) {
-    return (
-      <div className="lote-root">
-        <div className="lote-boot">
-          <p className="lote-hud-brand">
-            <span>Rural Commerce</span>
-          </p>
-          <div className="lote-boot-card">
-            {boot === 0 ? (
-              <>
-                <h1>Teu lote.</h1>
-                <p>
-                  Não é pergunta. É o negócio visto de cima — como um SimCity do sítio. Os preços são os teus, em reais.
-                  Produz, vende, melhora.
-                </p>
-                {seedHint?.product ? (
-                  <p>Achei tua semente: {seedHint.product}</p>
-                ) : null}
-                <button type="button" className="lote-go" onClick={() => setBoot(1)}>
-                  Entrar no terreno
-                </button>
-                <Link href={`/${locale}/sementes`} className="lote-quiet">
-                  Voltar à oficina de 15 min
-                </Link>
-              </>
-            ) : null}
-            {boot === 1 ? (
-              <>
-                <h1>O que nasce aqui?</h1>
-                <p>Toca no tipo. A banca muda.</p>
-                <div className="lote-kinds">
-                  <button
-                    type="button"
-                    className="lote-kind"
-                    onClick={() => {
-                      setKind('produto');
-                      setBoot(2);
-                    }}
-                  >
-                    Produto
-                    <small>faz, leva, prova</small>
-                  </button>
-                  <button
-                    type="button"
-                    className="lote-kind"
-                    onClick={() => {
-                      setKind('servico');
-                      setBoot(2);
-                    }}
-                  >
-                    Serviço
-                    <small>visita, faz por alguém</small>
-                  </button>
-                </div>
-              </>
-            ) : null}
-            {boot === 2 ? (
-              <>
-                <h1>O que o lote vende?</h1>
-                <p>O nome real da ideia. Não apelido inventado.</p>
-                <input className="lote-field" placeholder="Ex.: snack de goiaba do sítio" value={product} onChange={(e) => setProduct(e.target.value)} />
-                <input className="lote-field" placeholder="Nome do negócio (opcional)" value={business} onChange={(e) => setBusiness(e.target.value)} />
-                <input className="lote-field" placeholder="Teu nome (só aqui)" value={name} onChange={(e) => setName(e.target.value)} />
-                <button type="button" className="lote-go" disabled={product.trim().length < 3} onClick={() => setBoot(3)}>
-                  Seguir
-                </button>
-              </>
-            ) : null}
-            {boot === 3 ? (
-              <>
-                <h1>Números reais.</h1>
-                <p>Preço que você cobra. Custo para fazer uma. Quanto tem hoje para girar.</p>
-                <div className="lote-money">
-                  <input className="lote-field" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="Preço R$" aria-label="Preço de venda" />
-                  <input className="lote-field" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="Custo R$" aria-label="Custo para fazer uma" />
-                </div>
-                <input className="lote-field" inputMode="decimal" value={cash} onChange={(e) => setCash(e.target.value)} placeholder="Caixa hoje R$" aria-label="Caixa inicial" />
-                <p>
-                  Preço · custo · caixa inicial, em R$.
-                </p>
-                {error ? <p>{error}</p> : null}
-                <button type="button" className="lote-go" disabled={busy} onClick={() => void start()}>
-                  Abrir o lote
-                </button>
-              </>
-            ) : null}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const stallPrice = upgradeCost(lote.stallLevel, 8000);
-  const toolsPrice = upgradeCost(lote.toolsLevel, 7000);
-  const signPrice = upgradeCost(lote.signLevel, 5000);
+  const playing = Boolean(lote);
+  const stallPrice = lote ? upgradeCost(lote.stallLevel, 8000) : 0;
+  const toolsPrice = lote ? upgradeCost(lote.toolsLevel, 7000) : 0;
+  const signPrice = lote ? upgradeCost(lote.signLevel, 5000) : 0;
+  const worldPhase: LotePhase = playing ? 'play' : phase;
+  const speech = talk(worldPhase, playing, error, lote?.log || '');
 
   return (
     <div className="lote-root">
       <header className="lote-hud">
         <div className="lote-hud-brand">
-          <span>Dia {lote.day}</span>
-          <strong>{lote.business}</strong>
+          <span>{playing ? `Dia ${lote?.day}` : 'Lote vazio'}</span>
+          <strong>{playing ? lote?.business : business || '—'}</strong>
         </div>
-        <div className="lote-stats">
-          <div className="lote-stat">
-            <b>{fromCents(lote.cashCents)}</b>
-            <small>caixa</small>
+        {lote ? (
+          <div className="lote-stats">
+            <div className="lote-stat">
+              <b>{fromCents(lote.cashCents)}</b>
+              <small>caixa</small>
+            </div>
+            <div className="lote-stat">
+              <b>{lote.stock}</b>
+              <small>estoque</small>
+            </div>
           </div>
-          <div className="lote-stat">
-            <b>{lote.stock}</b>
-            <small>estoque</small>
-          </div>
-        </div>
+        ) : null}
       </header>
+
       <div className="lote-stage">
         <LoteWorld
-          stallLevel={lote.stallLevel}
-          stock={lote.stock}
+          phase={worldPhase}
+          kind={kind}
+          stallLevel={lote?.stallLevel || 0}
+          stock={lote?.stock || 0}
           you={you}
           pops={pops}
-          onProduce={() => void act('produce', 2, 2)}
-          onSell={() => void act('sell', 6, 5)}
-          onStall={() => {
-            setYou({ col: 4, row: 2 });
-            setShop(true);
+          speech={speech}
+          onEmpty={() => {
+            setYou({ col: 3, row: 4 });
+            setError('');
+            if (seedKind) {
+              setKind(seedKind);
+              setPhase('sign');
+              return;
+            }
+            setPhase('pick');
           }}
-        />
+          onPick={(next) => {
+            setKind(next);
+            setYou({ col: 3, row: 4 });
+            setPhase('sign');
+          }}
+          onProduce={() => playing && void act('produce', 3, 2)}
+          onSell={() => playing && void act('sell', 6, 4)}
+          onStall={() => {
+            setYou({ col: 5, row: 2 });
+            if (playing) {
+              setShop(true);
+              return;
+            }
+            if (phase === 'price' && !busy) void start();
+          }}
+          onRest={() => playing && void act('rest', 2, 1)}
+        >
+          {!playing && phase === 'sign' ? (
+            <form
+              className="lote-on-stall lote-sign"
+              onSubmit={(event) => {
+                event.preventDefault();
+                if (business.trim().length >= 3) {
+                  setError('');
+                  setPhase('price');
+                } else {
+                  setError('Nome curto demais.');
+                }
+              }}
+            >
+              <input
+                autoFocus
+                maxLength={28}
+                placeholder="nome da banca"
+                value={business}
+                onChange={(e) => setBusiness(e.target.value)}
+              />
+              <button type="submit" className="lote-nail" aria-label="Confirmar nome">
+                ✓
+              </button>
+            </form>
+          ) : null}
+
+          {!playing && phase === 'price' ? (
+            <>
+              <div className="lote-on-plot lote-coins">
+                <div className="lote-step">
+                  <span>cobra</span>
+                  <button type="button" onClick={() => setPrice(bump(price, -1, 1))}>
+                    −
+                  </button>
+                  <b>{price}</b>
+                  <button type="button" onClick={() => setPrice(bump(price, 1, 1))}>
+                    +
+                  </button>
+                </div>
+                <div className="lote-step">
+                  <span>custa</span>
+                  <button type="button" onClick={() => setCost(bump(cost, -1, 0))}>
+                    −
+                  </button>
+                  <b>{cost}</b>
+                  <button type="button" onClick={() => setCost(bump(cost, 1, 0))}>
+                    +
+                  </button>
+                </div>
+                <div className="lote-step">
+                  <span>caixa</span>
+                  <button type="button" onClick={() => setCash(bump(cash, -50, 0))}>
+                    −
+                  </button>
+                  <b>{cash}</b>
+                  <button type="button" onClick={() => setCash(bump(cash, 50, 0))}>
+                    +
+                  </button>
+                </div>
+              </div>
+              <button type="button" className="lote-flag" disabled={busy} onClick={() => void start()}>
+                Abre
+              </button>
+            </>
+          ) : null}
+        </LoteWorld>
       </div>
-      <p className="lote-log">{error || lote.log}</p>
-      {shop ? (
+
+      {lote && shop ? (
         <div className="lote-sheet">
           <h2>Melhorar o lote</h2>
-          <button type="button" className="lote-up" disabled={lote.stallLevel >= 3} onClick={() => void act('upgrade-stall', 4, 2)}>
-            <span>Banca / tenda maior</span>
+          <button type="button" className="lote-up" disabled={lote.stallLevel >= 3} onClick={() => void act('upgrade-stall', 5, 2)}>
+            <span>Banca maior</span>
             <small>{lote.stallLevel >= 3 ? 'máx' : fromCents(stallPrice)}</small>
           </button>
-          <button type="button" className="lote-up" disabled={lote.toolsLevel >= 3} onClick={() => void act('upgrade-tools', 2, 2)}>
-            <span>Ferramenta — produz mais barato</span>
+          <button type="button" className="lote-up" disabled={lote.toolsLevel >= 3} onClick={() => void act('upgrade-tools', 3, 2)}>
+            <span>Ferramenta</span>
             <small>{lote.toolsLevel >= 3 ? 'máx' : fromCents(toolsPrice)}</small>
           </button>
-          <button type="button" className="lote-up" disabled={lote.signLevel >= 3} onClick={() => void act('upgrade-sign', 6, 5)}>
-            <span>Placa na estrada — mais clientes</span>
+          <button type="button" className="lote-up" disabled={lote.signLevel >= 3} onClick={() => void act('upgrade-sign', 6, 4)}>
+            <span>Placa na estrada</span>
             <small>{lote.signLevel >= 3 ? 'máx' : fromCents(signPrice)}</small>
           </button>
           <button type="button" className="lote-up" onClick={() => setShop(false)}>
@@ -273,17 +291,12 @@ export function LoteGame({ locale }: { locale: string }) {
           </button>
         </div>
       ) : null}
-      <nav className="lote-dock">
-        <button type="button" className="lote-act is-go" disabled={busy} onClick={() => void act('produce', 2, 2)}>
-          Produzir
-        </button>
-        <button type="button" className="lote-act is-go" disabled={busy} onClick={() => void act('sell', 6, 5)}>
-          Vender
-        </button>
-        <button type="button" className="lote-act" disabled={busy} onClick={() => void act('rest', 3, 4)}>
-          Dormir
-        </button>
-      </nav>
+
+      {!playing ? (
+        <Link href={`/${locale}/sementes`} className="lote-quiet">
+          Oficina de 15 min
+        </Link>
+      ) : null}
     </div>
   );
 }
