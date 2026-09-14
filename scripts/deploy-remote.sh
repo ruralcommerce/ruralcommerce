@@ -58,6 +58,7 @@ backup_path "data/project-push-subscriptions.json"
 backup_path "data/project-broadcast-log.json"
 backup_path "data/project-investments.json"
 backup_path "data/sementes.json"
+backup_path "data/sementes-lotes.json"
 
 # Production secrets (gitignored)
 backup_path ".env.production.local"
@@ -158,6 +159,16 @@ elif [ ! -f "$ROOT/data/sementes.json" ]; then
     printf '{ "room": { "flipAt": null }, "seeds": [] }\n' > "$ROOT/data/sementes.json"
   fi
   log "seeded: data/sementes.json"
+fi
+
+if [ -f "$BACKUP/data/sementes-lotes.json" ]; then
+  mkdir -p "$ROOT/data"
+  cp -a "$BACKUP/data/sementes-lotes.json" "$ROOT/data/sementes-lotes.json"
+  log "restored: data/sementes-lotes.json"
+elif [ ! -f "$ROOT/data/sementes-lotes.json" ]; then
+  mkdir -p "$ROOT/data"
+  printf '{ "lotes": [] }\n' > "$ROOT/data/sementes-lotes.json"
+  log "seeded: data/sementes-lotes.json"
 fi
 
 if [ -f "$BACKUP/.env.production.local" ]; then

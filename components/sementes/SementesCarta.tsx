@@ -225,6 +225,9 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
                 {t.exportVideo}
               </a>
             ) : null}
+            <Link href={`/${locale}/sementes/lote`} className="sem-ghost">
+              Jogar teu lote
+            </Link>
             <Link href={`/${locale}/sementes`} className="sem-ghost">
               {t.editSeed}
             </Link>
