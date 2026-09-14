@@ -69,6 +69,9 @@ export type SementePublicCard = {
   path?: SementePath;
   hook: string;
   problem: string;
+  impactNote: string;
+  fuel: string;
+  fuelChips: string[];
   impacts: SementeImpact[];
   heat: number;
   publishedAt?: string;

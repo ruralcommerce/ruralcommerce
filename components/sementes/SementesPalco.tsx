@@ -63,11 +63,13 @@ export function SementesPalco({ locale }: { locale: string }) {
           {cards.map((card) => (
             <div key={card.publicId} className="sem-palco-card relative p-1">
               <SementesCard
-                alias={card.alias}
                 path={card.path}
-                hook={card.hook}
+                idea={card.hook}
+                problem={card.problem}
                 impacts={card.impacts}
                 heat={card.heat}
+                compact
+                copy={t}
               />
               <button
                 type="button"

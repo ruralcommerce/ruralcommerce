@@ -401,6 +401,34 @@
   box-shadow: 0 18px 40px rgba(0, 7, 27, 0.35);
 }
 
+.sem-live-card-full {
+  height: 100%;
+  overflow: auto;
+}
+
+.sem-idea-label {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8dcfcf;
+}
+
+.sem-idea-hero {
+  margin: 0.35rem 0 0;
+  font-family: var(--font-title), Arboria, sans-serif;
+  font-weight: 700;
+  color: #fff;
+}
+
+.sem-idea-text {
+  margin: 0.28rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.86);
+}
+
 .sem-palco-card {
   border-radius: 26px;
   background: #071f5e;
@@ -895,11 +923,12 @@ html.sementes-fill body {
 
 .sem-carta-front {
   display: flex;
-  align-items: center;
+  align-items: stretch;
 }
 
 .sem-carta-front .sem-live-card {
   width: 100%;
+  min-height: 0;
 }
 
 .sem-carta-verso {

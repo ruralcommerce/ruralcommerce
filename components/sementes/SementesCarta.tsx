@@ -13,49 +13,79 @@ import {
   writeSementesToken,
 } from '@/components/sementes/sementes-session';
 
-async function downloadCard(seed: SementeOwnerView) {
+async function downloadCard(seed: SementeOwnerView, t: ReturnType<typeof sementesCopy>) {
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
-  canvas.height = 1350;
+  canvas.height = 1620;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  const gradient = ctx.createLinearGradient(0, 0, 0, 1350);
+  const gradient = ctx.createLinearGradient(0, 0, 0, 1620);
   gradient.addColorStop(0, '#0e345b');
   gradient.addColorStop(0.55, '#071f5e');
   gradient.addColorStop(1, '#00071b');
   ctx.fillStyle = gradient;
-  ctx.fillRect(0, 0, 1080, 1350);
+  ctx.fillRect(0, 0, 1080, 1620);
   ctx.fillStyle = 'rgba(0,145,121,0.22)';
   ctx.beginPath();
   ctx.arc(900, 160, 180, 0, Math.PI * 2);
   ctx.fill();
+
+  const pathLabel = seed.path === 'servico' ? t.servico : seed.path === 'produto' ? t.produto : 'Semente';
   ctx.fillStyle = 'rgba(255,255,255,0.55)';
   ctx.font = '600 28px Lexend, sans-serif';
-  ctx.fillText((seed.path === 'servico' ? 'SERVIÇO' : 'PRODUTO') + ' · SEMENTES DA INOVAÇÃO', 80, 120);
-  ctx.fillStyle = '#ffffff';
-  ctx.font = '700 72px Arboria, Lexend, sans-serif';
-  ctx.fillText(seed.alias, 80, 230);
-  ctx.fillStyle = 'rgba(255,255,255,0.88)';
-  ctx.font = '400 36px Lexend, sans-serif';
-  wrapText(ctx, seed.hook || seed.solution, 80, 330, 920, 48);
-  ctx.fillStyle = '#52adad';
-  ctx.font = '600 28px Lexend, sans-serif';
-  ctx.fillText(seed.impacts.map((item) => item).join('  ·  ') || 'semente', 80, 1180);
+  ctx.fillText(`${pathLabel.toUpperCase()} · SEMENTES DA INOVAÇÃO`, 80, 110);
+
+  let y = 180;
+  const idea = (seed.solution || seed.hook || '').trim();
+  y = drawBlock(ctx, t.cardIdea.toUpperCase(), idea, 80, y, 920, true);
+  y = drawBlock(ctx, t.cardProblem.toUpperCase(), seed.problem, 80, y + 18, 920, false);
+  const impactLine = seed.impacts.map((item) => t[item]).filter(Boolean).join('  ·  ');
+  y = drawBlock(ctx, t.cardImpact.toUpperCase(), [impactLine, seed.impactNote].filter(Boolean).join('\n'), 80, y + 18, 920, false);
+  const test = [seed.fuel, ...(seed.fuelChips || [])].filter((item) => item && item.trim()).join(' · ');
+  y = drawBlock(ctx, t.cardTest.toUpperCase(), test, 80, y + 18, 920, false);
+
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.font = '500 22px Lexend, sans-serif';
-  ctx.fillText('Rural Commerce  ·  palco anônimo', 80, 1260);
+  ctx.fillText('Rural Commerce  ·  palco sem nome', 80, 1540);
+
   const url = canvas.toDataURL('image/png');
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${seed.alias.replace(/\s+/g, '-').toLowerCase()}.png`;
+  const slug = (idea || 'semente').slice(0, 40).replace(/\s+/g, '-').toLowerCase();
+  a.download = `${slug}.png`;
   a.click();
 }
 
+function drawBlock(
+  ctx: CanvasRenderingContext2D,
+  label: string,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  hero: boolean
+) {
+  const body = (text || '').trim();
+  if (!body) return y;
+  ctx.fillStyle = '#8DCFCF';
+  ctx.font = '600 22px Lexend, sans-serif';
+  ctx.fillText(label, x, y);
+  ctx.fillStyle = hero ? '#ffffff' : 'rgba(255,255,255,0.88)';
+  ctx.font = hero ? '700 42px Arboria, Lexend, sans-serif' : '400 32px Lexend, sans-serif';
+  return wrapText(ctx, body, x, y + (hero ? 58 : 48), maxWidth, hero ? 52 : 42);
+}
+
 function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: number, maxWidth: number, lineHeight: number) {
-  const words = text.split(' ');
+  const words = text.replace(/\n/g, ' \n ').split(' ');
   let line = '';
   let cursor = y;
   for (const word of words) {
+    if (word === '\n') {
+      ctx.fillText(line, x, cursor);
+      line = '';
+      cursor += lineHeight;
+      continue;
+    }
     const test = `${line}${word} `;
     if (ctx.measureText(test).width > maxWidth) {
       ctx.fillText(line, x, cursor);
@@ -66,6 +96,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, x: number, y: num
     }
   }
   ctx.fillText(line, x, cursor);
+  return cursor;
 }
 
 export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode?: 'carta' | 'entrar' }) {
@@ -145,7 +176,17 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
           </header>
           <div className="sem-carta-board">
             <div className="sem-carta-front">
-              <SementesCard alias={seed.alias} path={seed.path} hook={seed.hook} impacts={seed.impacts} heat={seed.heat} />
+              <SementesCard
+                path={seed.path}
+                idea={seed.solution || seed.hook}
+                problem={seed.problem}
+                impactNote={seed.impactNote}
+                fuel={seed.fuel}
+                fuelChips={seed.fuelChips}
+                impacts={seed.impacts}
+                heat={seed.heat}
+                copy={t}
+              />
             </div>
             <div className="sem-carta-verso">
               {videoUrl ? (
@@ -156,7 +197,7 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
             </div>
           </div>
           <div className="sem-carta-actions">
-            <button type="button" className="sem-cta" onClick={() => void downloadCard(seed)}>
+            <button type="button" className="sem-cta" onClick={() => void downloadCard(seed, t)}>
               {t.exportPng}
             </button>
             {videoUrl ? (

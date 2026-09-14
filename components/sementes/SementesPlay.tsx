@@ -104,7 +104,6 @@ export function SementesPlay({ locale }: { locale: string }) {
   const saveTimer = useRef<number | null>(null);
   useSementesLock();
 
-  const hook = solution.trim() || problem.trim();
   const remaining = Math.max(0, SPRINT_MS - (now - startedAt));
   const mm = String(Math.floor(remaining / 60000)).padStart(2, '0');
   const ss = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
@@ -201,12 +200,15 @@ export function SementesPlay({ locale }: { locale: string }) {
 
   const liveSeed = useMemo(
     () => ({
-      alias: seed?.alias || '',
       path,
-      hook,
+      idea: solution.trim() || problem.trim(),
+      problem,
+      impactNote,
+      fuel,
+      fuelChips,
       impacts,
     }),
-    [seed?.alias, path, hook, impacts]
+    [path, solution, problem, impactNote, fuel, fuelChips, impacts]
   );
 
   async function plant() {
@@ -636,7 +638,16 @@ export function SementesPlay({ locale }: { locale: string }) {
           <section className="sem-step w-full">
             <SemGuide speaker={t.guideName} title={t.doneTitle} text={t.doneText} info={t.doneInfo} whyClose={t.whyClose} infoAria={t.infoAria} />
             <div className="mt-3 text-left">
-              <SementesCard alias={liveSeed.alias} path={path} hook={hook} impacts={impacts} />
+              <SementesCard
+                path={liveSeed.path}
+                idea={liveSeed.idea}
+                problem={liveSeed.problem}
+                impactNote={liveSeed.impactNote}
+                fuel={liveSeed.fuel}
+                fuelChips={liveSeed.fuelChips}
+                impacts={liveSeed.impacts}
+                copy={t}
+              />
             </div>
             <div className="sem-actions">
               <Link href={`/${locale}/sementes/carta`} className="sem-ghost flex items-center justify-center">

@@ -106,6 +106,10 @@ type Copy = {
   buildIdea: string;
   buildImpact: string;
   buildTest: string;
+  cardIdea: string;
+  cardProblem: string;
+  cardImpact: string;
+  cardTest: string;
 };
 
 const pt: Copy = {
@@ -227,6 +231,10 @@ const pt: Copy = {
   buildIdea: 'ideia',
   buildImpact: 'impacto',
   buildTest: 'teste',
+  cardIdea: 'A ideia',
+  cardProblem: 'Resolve',
+  cardImpact: 'Impacto',
+  cardTest: 'Amanhã',
 };
 
 const es: Copy = {
@@ -347,6 +355,10 @@ const es: Copy = {
   buildIdea: 'idea',
   buildImpact: 'impacto',
   buildTest: 'prueba',
+  cardIdea: 'La idea',
+  cardProblem: 'Resuelve',
+  cardImpact: 'Impacto',
+  cardTest: 'Mañana',
 };
 
 const en: Copy = {
@@ -434,6 +446,10 @@ const en: Copy = {
   buildIdea: 'idea',
   buildImpact: 'impact',
   buildTest: 'test',
+  cardIdea: 'The idea',
+  cardProblem: 'It solves',
+  cardImpact: 'Impact',
+  cardTest: 'Tomorrow',
 };
 
 export function sementesCopy(locale: string): Copy {
