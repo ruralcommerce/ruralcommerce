@@ -989,6 +989,58 @@ html.sementes-fill body {
   padding: 0.1rem 0 0;
 }
 
+.sem-carta-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(0.8rem, env(safe-area-inset-top)) 1rem max(0.8rem, env(safe-area-inset-bottom));
+}
+
+.sem-carta-modal-back {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(0, 7, 27, 0.72);
+  cursor: pointer;
+}
+
+.sem-carta-modal-sheet {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 32rem);
+  max-height: min(92dvh, 54rem);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sem-carta-modal-sheet .sem-live-card {
+  height: auto;
+  max-height: none;
+}
+
+.sem-carta-modal-video {
+  width: 100%;
+  max-height: 18rem;
+  border-radius: 22px;
+  background: #000;
+  object-fit: contain;
+}
+
+.sem-carta-modal-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.sem-carta-modal-actions .sem-cta,
+.sem-carta-modal-actions .sem-ghost {
+  flex: 1;
+}
+
 @media (min-width: 640px) {
   .sem-carta-board {
     grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);

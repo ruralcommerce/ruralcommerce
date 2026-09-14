@@ -13,12 +13,12 @@ import {
   writeSementesToken,
 } from '@/components/sementes/sementes-session';
 
-async function downloadCard(seed: SementeOwnerView, t: ReturnType<typeof sementesCopy>) {
+async function renderCardPng(seed: SementeOwnerView, t: ReturnType<typeof sementesCopy>) {
   const canvas = document.createElement('canvas');
   canvas.width = 1080;
   canvas.height = 1620;
   const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+  if (!ctx) return '';
   const gradient = ctx.createLinearGradient(0, 0, 0, 1620);
   gradient.addColorStop(0, '#0e345b');
   gradient.addColorStop(0.55, '#071f5e');
@@ -47,12 +47,19 @@ async function downloadCard(seed: SementeOwnerView, t: ReturnType<typeof semente
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.font = '500 22px Lexend, sans-serif';
   ctx.fillText('Rural Commerce  ·  palco sem nome', 80, 1540);
+  return canvas.toDataURL('image/png');
+}
 
-  const url = canvas.toDataURL('image/png');
+function cardSlug(seed: SementeOwnerView) {
+  return (seed.solution || seed.hook || 'semente').slice(0, 40).replace(/\s+/g, '-').toLowerCase();
+}
+
+async function downloadCard(seed: SementeOwnerView, t: ReturnType<typeof sementesCopy>) {
+  const url = await renderCardPng(seed, t);
+  if (!url) return;
   const a = document.createElement('a');
   a.href = url;
-  const slug = (idea || 'semente').slice(0, 40).replace(/\s+/g, '-').toLowerCase();
-  a.download = `${slug}.png`;
+  a.download = `${cardSlug(seed)}.png`;
   a.click();
 }
 
@@ -107,7 +114,17 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
+  const [open, setOpen] = useState(false);
   useSementesLock(seed ? 'lock' : 'fill');
+
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
 
   useEffect(() => {
     const existing = readSementesToken();
@@ -197,7 +214,10 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
             </div>
           </div>
           <div className="sem-carta-actions">
-            <button type="button" className="sem-cta" onClick={() => void downloadCard(seed, t)}>
+            <button type="button" className="sem-cta" onClick={() => setOpen(true)}>
+              {t.viewCard}
+            </button>
+            <button type="button" className="sem-ghost" onClick={() => void downloadCard(seed, t)}>
               {t.exportPng}
             </button>
             {videoUrl ? (
@@ -214,6 +234,33 @@ export function SementesCarta({ locale, mode = 'carta' }: { locale: string; mode
           </div>
         </div>
       )}
+      {open && seed ? (
+        <div className="sem-carta-modal" role="dialog" aria-modal="true" aria-label={t.viewCard}>
+          <button type="button" className="sem-carta-modal-back" onClick={() => setOpen(false)} aria-label={t.closeCard} />
+          <div className="sem-carta-modal-sheet">
+            <SementesCard
+              path={seed.path}
+              idea={seed.solution || seed.hook}
+              problem={seed.problem}
+              impactNote={seed.impactNote}
+              fuel={seed.fuel}
+              fuelChips={seed.fuelChips}
+              impacts={seed.impacts}
+              heat={seed.heat}
+              copy={t}
+            />
+            {videoUrl ? <video className="sem-carta-modal-video" src={videoUrl} controls playsInline /> : null}
+            <div className="sem-carta-modal-actions">
+              <button type="button" className="sem-ghost" onClick={() => setOpen(false)}>
+                {t.closeCard}
+              </button>
+              <button type="button" className="sem-cta" onClick={() => void downloadCard(seed, t)}>
+                {t.exportPng}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

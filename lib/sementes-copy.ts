@@ -70,6 +70,8 @@ type Copy = {
   entrarCta: string;
   exportPng: string;
   exportVideo: string;
+  viewCard: string;
+  closeCard: string;
   editSeed: string;
   mesaTitle: string;
   mesaPassword: string;
@@ -190,6 +192,8 @@ const pt: Copy = {
   entrarCta: 'Abrir',
   exportPng: 'Baixar a carta',
   exportVideo: 'Baixar o verso',
+  viewCard: 'Ver a carta',
+  closeCard: 'Fechar',
   editSeed: 'Continuar editando',
   mesaTitle: 'Mesa Sementes',
   mesaPassword: 'Senha da equipe',
@@ -308,6 +312,8 @@ const es: Copy = {
   entrarCta: 'Abrir',
   exportPng: 'Bajar la carta',
   exportVideo: 'Bajar el reverso',
+  viewCard: 'Ver la carta',
+  closeCard: 'Cerrar',
   editSeed: 'Seguir editando',
   mesaTitle: 'Mesa Sementes',
   mesaPassword: 'Clave del equipo',
@@ -403,6 +409,10 @@ const en: Copy = {
   doneTitle: 'Seed on stage.',
   palcoTitle: 'Live seedbed',
   cartaTitle: 'Your seed',
+  viewCard: 'View the card',
+  closeCard: 'Close',
+  exportPng: 'Download the card',
+  exportVideo: 'Download the back',
   mesaTitle: 'Sementes desk',
   pressStart: 'Tap to start',
   missionTag: 'Mission · 15 minutes',
