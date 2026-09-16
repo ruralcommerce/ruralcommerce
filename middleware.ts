@@ -25,6 +25,19 @@ function unauthorizedResponse(): NextResponse {
 
 export function middleware(request: NextRequest): NextResponse {
   const { pathname } = request.nextUrl;
+  const pathLocale = pathname.split('/').filter(Boolean)[0];
+  const locale = locales.includes(pathLocale as (typeof locales)[number]) ? pathLocale : defaultLocale;
+  const stripped = pathname.replace(/^\/(es|pt-BR|en)(?=\/|$)/, '') || '/';
+
+  if (stripped === '/planta' || stripped.startsWith('/planta/')) {
+    const url = request.nextUrl.clone();
+    if (stripped === '/planta/convite' || stripped.startsWith('/planta/convite')) {
+      url.pathname = `/${locale}/impulsacr/convite`;
+    } else {
+      url.pathname = `/${locale}/impulsacr/planta${stripped.slice('/planta'.length)}`;
+    }
+    return NextResponse.redirect(url);
+  }
 
   // Handle editor authentication
   if (isProtectedPath(pathname)) {

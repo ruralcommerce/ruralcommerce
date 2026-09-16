@@ -6,6 +6,7 @@ export type ProjectNavPage =
   | 'inversiones'
   | 'perfil'
   | 'admin'
+  | 'planta'
   | 'recuperar-senha';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
@@ -19,6 +20,7 @@ const pageTitles: Record<LocaleKey, Record<ProjectNavPage, string>> = {
     inversiones: 'Mis compras',
     perfil: 'Mi perfil',
     admin: 'Intranet',
+    planta: 'Planta',
     'recuperar-senha': 'Restablecer contraseña',
   },
   'pt-BR': {
@@ -29,6 +31,7 @@ const pageTitles: Record<LocaleKey, Record<ProjectNavPage, string>> = {
     inversiones: 'Minhas compras',
     perfil: 'Meu perfil',
     admin: 'Intranet',
+    planta: 'Planta',
     'recuperar-senha': 'Redefinir senha',
   },
   en: {
@@ -39,6 +42,7 @@ const pageTitles: Record<LocaleKey, Record<ProjectNavPage, string>> = {
     inversiones: 'My purchases',
     perfil: 'My profile',
     admin: 'Intranet',
+    planta: 'Planta',
     'recuperar-senha': 'Reset password',
   },
 };

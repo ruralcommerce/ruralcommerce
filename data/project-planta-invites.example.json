@@ -1,0 +1,20 @@
+[
+  {
+    "code": "COPEY-22M2",
+    "label": "Cooperativa Copey de Dota",
+    "active": true,
+    "seeded": true,
+    "createdAt": "2026-09-16T00:00:00.000Z",
+    "createdBy": "system",
+    "uses": 0
+  },
+  {
+    "code": "IM-PLANTA-DEMO",
+    "label": "Acompañamiento técnico Rural Commerce",
+    "active": true,
+    "seeded": true,
+    "createdAt": "2026-09-16T00:00:00.000Z",
+    "createdBy": "system",
+    "uses": 0
+  }
+]

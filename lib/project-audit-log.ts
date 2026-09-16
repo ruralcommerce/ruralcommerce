@@ -12,7 +12,9 @@ export type AuditAction =
   | 'team_reminder_convenio'
   | 'team_reminder_diagnosis'
   | 'investment_submit'
-  | 'investment_review';
+  | 'investment_review'
+  | 'planta_invite_create'
+  | 'planta_invite_redeem';
 
 export type AuditEntry = {
   id: string;

@@ -12,7 +12,10 @@ data/project-broadcast-log.json
 data/project-team-members.json
 data/project-audit-log.json
 data/project-investments.json
+data/project-planta-invites.json
 data/sementes.json
 data/sementes-lotes.json
 public/images/uploads/*
 !public/images/uploads/.gitkeep
+tmp/
+client_secret*.json

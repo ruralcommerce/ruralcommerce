@@ -592,6 +592,25 @@
 	color: #071f5e !important;
 }
 
+.projeto-site-nav-planta {
+	display: inline-flex;
+	align-items: center;
+	padding: 8px 16px;
+	border-radius: 999px;
+	border: 1px solid rgba(242, 242, 242, 0.7);
+	background: rgba(242, 242, 242, 0.12);
+	color: #f2f2f2 !important;
+	font-weight: 600;
+	opacity: 1;
+}
+
+.projeto-site-nav-planta:hover,
+.projeto-site-nav-planta.is-active {
+	opacity: 1;
+	background: #f2f2f2;
+	color: #071f5e !important;
+}
+
 .projeto-site-nav-mobile .projeto-site-nav-btn {
 	width: fit-content;
 	margin-bottom: 4px;

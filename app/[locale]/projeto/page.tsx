@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { ArrowRight } from 'lucide-react';
 import { ProjectLandingReveal } from '@/components/ProjectLandingReveal';
 import { ProjectSiteHeader } from '@/components/ProjectSiteHeader';
+import { ImpulsaAccessDoors } from '@/components/planta/ImpulsaAccessDoors';
 import { RuralCommerceFooter as SiteFooter } from '@/components/RuralCommerceFooter';
 import {
   getBlockProps,
@@ -381,6 +382,8 @@ export default async function ProjetoPage({
             </ProjectLandingReveal>
           </div>
         </section>
+
+        <ImpulsaAccessDoors locale={locale} />
 
         <section className="projeto-objectives" id="objetivos">
           <div className="projeto-container projeto-split">

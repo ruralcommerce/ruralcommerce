@@ -13,6 +13,7 @@ import {
 import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
 import { ProjectTeamMembersPanel } from '@/components/ProjectTeamMembersPanel';
 import { ProjectInvestmentAdminPanel } from '@/components/ProjectInvestmentAdminPanel';
+import { PlantaInvitesPanel } from '@/components/planta/PlantaInvitesPanel';
 import {
   readTeamSession,
   writeTeamSession,
@@ -83,7 +84,7 @@ type EnrollmentRecord = {
 };
 
 type BulkAction = 'approve' | 'reject' | 'delete' | 'set-tag';
-type AdminSection = 'hub' | 'inscriptions' | 'investments' | 'communications' | 'team';
+type AdminSection = 'hub' | 'inscriptions' | 'investments' | 'communications' | 'team' | 'planta';
 
 const teamTagBadgeClass: Record<ProjectTeamTag, string> = {
   frutalcoop: 'bg-[#E8F0FF] text-[#1D3A7A]',
@@ -251,6 +252,8 @@ const uiCopy = {
     sectionCommsText: 'Enviar e-mails, ver ejemplo del mensaje, reenviar invitación al convenio.',
     sectionTeamTitle: 'Usuarios del equipo',
     sectionTeamText: 'Invitar técnicos por correo para que creen su nombre y contraseña.',
+    sectionPlantaTitle: 'Planta compartida',
+    sectionPlantaText: 'Emitir códigos de convite para la guía de Copey. No abre el perfil de beneficiarios.',
     backToHub: 'Volver al inicio',
     panelEyebrow: 'Inscripciones',
     panelTitle: 'Inscripciones del proyecto',
@@ -362,6 +365,8 @@ const uiCopy = {
     sectionCommsText: 'Enviar e-mails, ver exemplo da mensagem, reenviar convite do convênio.',
     sectionTeamTitle: 'Usuários da equipe',
     sectionTeamText: 'Convidar técnicos por e-mail para que criem o nome e a senha.',
+    sectionPlantaTitle: 'Planta compartilhada',
+    sectionPlantaText: 'Emitir códigos de convite para o guia de Copey. Não abre o perfil de beneficiários.',
     backToHub: 'Voltar ao início',
     panelEyebrow: 'Inscrições',
     panelTitle: 'Inscrições do projeto',
@@ -473,6 +478,8 @@ const uiCopy = {
     sectionCommsText: 'Send emails, preview the message, resend the agreement invitation.',
     sectionTeamTitle: 'Team users',
     sectionTeamText: 'Invite technicians by email so they can set their name and password.',
+    sectionPlantaTitle: 'Shared plant',
+    sectionPlantaText: 'Issue invite codes for the Copey guide. Does not open beneficiary profiles.',
     backToHub: 'Back to home',
     panelEyebrow: 'Applications',
     panelTitle: 'Project applications',
@@ -1229,6 +1236,15 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionTeamText}</p>
               </button>
             ) : null}
+            <button
+              type="button"
+              onClick={() => setSection('planta')}
+              className="rounded-3xl border border-[#E6EBF1] bg-white p-6 text-left shadow-sm transition hover:border-[#52ADAD] hover:bg-[#F7FDFB]"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#1D6359]">{teamRole === 'master' ? '05' : '04'}</p>
+              <h2 className="mt-2 text-xl font-semibold text-[#071F5E]">{t.sectionPlantaTitle}</h2>
+              <p className="mt-2 text-sm leading-6 text-[#2F3336]/75">{t.sectionPlantaText}</p>
+            </button>
           </div>
         </div>
       ) : null}
@@ -1252,6 +1268,17 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             onBack={() => setSection('hub')}
           />
           <ProjectTeamMembersPanel locale={locale} teamToken={teamToken} />
+        </div>
+      ) : null}
+
+      {section === 'planta' ? (
+        <div className="space-y-4">
+          <AdminSectionCrumb
+            parentLabel={intranetLabel}
+            title={t.sectionPlantaTitle}
+            onBack={() => setSection('hub')}
+          />
+          <PlantaInvitesPanel locale={locale} teamToken={teamToken} />
         </div>
       ) : null}
 

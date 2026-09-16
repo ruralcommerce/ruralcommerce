@@ -48,6 +48,14 @@ function run(cmd) {
   execSync(cmd, { stdio: 'inherit', shell: true });
 }
 
+function porcelain() {
+  try {
+    return execSync('git status --porcelain', { encoding: 'utf8' }).trim();
+  } catch {
+    return '';
+  }
+}
+
 function assertNoRuntimeDataStaged() {
   let staged = '';
   try {

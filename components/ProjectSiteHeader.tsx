@@ -21,6 +21,7 @@ const copy: Record<
     projectLabel: string;
     profileMenu: string;
     intranet: string;
+    planta: string;
     profileItems: Array<{ href: string; label: string; page: ProjectNavPage }>;
   }
 > = {
@@ -31,6 +32,7 @@ const copy: Record<
     projectLabel: 'Proyecto',
     profileMenu: 'Mi perfil',
     intranet: 'Intranet',
+    planta: 'Planta',
     profileItems: [
       { href: '/projeto/inscricao', label: 'Inscripción', page: 'inscricao' },
       { href: '/projeto/convenio', label: 'Convenio', page: 'convenio' },
@@ -46,6 +48,7 @@ const copy: Record<
     projectLabel: 'Projeto',
     profileMenu: 'Meu perfil',
     intranet: 'Intranet',
+    planta: 'Planta',
     profileItems: [
       { href: '/projeto/inscricao', label: 'Inscrição', page: 'inscricao' },
       { href: '/projeto/convenio', label: 'Convênio', page: 'convenio' },
@@ -61,6 +64,7 @@ const copy: Record<
     projectLabel: 'Project',
     profileMenu: 'My profile',
     intranet: 'Intranet',
+    planta: 'Planta',
     profileItems: [
       { href: '/projeto/inscricao', label: 'Application', page: 'inscricao' },
       { href: '/projeto/convenio', label: 'Agreement', page: 'convenio' },
@@ -95,8 +99,9 @@ export function ProjectSiteHeader({
   const t = copy[localeKey];
   const strippedPath = stripLocalePrefix(pathname);
   const homeHref = `/${locale}`;
-  const projectHref = `${homeHref}/projeto`;
+  const projectHref = `${homeHref}/impulsacr`;
   const intranetHref = `${homeHref}/admin`;
+  const plantaHref = `${homeHref}/impulsacr/planta`;
 
   const profileItems = useMemo(
     () => t.profileItems.map((item) => ({ ...item, href: `${homeHref}${item.href}` })),
@@ -106,6 +111,11 @@ export function ProjectSiteHeader({
   const isHomeActive = strippedPath === '/' || strippedPath === '';
   const isProjectActive = strippedPath === '/projeto' || strippedPath === '/impulsacr';
   const isIntranetActive = strippedPath === '/admin' || strippedPath.startsWith('/admin/');
+  const isPlantaActive =
+    strippedPath.startsWith('/impulsacr/planta') ||
+    strippedPath.startsWith('/impulsacr/convite') ||
+    strippedPath === '/planta' ||
+    strippedPath.startsWith('/planta/');
   const isProfileSectionActive = profileItems.some(
     (item) => strippedPath === item.href.replace(homeHref, '') || strippedPath.startsWith(`${item.href.replace(homeHref, '')}/`)
   );
@@ -211,6 +221,13 @@ export function ProjectSiteHeader({
           >
             {t.intranet}
           </Link>
+          <Link
+            href={plantaHref}
+            className={`projeto-site-nav-planta${isPlantaActive ? ' is-active' : ''}`}
+            aria-current={isPlantaActive ? 'page' : undefined}
+          >
+            {t.planta}
+          </Link>
         </nav>
 
         <button
@@ -260,6 +277,13 @@ export function ProjectSiteHeader({
               onClick={() => setMobileOpen(false)}
             >
               {t.intranet}
+            </Link>
+            <Link
+              href={plantaHref}
+              className="projeto-site-nav-planta mt-2 inline-flex min-h-11 w-fit px-3 py-3 text-sm"
+              onClick={() => setMobileOpen(false)}
+            >
+              {t.planta}
             </Link>
           </nav>
         </div>
