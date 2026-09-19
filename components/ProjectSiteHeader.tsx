@@ -148,6 +148,7 @@ export function ProjectSiteHeader({
               className="projeto-site-header-logo"
               style={{ width: 115, height: 35 }}
               priority
+              unoptimized
             />
           </Link>
           <span className="projeto-site-header-brand-divider" aria-hidden />
