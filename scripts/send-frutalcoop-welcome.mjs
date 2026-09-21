@@ -114,9 +114,13 @@ if (fromSync) {
 }
 
 const apiKey = process.env.RESEND_API_KEY || '';
-const from = process.env.PROJETO_EMAIL_FROM || process.env.RESEND_FROM || '';
+const from =
+  process.env.RESEND_FROM_EMAIL ||
+  process.env.PROJETO_EMAIL_FROM ||
+  process.env.RESEND_FROM ||
+  '';
 if (!apiKey || !from) {
-  console.error('Missing RESEND_API_KEY or from address');
+  console.error('Missing RESEND_API_KEY or RESEND_FROM_EMAIL');
   process.exit(1);
 }
 
