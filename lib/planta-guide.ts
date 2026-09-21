@@ -27,7 +27,7 @@ const navLabels: LocaleCopy<Record<PlantaNavPage, string>> = {
   es: {
     inicio: 'Inicio',
     obra: 'Obra ahora',
-    croquis: 'Croquis',
+    croquis: 'Planos',
     legal: 'Legal',
     bpm: 'BPM',
     servicios: 'Agua y energía',
@@ -36,7 +36,7 @@ const navLabels: LocaleCopy<Record<PlantaNavPage, string>> = {
   'pt-BR': {
     inicio: 'Início',
     obra: 'Obra agora',
-    croquis: 'Croqui',
+    croquis: 'Plantas',
     legal: 'Legal',
     bpm: 'BPF',
     servicios: 'Água e energia',
@@ -45,7 +45,7 @@ const navLabels: LocaleCopy<Record<PlantaNavPage, string>> = {
   en: {
     inicio: 'Home',
     obra: 'Build now',
-    croquis: 'Sketch',
+    croquis: 'Drawings',
     legal: 'Legal',
     bpm: 'GMP',
     servicios: 'Water & energy',
@@ -101,7 +101,7 @@ const checklistByLocale: LocaleCopy<ChecklistItemCopy[]> = {
       urgent: true,
       title: 'Tubería al techo para paneles solares',
       body: 'Dejar conduit desde el tablero hasta la cubrición ahora, antes de cerrar cielos. Reserva para medidor de generación y para la conexión ICE. No romper el techo después.',
-      legal: 'ICE / Reglamento de generación distribuida — acometida y medición según el profesional eléctrico responsable.',
+      legal: 'ICE / Reglamento de generación distribuida — acometida y medición.',
     },
     {
       id: 'lavamanos-atras',
@@ -198,7 +198,7 @@ const checklistByLocale: LocaleCopy<ChecklistItemCopy[]> = {
       urgent: true,
       title: 'Eletroduto até o telhado para painéis solares',
       body: 'Deixar conduit do quadro até a cobertura agora, antes de fechar o forro. Reserva para medidor de geração e ligação ICE. Não romper o telhado depois.',
-      legal: 'ICE / regulamentação de geração distribuída — profissional elétrico responsável.',
+      legal: 'ICE / regulamentação de geração distribuída.',
     },
     {
       id: 'lavamanos-atras',
@@ -295,7 +295,7 @@ const checklistByLocale: LocaleCopy<ChecklistItemCopy[]> = {
       urgent: true,
       title: 'Conduit to the roof for solar panels',
       body: 'Run conduit from the panel to the roof now, before ceilings close. Leave space for a generation meter and the ICE connection.',
-      legal: 'ICE / distributed generation rules — licensed electrical professional.',
+      legal: 'ICE / distributed generation rules.',
     },
     {
       id: 'lavamanos-atras',
@@ -372,12 +372,12 @@ export const zonaCopy: LocaleCopy<Record<PlantaZoneId, { title: string; body: st
       body: 'Lado del centro de acopio: cajas, materia prima y residuos. Entra por la puerta de atrás. No se envasa aquí.',
     },
     humeda: {
-      title: 'Zona húmeda · lavar y cocinar',
-      body: 'Lavamanos de atrás, triturado, cocción y desagües. Piso con pendiente. Equipo que salpica agua queda en esta franja.',
+      title: 'Zona húmeda · lavar, cortar y transformar',
+      body: 'Pila, mesa de pelar/cortar, y después deshidratar, triturar o cocinar según la receta. Piso con pendiente. El vapor no sopla al envase.',
     },
     limpia: {
-      title: 'Zona limpia · envasar',
-      body: 'Franja hacia la puerta de frente: deshidratado listo, envasado y producto terminado. Se entra con manos lavadas.',
+      title: 'Zona limpia · envasar y almacenar',
+      body: 'Envase, estante de producto terminado y puerta de salida. Se entra con manos lavadas.',
     },
   },
   'pt-BR': {
@@ -386,12 +386,12 @@ export const zonaCopy: LocaleCopy<Record<PlantaZoneId, { title: string; body: st
       body: 'Lado do centro de acopio: caixas, matéria-prima e resíduos. Entra pela porta de trás. Sem envase aqui.',
     },
     humeda: {
-      title: 'Zona úmida · lavar e cozinhar',
-      body: 'Lavatório de trás, trituração, cocção e ralos. Piso com caimento. Equipamento que respinga fica nesta faixa.',
+      title: 'Zona úmida · lavar, cortar e transformar',
+      body: 'Pia, mesa de descascar/cortar, e depois desidratar, triturar ou cozinhar conforme a receita. Piso com caimento. O vapor não sopra ao envase.',
     },
     limpia: {
-      title: 'Zona limpa · envase',
-      body: 'Faixa rumo à porta da frente: desidratação pronta, envase e produto acabado. Entra-se com as mãos lavadas.',
+      title: 'Zona limpa · envasar e armazenar',
+      body: 'Envase, prateleira de produto acabado e porta de saída. Entra-se com as mãos lavadas.',
     },
   },
   en: {
@@ -400,12 +400,12 @@ export const zonaCopy: LocaleCopy<Record<PlantaZoneId, { title: string; body: st
       body: 'Collection-center side: crates, raw material and waste. Enters by the back door. No packing here.',
     },
     humeda: {
-      title: 'Wet zone · wash and cook',
-      body: 'Back sink, crush, cook and drains. Sloped floor. Equipment that splashes stays in this strip.',
+      title: 'Wet zone · wash, cut and transform',
+      body: 'Sink, peel/cut table, then dry, mill or cook according to the recipe. Sloped floor. Steam does not blow toward packing.',
     },
     limpia: {
-      title: 'Clean zone · packing',
-      body: 'Strip toward the front door: finished dehydrating, packing and finished goods. Enter with washed hands.',
+      title: 'Clean zone · pack and store',
+      body: 'Packing, finished-goods shelf and exit door. Enter with washed hands.',
     },
   },
 };
@@ -445,27 +445,24 @@ export const plantaPages: LocaleCopy<{
 }> = {
   es: {
     homeEyebrow: 'Impulsa CR · planta compartida',
-    homeTitle: 'Mini-biorrefinería de 22 m², pensada para cumplir la ley costarricense',
+    homeTitle: 'Mini-biorrefinería de 22 m² · Copey de Dota',
     homeLead:
-      'Galerón 4,0 × 5,5 m a la par del centro de acopio en Copey de Dota. Guía de adecuación para la cooperativa: obra, zonificación sucio/limpio, trámites y equipos básicos (deshidratadora solar, triturar, cocinar, envasar).',
+      'Galerón 4,0 × 5,5 m junto al centro de acopio en Copey de Dota. Recibir, lavar, pelar/cortar, transformar, envasar, almacenar y salir.',
     homeUrgentTitle: 'Hoy, mientras construyen',
     homeUrgentBody:
       'El piso no puede quedar plano. Hay que dejar pendiente, dos desagües, un segundo lavamanos en la puerta de frente, tubería al techo para paneles y seis luces con cubierta — no los dos bombillos del croquis.',
-    homeDisclaimer:
-      'Esta guía orienta la obra y los trámites. No sustituye al profesional responsable del CFIA ni a la inspección del Área Rectora de Salud Los Santos.',
+    homeDisclaimer: '',
     leave: 'Salir de la planta',
     guest: 'Acceso por convite',
     obraTitle: 'Lista de obra',
     obraLead:
       'Lo que hay que dejar en el galerón ahora. Marca cada ítem; el avance se guarda en este navegador.',
     obraProgress: 'Avance',
-    croquisTitle: 'Croquis de 22 m²',
-    croquisLead:
-      'El dibujo de la cooperativa (puerta de frente, ventana al costado, puerta de atrás y lavatorio) más la zonificación sucio / húmedo / limpio y lo que falta en obra.',
+    croquisTitle: 'Planos de 22 m²',
+    croquisLead: 'Zonas, flujo de producto, equipos, materiales, agua y energía del galerón.',
     croquisLegend: 'Toca una zona para ver el uso. En amarillo: lo que hay que agregar hoy.',
     legalTitle: 'Trámites en Dota y Salud',
-    legalLead:
-      'Uso de suelo y patente en la Municipalidad de Dota; Permiso Sanitario de Funcionamiento en el Área Rectora de Salud Los Santos; planos con profesional del CFIA.',
+    legalLead: 'Uso de suelo y patente en la Municipalidad de Dota. Permiso Sanitario de Funcionamiento en el Área Rectora de Salud Los Santos.',
     bpmTitle: 'Buenas prácticas de manufactura',
     bpmLead:
       'Flujo de personas y producto, higiene, registros mínimos y lo que suele pedir la ficha de inspección de alimentos procesados.',
@@ -473,8 +470,7 @@ export const plantaPages: LocaleCopy<{
     serviciosLead:
       'Acometidas, paneles solares, medición de consumo y pretratamiento antes de verter.',
     equiposTitle: 'Equipos y medidores',
-    equiposLead:
-      'Paquete básico del proyecto: deshidratadora solar, triturar, cocinar, envasar, humedad y consumo.',
+    equiposLead: 'Mesa de corte, transformación (deshidratar, triturar o cocinar), envase y almacén.',
     conviteEyebrow: 'Planta compartida',
     conviteTitle: 'Entrá con el código de convite',
     conviteLead:
@@ -488,32 +484,30 @@ export const plantaPages: LocaleCopy<{
   },
   'pt-BR': {
     homeEyebrow: 'Impulsa CR · planta compartilhada',
-    homeTitle: 'Mini-biorrefinaria de 22 m², pensada para cumprir a lei da Costa Rica',
+    homeTitle: 'Mini-biorrefinaria de 22 m² · Copey de Dota',
     homeLead:
-      'Galpão 4,0 × 5,5 m ao lado do centro de acopio em Copey de Dota. Guia de adequação: obra, zonificação sujo/limpo, trâmites e equipamentos básicos.',
+      'Galpão 4,0 × 5,5 m ao lado do centro de acopio em Copey de Dota. Receber, lavar, descascar/cortar, transformar, envasar, armazenar e sair.',
     homeUrgentTitle: 'Hoje, enquanto constroem',
     homeUrgentBody:
       'O piso não pode ficar plano. Deixar caimento, dois ralos, um segundo lavatório na porta da frente, eletroduto ao telhado para painéis e seis luzes com cobertura — não as duas lâmpadas do croqui.',
-    homeDisclaimer:
-      'Este guia orienta a obra e os trâmites. Não substitui o profissional responsável do CFIA nem a inspeção da Área Reitora de Saúde Los Santos.',
+    homeDisclaimer: '',
     leave: 'Sair da planta',
     guest: 'Acesso por convite',
     obraTitle: 'Lista de obra',
     obraLead: 'O que precisa ficar no galpão agora. Marque cada item; o avanço fica neste navegador.',
     obraProgress: 'Progresso',
-    croquisTitle: 'Croqui de 22 m²',
-    croquisLead:
-      'O desenho da cooperativa (porta da frente, janela lateral, porta de trás e pia) mais a zonificação sujo / úmido / limpo.',
+    croquisTitle: 'Plantas de 22 m²',
+    croquisLead: 'Zonas, fluxo de produto, equipamentos, materiais, água e energia do galpão.',
     croquisLegend: 'Toque uma zona para ver o uso. Em amarelo: o que falta na obra de hoje.',
     legalTitle: 'Trâmites em Dota e Saúde',
     legalLead:
-      'Uso do solo e patente na Municipalidade de Dota; Permiso Sanitario de Funcionamiento na Área Reitora de Saúde Los Santos; plantas com profissional do CFIA.',
+      'Uso do solo e patente na Municipalidade de Dota. Permiso Sanitario de Funcionamiento na Área Reitora de Saúde Los Santos.',
     bpmTitle: 'Boas práticas de fabricação',
     bpmLead: 'Fluxo de pessoas e produto, higiene, registros mínimos e a ficha de inspeção de alimentos processados.',
     serviciosTitle: 'Água, eletricidade e efluentes',
     serviciosLead: 'Ligações, painéis solares, medição de consumo e pré-tratamento antes do descarte.',
     equiposTitle: 'Equipamentos e medidores',
-    equiposLead: 'Pacote básico: desidratadora solar, triturar, cozinhar, envasar, umidade e consumo.',
+    equiposLead: 'Mesa de corte, transformação (desidratar, triturar ou cozinhar), envase e armazém.',
     conviteEyebrow: 'Planta compartilhada',
     conviteTitle: 'Entre com o código de convite',
     conviteLead:
@@ -527,32 +521,30 @@ export const plantaPages: LocaleCopy<{
   },
   en: {
     homeEyebrow: 'Impulsa CR · shared plant',
-    homeTitle: 'A 22 m² mini-biorefinery designed to meet Costa Rican law',
+    homeTitle: '22 m² mini-biorefinery · Copey de Dota',
     homeLead:
-      '4.0 × 5.5 m shed beside the collection center in Copey de Dota. Fit-out guide: works, dirty/clean zoning, permits and basic equipment.',
+      '4.0 × 5.5 m shed beside the collection center in Copey de Dota. Receive, wash, peel/cut, transform, pack, store and exit.',
     homeUrgentTitle: 'Today, while they are building',
     homeUrgentBody:
       'The floor cannot stay flat. Leave slope, two drains, a second handwash at the front door, roof conduit for solar, and six covered lights — not the two bulbs on the sketch.',
-    homeDisclaimer:
-      'This guide supports construction and permits. It does not replace the CFIA professional of record or the Los Santos Health Area inspection.',
+    homeDisclaimer: '',
     leave: 'Leave the plant',
     guest: 'Invite access',
     obraTitle: 'Works list',
     obraLead: 'What must go into the shed now. Check each item; progress stays in this browser.',
     obraProgress: 'Progress',
-    croquisTitle: '22 m² sketch',
-    croquisLead:
-      'The cooperative drawing (front door, side window, back door and sink) plus dirty / wet / clean zoning.',
+    croquisTitle: '22 m² drawings',
+    croquisLead: 'Zones, product flow, equipment, materials, water and energy for the shed.',
     croquisLegend: 'Tap a zone to see its use. Yellow: what must be added today.',
     legalTitle: 'Dota and Health permits',
     legalLead:
-      'Land use and business license at the Municipality of Dota; operating sanitary permit at the Los Santos Health Area; drawings with a CFIA professional.',
+      'Land use and business license at the Municipality of Dota. Operating sanitary permit at the Los Santos Health Area.',
     bpmTitle: 'Good manufacturing practices',
     bpmLead: 'People and product flow, hygiene, minimum records and the processed-food inspection sheet.',
     serviciosTitle: 'Water, power and wastewater',
     serviciosLead: 'Service connections, solar panels, metering and pretreatment before discharge.',
     equiposTitle: 'Equipment and meters',
-    equiposLead: 'Basic package: solar dehydrator, crush, cook, pack, humidity and consumption meters.',
+    equiposLead: 'Cutting table, transformation (dry, mill or cook), packing and storage.',
     conviteEyebrow: 'Shared plant',
     conviteTitle: 'Enter with an invite code',
     conviteLead:
@@ -578,20 +570,14 @@ export const legalCards: LocaleCopy<
     {
       office: 'Municipalidad de Dota',
       what: 'Uso de suelo, permiso de construcción (si aplica a la obra nueva) y patente municipal para operar.',
-      how: 'Confirmar que el galerón junto al centro de acopio admite industria alimentaria de bajo escala. El permiso de construcción se pide por APC-M con profesional del CFIA.',
-      refs: 'Reglamento municipal de Dota · APC-M (CFIA) · patente comercial.',
+      how: 'Confirmar que el galerón junto al centro de acopio admite industria alimentaria de baja escala.',
+      refs: 'Reglamento municipal de Dota · patente comercial.',
     },
     {
       office: 'Área Rectora de Salud Los Santos · Ministerio de Salud',
       what: 'Permiso Sanitario de Funcionamiento (PSF) antes de operar.',
       how: 'Clasificar la actividad (grupo de riesgo A/B/C del Decreto 43432-S). Llevar planos, declaración jurada, pago y condiciones previas del art. 8. La inspección usa la ficha BPM de alimentos procesados.',
       refs: 'Ley General de Salud N.º 5395 · Decreto 43432-S · ficha BPM alimentos.',
-    },
-    {
-      office: 'CFIA · profesional responsable',
-      what: 'Planos, sello profesional y responsabilidad de ingeniería/arquitectura.',
-      how: 'Aunque el galerón es de 22 m², obra nueva o cambio de uso entra por APC. Incluir desagües, pendiente, tablero, conduit solar y sistema de residuales en el plano — no “se resuelve después”.',
-      refs: 'Ley Orgánica del CFIA · Decreto 36550 (revisión de planos) · APC.',
     },
     {
       office: 'ICE y ASADA / AyA',
@@ -602,7 +588,7 @@ export const legalCards: LocaleCopy<
     {
       office: 'Residuales y ambiente',
       what: 'No verter grasa ni sólidos de proceso sin pretratamiento.',
-      how: 'Trampa de grasas, canastilla y, si no hay alcantarillado, tanque o sistema según el profesional. SETENA solo si el profesional indica que el D1 aplica; 22 m² no exime automáticamente.',
+      how: 'Trampa de grasas, canastilla y, si no hay alcantarillado, tanque o sistema de descarga autorizado. SETENA solo si aplica D1; 22 m² no exime automáticamente.',
       refs: 'Decreto 33601-S-MINAE · SETENA según caso.',
     },
   ],
@@ -610,20 +596,14 @@ export const legalCards: LocaleCopy<
     {
       office: 'Municipalidad de Dota',
       what: 'Uso do solo, alvará de construção (se a obra nova exigir) e patente municipal.',
-      how: 'Confirmar que o galpão junto ao centro de acopio admite indústria alimentar de pequeno porte. O alvará entra por APC-M com profissional do CFIA.',
-      refs: 'Regulamento municipal de Dota · APC-M (CFIA) · patente comercial.',
+      how: 'Confirmar que o galpão junto ao centro de acopio admite indústria alimentar de pequeno porte.',
+      refs: 'Regulamento municipal de Dota · patente comercial.',
     },
     {
       office: 'Área Reitora de Saúde Los Santos · Ministério da Saúde',
       what: 'Permiso Sanitario de Funcionamiento (PSF) antes de operar.',
       how: 'Classificar a atividade (risco A/B/C do Decreto 43432-S). Levar plantas, declaração jurada, pagamento e condições prévias do art. 8.',
       refs: 'Lei Geral de Saúde n.º 5395 · Decreto 43432-S · ficha BPF alimentos.',
-    },
-    {
-      office: 'CFIA · profissional responsável',
-      what: 'Plantas, selo profissional e responsabilidade de engenharia/arquitetura.',
-      how: 'Obra nova ou mudança de uso entra no APC. Incluir ralos, caimento, quadro, eletroduto solar e efluentes no desenho.',
-      refs: 'Lei Orgânica do CFIA · Decreto 36550 · APC.',
     },
     {
       office: 'ICE e ASADA / AyA',
@@ -634,7 +614,7 @@ export const legalCards: LocaleCopy<
     {
       office: 'Efluentes e ambiente',
       what: 'Não despejar gordura nem sólidos de processo sem pré-tratamento.',
-      how: 'Caixa de gordura e cesto. SETENA só se o profissional indicar D1; 22 m² não isenta automaticamente.',
+      how: 'Caixa de gordura e cesto. SETENA só se aplicar D1; 22 m² não isenta automaticamente.',
       refs: 'Decreto 33601-S-MINAE · SETENA conforme o caso.',
     },
   ],
@@ -642,20 +622,14 @@ export const legalCards: LocaleCopy<
     {
       office: 'Municipality of Dota',
       what: 'Land use, building permit (if the new works require it) and municipal business license.',
-      how: 'Confirm the shed beside the collection center may host small-scale food industry. Building permits go through APC-M with a CFIA professional.',
-      refs: 'Dota municipal rules · APC-M (CFIA) · business license.',
+      how: 'Confirm the shed beside the collection center may host small-scale food industry.',
+      refs: 'Dota municipal rules · business license.',
     },
     {
       office: 'Los Santos Health Area · Ministry of Health',
       what: 'Operating sanitary permit (PSF) before starting operations.',
       how: 'Classify the activity (risk group A/B/C under Decree 43432-S). Submit drawings, sworn statement, fee and Article 8 preconditions.',
       refs: 'General Health Law No. 5395 · Decree 43432-S · processed-food GMP sheet.',
-    },
-    {
-      office: 'CFIA · professional of record',
-      what: 'Drawings, professional seal and engineering/architecture liability.',
-      how: 'New works or change of use go through APC. Put drains, slope, panel, solar conduit and wastewater on the drawing now.',
-      refs: 'CFIA Organic Law · Decree 36550 · APC.',
     },
     {
       office: 'ICE and ASADA / AyA',
@@ -666,7 +640,7 @@ export const legalCards: LocaleCopy<
     {
       office: 'Wastewater and environment',
       what: 'Do not discharge process fat or solids without pretreatment.',
-      how: 'Grease trap and solids basket. SETENA only if the professional says a D1 applies; 22 m² is not an automatic waiver.',
+      how: 'Grease trap and solids basket. SETENA only if a D1 applies; 22 m² is not an automatic waiver.',
       refs: 'Decree 33601-S-MINAE · SETENA case by case.',
     },
   ],
@@ -676,11 +650,11 @@ export const bpmCards: LocaleCopy<Array<{ title: string; body: string }>> = {
   es: [
     {
       title: 'Flujo de personas',
-      body: 'Entran por la puerta de frente → lavamanos → zona limpia o húmeda. No cruzar de sucio a envasado con el mismo delantal ni las mismas botas sin lavar.',
+      body: 'Entran por la puerta de frente → lavamanos de pedal y gabachas → proceso. El producto entra por la puerta de atrás. No cruzar de sucio a envase con el mismo delantal ni las mismas botas.',
     },
     {
       title: 'Flujo de producto',
-      body: 'Acopio → recepción sucia → lavado/triturado/cocción (húmedo) → deshidratado → envasado (limpio) → salida. Nunca el camino inverso en la misma bandeja.',
+      body: 'Acopio → recepción → lavado → pelar/cortar → transformar (deshidratar, triturar o cocinar) → envasado → almacén → salida. Nunca el camino inverso en la misma bandeja.',
     },
     {
       title: 'Higiene de manos y ropa',
@@ -696,17 +670,17 @@ export const bpmCards: LocaleCopy<Array<{ title: string; body: string }>> = {
     },
     {
       title: 'Inspección',
-      body: 'La ficha BPM de alimentos y bebidas procesados del Ministerio de Salud suele pedir 81 puntos o más. Piso, agua, manos, residuales e iluminación pesan más que “tener el equipo comprado”.',
+      body: 'Piso con pendiente, agua, manos al ingreso, residuales e iluminación. Envase y almacén 1 cm más altos. El fogón queda en transformación.',
     },
   ],
   'pt-BR': [
     {
       title: 'Fluxo de pessoas',
-      body: 'Entram pela porta da frente → lavatório → zona limpa ou úmida. Não cruzar do sujo ao envase com o mesmo avental nem as mesmas botas sem lavar.',
+      body: 'Entram pela porta da frente → lavatório de pedal e aventais → processo. O produto entra pela porta de trás. Não cruzar do sujo ao envase com o mesmo avental nem as mesmas botas.',
     },
     {
       title: 'Fluxo de produto',
-      body: 'Acopio → recepção suja → lavagem/trituração/cocção → desidratação → envase → saída. Nunca o caminho inverso na mesma bandeja.',
+      body: 'Acopio → recepção → lavagem → descascar/cortar → transformar (desidratar, triturar ou cozinhar) → envase → armazém → saída. Nunca o caminho inverso na mesma bandeja.',
     },
     {
       title: 'Higiene de mãos e roupa',
@@ -722,17 +696,17 @@ export const bpmCards: LocaleCopy<Array<{ title: string; body: string }>> = {
     },
     {
       title: 'Inspeção',
-      body: 'A ficha BPF de alimentos processados costuma pedir 81 pontos ou mais. Piso, água, mãos, efluentes e luz pesam mais do que “ter o equipamento comprado”.',
+      body: 'Piso com caimento, água, mãos no ingresso, efluentes e luz. Envase e armazém 1 cm mais altos. O fogão fica na transformação.',
     },
   ],
   en: [
     {
       title: 'People flow',
-      body: 'Enter at the front door → handwash → clean or wet zone. Do not go from dirty to packing in the same apron or unwashed boots.',
+      body: 'Enter at the front door → pedal handwash and aprons → process. Product enters by the back door. Do not go from dirty to packing in the same apron or boots.',
     },
     {
       title: 'Product flow',
-      body: 'Collection center → dirty receiving → wash/crush/cook → dehydrate → pack → exit. Never the reverse path on the same tray.',
+      body: 'Collection center → receiving → wash → peel/cut → transform (dry, mill or cook) → pack → store → exit. Never the reverse path on the same tray.',
     },
     {
       title: 'Hand and clothing hygiene',
@@ -748,7 +722,7 @@ export const bpmCards: LocaleCopy<Array<{ title: string; body: string }>> = {
     },
     {
       title: 'Inspection',
-      body: 'The processed-food GMP sheet often expects 81 points or more. Floor, water, hands, wastewater and lighting weigh more than “equipment already purchased”.',
+      body: 'Sloped floor, water, hands at entry, wastewater and lighting. Packing and storage sit 1 cm higher. The stove stays in transformation.',
     },
   ],
 };
@@ -756,8 +730,8 @@ export const bpmCards: LocaleCopy<Array<{ title: string; body: string }>> = {
 export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> = {
   es: [
     {
-      title: 'Agua',
-      body: 'Punto potable para proceso y lavamanos. Medidor de consumo (chorro o hidrómetro) para el seguimiento del proyecto. Si la fuente es ASADA, pedir constancia de potabilidad.',
+      title: 'Agua potable y lluvia',
+      body: 'Red azul: AyA/ASADA para alimento, enjuague final y lavamanos. Red verde: techo 22 m² → primeras aguas 40 L → tanque 1 000 L para piso, canastas sucias y pila exterior. Nunca cruzar las dos (RTCA 5.3). La lluvia no es potable (Decreto 38924-S).',
     },
     {
       title: 'Electricidad',
@@ -765,7 +739,7 @@ export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> =
     },
     {
       title: 'Paneles solares',
-      body: 'Estructura de techo verificada por el profesional. Conduit ya dejado en obra. Inversor y medidor de generación aparte del medidor de consumo ICE.',
+      body: '3 paneles de 625 W (1,88 kWp) en este techo, inversor híbrido 3 kW. Un panel solo cubre luces. La deshidratadora pide 1,2 kW; el fogón es gas. La red ICE cubre nublado.',
     },
     {
       title: 'Aguas residuales',
@@ -778,8 +752,8 @@ export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> =
   ],
   'pt-BR': [
     {
-      title: 'Água',
-      body: 'Ponto potável para processo e lavatórios. Medidor de consumo para o acompanhamento do projeto. Se a fonte for ASADA, pedir comprovação de potabilidade.',
+      title: 'Água potável e chuva',
+      body: 'Rede azul: AyA/ASADA para alimento, enxágue final e lavatórios. Rede verde: telhado 22 m² → primeiras águas 40 L → tanque 1 000 L para piso, cestos sujos e pia exterior. Nunca cruzar as duas. Chuva não é potável.',
     },
     {
       title: 'Eletricidade',
@@ -787,7 +761,7 @@ export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> =
     },
     {
       title: 'Painéis solares',
-      body: 'Estrutura do telhado verificada pelo profissional. Eletroduto já na obra. Inversor e medidor de geração separados do medidor ICE.',
+      body: '3 painéis de 625 W (1,88 kWp) neste telhado, inversor híbrido 3 kW. Um painel só cobre luzes. A desidratadora pede 1,2 kW; o fogão é gás. A rede ICE cobre nublado.',
     },
     {
       title: 'Águas residuais',
@@ -800,8 +774,8 @@ export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> =
   ],
   en: [
     {
-      title: 'Water',
-      body: 'Potable point for process and sinks. A consumption meter for project follow-up. If the source is an ASADA, request a potability note.',
+      title: 'Potable water and rain',
+      body: 'Blue network: AyA/ASADA for food, final rinse and handwash. Green: 22 m² roof → 40 L first flush → 1,000 L tank for floors, dirty crates and the outdoor sink. Never cross the two (RTCA 5.3). Rain is not potable.',
     },
     {
       title: 'Electricity',
@@ -809,7 +783,7 @@ export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> =
     },
     {
       title: 'Solar panels',
-      body: 'Roof structure checked by the professional. Conduit already in the works. Inverter and generation meter separate from the ICE billing meter.',
+      body: 'Three 625 W modules (1.88 kWp) on this roof, 3 kW hybrid inverter. One panel covers lights only. The dehydrator draws 1.2 kW; the stove is gas. ICE covers clouds.',
     },
     {
       title: 'Wastewater',
@@ -825,83 +799,84 @@ export const servicioCards: LocaleCopy<Array<{ title: string; body: string }>> =
 export const equipoCards: LocaleCopy<Array<{ title: string; body: string }>> = {
   es: [
     {
-      title: 'Deshidratadora solar',
-      body: 'Equipo del proyecto. Ubicación: zona limpia o bajo techo con acceso desde húmedo ya lavado. No cargar producto sucio directo del acopio.',
+      title: 'Pelar y cortar',
+      body: 'Mesa de acero en franja propia, después del lavado. Tablas, cuchillos, toma T2. El producto sale listo para transformar.',
     },
     {
-      title: 'Triturar',
-      body: 'Molino o cutter básico sobre mesa lavable en zona húmeda, con desagüe a los pies. Protección eléctrica (GFCI/diferencial).',
-    },
-    {
-      title: 'Cocinar',
-      body: 'Olla, paila o marmita pequeña. Campana o ventana con malla para vapor. Grasa a la trampa, no al piso.',
+      title: 'Transformar',
+      body: 'Deshidratar, triturar o cocinar: la receta elige. Misma zona: gabinete 1,2 kW (T4), molino (T3) y fogón industrial con extractor. No son etapas distintas.',
     },
     {
       title: 'Envasar',
-      body: 'Mesa solo de empacado en zona limpia. Bolsas, selladora y rótulo. No compartir tabla con el triturado.',
+      body: 'Mesa y selladora en zona limpia. Lote, fecha, humedad. No compartir tabla con el corte.',
     },
     {
-      title: 'Humedad y proceso',
-      body: 'Higrómetro para el producto deshidratado y, si hay cuarto, sensor de ambiente. Anotar lote y humedad de salida.',
+      title: 'Almacenar',
+      body: 'Estante de producto terminado, junto al envase, separado de la materia prima. Sale por la puerta de frente.',
+    },
+    {
+      title: 'Humedad y lote',
+      body: 'Higrómetro de producto. Anotar lote y humedad de salida.',
     },
     {
       title: 'Consumo agua / electricidad',
-      body: 'Medidores de seguimiento (no fiscales) para el programa: kWh de proceso y litros de lavado. Lectura semanal basta en esta escala.',
+      body: 'Medidores de seguimiento: kWh de proceso y litros de lavado. Lectura semanal basta en esta escala.',
     },
   ],
   'pt-BR': [
     {
-      title: 'Desidratadora solar',
-      body: 'Equipamento do projeto. Zona limpa ou coberta, com acesso desde o úmido já lavado. Não carregar produto sujo direto do acopio.',
+      title: 'Descascar e cortar',
+      body: 'Mesa de aço em faixa própria, depois da lavagem. Tábuas, facas, tomada T2. O produto sai pronto para transformar.',
     },
     {
-      title: 'Triturar',
-      body: 'Moinho ou cutter básico sobre mesa lavável na zona úmida, com ralo aos pés. Proteção elétrica residual.',
-    },
-    {
-      title: 'Cozinhar',
-      body: 'Panela ou tacho pequeno. Janela com tela para vapor. Gordura para a caixa, não para o piso.',
+      title: 'Transformar',
+      body: 'Desidratar, triturar ou cozinhar: a receita escolhe. Mesma zona: gabinete 1,2 kW (T4), moinho (T3) e fogão industrial com exaustor. Não são etapas distintas.',
     },
     {
       title: 'Envasar',
-      body: 'Mesa só de envase na zona limpa. Sacos, seladora e rótulo. Não compartilhar tábua com a trituração.',
+      body: 'Mesa e seladora na zona limpa. Lote, data, umidade. Não compartilhar tábua com o corte.',
     },
     {
-      title: 'Umidade e processo',
-      body: 'Higrômetro para o produto desidratado e, se houver câmara, sensor de ambiente. Anotar lote e umidade de saída.',
+      title: 'Armazenar',
+      body: 'Prateleira de produto acabado, junto ao envase, separado da matéria-prima. Sai pela porta da frente.',
+    },
+    {
+      title: 'Umidade e lote',
+      body: 'Higrômetro de produto. Anotar lote e umidade de saída.',
     },
     {
       title: 'Consumo água / eletricidade',
-      body: 'Medidores de acompanhamento (não fiscais): kWh de processo e litros de lavagem. Leitura semanal basta nesta escala.',
+      body: 'Medidores de acompanhamento: kWh de processo e litros de lavagem. Leitura semanal basta nesta escala.',
     },
   ],
   en: [
     {
-      title: 'Solar dehydrator',
-      body: 'Project equipment. Clean zone or under roof, loaded from already-washed wet product. Do not load dirty product straight from the collection center.',
+      title: 'Peel and cut',
+      body: 'Steel table in its own strip, after washing. Boards, knives, T2. Product leaves ready to transform.',
     },
     {
-      title: 'Crushing',
-      body: 'Basic mill or cutter on a washable wet-zone table, with a drain at the feet. Residual-current protection.',
+      title: 'Transform',
+      body: 'Dry, mill or cook: the recipe chooses. Same zone: 1.2 kW cabinet (T4), mill (T3) and industrial stove with extractor. Not separate stages.',
     },
     {
-      title: 'Cooking',
-      body: 'Small kettle or pot. Screened window for steam. Fat to the trap, not the floor.',
+      title: 'Pack',
+      body: 'Table and sealer in the clean zone. Lot, date, moisture. Do not share a board with cutting.',
     },
     {
-      title: 'Packing',
-      body: 'Packing-only table in the clean zone. Bags, sealer and label. Do not share a board with crushing.',
+      title: 'Store',
+      body: 'Finished-goods shelf next to packing, apart from raw material. Leaves by the front door.',
     },
     {
-      title: 'Humidity and process',
-      body: 'Hygrometer for the dried product and, if there is a chamber, an ambient sensor. Record lot and outgoing moisture.',
+      title: 'Moisture and lot',
+      body: 'Product hygrometer. Record lot and outgoing moisture.',
     },
     {
       title: 'Water / electricity use',
-      body: 'Follow-up meters (not fiscal): process kWh and wash litres. Weekly readings are enough at this scale.',
+      body: 'Follow-up meters: process kWh and wash litres. Weekly readings are enough at this scale.',
     },
   ],
 };
+
 
 export const accessDoorsCopy: LocaleCopy<{
   eyebrow: string;

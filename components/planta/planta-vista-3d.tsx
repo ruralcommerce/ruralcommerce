@@ -1,0 +1,219 @@
+import { equipos3d, zonaColors, zonaRects, type Equipo3D, type ZonaId } from '@/lib/planta-planos';
+
+const OX = 392;
+const OY = 72;
+const KX = 52;
+const KY = 26;
+const KZ = 46;
+
+function iso(x: number, y: number, z = 0) {
+  return { x: OX + (x - y) * KX, y: OY + (x + y) * KY - z * KZ };
+}
+
+function pts(list: { x: number; y: number }[]) {
+  return list.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+}
+
+function FloorTile({
+  x,
+  y,
+  w,
+  h,
+  fill,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  fill: string;
+}) {
+  const a = iso(x, y, 0);
+  const b = iso(x + w, y, 0);
+  const c = iso(x + w, y + h, 0);
+  const d = iso(x, y + h, 0);
+  return <polygon points={pts([a, b, c, d])} fill={fill} stroke="#071F5E" strokeWidth="0.8" />;
+}
+
+function Box3D({
+  x,
+  y,
+  z = 0,
+  w,
+  d,
+  h,
+  top,
+  south,
+  east,
+  stroke = '#071F5E',
+}: {
+  x: number;
+  y: number;
+  z?: number;
+  w: number;
+  d: number;
+  h: number;
+  top: string;
+  south: string;
+  east: string;
+  stroke?: string;
+}) {
+  const A = iso(x, y, z + h);
+  const B = iso(x + w, y, z + h);
+  const C = iso(x + w, y + d, z + h);
+  const D = iso(x, y + d, z + h);
+  const F = iso(x + w, y, z);
+  const G = iso(x + w, y + d, z);
+  const H = iso(x, y + d, z);
+  return (
+    <g>
+      <polygon points={pts([B, F, G, C])} fill={east} stroke={stroke} strokeWidth="1.1" />
+      <polygon points={pts([D, C, G, H])} fill={south} stroke={stroke} strokeWidth="1.1" />
+      <polygon points={pts([A, B, C, D])} fill={top} stroke={stroke} strokeWidth="1.1" />
+    </g>
+  );
+}
+
+function Equipo3DView({
+  item,
+  selected,
+  onClick,
+}: {
+  item: Equipo3D;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  const stroke = selected ? '#009179' : '#071F5E';
+  const top =
+    item.id === 'fogon'
+      ? '#3a3a3a'
+      : item.id === 'dehydrator'
+        ? '#fff3b0'
+        : item.id === 'pila' || item.id === 'pila-ext' || item.id === 'lavamanos'
+          ? '#e8f0f4'
+          : item.id === 'tanque'
+            ? '#b7ddd4'
+            : '#dfe6ee';
+  const south = item.id === 'tablero' ? '#071F5E' : '#c5d0da';
+  const east = item.id === 'tablero' ? '#0b2a7a' : '#aebac6';
+
+  if (item.id === 'tanque') {
+    const c0 = iso(item.x + item.w / 2, item.y + item.d / 2, 0);
+    const c1 = iso(item.x + item.w / 2, item.y + item.d / 2, item.h);
+    return (
+      <g className="planta-zone-btn" onClick={onClick} role="button" tabIndex={0}>
+        <ellipse cx={c0.x} cy={c0.y} rx="28" ry="14" fill="#8fbfb4" stroke={stroke} />
+        <rect x={c1.x - 28} y={c1.y} width="56" height={c0.y - c1.y} fill="#b7ddd4" stroke={stroke} />
+        <ellipse cx={c1.x} cy={c1.y} rx="28" ry="14" fill="#d7ebe4" stroke={stroke} />
+      </g>
+    );
+  }
+
+  return (
+    <g className="planta-zone-btn" onClick={onClick} role="button" tabIndex={0}>
+      <Box3D
+        x={item.x}
+        y={item.y}
+        w={item.w}
+        d={item.d}
+        h={item.h}
+        top={top}
+        south={south}
+        east={east}
+        stroke={stroke}
+      />
+      {item.id === 'fogon'
+        ? [0.28, 0.72].flatMap((tx) =>
+            [0.3, 0.7].map((ty) => {
+              const p = iso(item.x + item.w * tx, item.y + item.d * ty, item.h + 0.02);
+              return <circle key={`${tx}-${ty}`} cx={p.x} cy={p.y} r="5" fill="none" stroke="#f2c94c" strokeWidth="1.6" />;
+            }),
+          )
+        : null}
+      {item.id === 'dehydrator'
+        ? [0.25, 0.45, 0.65, 0.85].map((t) => {
+            const a = iso(item.x, item.y + item.d, item.h * t);
+            const b = iso(item.x + item.w, item.y + item.d, item.h * t);
+            return <line key={t} x1={a.x} y1={a.y} x2={b.x} y2={b.y} stroke="#071F5E" strokeWidth="1" />;
+          })
+        : null}
+      {item.id === 'pila' || item.id === 'pila-ext'
+        ? [0.3, 0.7].map((t) => {
+            const p = iso(item.x + item.w * t, item.y + item.d * 0.5, item.h);
+            return <ellipse key={t} cx={p.x} cy={p.y} rx="10" ry="6" fill="#c5d4e8" stroke="#071F5E" />;
+          })
+        : null}
+      {item.id === 'molino'
+        ? (() => {
+            const peak = iso(item.x + item.w / 2, item.y + item.d / 2, item.h + 0.35);
+            const l = iso(item.x + 0.08, item.y + 0.08, item.h);
+            const r = iso(item.x + item.w - 0.08, item.y + item.d - 0.08, item.h);
+            return <polygon points={`${peak.x},${peak.y} ${l.x},${l.y} ${r.x},${r.y}`} fill="#fff" stroke="#071F5E" />;
+          })()
+        : null}
+    </g>
+  );
+}
+
+export function PlantaVista3D({
+  title,
+  labels,
+  selected,
+  onSelect,
+}: {
+  title: string;
+  labels: Record<string, string>;
+  selected: string;
+  onSelect: (id: string) => void;
+}) {
+  const wallH = 2.35;
+  const sorted = [...equipos3d].sort((a, b) => a.y + a.x - (b.y + b.x));
+  const backL = iso(0, 0, 0);
+  const backR = iso(4, 0, 0);
+  const backRT = iso(4, 0, wallH);
+  const backLT = iso(0, 0, wallH);
+  const frontL = iso(0, 5.5, 0);
+  const frontLT = iso(0, 5.5, wallH);
+  const screenL = iso(0, 3.1, 0);
+  const screenR = iso(4, 3.1, 0);
+  const screenLT = iso(0, 3.1, 1.2);
+  const screenRT = iso(4, 3.1, 1.2);
+
+  return (
+    <svg viewBox="0 0 760 640" role="img" aria-label={title}>
+      <rect width="760" height="640" fill="#e8eef2" />
+      <text x="24" y="28" fill="#071F5E" fontSize="13" fontWeight="700">
+        {title} · 4,0 × 5,5 m
+      </text>
+      <polygon
+        points={pts([iso(0, 0, 0), iso(4, 0, 0), iso(4, 5.5, 0), iso(0, 5.5, 0)])}
+        fill="#d7d3c6"
+        stroke="#071F5E"
+      />
+      {(Object.keys(zonaRects) as ZonaId[]).map((id) => {
+        const r = zonaRects[id];
+        return <FloorTile key={id} x={r.x} y={r.y} w={r.w} h={r.h} fill={`${zonaColors[id]}44`} />;
+      })}
+      <polygon points={pts([backL, backR, backRT, backLT])} fill="#f4f1ea" stroke="#071F5E" />
+      <polygon points={pts([backL, frontL, frontLT, backLT])} fill="#ebe6dc" stroke="#071F5E" />
+      <polygon
+        points={pts([screenL, screenR, screenRT, screenLT])}
+        fill="rgba(7,31,94,0.18)"
+        stroke="#071F5E"
+        strokeDasharray="6 4"
+      />
+      {sorted.map((item) => (
+        <Equipo3DView key={item.id} item={item} selected={selected === item.id} onClick={() => onSelect(item.id)} />
+      ))}
+      {sorted
+        .filter((item) => selected === item.id)
+        .map((item) => {
+          const p = iso(item.x + item.w / 2, item.y + item.d / 2, item.h + 0.18);
+          return (
+            <text key={`l-${item.id}`} x={p.x} y={p.y} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
+              {labels[item.id]}
+            </text>
+          );
+        })}
+    </svg>
+  );
+}

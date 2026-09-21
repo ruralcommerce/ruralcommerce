@@ -46,7 +46,7 @@ export function PlantaShell({
   return (
     <div className="planta-page flex min-h-dvh flex-col bg-[#F5F7FA]">
       <ProjectSiteHeader locale={locale} variant="bar" />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-3 py-6 sm:px-6 sm:py-8 lg:px-8">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <p className="text-sm text-[#2F3336]/75">
             {t.guest}
@@ -77,7 +77,9 @@ export function PlantaShell({
           ))}
         </nav>
         {children}
-        <p className="mt-10 text-xs leading-5 text-[#2F3336]/60">{t.homeDisclaimer}</p>
+        {t.homeDisclaimer ? (
+          <p className="mt-10 text-xs leading-5 text-[#2F3336]/60">{t.homeDisclaimer}</p>
+        ) : null}
       </main>
     </div>
   );
