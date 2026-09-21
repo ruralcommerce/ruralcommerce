@@ -49,6 +49,10 @@ type EnrollmentRecord = {
     role?: string;
     interest?: string;
     message?: string;
+    email?: string;
+    emailPending?: boolean;
+    nationalId?: string;
+    frutalcoopCod?: number | string;
     answers?: Record<string, unknown>;
     locale?: string;
     marketingConsent?: boolean;
@@ -122,13 +126,21 @@ const uiCopy = {
   es: {
     eyebrow: 'Mi perfil',
     title: 'Sigue tu inscripción y los próximos pasos',
-    emailPlaceholder: 'Ingresa tu correo electrónico',
+    emailPlaceholder: 'Correo o usuario (ej. FC30)',
     passwordPlaceholder: 'Ingresa tu contraseña',
     forgotPassword: '¿Olvidaste tu contraseña?',
     loginCta: 'Entrar a la intranet del candidato',
+    addEmailTitle: 'Agregar tu correo electrónico',
+    addEmailText:
+      'Tu cuenta fue creada sin correo. Agrega uno para recibir el convenio, recordatorios y recuperar la contraseña.',
+    addEmailPlaceholder: 'tu@correo.com',
+    addEmailCta: 'Guardar correo',
+    addEmailSaving: 'Guardando...',
+    addEmailOk: 'Correo guardado. Ya puedes usarlo para entrar.',
     loading: 'Buscando información...',
     statusSection: 'Estado del usuario',
     emailLabel: 'Correo',
+    loginUserLabel: 'Usuario',
     createdLabel: 'Creado el',
     accessLabel: 'Acceso',
     projectInfo: 'Información del proyecto',
@@ -170,13 +182,21 @@ const uiCopy = {
   'pt-BR': {
     eyebrow: 'Meu perfil',
     title: 'Acompanhe sua inscrição e próximos passos',
-    emailPlaceholder: 'Digite seu e-mail',
+    emailPlaceholder: 'E-mail ou usuário (ex. FC30)',
     passwordPlaceholder: 'Digite sua senha',
     forgotPassword: 'Esqueceu sua senha?',
     loginCta: 'Entrar na intranet do candidato',
+    addEmailTitle: 'Adicionar seu e-mail',
+    addEmailText:
+      'Sua conta foi criada sem e-mail. Adicione um para receber o convênio, lembretes e recuperar a senha.',
+    addEmailPlaceholder: 'seu@email.com',
+    addEmailCta: 'Salvar e-mail',
+    addEmailSaving: 'Salvando...',
+    addEmailOk: 'E-mail salvo. Já pode usá-lo para entrar.',
     loading: 'Buscando informações...',
     statusSection: 'Status do usuário',
     emailLabel: 'E-mail',
+    loginUserLabel: 'Usuário',
     createdLabel: 'Criado em',
     accessLabel: 'Acesso',
     projectInfo: 'Informações do projeto',
@@ -218,13 +238,21 @@ const uiCopy = {
   en: {
     eyebrow: 'My profile',
     title: 'Track your application and next steps',
-    emailPlaceholder: 'Enter your email',
+    emailPlaceholder: 'Email or username (e.g. FC30)',
     passwordPlaceholder: 'Enter your password',
     forgotPassword: 'Forgot your password?',
     loginCta: 'Enter candidate intranet',
+    addEmailTitle: 'Add your email',
+    addEmailText:
+      'Your account was created without an email. Add one to receive the agreement, reminders and password recovery.',
+    addEmailPlaceholder: 'you@email.com',
+    addEmailCta: 'Save email',
+    addEmailSaving: 'Saving...',
+    addEmailOk: 'Email saved. You can use it to sign in.',
     loading: 'Loading information...',
     statusSection: 'User status',
     emailLabel: 'Email',
+    loginUserLabel: 'Username',
     createdLabel: 'Created on',
     accessLabel: 'Access',
     projectInfo: 'Project information',
@@ -297,6 +325,9 @@ export function ProjectProfileDashboard({
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [commsLoading, setCommsLoading] = useState(false);
+  const [newEmail, setNewEmail] = useState('');
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailMessage, setEmailMessage] = useState('');
   const answerEntries = record ? getOrderedAnswerEntries(record.profile.answers) : [];
 
   const loadRecord = async (targetEmail: string, targetPassword?: string) => {
@@ -377,6 +408,52 @@ export function ProjectProfileDashboard({
     }
   };
 
+  const saveEmail = async () => {
+    if (!record || !newEmail.trim()) return;
+    setEmailSaving(true);
+    setError('');
+    setEmailMessage('');
+    try {
+      const response = await fetch('/api/projeto/profile/email', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          recordId: record.id,
+          login: record.user.username || record.user.email || email,
+          password,
+          newEmail: newEmail.trim(),
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
+        return;
+      }
+      const loadedRecord = payload.record as EnrollmentRecord;
+      setRecord(loadedRecord);
+      setEmail(loadedRecord.user.email);
+      setNewEmail('');
+      setEmailMessage(t.addEmailOk);
+      writeCandidateSession({
+        id: loadedRecord.id,
+        email: loadedRecord.user.email,
+        password,
+        status: loadedRecord.status,
+        locale: loadedRecord.profile?.locale || localeKey,
+        name: loadedRecord.profile?.name || '',
+        agreementSigned: loadedRecord.profile?.agreement?.signed === true,
+      });
+    } catch {
+      setError(t.errorLoadGeneric);
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
+  const needsEmail =
+    Boolean(record?.profile?.emailPending) ||
+    /@acceso\.ruralcommerceglobal\.com$/i.test(record?.user?.email || '');
+
   return (
     <div className="space-y-5">
       <ProjectPortalHero eyebrow={t.eyebrow} title={t.title} />
@@ -417,6 +494,32 @@ export function ProjectProfileDashboard({
 
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
       {loading ? <p className="text-sm text-[#2F3336]/70">{t.loading}</p> : null}
+      {emailMessage ? <p className="rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">{emailMessage}</p> : null}
+
+      {record && needsEmail ? (
+        <ProjectPortalPanel title={t.addEmailTitle} tone="accent">
+          <p className="text-sm leading-6 text-[#2F3336]/80">{t.addEmailText}</p>
+          <p className="mt-2 text-sm text-[#2F3336]/70">
+            {t.loginUserLabel}: <strong>{record.user.username || record.user.email}</strong>
+          </p>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <input
+              value={newEmail}
+              onChange={(e) => setNewEmail(e.target.value)}
+              placeholder={t.addEmailPlaceholder}
+              className="min-w-0 flex-1 rounded-2xl border border-[#D9E3EC] px-4 py-3"
+            />
+            <button
+              type="button"
+              onClick={() => void saveEmail()}
+              disabled={emailSaving || !newEmail.trim()}
+              className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+            >
+              {emailSaving ? t.addEmailSaving : t.addEmailCta}
+            </button>
+          </div>
+        </ProjectPortalPanel>
+      ) : null}
 
       {record ? (
         <ProjectPortalShell

@@ -52,26 +52,34 @@ export async function POST(request: Request) {
   }
 
   const body = payload as Record<string, unknown>;
-  const email = trimField(body.email, 254);
+  const login = trimField(body.email, 254) || trimField(body.login, 254) || trimField(body.username, 254);
   const password = trimField(body.password, 128);
 
-  if (!email || !password) {
-    return NextResponse.json({ ok: false, message: 'E-mail e senha são obrigatórios.' }, { status: 400 });
+  if (!login || !password) {
+    return NextResponse.json({ ok: false, message: 'E-mail (ou usuário) e senha são obrigatórios.' }, { status: 400 });
   }
 
-  if (!isValidEmail(email)) {
-    return NextResponse.json({ ok: false, message: 'E-mail inválido.' }, { status: 400 });
-  }
+  const loginLower = login.toLowerCase();
+  const looksLikeEmail = isValidEmail(login);
 
   const records = (await readRecords()) as Array<Record<string, unknown>>;
   const record = records.find((item) => {
     const user = (item.user as Record<string, unknown>) || {};
-    const userEmail = typeof user.email === 'string' ? user.email : '';
-    return userEmail.toLowerCase() === email.toLowerCase();
+    const userEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
+    const username = typeof user.username === 'string' ? user.username.toLowerCase() : '';
+    return userEmail === loginLower || username === loginLower;
   });
 
   if (!record) {
-    return NextResponse.json({ ok: false, message: 'Nenhuma inscrição encontrada com este e-mail.' }, { status: 404 });
+    return NextResponse.json(
+      {
+        ok: false,
+        message: looksLikeEmail
+          ? 'Nenhuma inscrição encontrada com este e-mail.'
+          : 'Nenhuma inscrição encontrada com este usuário.',
+      },
+      { status: 404 }
+    );
   }
 
   const user = ((record.user as Record<string, unknown>) || {}) as Record<string, unknown>;
