@@ -1,4 +1,18 @@
-import { equipos3d, zonaColors, zonaRects, type Equipo3D, type ZonaId } from '@/lib/planta-planos';
+import {
+  equipos3d,
+  PLANTA_D,
+  PLANTA_DOOR_H,
+  PLANTA_W,
+  PLANTA_WALL_H,
+  PLANTA_WIN_HEAD,
+  PLANTA_WIN_SILL,
+  plantaDoors,
+  plantaWindows,
+  zonaColors,
+  zonaRects,
+  type Equipo3D,
+  type ZonaId,
+} from '@/lib/planta-planos';
 
 const OX = 392;
 const OY = 72;
@@ -12,6 +26,99 @@ function iso(x: number, y: number, z = 0) {
 
 function pts(list: { x: number; y: number }[]) {
   return list.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+}
+
+function Quad({
+  a,
+  b,
+  c,
+  d,
+  fill,
+  opacity = 1,
+}: {
+  a: { x: number; y: number };
+  b: { x: number; y: number };
+  c: { x: number; y: number };
+  d: { x: number; y: number };
+  fill: string;
+  opacity?: number;
+}) {
+  return <polygon points={pts([a, b, c, d])} fill={fill} stroke="#071F5E" strokeWidth="1" opacity={opacity} />;
+}
+
+function BackWallBand({
+  x0,
+  x1,
+  z0,
+  z1,
+  fill,
+}: {
+  x0: number;
+  x1: number;
+  z0: number;
+  z1: number;
+  fill: string;
+}) {
+  return (
+    <Quad
+      a={iso(x0, 0, z0)}
+      b={iso(x1, 0, z0)}
+      c={iso(x1, 0, z1)}
+      d={iso(x0, 0, z1)}
+      fill={fill}
+    />
+  );
+}
+
+function LeftWallBand({
+  y0,
+  y1,
+  z0,
+  z1,
+  fill,
+}: {
+  y0: number;
+  y1: number;
+  z0: number;
+  z1: number;
+  fill: string;
+}) {
+  return (
+    <Quad
+      a={iso(0, y0, z0)}
+      b={iso(0, y1, z0)}
+      c={iso(0, y1, z1)}
+      d={iso(0, y0, z1)}
+      fill={fill}
+    />
+  );
+}
+
+function FrontWallBand({
+  x0,
+  x1,
+  z0,
+  z1,
+  fill,
+  opacity = 0.22,
+}: {
+  x0: number;
+  x1: number;
+  z0: number;
+  z1: number;
+  fill: string;
+  opacity?: number;
+}) {
+  return (
+    <Quad
+      a={iso(x0, PLANTA_D, z0)}
+      b={iso(x1, PLANTA_D, z0)}
+      c={iso(x1, PLANTA_D, z1)}
+      d={iso(x0, PLANTA_D, z1)}
+      fill={fill}
+      opacity={opacity}
+    />
+  );
 }
 
 function FloorTile({
@@ -159,24 +266,29 @@ export function PlantaVista3D({
   labels,
   selected,
   onSelect,
+  openings,
 }: {
   title: string;
   labels: Record<string, string>;
   selected: string;
   onSelect: (id: string) => void;
+  openings?: { door: string; doorService: string; window: string; windowSide: string };
 }) {
-  const wallH = 2.35;
   const sorted = [...equipos3d].sort((a, b) => a.y + a.x - (b.y + b.x));
-  const backL = iso(0, 0, 0);
-  const backR = iso(4, 0, 0);
-  const backRT = iso(4, 0, wallH);
-  const backLT = iso(0, 0, wallH);
-  const frontL = iso(0, 5.5, 0);
-  const frontLT = iso(0, 5.5, wallH);
+  const p1 = plantaDoors.front;
+  const p2 = plantaDoors.back;
+  const v1 = plantaWindows.front;
+  const v2 = plantaWindows.side;
+  const wall = '#f4f1ea';
+  const wallSide = '#ebe6dc';
   const screenL = iso(0, 3.1, 0);
   const screenR = iso(4, 3.1, 0);
   const screenLT = iso(0, 3.1, 1.2);
   const screenRT = iso(4, 3.1, 1.2);
+  const p2Label = iso((p2.x0 + p2.x1) / 2, 0.08, PLANTA_DOOR_H + 0.12);
+  const p1Label = iso((p1.x0 + p1.x1) / 2, PLANTA_D - 0.08, PLANTA_DOOR_H + 0.12);
+  const v1Label = iso((v1.x0 + v1.x1) / 2, PLANTA_D - 0.08, PLANTA_WIN_HEAD + 0.12);
+  const v2Label = iso(0.08, (v2.y0 + v2.y1) / 2, PLANTA_WIN_HEAD + 0.12);
 
   return (
     <svg viewBox="0 0 760 640" role="img" aria-label={title}>
@@ -185,7 +297,7 @@ export function PlantaVista3D({
         {title} · 4,0 × 5,5 m
       </text>
       <polygon
-        points={pts([iso(0, 0, 0), iso(4, 0, 0), iso(4, 5.5, 0), iso(0, 5.5, 0)])}
+        points={pts([iso(0, 0, 0), iso(PLANTA_W, 0, 0), iso(PLANTA_W, PLANTA_D, 0), iso(0, PLANTA_D, 0)])}
         fill="#d7d3c6"
         stroke="#071F5E"
       />
@@ -193,8 +305,55 @@ export function PlantaVista3D({
         const r = zonaRects[id];
         return <FloorTile key={id} x={r.x} y={r.y} w={r.w} h={r.h} fill={`${zonaColors[id]}44`} />;
       })}
-      <polygon points={pts([backL, backR, backRT, backLT])} fill="#f4f1ea" stroke="#071F5E" />
-      <polygon points={pts([backL, frontL, frontLT, backLT])} fill="#ebe6dc" stroke="#071F5E" />
+      <BackWallBand x0={0} x1={p2.x0} z0={0} z1={PLANTA_WALL_H} fill={wall} />
+      <BackWallBand x0={p2.x0} x1={p2.x1} z0={PLANTA_DOOR_H} z1={PLANTA_WALL_H} fill={wall} />
+      <BackWallBand x0={p2.x1} x1={PLANTA_W} z0={0} z1={PLANTA_WALL_H} fill={wall} />
+      <LeftWallBand y0={0} y1={v2.y0} z0={0} z1={PLANTA_WALL_H} fill={wallSide} />
+      <LeftWallBand y0={v2.y0} y1={v2.y1} z0={0} z1={PLANTA_WIN_SILL} fill={wallSide} />
+      <LeftWallBand y0={v2.y0} y1={v2.y1} z0={PLANTA_WIN_HEAD} z1={PLANTA_WALL_H} fill={wallSide} />
+      <LeftWallBand y0={v2.y1} y1={PLANTA_D} z0={0} z1={PLANTA_WALL_H} fill={wallSide} />
+      <Quad
+        a={iso(0, v2.y0, PLANTA_WIN_SILL)}
+        b={iso(0, v2.y1, PLANTA_WIN_SILL)}
+        c={iso(0, v2.y1, PLANTA_WIN_HEAD)}
+        d={iso(0, v2.y0, PLANTA_WIN_HEAD)}
+        fill="#9ec5e8"
+        opacity={0.72}
+      />
+      <FrontWallBand x0={0} x1={v1.x0} z0={0} z1={PLANTA_WALL_H} fill={wall} />
+      <FrontWallBand x0={v1.x0} x1={v1.x1} z0={0} z1={PLANTA_WIN_SILL} fill={wall} />
+      <FrontWallBand x0={v1.x0} x1={v1.x1} z0={PLANTA_WIN_HEAD} z1={PLANTA_WALL_H} fill={wall} />
+      <FrontWallBand x0={v1.x1} x1={p1.x0} z0={0} z1={PLANTA_WALL_H} fill={wall} />
+      <FrontWallBand x0={p1.x0} x1={p1.x1} z0={PLANTA_DOOR_H} z1={PLANTA_WALL_H} fill={wall} />
+      <FrontWallBand x0={p1.x1} x1={PLANTA_W} z0={0} z1={PLANTA_WALL_H} fill={wall} />
+      <Quad
+        a={iso(v1.x0, PLANTA_D, PLANTA_WIN_SILL)}
+        b={iso(v1.x1, PLANTA_D, PLANTA_WIN_SILL)}
+        c={iso(v1.x1, PLANTA_D, PLANTA_WIN_HEAD)}
+        d={iso(v1.x0, PLANTA_D, PLANTA_WIN_HEAD)}
+        fill="#9ec5e8"
+        opacity={0.55}
+      />
+      <Box3D
+        x={p2.x0}
+        y={0}
+        w={0.06}
+        d={p2.x1 - p2.x0}
+        h={PLANTA_DOOR_H}
+        top="#6b4f32"
+        south="#8a6844"
+        east="#5c422b"
+      />
+      <Box3D
+        x={p1.x1 - 0.06}
+        y={PLANTA_D - (p1.x1 - p1.x0)}
+        w={0.06}
+        d={p1.x1 - p1.x0}
+        h={PLANTA_DOOR_H}
+        top="#6b4f32"
+        south="#8a6844"
+        east="#5c422b"
+      />
       <polygon
         points={pts([screenL, screenR, screenRT, screenLT])}
         fill="rgba(7,31,94,0.18)"
@@ -214,6 +373,18 @@ export function PlantaVista3D({
             </text>
           );
         })}
+      <text x={p2Label.x} y={p2Label.y} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
+        {p2.id} {openings?.doorService ?? ''}
+      </text>
+      <text x={p1Label.x} y={p1Label.y} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
+        {p1.id} {openings?.door ?? ''}
+      </text>
+      <text x={v1Label.x} y={v1Label.y} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
+        {v1.id} {openings?.window ?? ''}
+      </text>
+      <text x={v2Label.x} y={v2Label.y} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
+        {v2.id} {openings?.windowSide ?? ''}
+      </text>
     </svg>
   );
 }

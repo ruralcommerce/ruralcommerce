@@ -13,6 +13,11 @@ import {
   getPlanoLocale,
   luces,
   nemaGloss,
+  PLANTA_D,
+  PLANTA_W,
+  PLANTA_WALL_M,
+  plantaDoors,
+  plantaWindows,
   planoChrome,
   planoTabs,
   procesoSteps,
@@ -96,11 +101,113 @@ function ZoneRect({
 function RoomLabels({ back, front, acopio }: { back: string; front: string; acopio: string }) {
   return (
     <g fill="#071F5E" fontSize="11" fontWeight="700">
-      <text x={sx(2)} y={24} textAnchor="middle">
+      <text x={sx(2)} y={22} textAnchor="middle">
         {back} · {acopio}
       </text>
-      <text x={sx(2)} y={sy(6.12)} textAnchor="middle">
+      <text x={sx(2)} y={sy(6.48)} textAnchor="middle">
         {front}
+      </text>
+    </g>
+  );
+}
+
+function SketchEnvelope({
+  x,
+  y,
+  w,
+  h,
+  door,
+  doorService,
+  window: windowLabel,
+  windowSide,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  door: string;
+  doorService: string;
+  window: string;
+  windowSide: string;
+}) {
+  const mx = (m: number) => x + (m / PLANTA_W) * w;
+  const my = (m: number) => y + (m / PLANTA_D) * h;
+  const tw = (PLANTA_WALL_M / PLANTA_W) * w;
+  const th = (PLANTA_WALL_M / PLANTA_D) * h;
+  const p1 = plantaDoors.front;
+  const p2 = plantaDoors.back;
+  const v1 = plantaWindows.front;
+  const v2 = plantaWindows.side;
+  const p1w = mx(p1.x1) - mx(p1.x0);
+  const p2w = mx(p2.x1) - mx(p2.x0);
+  return (
+    <g>
+      <rect x={x} y={y} width={w} height={h} fill="#fff" />
+      <rect x={x - tw} y={y - th} width={mx(p2.x0) - (x - tw)} height={th} fill="#111" />
+      <rect x={mx(p2.x1)} y={y - th} width={x + w + tw - mx(p2.x1)} height={th} fill="#111" />
+      <rect x={x - tw} y={y + h} width={mx(v1.x0) - (x - tw)} height={th} fill="#111" />
+      <rect x={mx(v1.x1)} y={y + h} width={mx(p1.x0) - mx(v1.x1)} height={th} fill="#111" />
+      <rect x={mx(p1.x1)} y={y + h} width={x + w + tw - mx(p1.x1)} height={th} fill="#111" />
+      <rect x={x - tw} y={y} width={tw} height={my(v2.y0) - y} fill="#111" />
+      <rect x={x - tw} y={my(v2.y1)} width={tw} height={y + h - my(v2.y1)} fill="#111" />
+      <rect x={x + w} y={y} width={tw} height={h} fill="#111" />
+      <rect x={mx(v1.x0)} y={y + h} width={mx(v1.x1) - mx(v1.x0)} height={th} fill="#c5d4e8" stroke="#111" />
+      <line
+        x1={mx(v1.x0 + (v1.x1 - v1.x0) / 3)}
+        y1={y + h}
+        x2={mx(v1.x0 + (v1.x1 - v1.x0) / 3)}
+        y2={y + h + th}
+        stroke="#111"
+      />
+      <line
+        x1={mx(v1.x0 + (2 * (v1.x1 - v1.x0)) / 3)}
+        y1={y + h}
+        x2={mx(v1.x0 + (2 * (v1.x1 - v1.x0)) / 3)}
+        y2={y + h + th}
+        stroke="#111"
+      />
+      <rect x={x - tw} y={my(v2.y0)} width={tw} height={my(v2.y1) - my(v2.y0)} fill="#c5d4e8" stroke="#111" />
+      <line x1={x - tw} y1={my(v2.y0 + (v2.y1 - v2.y0) / 3)} x2={x} y2={my(v2.y0 + (v2.y1 - v2.y0) / 3)} stroke="#111" />
+      <line
+        x1={x - tw}
+        y1={my(v2.y0 + (2 * (v2.y1 - v2.y0)) / 3)}
+        x2={x}
+        y2={my(v2.y0 + (2 * (v2.y1 - v2.y0)) / 3)}
+        stroke="#111"
+      />
+      <path
+        d={`M ${mx(p1.x0)} ${y + h} A ${p1w} ${p1w} 0 0 1 ${mx(p1.x1)} ${y + h - p1w}`}
+        fill="rgba(0,0,0,0.06)"
+        stroke="#111"
+        strokeDasharray="4 3"
+      />
+      <line x1={mx(p1.x1)} y1={y + h} x2={mx(p1.x1)} y2={y + h - p1w} stroke="#111" strokeWidth="3" />
+      <path
+        d={`M ${mx(p2.x1)} ${y} A ${p2w} ${p2w} 0 0 1 ${mx(p2.x0)} ${y + p2w}`}
+        fill="rgba(0,0,0,0.06)"
+        stroke="#111"
+        strokeDasharray="4 3"
+      />
+      <line x1={mx(p2.x0)} y1={y} x2={mx(p2.x0)} y2={y + p2w} stroke="#111" strokeWidth="3" />
+      <text x={mx((p1.x0 + p1.x1) / 2)} y={y + h + th + 16} textAnchor="middle" fill="#111" fontSize="11" fontWeight="700">
+        {p1.id} {door}
+      </text>
+      <text x={mx((v1.x0 + v1.x1) / 2)} y={y + h + th + 16} textAnchor="middle" fill="#111" fontSize="11" fontWeight="700">
+        {v1.id} {windowLabel}
+      </text>
+      <text x={mx((p2.x0 + p2.x1) / 2)} y={y - th - 8} textAnchor="middle" fill="#111" fontSize="11" fontWeight="700">
+        {p2.id} {doorService}
+      </text>
+      <text
+        x={x - tw - 8}
+        y={(my(v2.y0) + my(v2.y1)) / 2}
+        textAnchor="middle"
+        fill="#111"
+        fontSize="11"
+        fontWeight="700"
+        transform={`rotate(-90 ${x - tw - 8} ${(my(v2.y0) + my(v2.y1)) / 2})`}
+      >
+        {v2.id} {windowSide}
       </text>
     </g>
   );
@@ -125,19 +232,23 @@ function OriginalSketch({
   front,
   window,
   door,
+  doorService,
+  windowSide,
 }: {
   back: string;
   front: string;
   window: string;
   door: string;
+  doorService: string;
+  windowSide: string;
 }) {
-  const x = 120;
-  const y = 56;
+  const x = 128;
+  const y = 72;
   const w = 250;
   const h = 344;
   return (
-    <svg viewBox="0 0 480 520" role="img" aria-label={`${back} 4,0 × 5,5 m`}>
-      <rect width="480" height="520" fill="#fffdf8" />
+    <svg viewBox="0 0 480 560" role="img" aria-label={`${back} 4,0 × 5,5 m`}>
+      <rect width="480" height="560" fill="#fffdf8" />
       <text x="245" y="28" textAnchor="middle" fill="#111" fontSize="15" fontWeight="700">
         {back}
       </text>
@@ -155,10 +266,18 @@ function OriginalSketch({
       >
         5.5 m
       </text>
-      <rect x={x} y={y} width={w} height={h} fill="#fff" stroke="#111" strokeWidth="6" />
+      <SketchEnvelope
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        door={door}
+        doorService={doorService}
+        window={window}
+        windowSide={windowSide}
+      />
       <rect x={x + 78} y={y + 10} width="40" height="30" rx="3" fill="none" stroke="#111" strokeWidth="2" />
       <circle cx={x + 98} cy={y + 24} r="6" fill="none" stroke="#111" strokeWidth="2" />
-      <path d={`M ${x + w - 52} ${y} A 48 48 0 0 1 ${x + w} ${y + 52}`} fill="none" stroke="#111" strokeWidth="2" />
       <g transform={`translate(${x + w / 2} ${y + 112})`} stroke="#111" fill="none" strokeWidth="2">
         <circle r="12" />
         <line x1="-18" y1="0" x2="18" y2="0" />
@@ -172,43 +291,53 @@ function OriginalSketch({
         <line x1="-18" y1="0" x2="18" y2="0" />
         <line x1="0" y1="-18" x2="0" y2="18" />
       </g>
-      <rect x={x + 32} y={y + h - 9} width="78" height="12" fill="#fff" stroke="#111" strokeWidth="2" />
-      <path
-        d={`M ${x + w - 50} ${y + h} A 48 48 0 0 0 ${x + w} ${y + h - 50}`}
-        fill="none"
-        stroke="#111"
-        strokeWidth="2"
-      />
-      <text x={x + 71} y={y + h + 24} textAnchor="middle" fill="#111" fontSize="12">
-        {window}
-      </text>
-      <text x={x + w - 28} y={y + h + 24} textAnchor="middle" fill="#111" fontSize="12">
-        {door}
-      </text>
-      <text x={x + w / 2} y={y + h + 62} textAnchor="middle" fill="#111" fontSize="14" fontWeight="700">
+      <text x={x + w / 2} y={y + h + 52} textAnchor="middle" fill="#111" fontSize="14" fontWeight="700">
         4.0 m
       </text>
-      <text x={x + w / 2} y={y + h + 86} textAnchor="middle" fill="#111" fontSize="15" fontWeight="700">
+      <text x={x + w / 2} y={y + h + 78} textAnchor="middle" fill="#111" fontSize="15" fontWeight="700">
         {front}
       </text>
     </svg>
   );
 }
 
-function CoopProposal({ back, front }: { back: string; front: string }) {
-  const x = 110;
-  const y = 48;
+function CoopProposal({
+  back,
+  front,
+  door,
+  doorService,
+  window,
+  windowSide,
+}: {
+  back: string;
+  front: string;
+  door: string;
+  doorService: string;
+  window: string;
+  windowSide: string;
+}) {
+  const x = 118;
+  const y = 64;
   const w = 250;
   const h = 344;
   return (
-    <svg viewBox="0 0 480 520" role="img" aria-label="Propuesta cooperativa">
-      <rect width="480" height="520" fill="#fff" />
+    <svg viewBox="0 0 480 560" role="img" aria-label="Propuesta cooperativa">
+      <rect width="480" height="560" fill="#fff" />
       <text x="245" y="28" textAnchor="middle" fill="#111" fontSize="14" fontWeight="700">
         {back}
       </text>
-      <rect x={x} y={y} width={w} height={h} fill="#fff" stroke="#111" strokeWidth="5" />
-      <rect x={x + 88} y={y - 28} width="36" height="22" fill="none" stroke="#111" />
-      <text x={x + 106} y={y - 34} textAnchor="middle" fill="#111" fontSize="9">
+      <SketchEnvelope
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        door={door}
+        doorService={doorService}
+        window={window}
+        windowSide={windowSide}
+      />
+      <rect x={x + 88} y={y - 36} width="36" height="22" fill="none" stroke="#111" />
+      <text x={x + 106} y={y - 42} textAnchor="middle" fill="#111" fontSize="9">
         Pila exterior
       </text>
       <rect x={x + 88} y={y + 8} width="40" height="28" fill="none" stroke="#111" />
@@ -239,7 +368,7 @@ function CoopProposal({ back, front }: { back: string; front: string }) {
       <text x={x + w / 2} y={y + 338} textAnchor="middle" fill="#111" fontSize="12" fontWeight="700">
         Ingreso
       </text>
-      <text x={x + w / 2} y={y + h + 28} textAnchor="middle" fill="#111" fontSize="13" fontWeight="700">
+      <text x={x + w / 2} y={y + h + 52} textAnchor="middle" fill="#111" fontSize="13" fontWeight="700">
         4.0 m · {front}
       </text>
     </svg>
@@ -300,6 +429,12 @@ function FloorShell({ title, code }: { title: string; code: string }) {
 export function PlantaPlanos({ locale }: { locale: string }) {
   const loc = getPlanoLocale(locale);
   const chrome = planoChrome[loc];
+  const aberturas = {
+    door: chrome.door,
+    doorService: chrome.doorService,
+    window: chrome.window,
+    windowSide: chrome.windowSide,
+  };
   const tabs = planoTabs[loc];
   const zones = zonaCopyFull[loc];
   const steps = procesoSteps[loc];
@@ -344,7 +479,14 @@ export function PlantaPlanos({ locale }: { locale: string }) {
           {chrome.originalLead ? <p className="planta-plan-note">{chrome.originalLead}</p> : null}
           <div className="planta-plan-split">
             <div className="planta-croquis">
-              <OriginalSketch back={chrome.back} front={chrome.front} window={chrome.window} door={chrome.door} />
+              <OriginalSketch
+                back={chrome.back}
+                front={chrome.front}
+                window={chrome.window}
+                door={chrome.door}
+                doorService={chrome.doorService}
+                windowSide={chrome.windowSide}
+              />
             </div>
             <div className="planta-croquis planta-plan-photo">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -360,7 +502,14 @@ export function PlantaPlanos({ locale }: { locale: string }) {
           <p className="planta-plan-note">{coop.lead}</p>
           <div className="planta-plan-split">
             <div className="planta-croquis">
-              <CoopProposal back={chrome.back} front={chrome.front} />
+              <CoopProposal
+                back={chrome.back}
+                front={chrome.front}
+                door={chrome.door}
+                doorService={chrome.doorService}
+                window={chrome.window}
+                windowSide={chrome.windowSide}
+              />
             </div>
             <div>
               <p className="planta-kicker">{coop.keepTitle}</p>
@@ -411,7 +560,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 <text x={sx(2)} y={sy(3.52)} textAnchor="middle" fill="#8a6d12" fontSize="10" fontWeight="700">
                   {chrome.screen} · {chrome.floorUp}
                 </text>
-                <DoorsAndWindow />
+                <DoorsAndWindow {...aberturas} />
                 <rect x={sx(0.9)} y={sy(-0.55)} width={0.7 * M} height={0.4 * M} fill="#eef6f8" stroke="#071F5E" />
                 <text x={sx(1.25)} y={sy(-0.18)} textAnchor="middle" fill="#071F5E" fontSize="9">
                   Pila ext.
@@ -427,7 +576,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 <DimV x={-0.42} y1={3.6} y2={4.55} label="0,95 m" />
                 <DimV x={-0.42} y1={4.55} y2={5.5} label="0,95 m" />
                 <DimV x={-0.88} y1={0} y2={5.5} label="5,50 m" />
-                <DimH x1={0} x2={4} y={5.78} label="4,00 m" />
+                <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
               </svg>
             </div>
             <aside className="planta-card planta-plan-card">
@@ -481,7 +630,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                     stroke="#071F5E"
                   />
                 ))}
-                <DoorsAndWindow />
+                <DoorsAndWindow {...aberturas} />
                 <path
                   d={`M ${sx(3.0)} ${sy(0.6)} L ${sx(1.0)} ${sy(0.6)}`}
                   fill="none"
@@ -541,7 +690,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   </g>
                 ))}
                 <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
-                <DimH x1={0} x2={4} y={5.78} label="4,00 m" />
+                <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
                 <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
               </svg>
             </div>
@@ -578,7 +727,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   stroke="#b7c2ce"
                 />
               ))}
-              <DoorsAndWindow />
+              <DoorsAndWindow {...aberturas} />
               {luces.map((luz) => (
                 <g key={luz.id}>
                   <circle cx={sx(luz.x)} cy={sy(luz.y)} r="11" fill="#fff8d6" stroke="#8a6d12" />
@@ -625,7 +774,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 C7 techo solar 3 kW
               </text>
               <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
-              <DimH x1={0} x2={4} y={5.78} label="4,00 m" />
+              <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
               <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
             </svg>
           </div>
@@ -709,7 +858,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                     stroke="#b7c2ce"
                   />
                 ))}
-                <DoorsAndWindow />
+                <DoorsAndWindow {...aberturas} />
                 <line x1={sx(-0.12)} y1={sy(-0.12)} x2={sx(4.12)} y2={sy(-0.12)} stroke="#009179" strokeWidth="5" />
                 <line x1={sx(-0.12)} y1={sy(-0.12)} x2={sx(-0.12)} y2={sy(5.62)} stroke="#009179" strokeWidth="5" />
                 <line x1={sx(4.12)} y1={sy(-0.12)} x2={sx(4.12)} y2={sy(5.62)} stroke="#009179" strokeWidth="5" />
@@ -748,7 +897,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   {agua.rain}
                 </text>
                 <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
-                <DimH x1={0} x2={4} y={5.92} label="4,00 m" />
+                <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
               </svg>
             </div>
             <aside className="planta-card planta-plan-card">
@@ -771,41 +920,44 @@ export function PlantaPlanos({ locale }: { locale: string }) {
           {solar.lead ? <p className="planta-plan-note">{solar.lead}</p> : null}
           <div className="planta-plan-split">
             <div className="planta-croquis">
-              <svg viewBox="0 0 760 640" role="img" aria-label={solar.title}>
-                <rect width="760" height="640" fill="#eef3f0" />
-                <SheetHead code="S-01" title={solar.title} />
-                <text x="96" y="70" fill="#071F5E" fontSize="12" fontWeight="700">
-                  {solar.roof}
-                </text>
-                <rect x="96" y="86" width="400" height="550" fill="#071F5E" />
+              <svg viewBox="0 0 760 760" role="img" aria-label={solar.title}>
+                <FloorShell code="S-01" title={solar.title} />
+                <rect x={sx(0)} y={sy(0)} width={4 * M} height={5.5 * M} fill="#071F5E" opacity="0.88" />
                 {[0, 1, 2].map((col) => (
                   <rect
                     key={col}
-                    x={128 + col * 118}
-                    y={140}
-                    width="102"
-                    height="360"
+                    x={sx(0.28 + col * 1.24)}
+                    y={sy(0.85)}
+                    width={1.1 * M}
+                    height={3.55 * M}
                     fill="#1e4d8c"
                     stroke="#52ADAD"
                     strokeWidth="2"
                   />
                 ))}
-                <text x="296" y="340" textAnchor="middle" fill="#F2F2F2" fontSize="14" fontWeight="700">
+                <text x={sx(2)} y={sy(0.42)} textAnchor="middle" fill="#F2F2F2" fontSize="12" fontWeight="700">
+                  {solar.roof}
+                </text>
+                <text x={sx(2)} y={sy(2.7)} textAnchor="middle" fill="#F2F2F2" fontSize="14" fontWeight="700">
                   {solarSpec.panels} × {solarSpec.watts} W = {solarSpec.kWp} kWp
                 </text>
-                <rect x="530" y="200" width="190" height="90" rx="8" fill="#fff" stroke="#071F5E" />
-                <text x="625" y="238" textAnchor="middle" fill="#071F5E" fontSize="13" fontWeight="700">
+                <DoorsAndWindow {...aberturas} />
+                <rect x={sx(4.25)} y={sy(1.8)} width="190" height="90" rx="8" fill="#fff" stroke="#071F5E" />
+                <text x={sx(5.2)} y={sy(2.15)} textAnchor="middle" fill="#071F5E" fontSize="13" fontWeight="700">
                   {solar.motor}
                 </text>
-                <text x="625" y="258" textAnchor="middle" fill="#071F5E" fontSize="11">
+                <text x={sx(5.2)} y={sy(2.38)} textAnchor="middle" fill="#071F5E" fontSize="11">
                   híbrido · TAB C7
                 </text>
-                <text x="625" y="320" textAnchor="middle" fill="#071F5E" fontSize="11">
+                <text x={sx(5.2)} y={sy(3.05)} textAnchor="middle" fill="#071F5E" fontSize="11">
                   ICE 60 A + medidor bidireccional
                 </text>
-                <text x="625" y="360" textAnchor="middle" fill="#071F5E" fontSize="12" fontWeight="700">
+                <text x={sx(5.2)} y={sy(3.4)} textAnchor="middle" fill="#071F5E" fontSize="12" fontWeight="700">
                   ~{solarSpec.kwhDay} kWh/día
                 </text>
+                <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
+                <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
+                <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
               </svg>
             </div>
             <aside className="planta-card planta-plan-card">
@@ -861,7 +1013,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                     stroke="#c5d0c8"
                   />
                 ))}
-                <DoorsAndWindow />
+                <DoorsAndWindow {...aberturas} />
                 {equipos3d.map((item) => (
                   <EquipoSymbol
                     key={item.id}
@@ -872,7 +1024,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   />
                 ))}
                 <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
-                <DimH x1={0} x2={4} y={5.78} label="4,00 m" />
+                <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
                 <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
               </svg>
             </div>
@@ -909,7 +1061,13 @@ export function PlantaPlanos({ locale }: { locale: string }) {
           {chrome.iso3dLead ? <p className="planta-plan-note">{chrome.iso3dLead}</p> : null}
           <div className="planta-plan-split">
             <div className="planta-croquis">
-              <PlantaVista3D title={chrome.iso3dTitle} labels={shortEq} selected={eq} onSelect={setEq} />
+              <PlantaVista3D
+                title={chrome.iso3dTitle}
+                labels={shortEq}
+                selected={eq}
+                onSelect={setEq}
+                openings={aberturas}
+              />
             </div>
             <aside className="planta-card planta-plan-card">
               <div className="planta-zone-chips planta-zone-chips-wrap">
@@ -952,11 +1110,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 <line x1={sx(2.05)} y1={sy(0)} x2={sx(2.05)} y2={sy(1.2)} stroke="#c45c26" strokeWidth="4" />
                 <rect x={sx(0)} y={sy(3.52)} width={4 * M} height={0.16 * M} fill="#c9a227" />
                 <line x1={sx(0)} y1={sy(3.6)} x2={sx(4)} y2={sy(3.6)} stroke="#071F5E" strokeWidth="3" strokeDasharray="7 5" />
-                <rect x={sx(-0.06)} y={sy(-0.06)} width={4.12 * M} height={0.12 * M} fill="#8aa0b8" />
-                <rect x={sx(-0.06)} y={sy(5.44)} width={4.12 * M} height={0.12 * M} fill="#8aa0b8" />
-                <rect x={sx(-0.06)} y={sy(0)} width={0.12 * M} height={5.5 * M} fill="#8aa0b8" />
-                <rect x={sx(3.94)} y={sy(0)} width={0.12 * M} height={5.5 * M} fill="#8aa0b8" />
-                <DoorsAndWindow />
+                <DoorsAndWindow {...aberturas} />
                 <text x={sx(1.0)} y={sy(0.65)} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
                   {short.lavado}
                 </text>
@@ -985,7 +1139,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   {chrome.screen}
                 </text>
                 <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
-                <DimH x1={0} x2={4} y={5.78} label="4,00 m" />
+                <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
                 <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
               </svg>
             </div>

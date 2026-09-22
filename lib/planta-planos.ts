@@ -5,6 +5,27 @@ type LocaleCopy<T> = Record<ProjectLocaleKey, T>;
 export const PLANTA_W = 4.0;
 export const PLANTA_D = 5.5;
 export const PLANTA_AREA = 22;
+/** Exterior wall thickness in the drawings, metres. */
+export const PLANTA_WALL_M = 0.14;
+export const PLANTA_WALL_H = 2.35;
+export const PLANTA_DOOR_H = 2.05;
+export const PLANTA_WIN_SILL = 0.9;
+export const PLANTA_WIN_HEAD = 2.15;
+
+/** Building openings. Origin = back-left, X → right, Y → front. */
+export const plantaDoors = {
+  /** People and packed product. Front wall, right. */
+  front: { id: 'P1', x0: 3.15, x1: 3.95 },
+  /** Raw material / acopio. Back wall, into recepción. */
+  back: { id: 'P2', x0: 2.45, x1: 3.25 },
+} as const;
+
+export const plantaWindows = {
+  /** Original front window, over the entry strip. */
+  front: { id: 'V1', x0: 0.45, x1: 2.05 },
+  /** Side window with insect mesh. Left wall, transformation strip. */
+  side: { id: 'V2', y0: 2.4, y1: 3.55 },
+} as const;
 
 export type PlanoTab = 'original' | 'distribucion' | 'procesos' | 'iso' | 'iso3d' | 'materiales' | 'tecnica' | 'agua' | 'energia';
 export type ZonaId = 'recepcion' | 'lavado' | 'preparacion' | 'transformacion' | 'envase' | 'almacen' | 'ingreso';
@@ -229,6 +250,7 @@ export const planoChrome: LocaleCopy<{
   front: string;
   acopio: string;
   window: string;
+  windowSide: string;
   door: string;
   doorService: string;
   lamps: string;
@@ -251,6 +273,7 @@ export const planoChrome: LocaleCopy<{
     originalTitle: 'Croquis de la cooperativa',
     originalLead: '',
     originalHow: [
+      'P1 puerta de frente (personas y producto). P2 puerta de servicio al acopio. V1 ventana de frente. V2 ventana lateral con malla.',
       'Puerta de atrás: materia prima desde el acopio.',
       'Puerta de frente: personas y producto terminado.',
       'Pila de atrás: producto. Lavamanos de pedal al frente: manos.',
@@ -289,6 +312,7 @@ export const planoChrome: LocaleCopy<{
     front: 'Frente',
     acopio: 'Centro de acopio',
     window: 'Ventana',
+    windowSide: 'Ventana lateral',
     door: 'Puerta',
     doorService: 'Puerta servicio',
     lamps: '2 lámparas (el código pide 6)',
@@ -311,6 +335,7 @@ export const planoChrome: LocaleCopy<{
     originalTitle: 'Croqui da cooperativa',
     originalLead: '',
     originalHow: [
+      'P1 porta da frente (pessoas e produto). P2 porta de serviço ao acopio. V1 janela da frente. V2 janela lateral com tela.',
       'Porta de trás: matéria-prima do acopio.',
       'Porta da frente: pessoas e produto acabado.',
       'Pia de trás: produto. Lavatório de pedal na frente: mãos.',
@@ -349,6 +374,7 @@ export const planoChrome: LocaleCopy<{
     front: 'Frente',
     acopio: 'Centro de acopio',
     window: 'Janela',
+    windowSide: 'Janela lateral',
     door: 'Porta',
     doorService: 'Porta de serviço',
     lamps: '2 lâmpadas (o código pede 6)',
@@ -371,6 +397,7 @@ export const planoChrome: LocaleCopy<{
     originalTitle: 'Cooperative sketch',
     originalLead: '',
     originalHow: [
+      'P1 front door (people and packed product). P2 service door to the collection center. V1 front window. V2 side window with mesh.',
       'Back door: raw material from the collection center.',
       'Front door: people and finished product.',
       'Back sink: product. Pedal handwash at the front: hands.',
@@ -409,6 +436,7 @@ export const planoChrome: LocaleCopy<{
     front: 'Front',
     acopio: 'Collection center',
     window: 'Window',
+    windowSide: 'Side window',
     door: 'Door',
     doorService: 'Service door',
     lamps: '2 lamps (code requires 6)',
