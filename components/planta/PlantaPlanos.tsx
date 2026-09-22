@@ -947,15 +947,18 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
               </svg>
             </div>
-            <aside className="planta-card planta-plan-card">
-              <p>{agua.capture}</p>
+            <aside className="planta-card planta-plan-card planta-plan-aside">
+              <p className="planta-aside-kicker">{agua.blueTitle}</p>
+              <p>{agua.stepBlue}</p>
               <p>{agua.dual}</p>
+              <p className="planta-aside-kicker">{agua.greenTitle}</p>
+              <p>{agua.stepGreen}</p>
+              <p>{agua.capture}</p>
               <p>{agua.treat}</p>
+              <p className="planta-aside-kicker">{agua.outTitle}</p>
+              <p>{agua.stepOut}</p>
               <p>{agua.residual}</p>
               <p className="planta-legal-ref">{agua.legal}</p>
-              <p>
-                {aguaSpec.roofM2} m² × {aguaSpec.rainMmYear} mm × {aguaSpec.capture} ≈ {aguaSpec.litersYear.toLocaleString('es-CR')} L/año.
-              </p>
             </aside>
           </div>
         </section>
@@ -988,17 +991,26 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   {solarSpec.panels} × {solarSpec.watts} W = {solarSpec.kWp} kWp
                 </text>
                 <DoorsAndWindow {...aberturas} />
-                <rect x={sx(4.25)} y={sy(1.8)} width="190" height="90" rx="8" fill="#fff" stroke="#071F5E" />
-                <text x={sx(5.2)} y={sy(2.15)} textAnchor="middle" fill="#071F5E" fontSize="13" fontWeight="700">
+                <rect x={sx(4.25)} y={sy(1.55)} width="190" height="175" rx="8" fill="#fff" stroke="#071F5E" />
+                <text x={sx(5.2)} y={sy(1.85)} textAnchor="middle" fill="#071F5E" fontSize="12" fontWeight="700">
+                  {solar.convertLabel}
+                </text>
+                <text x={sx(5.2)} y={sy(2.12)} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
                   {solar.motor}
                 </text>
-                <text x={sx(5.2)} y={sy(2.38)} textAnchor="middle" fill="#071F5E" fontSize="11">
-                  híbrido · TAB C7
+                <text x={sx(5.2)} y={sy(2.35)} textAnchor="middle" fill="#071F5E" fontSize="10">
+                  DC → AC · TAB C7
                 </text>
-                <text x={sx(5.2)} y={sy(3.05)} textAnchor="middle" fill="#071F5E" fontSize="11">
-                  ICE 60 A + medidor bidireccional
+                <text x={sx(5.2)} y={sy(2.7)} textAnchor="middle" fill="#009179" fontSize="11" fontWeight="700">
+                  {solar.storeLabel}
                 </text>
-                <text x={sx(5.2)} y={sy(3.4)} textAnchor="middle" fill="#071F5E" fontSize="12" fontWeight="700">
+                <text x={sx(5.2)} y={sy(2.95)} textAnchor="middle" fill="#071F5E" fontSize="10">
+                  backup = ICE
+                </text>
+                <text x={sx(5.2)} y={sy(3.25)} textAnchor="middle" fill="#071F5E" fontSize="10">
+                  ICE 60 A + medidor
+                </text>
+                <text x={sx(5.2)} y={sy(3.55)} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
                   ~{solarSpec.kwhDay} kWh/día
                 </text>
                 <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
@@ -1006,11 +1018,13 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
               </svg>
             </div>
-            <aside className="planta-card planta-plan-card">
-              <p>{solar.idea}</p>
+            <aside className="planta-card planta-plan-card planta-plan-aside">
+              <p>{solar.budgetOne}</p>
+              <p>{solar.path}</p>
+              <p>{solar.storage}</p>
               <p>{solar.inverter}</p>
-              <p>{solar.fit}</p>
               <p>{solar.ice}</p>
+              <p>{solar.fit}</p>
               {solar.disclaimer ? <p className="planta-legal-ref">{solar.disclaimer}</p> : null}
             </aside>
           </div>

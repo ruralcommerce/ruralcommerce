@@ -41,6 +41,9 @@ export const solarCopy: LocaleCopy<{
   title: string;
   lead: string;
   idea: string;
+  budgetOne: string;
+  path: string;
+  storage: string;
   inverter: string;
   ice: string;
   fit: string;
@@ -48,42 +51,59 @@ export const solarCopy: LocaleCopy<{
   loadsTitle: string;
   roof: string;
   motor: string;
+  convertLabel: string;
+  storeLabel: string;
 }> = {
   es: {
     title: 'Energía solar del galerón',
-    lead: 'Un panel de 625 W rinde ~2 kWh/día: solo luces. La deshidratadora pide 1,2 kW. Tres paneles de 625 W (1,88 kWp) cubren el día de sol; la red ICE cubre nublado. El fogón es gas, no carga el techo.',
-    idea: '3 × 625 W en este techo. Inversor híbrido 3 kW. ~5,9 kWh/día en Dota.',
-    inverter: 'Inversor 3 kW en el tablero (C7).',
-    ice: 'Medidor bidireccional ICE.',
+    lead: 'Un solo panel de 625 W no alcanza para la deshidratadora: solo luces (~2 kWh/día). Con tres paneles (~5,9 kWh/día) el sol cubre el proceso de día; la red ICE cubre nublado. El fogón es gas.',
+    idea: 'Meta del croquis: 3 × 625 W (1,88 kWp) en este techo.',
+    budgetOne: 'Si el presupuesto solo da para uno: sí se puede instalar 1 × 625 W ya (luces y tomas chicas), y dejar conduit/estructura listos para llegar a tres. Un panel no mueve la deshidratadora de 1,2 kW sola.',
+    path: 'Camino de la energía: paneles (DC) → inversor 3 kW en el tablero C7 (pasa a AC 120/240 V) → breakers → equipos. Excedente va a la red ICE por el medidor bidireccional.',
+    storage: 'No hay baterías en esta propuesta (caro a esta escala). El “almacén” es la red ICE: de día se inyecta/se usa sol; de noche o nublado se compra a ICE. Un híbrido deja opción de batería después, pero no es obligatoria para arrancar.',
+    inverter: 'Inversor híbrido 3 kW en el tablero (C7): es el conversor DC→AC.',
+    ice: 'Servicio ICE 60 A + medidor bidireccional (compra/venta).',
     fit: '3 módulos ≈ 8 m² sobre 22 m² de techo. No tapan ventana ni extractor.',
     disclaimer: '',
     loadsTitle: 'Cargas eléctricas de un día de proceso',
     roof: 'Techo 4,0 × 5,5 m',
     motor: 'Inversor 3 kW',
+    convertLabel: 'Conversor',
+    storeLabel: 'Sin batería',
   },
   'pt-BR': {
     title: 'Energia solar do galpão',
-    lead: 'Um painel de 625 W rende ~2 kWh/dia: só luzes. A desidratadora pede 1,2 kW. Três de 625 W (1,88 kWp) cobrem o dia de sol; a rede ICE cobre nublado. O fogão é gás.',
-    idea: '3 × 625 W neste telhado. Inversor híbrido 3 kW. ~5,9 kWh/dia em Dota.',
-    inverter: 'Inversor 3 kW no quadro (C7).',
-    ice: 'Medidor bidirecional ICE.',
+    lead: 'Um painel só de 625 W não basta para a desidratadora: só luzes (~2 kWh/dia). Com três (~5,9 kWh/dia) o sol cobre o processo de dia; a rede ICE cobre nublado. O fogão é gás.',
+    idea: 'Meta do croqui: 3 × 625 W (1,88 kWp) neste telhado.',
+    budgetOne: 'Se o dinheiro só dá para um: pode instalar 1 × 625 W já (luzes e tomadas pequenas) e deixar eletroduto/estrutura prontos para chegar a três. Um painel sozinho não move a desidratadora de 1,2 kW.',
+    path: 'Caminho da energia: painéis (CC) → inversor 3 kW no quadro C7 (vira CA 120/240 V) → disjuntores → equipamentos. Sobra vai para a rede ICE pelo medidor bidirecional.',
+    storage: 'Não há baterias nesta proposta (caro nesta escala). O “armazenamento” é a rede ICE: de dia usa/injeta sol; de noite ou nublado compra da ICE. O inversor híbrido deixa opção de bateria depois, mas não é obrigatória para começar.',
+    inverter: 'Inversor híbrido 3 kW no quadro (C7): é o conversor CC→CA.',
+    ice: 'Serviço ICE 60 A + medidor bidirecional (compra/venda).',
     fit: '3 módulos ≈ 8 m² sobre 22 m² de telhado.',
     disclaimer: '',
     loadsTitle: 'Cargas elétricas de um dia de processo',
     roof: 'Telhado 4,0 × 5,5 m',
     motor: 'Inversor 3 kW',
+    convertLabel: 'Conversor',
+    storeLabel: 'Sem bateria',
   },
   en: {
     title: 'Solar power for the shed',
-    lead: 'One 625 W module yields ~2 kWh/day: lights only. The dehydrator draws 1.2 kW. Three 625 W modules (1.88 kWp) cover daylight; ICE covers clouds. The stove is gas.',
-    idea: '3 × 625 W on this roof. 3 kW hybrid inverter. ~5.9 kWh/day in Dota.',
-    inverter: '3 kW inverter at the panel (C7).',
-    ice: 'ICE bidirectional meter.',
+    lead: 'One 625 W module is not enough for the dehydrator: lights only (~2 kWh/day). Three modules (~5.9 kWh/day) cover daytime process; ICE covers clouds. The stove is gas.',
+    idea: 'Drawing target: 3 × 625 W (1.88 kWp) on this roof.',
+    budgetOne: 'If budget only allows one: install 1 × 625 W now (lights and small receptacles) and leave conduit/racking ready for three. One panel alone will not run the 1.2 kW dehydrator.',
+    path: 'Energy path: panels (DC) → 3 kW inverter at panel C7 (to AC 120/240 V) → breakers → loads. Surplus goes to ICE via the bidirectional meter.',
+    storage: 'No batteries in this proposal (expensive at this scale). “Storage” is the ICE grid: daytime solar use/export; night or clouds buy from ICE. A hybrid inverter leaves a future battery option, but it is not required to start.',
+    inverter: '3 kW hybrid inverter at the panel (C7): the DC→AC converter.',
+    ice: 'ICE 60 A service + bidirectional meter (buy/sell).',
     fit: '3 modules ≈ 8 m² on a 22 m² roof.',
     disclaimer: '',
     loadsTitle: 'Electrical loads on a process day',
     roof: 'Roof 4.0 × 5.5 m',
     motor: '3 kW inverter',
+    convertLabel: 'Converter',
+    storeLabel: 'No battery',
   },
 };
 
@@ -122,42 +142,66 @@ export const aguaCopy: LocaleCopy<{
   potable: string;
   rain: string;
   tank: string;
+  stepBlue: string;
+  stepGreen: string;
+  stepOut: string;
+  blueTitle: string;
+  greenTitle: string;
+  outTitle: string;
 }> = {
   es: {
-    title: 'Lluvia, dual y residuales',
-    lead: 'El techo de 22 m², con 2 200 mm/año en Dota, puede juntar unos 39 m³ al año. Un tanque de 1 000 L basta a esta escala. El agua de proceso y de manos sigue siendo potable de red.',
-    capture: 'Canaleta + malla + desviador de primeras aguas (40 L) + tanque 1 000 L a la sombra, elevado 40 cm, tapa sanitaria y desagüe de fondo.',
-    dual: 'Dos redes, nunca cruzadas (RTCA 5.3): azul = potable AyA/ASADA (alimento, enjuague final, lavamanos). Verde = lluvia filtrada (piso, canastas sucias, pila exterior, trampa, riego).',
-    treat: 'Lluvia: filtro de sedimento 50 µm + carbón. No es potable. Para usarla en alimento haría falta potabilización, análisis (Decreto 38924-S) y visto de Salud. Aquí no se propone eso.',
-    residual: 'Pila y piso → D1/D2 → canastilla → trampa de grasas 50–100 L → descarga autorizada (Decreto 33601). Nunca a la quebrada.',
-    legal: 'Decreto 38924-S calidad de agua potable · RTCA 67.01.33:06 §5.3 retroflujo · Decreto 33601 vertido y reúso.',
+    title: 'Agua: dos redes + desagüe',
+    lead: 'Lea el croquis en tres colores: azul = beber/alimento (red). Verde = lluvia para limpiar. Marrón = agua sucia que sale a la trampa. Nunca se mezclan.',
+    capture: 'Techo → canaleta → primeras 40 L se tiran (sucias) → tanque 1 000 L. ~39 000 L/año posibles; el tanque guarda el día a día.',
+    dual: 'Azul (AyA/ASADA): lavar alimento, enjuague final, lavamanos de personas. Verde (lluvia filtrada): piso, canastas sucias, pila exterior, riego. Tuberías separadas, sin cruce (RTCA 5.3).',
+    treat: 'La lluvia solo lleva filtro 50 µm + carbón: limpia para lavar piso, no es potable. No se propone beberla ni usarla en alimento sin potabilizar y permiso de Salud.',
+    residual: 'Pila y piso → ralos D1/D2 → canastilla → trampa de grasas 50–100 L → descarga autorizada. Nunca a la quebrada.',
+    legal: 'Decreto 38924-S · RTCA 67.01.33:06 §5.3 · Decreto 33601.',
     potable: 'Red potable',
     rain: 'Red de lluvia',
     tank: 'Tanque 1 000 L',
+    stepBlue: 'Para comer y manos: solo la red azul (potable).',
+    stepGreen: 'Para limpiar el local: red verde (lluvia del tanque).',
+    stepOut: 'Lo que se ensucia sale por ralos → trampa → descarga legal.',
+    blueTitle: '1 · Azul',
+    greenTitle: '2 · Verde',
+    outTitle: '3 · Salida',
   },
   'pt-BR': {
-    title: 'Chuva, rede dupla e efluentes',
-    lead: 'O telhado de 22 m², com 2 200 mm/ano em Dota, junta uns 39 m³/ano. Um tanque de 1 000 L basta. Água de processo e de mãos continua potável da rede.',
-    capture: 'Calha + tela + desvio das primeiras águas (40 L) + tanque 1 000 L à sombra, 40 cm do piso, tampa e dreno de fundo.',
-    dual: 'Duas redes, nunca cruzadas (RTCA 5.3): azul = potável AyA/ASADA (alimento, enxágue final, lavatórios). Verde = chuva filtrada (piso, cestos sujos, pia exterior, caixa de gordura, irrigação).',
-    treat: 'Chuva: filtro 50 µm + carvão. Não é potável. Usar em alimento exigiria potabilização, laudos (Decreto 38924-S) e Saúde. Aqui não se propõe isso.',
-    residual: 'Pia e piso → D1/D2 → cesto → caixa de gordura 50–100 L → descarga autorizada (Decreto 33601). Nunca na quebrada.',
-    legal: 'Decreto 38924-S água potável · RTCA 5.3 retrofluxo · Decreto 33601 efluentes.',
+    title: 'Água: duas redes + esgoto',
+    lead: 'Leia o croqui em três cores: azul = beber/alimento (rede). Verde = chuva para limpar. Marrom = água suja que sai pela caixa. Nunca se misturam.',
+    capture: 'Telhado → calha → primeiros 40 L jogados fora (sujos) → tanque 1 000 L. ~39 000 L/ano possíveis; o tanque guarda o dia a dia.',
+    dual: 'Azul (AyA/ASADA): lavar alimento, enxágue final, lavatórios de pessoas. Verde (chuva filtrada): piso, cestos sujos, pia exterior, irrigação. Tubos separados, sem cruzamento (RTCA 5.3).',
+    treat: 'A chuva só tem filtro 50 µm + carvão: serve para limpar piso, não é potável. Não se propõe beber nem usar em alimento sem potabilizar e autorização da Saúde.',
+    residual: 'Pia e piso → ralos D1/D2 → cesto → caixa de gordura 50–100 L → descarga autorizada. Nunca na quebrada.',
+    legal: 'Decreto 38924-S · RTCA 5.3 · Decreto 33601.',
     potable: 'Rede potável',
     rain: 'Rede de chuva',
     tank: 'Tanque 1 000 L',
+    stepBlue: 'Para alimento e mãos: só a rede azul (potável).',
+    stepGreen: 'Para limpar o galpão: rede verde (chuva do tanque).',
+    stepOut: 'O que suja sai pelos ralos → caixa → descarga legal.',
+    blueTitle: '1 · Azul',
+    greenTitle: '2 · Verde',
+    outTitle: '3 · Saída',
   },
   en: {
-    title: 'Rain, dual plumbing and wastewater',
-    lead: 'The 22 m² roof, at 2,200 mm/year in Dota, can catch about 39 m³/year. A 1,000 L tank is enough. Process and hand water stay grid-potable.',
-    capture: 'Gutter + screen + first-flush 40 L + 1,000 L tank in the shade, 40 cm off the floor, sanitary lid and bottom drain.',
-    dual: 'Two networks, never crossed (RTCA 5.3): blue = AyA/ASADA potable (food, final rinse, handwash). Green = filtered rain (floors, dirty crates, outdoor sink, trap, irrigation).',
-    treat: 'Rain: 50 µm sediment + carbon. Not potable. Food use would need full treatment, lab tests (Decree 38924-S) and Health sign-off. Not proposed here.',
-    residual: 'Sink and floor → D1/D2 → basket → 50–100 L grease trap → authorized discharge (Decree 33601). Never to the creek.',
-    legal: 'Decree 38924-S potable water · RTCA 5.3 backflow · Decree 33601 discharge and reuse.',
+    title: 'Water: two networks + drain',
+    lead: 'Read the drawing in three colors: blue = drink/food (grid). Green = rain for cleaning. Brown = dirty water out to the trap. Never mix them.',
+    capture: 'Roof → gutter → first 40 L dumped (dirty) → 1,000 L tank. ~39,000 L/year possible; the tank holds day-to-day use.',
+    dual: 'Blue (AyA/ASADA): wash food, final rinse, handwash. Green (filtered rain): floors, dirty crates, outdoor sink, irrigation. Separate pipes, no cross-connection (RTCA 5.3).',
+    treat: 'Rain only gets 50 µm + carbon: fine for floors, not potable. Not proposed for drinking or food without full treatment and Health approval.',
+    residual: 'Sink and floor → drains D1/D2 → basket → 50–100 L grease trap → authorized discharge. Never to the creek.',
+    legal: 'Decree 38924-S · RTCA 5.3 · Decree 33601.',
     potable: 'Potable line',
     rain: 'Rain line',
     tank: '1,000 L tank',
+    stepBlue: 'For food and hands: blue network only (potable).',
+    stepGreen: 'For cleaning the shed: green network (tank rain).',
+    stepOut: 'Dirty water leaves via drains → trap → legal discharge.',
+    blueTitle: '1 · Blue',
+    greenTitle: '2 · Green',
+    outTitle: '3 · Out',
   },
 };
 
