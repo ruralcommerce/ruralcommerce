@@ -251,17 +251,63 @@ function Box3D({
   );
 }
 
+function EquipHitSurface({
+  item,
+  onSelect,
+}: {
+  item: Equipo3D;
+  onSelect: () => void;
+}) {
+  const project = useProject();
+  const a = project(item.x, item.y, 0);
+  const b = project(item.x + item.w, item.y, 0);
+  const c = project(item.x + item.w, item.y + item.d, 0);
+  const d = project(item.x, item.y + item.d, 0);
+  const topA = project(item.x, item.y, item.h);
+  const topB = project(item.x + item.w, item.y, item.h);
+  const topC = project(item.x + item.w, item.y + item.d, item.h);
+  const topD = project(item.x, item.y + item.d, item.h);
+  return (
+    <g
+      className="planta-equip-hit"
+      role="button"
+      tabIndex={0}
+      onPointerDown={(event) => {
+        event.stopPropagation();
+      }}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onSelect();
+        }
+      }}
+    >
+      <polygon points={pts([a, b, c, d])} fill="transparent" stroke="none" />
+      <polygon points={pts([topA, topB, topC, topD])} fill="transparent" stroke="none" />
+      <polygon points={pts([b, topB, topC, c])} fill="transparent" stroke="none" />
+      <polygon points={pts([d, topD, topC, c])} fill="transparent" stroke="none" />
+    </g>
+  );
+}
+
 function Equipo3DView({
   item,
   selected,
   onClick,
+  dimmed = false,
 }: {
   item: Equipo3D;
   selected: boolean;
   onClick: () => void;
+  dimmed?: boolean;
 }) {
   const project = useProject();
   const stroke = selected ? '#009179' : '#071F5E';
+  const opacity = dimmed && !selected ? 0.28 : 1;
   const top =
     item.id === 'fogon'
       ? '#3a3a3a'
@@ -282,16 +328,17 @@ function Equipo3DView({
     const rx = Math.max(10, Math.hypot(rim.x - c1.x, rim.y - c1.y));
     const ry = Math.max(6, rx * 0.48);
     return (
-      <g className="planta-zone-btn" onClick={onClick} role="button" tabIndex={0}>
+      <g className="planta-zone-btn" opacity={opacity}>
         <ellipse cx={c0.x} cy={c0.y} rx={rx} ry={ry} fill="#8fbfb4" stroke={stroke} />
         <rect x={c1.x - rx} y={c1.y} width={rx * 2} height={Math.max(8, c0.y - c1.y)} fill="#b7ddd4" stroke={stroke} />
         <ellipse cx={c1.x} cy={c1.y} rx={rx} ry={ry} fill="#d7ebe4" stroke={stroke} />
+        <EquipHitSurface item={item} onSelect={onClick} />
       </g>
     );
   }
 
   return (
-    <g className="planta-zone-btn" onClick={onClick} role="button" tabIndex={0}>
+    <g className="planta-zone-btn" opacity={opacity}>
       <Box3D x={item.x} y={item.y} w={item.w} d={item.d} h={item.h} top={top} south={south} east={east} stroke={stroke} />
       {item.id === 'fogon'
         ? [0.28, 0.72].flatMap((tx) =>
@@ -322,15 +369,16 @@ function Equipo3DView({
             return <polygon points={`${peak.x},${peak.y} ${l.x},${l.y} ${r.x},${r.y}`} fill="#fff" stroke="#071F5E" />;
           })()
         : null}
+      <EquipHitSurface item={item} onSelect={onClick} />
     </g>
   );
 }
 
-function isVisible(item: Equipo3D, technique: TransformTechnique) {
-  if (!TRANSFORM_IDS.has(item.id)) return true;
-  if (technique === 'all') return true;
-  if (item.id === 'extractor') return technique === 'fogon';
-  return item.id === technique;
+function isDimmed(item: Equipo3D, technique: TransformTechnique) {
+  if (technique === 'all') return false;
+  if (!TRANSFORM_IDS.has(item.id)) return false;
+  if (item.id === 'extractor') return technique !== 'fogon';
+  return item.id !== technique;
 }
 
 export function PlantaVista3D({
@@ -354,7 +402,7 @@ export function PlantaVista3D({
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
   const [dragging, setDragging] = useState(false);
-  const [technique, setTechnique] = useState<TransformTechnique>('dehydrator');
+  const [technique, setTechnique] = useState<TransformTechnique>('all');
   const svgRef = useRef<SVGSVGElement>(null);
   const drag = useRef<{
     x: number;
@@ -365,15 +413,8 @@ export function PlantaVista3D({
     pan: boolean;
   } | null>(null);
 
-  useEffect(() => {
-    if (selected === 'dehydrator' || selected === 'molino' || selected === 'fogon') {
-      setTechnique(selected);
-    }
-  }, [selected]);
-
   const project = useMemo(() => makeProject(yaw, zoom, panX, panY), [yaw, zoom, panX, panY]);
-  const visible = equipos3d.filter((item) => isVisible(item, technique));
-  const sorted = [...visible].sort((a, b) => a.y + a.x - (b.y + b.x));
+  const sorted = [...equipos3d].sort((a, b) => a.y + a.x - (b.y + b.x));
 
   const reset = useCallback(() => {
     setYaw(DEFAULT_YAW);
@@ -383,6 +424,8 @@ export function PlantaVista3D({
   }, []);
 
   const onPointerDown = (event: PointerEvent<SVGSVGElement>) => {
+    const target = event.target as Element | null;
+    if (target?.closest?.('.planta-equip-hit')) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     drag.current = {
       x: event.clientX,
@@ -552,7 +595,13 @@ export function PlantaVista3D({
             strokeDasharray="6 4"
           />
           {sorted.map((item) => (
-            <Equipo3DView key={item.id} item={item} selected={selected === item.id} onClick={() => onSelect(item.id)} />
+            <Equipo3DView
+              key={item.id}
+              item={item}
+              selected={selected === item.id}
+              dimmed={isDimmed(item, technique)}
+              onClick={() => onSelect(item.id)}
+            />
           ))}
           {sorted
             .filter((item) => selected === item.id)
