@@ -1030,6 +1030,8 @@ export function PlantaPlanos({ locale }: { locale: string }) {
               </svg>
             </div>
             <aside className="planta-card planta-plan-card planta-plan-aside">
+              <p>{solar.cleanGoal}</p>
+              <p>{solar.compete}</p>
               <p>{solar.budgetOne}</p>
               <p>{solar.path}</p>
               <p>{solar.storage}</p>
