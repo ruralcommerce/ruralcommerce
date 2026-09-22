@@ -157,22 +157,62 @@ export type Equipo3D = {
 };
 
 export const equipos3d: Equipo3D[] = [
-  { id: 'pila', x: 0.2, y: 0.12, w: 1.2, d: 0.5, h: 0.9, zone: 'lavado' },
-  { id: 'canastas', x: 2.25, y: 0.15, w: 1.4, d: 0.6, h: 0.85, zone: 'recepcion' },
-  { id: 'mesa-prep', x: 0.35, y: 1.32, w: 3.3, d: 0.7, h: 0.9, zone: 'preparacion' },
-  { id: 'dehydrator', x: 0.2, y: 2.35, w: 1.05, d: 0.65, h: 1.45, zone: 'transformacion' },
-  { id: 'molino', x: 1.4, y: 2.5, w: 0.6, d: 0.55, h: 1.15, zone: 'transformacion' },
-  { id: 'fogon', x: 2.45, y: 2.45, w: 0.95, d: 0.7, h: 0.9, zone: 'transformacion' },
-  { id: 'extractor', x: 3.5, y: 2.3, w: 0.35, d: 0.28, h: 0.3, zone: 'transformacion' },
-  { id: 'mesa-env', x: 0.2, y: 3.72, w: 1.35, d: 0.6, h: 0.9, zone: 'envase' },
-  { id: 'selladora', x: 1.65, y: 3.75, w: 0.55, d: 0.5, h: 1.0, zone: 'envase' },
-  { id: 'estante', x: 2.55, y: 3.7, w: 1.2, d: 0.7, h: 1.6, zone: 'almacen' },
-  { id: 'gabachas', x: 0.15, y: 4.65, w: 0.35, d: 0.7, h: 1.5, zone: 'ingreso' },
-  { id: 'lavamanos', x: 2.7, y: 4.7, w: 0.5, d: 0.4, h: 0.95, zone: 'ingreso' },
-  { id: 'tablero', x: 3.5, y: 4.7, w: 0.3, d: 0.4, h: 1.2, zone: 'ingreso' },
+  { id: 'pila', x: 0.15, y: 0.15, w: 1.1, d: 0.5, h: 0.9, zone: 'lavado' },
+  { id: 'canastas', x: 3.3, y: 0.2, w: 0.55, d: 0.7, h: 0.85, zone: 'recepcion' },
+  { id: 'mesa-prep', x: 0.2, y: 1.22, w: 2.15, d: 0.55, h: 0.9, zone: 'preparacion' },
+  { id: 'dehydrator', x: 0.15, y: 2.4, w: 0.8, d: 0.65, h: 1.45, zone: 'transformacion' },
+  { id: 'molino', x: 1.55, y: 2.5, w: 0.55, d: 0.55, h: 1.15, zone: 'transformacion' },
+  { id: 'fogon', x: 2.7, y: 2.45, w: 0.8, d: 0.65, h: 0.9, zone: 'transformacion' },
+  { id: 'extractor', x: 3.55, y: 2.32, w: 0.3, d: 0.25, h: 0.3, zone: 'transformacion' },
+  { id: 'mesa-env', x: 0.2, y: 3.78, w: 1.05, d: 0.55, h: 0.9, zone: 'envase' },
+  { id: 'selladora', x: 1.75, y: 3.82, w: 0.45, d: 0.45, h: 1.0, zone: 'envase' },
+  { id: 'estante', x: 3.15, y: 3.72, w: 0.7, d: 0.65, h: 1.6, zone: 'almacen' },
+  { id: 'gabachas', x: 0.15, y: 4.68, w: 0.35, d: 0.55, h: 1.5, zone: 'ingreso' },
+  { id: 'lavamanos', x: 2.2, y: 4.72, w: 0.45, d: 0.38, h: 0.95, zone: 'ingreso' },
+  { id: 'tablero', x: 3.72, y: 4.58, w: 0.22, d: 0.32, h: 1.2, zone: 'ingreso' },
   { id: 'pila-ext', x: 0.9, y: -0.55, w: 0.7, d: 0.4, h: 0.85, zone: 'exterior' },
   { id: 'tanque', x: 4.25, y: 3.6, w: 0.9, d: 0.9, h: 1.3, zone: 'exterior' },
 ];
+
+export type TransformTechnique = 'all' | 'dehydrator' | 'molino' | 'fogon';
+
+export const vista3dCopy: LocaleCopy<{
+  hint: string;
+  reset: string;
+  all: string;
+  dry: string;
+  mill: string;
+  cook: string;
+  aisle: string;
+}> = {
+  es: {
+    hint: 'Arrastra para girar · rueda para zoom · Mayús + arrastrar para mover',
+    reset: 'Vista inicial',
+    all: 'Todas',
+    dry: 'Deshidratar',
+    mill: 'Triturar',
+    cook: 'Cocinar',
+    aisle: 'Pasillo',
+  },
+  'pt-BR': {
+    hint: 'Arraste para girar · roda para zoom · Shift + arrastar para mover',
+    reset: 'Vista inicial',
+    all: 'Todas',
+    dry: 'Desidratar',
+    mill: 'Triturar',
+    cook: 'Cozinhar',
+    aisle: 'Corredor',
+  },
+  en: {
+    hint: 'Drag to rotate · scroll to zoom · Shift + drag to pan',
+    reset: 'Reset view',
+    all: 'All',
+    dry: 'Dry',
+    mill: 'Mill',
+    cook: 'Cook',
+    aisle: 'Aisle',
+  },
+};
 
 export const planoTabs: LocaleCopy<Record<PlanoTab, string>> = {
   es: {
@@ -291,7 +331,7 @@ export const planoChrome: LocaleCopy<{
     isoTitle: 'Equipos en planta',
     isoLead: '',
     iso3dTitle: 'Vista 3D',
-    iso3dLead: '',
+    iso3dLead: 'Gira el galpón. Una técnica a la vez deja el pasillo libre: no se deshidrata, tritura y cocina al mismo tiempo.',
     matTitle: 'Materiales y divisiones',
     isoOutside: 'Patio',
     where: 'Dónde',
@@ -353,7 +393,7 @@ export const planoChrome: LocaleCopy<{
     isoTitle: 'Equipamentos em planta',
     isoLead: '',
     iso3dTitle: 'Vista 3D',
-    iso3dLead: '',
+    iso3dLead: 'Gire o galpão. Uma técnica de cada vez deixa o corredor livre: não se desidrata, tritura e cozinha ao mesmo tempo.',
     matTitle: 'Materiais e divisões',
     isoOutside: 'Pátio',
     where: 'Onde',
@@ -415,7 +455,7 @@ export const planoChrome: LocaleCopy<{
     isoTitle: 'Equipment plan',
     isoLead: '',
     iso3dTitle: '3D view',
-    iso3dLead: '',
+    iso3dLead: 'Orbit the shed. One technique at a time keeps the aisle clear: you do not dry, mill and cook at once.',
     matTitle: 'Materials and partitions',
     isoOutside: 'Yard',
     where: 'Where',

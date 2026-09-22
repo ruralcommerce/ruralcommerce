@@ -282,6 +282,41 @@
   font-family: inherit;
 }
 
+.planta-3d-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 12px 0;
+}
+
+.planta-3d-hint {
+  margin: 6px 12px 0;
+  font-size: 0.78rem;
+  color: #5c6570;
+}
+
+.planta-3d-reset {
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid #d9e3ec;
+  background: #fff;
+  color: #071f5e;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.planta-3d svg {
+  cursor: grab;
+  touch-action: none;
+}
+
+.planta-3d svg.is-dragging {
+  cursor: grabbing;
+}
+
 .planta-plan-tabs {
   display: flex;
   flex-wrap: wrap;

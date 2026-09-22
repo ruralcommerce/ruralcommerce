@@ -1067,6 +1067,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 selected={eq}
                 onSelect={setEq}
                 openings={aberturas}
+                locale={loc}
               />
             </div>
             <aside className="planta-card planta-plan-card">
