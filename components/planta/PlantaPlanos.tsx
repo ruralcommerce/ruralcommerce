@@ -39,6 +39,7 @@ import {
   coopReview,
   loadLabels,
   materialesCopy,
+  payLabels,
   solarCopy,
   solarLoads,
   solarSpec,
@@ -499,6 +500,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
   const agua = aguaCopy[loc];
   const solar = solarCopy[loc];
   const loads = loadLabels[loc];
+  const pay = payLabels[loc];
   const coop = coopReview[loc];
   const mat = materialesCopy[loc];
 
@@ -978,16 +980,26 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                     y={sy(0.85)}
                     width={1.1 * M}
                     height={3.55 * M}
-                    fill="#1e4d8c"
+                    fill={col === 0 ? '#1e4d8c' : 'rgba(30,77,140,0.25)'}
                     stroke="#52ADAD"
                     strokeWidth="2"
+                    strokeDasharray={col === 0 ? undefined : '8 6'}
                   />
                 ))}
                 <text x={sx(2)} y={sy(0.42)} textAnchor="middle" fill="#F2F2F2" fontSize="12" fontWeight="700">
                   {solar.roof}
                 </text>
-                <text x={sx(2)} y={sy(2.7)} textAnchor="middle" fill="#F2F2F2" fontSize="14" fontWeight="700">
-                  {solarSpec.panels} × {solarSpec.watts} W = {solarSpec.kWp} kWp
+                <text x={sx(0.83)} y={sy(2.55)} textAnchor="middle" fill="#F2F2F2" fontSize="11" fontWeight="700">
+                  {solar.phaseNow}
+                </text>
+                <text x={sx(0.83)} y={sy(2.85)} textAnchor="middle" fill="#F2F2F2" fontSize="12" fontWeight="700">
+                  1 × {solarSpec.watts} W
+                </text>
+                <text x={sx(2.7)} y={sy(2.55)} textAnchor="middle" fill="#F2F2F2" fontSize="11" fontWeight="700">
+                  {solar.phaseLater}
+                </text>
+                <text x={sx(2.7)} y={sy(2.85)} textAnchor="middle" fill="#F2F2F2" fontSize="11">
+                  +2 × {solarSpec.watts} W
                 </text>
                 <DoorsAndWindow {...aberturas} />
                 <rect x={sx(4.25)} y={sy(1.55)} width="190" height="175" rx="8" fill="#fff" stroke="#071F5E" />
@@ -1007,10 +1019,10 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   backup = ICE
                 </text>
                 <text x={sx(5.2)} y={sy(3.25)} textAnchor="middle" fill="#071F5E" fontSize="10">
-                  ICE 60 A + medidor
+                  ≈ US$ {solarSpec.budgetUsd}
                 </text>
                 <text x={sx(5.2)} y={sy(3.55)} textAnchor="middle" fill="#071F5E" fontSize="11" fontWeight="700">
-                  ~{solarSpec.kwhDay} kWh/día
+                  ~{solarSpec.kwhDayPhase1} kWh/día
                 </text>
                 <RoomLabels back={chrome.back} front={chrome.front} acopio={chrome.acopio} />
                 <DimH x1={0} x2={4} y={6.18} label="4,00 m" />
@@ -1036,6 +1048,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                   <th>W</th>
                   <th>h/día</th>
                   <th>kWh</th>
+                  <th>{solar.payCol}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1045,6 +1058,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                     <td>{row.w}</td>
                     <td>{row.hDay}</td>
                     <td>{row.kwh}</td>
+                    <td>{pay[row.pay]}</td>
                   </tr>
                 ))}
               </tbody>

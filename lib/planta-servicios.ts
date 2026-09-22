@@ -2,30 +2,40 @@ import type { ProjectLocaleKey } from '@/lib/project-locale';
 
 type LocaleCopy<T> = Record<ProjectLocaleKey, T>;
 
-/** Roof of the 4.0 × 5.5 m shed. Copey de Dota, ~1 800 m, cloudy highland. */
-/** Roof 22 m². One 625 W module ≈ 2 kWh/day — lights only. Three cover the dehydrator in daylight. */
+/** Roof 22 m². Phase 1 budget ~US$1,000: one 625 W + small inverter, no battery. Dehydrator on ICE. */
 export const solarSpec = {
   panels: 3,
+  panelsPhase1: 1,
   watts: 625,
   kWp: 1.88,
+  kWpPhase1: 0.63,
   panelM2: 2.6,
   roofM2: 22,
   usedM2: 7.8,
   sunHours: 4.2,
   derate: 0.75,
   kwhDay: 5.9,
-  inverterKw: 3,
+  kwhDayPhase1: 2.0,
+  inverterKw: 1.5,
+  inverterKwTarget: 3,
   batteryKwh: 0,
   iceServiceA: 60,
+  budgetUsd: 1000,
 };
 
 export const solarLoads = [
-  { id: 'dehydrator', w: 1200, hDay: 5, kwh: 6.0 },
-  { id: 'mill', w: 1100, hDay: 1, kwh: 1.1 },
-  { id: 'lights', w: 108, hDay: 6, kwh: 0.6 },
-  { id: 'sealer', w: 300, hDay: 2, kwh: 0.6 },
-  { id: 'pumps', w: 250, hDay: 1, kwh: 0.3 },
+  { id: 'dehydrator', w: 1200, hDay: 5, kwh: 6.0, pay: 'ice' as const },
+  { id: 'mill', w: 1100, hDay: 1, kwh: 1.1, pay: 'ice' as const },
+  { id: 'lights', w: 108, hDay: 6, kwh: 0.6, pay: 'solar' as const },
+  { id: 'sealer', w: 300, hDay: 2, kwh: 0.6, pay: 'mix' as const },
+  { id: 'pumps', w: 250, hDay: 1, kwh: 0.3, pay: 'mix' as const },
 ];
+
+export const payLabels: LocaleCopy<Record<'solar' | 'ice' | 'mix', string>> = {
+  es: { solar: 'Sol (fase 1)', ice: 'ICE', mix: 'Sol si hay / ICE' },
+  'pt-BR': { solar: 'Sol (fase 1)', ice: 'ICE', mix: 'Sol se houver / ICE' },
+  en: { solar: 'Solar (phase 1)', ice: 'ICE', mix: 'Solar if available / ICE' },
+};
 
 export const aguaSpec = {
   roofM2: 22,
@@ -49,61 +59,73 @@ export const solarCopy: LocaleCopy<{
   fit: string;
   disclaimer: string;
   loadsTitle: string;
+  payCol: string;
   roof: string;
   motor: string;
   convertLabel: string;
   storeLabel: string;
+  phaseNow: string;
+  phaseLater: string;
 }> = {
   es: {
-    title: 'Energía solar del galerón',
-    lead: 'Un solo panel de 625 W no alcanza para la deshidratadora: solo luces (~2 kWh/día). Con tres paneles (~5,9 kWh/día) el sol cubre el proceso de día; la red ICE cubre nublado. El fogón es gas.',
-    idea: 'Meta del croquis: 3 × 625 W (1,88 kWp) en este techo.',
-    budgetOne: 'Si el presupuesto solo da para uno: sí se puede instalar 1 × 625 W ya (luces y tomas chicas), y dejar conduit/estructura listos para llegar a tres. Un panel no mueve la deshidratadora de 1,2 kW sola.',
-    path: 'Camino de la energía: paneles (DC) → inversor 3 kW en el tablero C7 (pasa a AC 120/240 V) → breakers → equipos. Excedente va a la red ICE por el medidor bidireccional.',
-    storage: 'No hay baterías en esta propuesta (caro a esta escala). El “almacén” es la red ICE: de día se inyecta/se usa sol; de noche o nublado se compra a ICE. Un híbrido deja opción de batería después, pero no es obligatoria para arrancar.',
-    inverter: 'Inversor híbrido 3 kW en el tablero (C7): es el conversor DC→AC.',
-    ice: 'Servicio ICE 60 A + medidor bidireccional (compra/venta).',
-    fit: '3 módulos ≈ 8 m² sobre 22 m² de techo. No tapan ventana ni extractor.',
-    disclaimer: '',
-    loadsTitle: 'Cargas eléctricas de un día de proceso',
+    title: 'Energía solar · presupuesto real',
+    lead: 'Tope ≈ US$ 1 000 para panel + conversor (sin batería). Un 625 W (~₡195 500) deja margen para un microinversor o híbrido chico. La deshidratadora y el molino corren con ICE; el sol arranca luces y tomas chicas.',
+    idea: 'Fase 1 en el techo: 1 × 625 W. Meta futura: 3 × 625 W cuando haya más fondos.',
+    budgetOne: 'Con US$ 1 000 no caben 3 paneles + inversor 3 kW + batería. Compra recomendada: 1 panel 550–625 W + inversor pequeño (microinversor grid-tie o híbrido ~1,5 kW) + rieles/cable/protecciones. Cero baterías en esta fase.',
+    path: 'Fase 1: panel (DC) → microinversor o híbrido chico → tablero C7 → luces/tomas. Excedente a ICE si hay medidor bidireccional. Equipos pesados (1,2 kW deshidratadora, molino) = red ICE.',
+    storage: 'No comprar batería con este presupuesto: se come el conversor. El almacén es la red ICE. Batería solo en una fase 3, si algún día hay capital.',
+    inverter: 'Conversor fase 1: ~1–1,5 kW (no 3 kW). Dejar espacio en el tablero para subir después.',
+    ice: 'Prioridad: acometida ICE 60 A bien hecha. Sin ICE fiable, el solar de US$ 1 000 no sostiene el proceso.',
+    fit: '1 módulo ahora ≈ 2,6 m². Marcar en el techo el sitio de los otros dos (fase 2) sin comprarlos aún.',
+    disclaimer: 'Precios de panel de referencia en CR ~₡160–195 mil (550–625 W). Cotizar inversor y mano de obra aparte; el tope US$ 1 000 es material solar, no incluye obra civil.',
+    loadsTitle: 'Quién paga cada carga (fase 1)',
+    payCol: 'Fuente',
     roof: 'Techo 4,0 × 5,5 m',
-    motor: 'Inversor 3 kW',
+    motor: 'Inversor ~1,5 kW',
     convertLabel: 'Conversor',
     storeLabel: 'Sin batería',
+    phaseNow: 'Fase 1 · ahora',
+    phaseLater: 'Fase 2 · después',
   },
   'pt-BR': {
-    title: 'Energia solar do galpão',
-    lead: 'Um painel só de 625 W não basta para a desidratadora: só luzes (~2 kWh/dia). Com três (~5,9 kWh/dia) o sol cobre o processo de dia; a rede ICE cobre nublado. O fogão é gás.',
-    idea: 'Meta do croqui: 3 × 625 W (1,88 kWp) neste telhado.',
-    budgetOne: 'Se o dinheiro só dá para um: pode instalar 1 × 625 W já (luzes e tomadas pequenas) e deixar eletroduto/estrutura prontos para chegar a três. Um painel sozinho não move a desidratadora de 1,2 kW.',
-    path: 'Caminho da energia: painéis (CC) → inversor 3 kW no quadro C7 (vira CA 120/240 V) → disjuntores → equipamentos. Sobra vai para a rede ICE pelo medidor bidirecional.',
-    storage: 'Não há baterias nesta proposta (caro nesta escala). O “armazenamento” é a rede ICE: de dia usa/injeta sol; de noite ou nublado compra da ICE. O inversor híbrido deixa opção de bateria depois, mas não é obrigatória para começar.',
-    inverter: 'Inversor híbrido 3 kW no quadro (C7): é o conversor CC→CA.',
-    ice: 'Serviço ICE 60 A + medidor bidirecional (compra/venda).',
-    fit: '3 módulos ≈ 8 m² sobre 22 m² de telhado.',
-    disclaimer: '',
-    loadsTitle: 'Cargas elétricas de um dia de processo',
+    title: 'Energia solar · orçamento real',
+    lead: 'Teto ≈ US$ 1 000 para painel + conversor (sem bateria). Um 625 W (~₡195 500) deixa margem para microinversor ou híbrido pequeno. Desidratadora e moinho rodam na ICE; o sol começa com luzes e tomadas pequenas.',
+    idea: 'Fase 1 no telhado: 1 × 625 W. Meta futura: 3 × 625 W quando houver mais fundo.',
+    budgetOne: 'Com US$ 1 000 não cabem 3 painéis + inversor 3 kW + bateria. Compra recomendada: 1 painel 550–625 W + inversor pequeno (microinversor grid-tie ou híbrido ~1,5 kW) + trilhos/cabo/proteções. Zero baterias nesta fase.',
+    path: 'Fase 1: painel (CC) → microinversor ou híbrido pequeno → quadro C7 → luzes/tomadas. Sobra para ICE se houver medidor bidirecional. Cargas pesadas (desidratadora 1,2 kW, moinho) = rede ICE.',
+    storage: 'Não compre bateria com este orçamento: come o conversor. O armazém é a rede ICE. Bateria só numa fase 3, se um dia houver capital.',
+    inverter: 'Conversor fase 1: ~1–1,5 kW (não 3 kW). Deixe espaço no quadro para subir depois.',
+    ice: 'Prioridade: ligação ICE 60 A bem feita. Sem ICE confiável, o solar de US$ 1 000 não segura o processo.',
+    fit: '1 módulo agora ≈ 2,6 m². Marque no telhado o lugar dos outros dois (fase 2) sem comprá-los ainda.',
+    disclaimer: 'Preços de painel de referência na CR ~₡160–195 mil (550–625 W). Cotizar inversor e mão de obra à parte; o teto US$ 1 000 é material solar, não inclui obra civil.',
+    loadsTitle: 'Quem paga cada carga (fase 1)',
+    payCol: 'Fonte',
     roof: 'Telhado 4,0 × 5,5 m',
-    motor: 'Inversor 3 kW',
+    motor: 'Inversor ~1,5 kW',
     convertLabel: 'Conversor',
     storeLabel: 'Sem bateria',
+    phaseNow: 'Fase 1 · agora',
+    phaseLater: 'Fase 2 · depois',
   },
   en: {
-    title: 'Solar power for the shed',
-    lead: 'One 625 W module is not enough for the dehydrator: lights only (~2 kWh/day). Three modules (~5.9 kWh/day) cover daytime process; ICE covers clouds. The stove is gas.',
-    idea: 'Drawing target: 3 × 625 W (1.88 kWp) on this roof.',
-    budgetOne: 'If budget only allows one: install 1 × 625 W now (lights and small receptacles) and leave conduit/racking ready for three. One panel alone will not run the 1.2 kW dehydrator.',
-    path: 'Energy path: panels (DC) → 3 kW inverter at panel C7 (to AC 120/240 V) → breakers → loads. Surplus goes to ICE via the bidirectional meter.',
-    storage: 'No batteries in this proposal (expensive at this scale). “Storage” is the ICE grid: daytime solar use/export; night or clouds buy from ICE. A hybrid inverter leaves a future battery option, but it is not required to start.',
-    inverter: '3 kW hybrid inverter at the panel (C7): the DC→AC converter.',
-    ice: 'ICE 60 A service + bidirectional meter (buy/sell).',
-    fit: '3 modules ≈ 8 m² on a 22 m² roof.',
-    disclaimer: '',
-    loadsTitle: 'Electrical loads on a process day',
+    title: 'Solar · real budget',
+    lead: 'Cap ≈ US$1,000 for panel + converter (no battery). One 625 W (~₡195,500) leaves room for a microinverter or small hybrid. Dehydrator and mill run on ICE; solar starts with lights and small receptacles.',
+    idea: 'Phase 1 on the roof: 1 × 625 W. Future target: 3 × 625 W when more funds exist.',
+    budgetOne: 'US$1,000 cannot buy 3 panels + 3 kW inverter + battery. Buy: one 550–625 W panel + small inverter (grid-tie microinverter or ~1.5 kW hybrid) + rails/cable/protection. Zero batteries in this phase.',
+    path: 'Phase 1: panel (DC) → microinverter or small hybrid → panel C7 → lights/receptacles. Surplus to ICE if bidirectional meter exists. Heavy loads (1.2 kW dehydrator, mill) = ICE grid.',
+    storage: 'Do not buy a battery with this budget: it eats the converter. Storage is the ICE grid. Battery only in a later phase if capital appears.',
+    inverter: 'Phase 1 converter: ~1–1.5 kW (not 3 kW). Leave panel space to upsize later.',
+    ice: 'Priority: solid ICE 60 A service. Without reliable ICE, US$1,000 of solar will not run the process.',
+    fit: '1 module now ≈ 2.6 m². Mark roof spots for the other two (phase 2) without buying them yet.',
+    disclaimer: 'CR panel reference prices ~₡160–195k (550–625 W). Quote inverter and labor separately; the US$1,000 cap is solar hardware, not civil works.',
+    loadsTitle: 'Who pays each load (phase 1)',
+    payCol: 'Source',
     roof: 'Roof 4.0 × 5.5 m',
-    motor: '3 kW inverter',
+    motor: 'Inverter ~1.5 kW',
     convertLabel: 'Converter',
     storeLabel: 'No battery',
+    phaseNow: 'Phase 1 · now',
+    phaseLater: 'Phase 2 · later',
   },
 };
 
