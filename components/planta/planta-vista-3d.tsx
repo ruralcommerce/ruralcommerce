@@ -461,8 +461,8 @@ export function PlantaVista3D({
         <button type="button" className="planta-3d-reset" onClick={reset}>
           {copy.reset}
         </button>
+        <span className="planta-3d-hint">{copy.hint}</span>
       </div>
-      <p className="planta-3d-hint">{copy.hint}</p>
       <svg
         ref={svgRef}
         viewBox="0 0 760 640"
@@ -477,9 +477,6 @@ export function PlantaVista3D({
       >
         <ProjectCtx.Provider value={project}>
           <rect width="760" height="640" fill="#e8eef2" />
-          <text x="24" y="28" fill="#071F5E" fontSize="13" fontWeight="700">
-            {title} · 4,0 × 5,5 m
-          </text>
           <polygon
             points={pts([project(0, 0, 0), project(PLANTA_W, 0, 0), project(PLANTA_W, PLANTA_D, 0), project(0, PLANTA_D, 0)])}
             fill="#d7d3c6"

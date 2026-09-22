@@ -55,6 +55,40 @@
   color: #2f3336;
 }
 
+.planta-lead--wide {
+  max-width: none;
+}
+
+.planta-title--compact {
+  margin-top: 0;
+}
+
+.planta-title--page {
+  margin-top: 0;
+}
+
+.planta-croquis-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.45rem 1rem;
+}
+
+.planta-kicker--inline {
+  letter-spacing: 0.12em;
+}
+
+.planta-tab-lead {
+  margin: -0.2rem 0 1rem;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: #2f3336;
+}
+
+.planta-obra-panel {
+  max-width: 42rem;
+}
+
 .planta-callout {
   margin-top: 1.5rem;
   padding: 1.15rem 1.25rem;
@@ -85,9 +119,11 @@
   .planta-grid-2 {
     grid-template-columns: 1fr 1fr;
   }
+}
 
+@media (min-width: 1024px) {
   .planta-grid-3 {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -288,12 +324,15 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 12px 12px 0;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e6ebf1;
 }
 
 .planta-3d-hint {
-  margin: 6px 12px 0;
-  font-size: 0.78rem;
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
   color: #5c6570;
 }
 
@@ -378,8 +417,84 @@
 
 @media (min-width: 960px) {
   .planta-plan-split {
-    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+    grid-template-columns: minmax(0, 2fr) minmax(240px, 0.72fr);
     align-items: start;
+  }
+
+  .planta-plan-split--viewer {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  }
+}
+
+.planta-plan-aside {
+  position: sticky;
+  top: 0.75rem;
+  align-self: start;
+}
+
+.planta-equip-label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #009179;
+}
+
+.planta-equip-select {
+  width: 100%;
+  margin-bottom: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 12px;
+  border: 1px solid #d9e3ec;
+  background: #fff;
+  color: #071f5e;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.planta-aside-equip-name {
+  margin-top: 0.15rem;
+  font-size: 1.02rem;
+}
+
+.planta-aside-equip-spec {
+  margin-top: 0.35rem;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.planta-aside-equip-size {
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.planta-plan-sep-list {
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 960px) {
+  .planta-plan-sep-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem 1.25rem;
+    padding-left: 0;
+    list-style: none;
+  }
+
+  .planta-plan-sep-list li {
+    margin-top: 0;
+    padding-left: 1rem;
+    position: relative;
+  }
+
+  .planta-plan-sep-list li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: #009179;
+    font-weight: 700;
   }
 }
 

@@ -13,10 +13,12 @@ export default function PlantaCroquisPage({ params }: { params: { locale: string
   const chrome = planoChrome[getPlanoLocale(params.locale)];
   return (
     <article>
-      <p className="planta-kicker">{chrome.kicker}</p>
-      <h1 className="planta-title">{chrome.title}</h1>
-      {chrome.lead ? <p className="planta-lead">{chrome.lead}</p> : null}
-      <div className="mt-6">
+      <header className="planta-croquis-head">
+        <h1 className="planta-title planta-title--compact">{chrome.title}</h1>
+        <p className="planta-kicker planta-kicker--inline">{chrome.kicker}</p>
+      </header>
+      {chrome.lead ? <p className="planta-lead planta-lead--wide">{chrome.lead}</p> : null}
+      <div className="mt-4">
         <PlantaPlanos locale={params.locale} />
       </div>
     </article>

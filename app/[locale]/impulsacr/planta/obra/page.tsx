@@ -11,10 +11,9 @@ export default function PlantaObraPage({ params }: { params: { locale: string } 
   const t = getPlantaPageCopy(params.locale);
   return (
     <article>
-      <p className="planta-kicker">{t.homeEyebrow}</p>
-      <h1 className="planta-title">{t.obraTitle}</h1>
-      <p className="planta-lead">{t.obraLead}</p>
-      <div className="mt-6">
+      <h1 className="planta-title planta-title--page">{t.obraTitle}</h1>
+      <p className="planta-lead planta-lead--wide">{t.obraLead}</p>
+      <div className="planta-obra-panel mt-5">
         <PlantaChecklist locale={params.locale} />
       </div>
     </article>

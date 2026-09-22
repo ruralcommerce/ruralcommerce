@@ -12,10 +12,9 @@ export default function PlantaBpmPage({ params }: { params: { locale: string } }
   const cards = bpmCards[getProjectLocaleKey(params.locale)];
   return (
     <article>
-      <p className="planta-kicker">{t.homeEyebrow}</p>
-      <h1 className="planta-title">{t.bpmTitle}</h1>
-      <p className="planta-lead">{t.bpmLead}</p>
-      <div className="planta-grid planta-grid-2">
+      <h1 className="planta-title planta-title--page">{t.bpmTitle}</h1>
+      <p className="planta-lead planta-lead--wide">{t.bpmLead}</p>
+      <div className="planta-grid planta-grid-2 planta-grid-3">
         {cards.map((card) => (
           <section key={card.title} className="planta-card">
             <h3>{card.title}</h3>

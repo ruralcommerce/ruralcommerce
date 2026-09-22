@@ -12,10 +12,9 @@ export default function PlantaLegalPage({ params }: { params: { locale: string }
   const cards = legalCards[getProjectLocaleKey(params.locale)];
   return (
     <article>
-      <p className="planta-kicker">{t.homeEyebrow}</p>
-      <h1 className="planta-title">{t.legalTitle}</h1>
-      <p className="planta-lead">{t.legalLead}</p>
-      <div className="planta-grid planta-grid-2">
+      <h1 className="planta-title planta-title--page">{t.legalTitle}</h1>
+      <p className="planta-lead planta-lead--wide">{t.legalLead}</p>
+      <div className="planta-grid planta-grid-2 planta-grid-3">
         {cards.map((card) => (
           <section key={card.office} className="planta-card">
             <h3>{card.office}</h3>

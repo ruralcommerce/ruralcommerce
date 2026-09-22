@@ -111,6 +111,59 @@ function RoomLabels({ back, front, acopio }: { back: string; front: string; acop
   );
 }
 
+function TabIntro({ lead }: { lead?: string }) {
+  if (!lead?.trim()) return null;
+  return <p className="planta-tab-lead">{lead}</p>;
+}
+
+function EquipAside({
+  selectId,
+  eq,
+  setEq,
+  ficha,
+  equipos,
+  equipSelectLabel,
+  sizeLabel,
+  showSize,
+}: {
+  selectId: string;
+  eq: string;
+  setEq: (id: string) => void;
+  ficha: Record<string, { name: string; spec: string }>;
+  equipos: typeof equipos3d;
+  equipSelectLabel: string;
+  sizeLabel: string;
+  showSize?: boolean;
+}) {
+  const active = ficha[eq];
+  const item = equipos.find((e) => e.id === eq);
+  return (
+    <aside className="planta-plan-aside planta-card planta-plan-card">
+      <label className="planta-equip-label" htmlFor={selectId}>
+        {equipSelectLabel}
+      </label>
+      <select id={selectId} className="planta-equip-select" value={eq} onChange={(event) => setEq(event.target.value)}>
+        {equipos.map((entry) => (
+          <option key={entry.id} value={entry.id}>
+            {ficha[entry.id]?.name ?? entry.id}
+          </option>
+        ))}
+      </select>
+      {active ? (
+        <>
+          <h3 className="planta-aside-equip-name">{active.name}</h3>
+          <p className="planta-aside-equip-spec">{active.spec}</p>
+          {showSize && item ? (
+            <p className="planta-aside-equip-size">
+              <strong>{sizeLabel}.</strong> {item.w.toFixed(2)} × {item.d.toFixed(2)} m
+            </p>
+          ) : null}
+        </>
+      ) : null}
+    </aside>
+  );
+}
+
 function SketchEnvelope({
   x,
   y,
@@ -454,8 +507,6 @@ export function PlantaPlanos({ locale }: { locale: string }) {
   const [zona, setZona] = useState<ZonaId>('preparacion');
   const [eq, setEq] = useState('dehydrator');
   const activeZone = zones[zona];
-  const activeEq = ficha[eq];
-
   return (
     <div className="planta-planos">
       <div className="planta-plan-tabs" role="tablist" aria-label={chrome.title}>
@@ -533,8 +584,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
 
       {tab === 'distribucion' ? (
         <section>
-          <h2 className="planta-plan-h2">{chrome.distTitle}</h2>
-          {chrome.distLead ? <p className="planta-plan-note">{chrome.distLead}</p> : null}
+          <TabIntro lead={chrome.distLead} />
           <div className="planta-zone-chips">
             {zonaOrder.map((id) => (
               <button key={id} type="button" className={zona === id ? 'is-active' : undefined} onClick={() => setZona(id)}>
@@ -598,7 +648,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
             </aside>
           </div>
           <h3 className="planta-plan-h3">{chrome.sepTitle}</h3>
-          <ul className="planta-plan-list">
+          <ul className="planta-plan-list planta-plan-sep-list">
             {seps.map((item) => (
               <li key={item}>{item}</li>
             ))}
@@ -608,8 +658,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
 
       {tab === 'procesos' ? (
         <section>
-          <h2 className="planta-plan-h2">{chrome.procTitle}</h2>
-          {chrome.procLead ? <p className="planta-plan-note">{chrome.procLead}</p> : null}
+          <TabIntro lead={chrome.procLead} />
           <div className="planta-plan-split">
             <div className="planta-croquis">
               <svg viewBox="0 0 760 760" role="img" aria-label={chrome.procTitle}>
@@ -711,8 +760,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
 
       {tab === 'tecnica' ? (
         <section>
-          <h2 className="planta-plan-h2">{chrome.tecTitle}</h2>
-          {chrome.tecLead ? <p className="planta-plan-note">{chrome.tecLead}</p> : null}
+          <TabIntro lead={chrome.tecLead} />
           <div className="planta-croquis">
             <svg viewBox="0 0 760 760" role="img" aria-label={chrome.tecTitle}>
               <FloorShell code="E-01" title={chrome.tecTitle} />
@@ -841,8 +889,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
 
       {tab === 'agua' ? (
         <section>
-          <h2 className="planta-plan-h2">{agua.title}</h2>
-          {agua.lead ? <p className="planta-plan-note">{agua.lead}</p> : null}
+          <TabIntro lead={agua.lead} />
           <div className="planta-plan-split">
             <div className="planta-croquis">
               <svg viewBox="0 0 760 760" role="img" aria-label={agua.title}>
@@ -916,8 +963,7 @@ export function PlantaPlanos({ locale }: { locale: string }) {
 
       {tab === 'energia' ? (
         <section>
-          <h2 className="planta-plan-h2">{solar.title}</h2>
-          {solar.lead ? <p className="planta-plan-note">{solar.lead}</p> : null}
+          <TabIntro lead={solar.lead} />
           <div className="planta-plan-split">
             <div className="planta-croquis">
               <svg viewBox="0 0 760 760" role="img" aria-label={solar.title}>
@@ -996,9 +1042,8 @@ export function PlantaPlanos({ locale }: { locale: string }) {
 
       {tab === 'iso' ? (
         <section>
-          <h2 className="planta-plan-h2">{chrome.isoTitle}</h2>
-          {chrome.isoLead ? <p className="planta-plan-note">{chrome.isoLead}</p> : null}
-          <div className="planta-plan-split">
+          <TabIntro lead={chrome.isoLead} />
+          <div className="planta-plan-split planta-plan-split--viewer">
             <div className="planta-croquis">
               <svg viewBox="0 0 760 760" role="img" aria-label={chrome.isoTitle}>
                 <FloorShell code="EQ-01" title={chrome.isoTitle} />
@@ -1028,38 +1073,24 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 <DimV x={-0.55} y1={0} y2={5.5} label="5,50 m" />
               </svg>
             </div>
-            <aside className="planta-card planta-plan-card">
-              <div className="planta-zone-chips planta-zone-chips-wrap">
-                {equipos3d.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={eq === item.id ? 'is-active' : undefined}
-                    onClick={() => setEq(item.id)}
-                  >
-                    {ficha[item.id]?.name}
-                  </button>
-                ))}
-              </div>
-              <h3>{activeEq?.name}</h3>
-              <p>{activeEq?.spec}</p>
-              <p>
-                <strong>{chrome.size}.</strong>{' '}
-                {(() => {
-                  const item = equipos3d.find((e) => e.id === eq);
-                  return item ? `${item.w.toFixed(2)} × ${item.d.toFixed(2)} m` : '';
-                })()}
-              </p>
-            </aside>
+            <EquipAside
+              selectId="planta-equip-iso"
+              eq={eq}
+              setEq={setEq}
+              ficha={ficha}
+              equipos={equipos3d}
+              equipSelectLabel={chrome.equipSelect}
+              sizeLabel={chrome.size}
+              showSize
+            />
           </div>
         </section>
       ) : null}
 
       {tab === 'iso3d' ? (
         <section>
-          <h2 className="planta-plan-h2">{chrome.iso3dTitle}</h2>
-          {chrome.iso3dLead ? <p className="planta-plan-note">{chrome.iso3dLead}</p> : null}
-          <div className="planta-plan-split">
+          <TabIntro lead={chrome.iso3dLead} />
+          <div className="planta-plan-split planta-plan-split--viewer">
             <div className="planta-croquis">
               <PlantaVista3D
                 title={chrome.iso3dTitle}
@@ -1070,29 +1101,21 @@ export function PlantaPlanos({ locale }: { locale: string }) {
                 locale={loc}
               />
             </div>
-            <aside className="planta-card planta-plan-card">
-              <div className="planta-zone-chips planta-zone-chips-wrap">
-                {equipos3d.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    className={eq === item.id ? 'is-active' : undefined}
-                    onClick={() => setEq(item.id)}
-                  >
-                    {ficha[item.id]?.name}
-                  </button>
-                ))}
-              </div>
-              <h3>{activeEq?.name}</h3>
-              <p>{activeEq?.spec}</p>
-            </aside>
+            <EquipAside
+              selectId="planta-equip-3d"
+              eq={eq}
+              setEq={setEq}
+              ficha={ficha}
+              equipos={equipos3d}
+              equipSelectLabel={chrome.equipSelect}
+              sizeLabel={chrome.size}
+            />
           </div>
         </section>
       ) : null}
 
       {tab === 'materiales' ? (
         <section>
-          <h2 className="planta-plan-h2">{chrome.matTitle}</h2>
           <div className="planta-plan-split">
             <div className="planta-croquis">
               <svg viewBox="0 0 760 760" role="img" aria-label={chrome.matTitle}>

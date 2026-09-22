@@ -277,6 +277,7 @@ export const planoChrome: LocaleCopy<{
   no: string;
   area: string;
   size: string;
+  equipSelect: string;
   sep: string;
   circuit: string;
   type: string;
@@ -314,8 +315,6 @@ export const planoChrome: LocaleCopy<{
     originalLead: '',
     originalHow: [
       'P1 puerta de frente (personas y producto). P2 puerta de servicio al acopio. V1 ventana de frente. V2 ventana lateral con malla.',
-      'Puerta de atrás: materia prima desde el acopio.',
-      'Puerta de frente: personas y producto terminado.',
       'Pila de atrás: producto. Lavamanos de pedal al frente: manos.',
       'Deshidratadora, molino y fogón en la misma franja de transformación. Solar = techo.',
     ],
@@ -331,7 +330,7 @@ export const planoChrome: LocaleCopy<{
     isoTitle: 'Equipos en planta',
     isoLead: '',
     iso3dTitle: 'Vista 3D',
-    iso3dLead: 'Gira el galpón. Una técnica a la vez deja el pasillo libre: no se deshidrata, tritura y cocina al mismo tiempo.',
+    iso3dLead: 'Gira el galpón; una técnica a la vez mantiene el pasillo libre.',
     matTitle: 'Materiales y divisiones',
     isoOutside: 'Patio',
     where: 'Dónde',
@@ -339,6 +338,7 @@ export const planoChrome: LocaleCopy<{
     no: 'No',
     area: 'Área',
     size: 'Medida',
+    equipSelect: 'Equipo',
     sep: 'Separación',
     circuit: 'Circuito',
     type: 'Toma',
@@ -376,8 +376,6 @@ export const planoChrome: LocaleCopy<{
     originalLead: '',
     originalHow: [
       'P1 porta da frente (pessoas e produto). P2 porta de serviço ao acopio. V1 janela da frente. V2 janela lateral com tela.',
-      'Porta de trás: matéria-prima do acopio.',
-      'Porta da frente: pessoas e produto acabado.',
       'Pia de trás: produto. Lavatório de pedal na frente: mãos.',
       'Desidratadora, moinho e fogão na mesma faixa de transformação. Solar = telhado.',
     ],
@@ -393,7 +391,7 @@ export const planoChrome: LocaleCopy<{
     isoTitle: 'Equipamentos em planta',
     isoLead: '',
     iso3dTitle: 'Vista 3D',
-    iso3dLead: 'Gire o galpão. Uma técnica de cada vez deixa o corredor livre: não se desidrata, tritura e cozinha ao mesmo tempo.',
+    iso3dLead: 'Gire o galpão; uma técnica por vez mantém o corredor livre.',
     matTitle: 'Materiais e divisões',
     isoOutside: 'Pátio',
     where: 'Onde',
@@ -401,6 +399,7 @@ export const planoChrome: LocaleCopy<{
     no: 'Não',
     area: 'Área',
     size: 'Medida',
+    equipSelect: 'Equipamento',
     sep: 'Separação',
     circuit: 'Circuito',
     type: 'Tomada',
@@ -438,8 +437,6 @@ export const planoChrome: LocaleCopy<{
     originalLead: '',
     originalHow: [
       'P1 front door (people and packed product). P2 service door to the collection center. V1 front window. V2 side window with mesh.',
-      'Back door: raw material from the collection center.',
-      'Front door: people and finished product.',
       'Back sink: product. Pedal handwash at the front: hands.',
       'Dehydrator, mill and stove in the same transformation strip. Solar = roof.',
     ],
@@ -455,7 +452,7 @@ export const planoChrome: LocaleCopy<{
     isoTitle: 'Equipment plan',
     isoLead: '',
     iso3dTitle: '3D view',
-    iso3dLead: 'Orbit the shed. One technique at a time keeps the aisle clear: you do not dry, mill and cook at once.',
+    iso3dLead: 'Orbit the shed; one technique at a time keeps the aisle clear.',
     matTitle: 'Materials and partitions',
     isoOutside: 'Yard',
     where: 'Where',
@@ -463,6 +460,7 @@ export const planoChrome: LocaleCopy<{
     no: 'Don’t',
     area: 'Area',
     size: 'Size',
+    equipSelect: 'Equipment',
     sep: 'Separation',
     circuit: 'Circuit',
     type: 'Receptacle',
