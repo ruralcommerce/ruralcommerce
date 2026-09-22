@@ -2,7 +2,7 @@ import type { ProjectLocaleKey } from '@/lib/project-locale';
 
 type LocaleCopy<T> = Record<ProjectLocaleKey, T>;
 
-/** Roof 22 m². Phase 1 budget ~US$1,000: one 625 W + small inverter, no battery. Dehydrator on ICE. */
+/** Roof 22 m². Target: 3 × 625 W for daytime process; ICE backup; no battery in base design. */
 export const solarSpec = {
   panels: 3,
   panelsPhase1: 1,
@@ -20,32 +20,28 @@ export const solarSpec = {
   inverterKwBridge: 1.5,
   batteryKwh: 0,
   iceServiceA: 60,
-  budgetUsd: 1000,
 };
 
 export const solarLoads = [
-  { id: 'dehydrator', w: 1200, hDay: 5, kwh: 6.0, pay: 'target' as const },
-  { id: 'mill', w: 1100, hDay: 1, kwh: 1.1, pay: 'target' as const },
-  { id: 'lights', w: 108, hDay: 6, kwh: 0.6, pay: 'bridge' as const },
-  { id: 'sealer', w: 300, hDay: 2, kwh: 0.6, pay: 'bridge' as const },
-  { id: 'pumps', w: 250, hDay: 1, kwh: 0.3, pay: 'bridge' as const },
+  { id: 'dehydrator', w: 1200, hDay: 5, kwh: 6.0, pay: 'solar' as const },
+  { id: 'mill', w: 1100, hDay: 1, kwh: 1.1, pay: 'solar' as const },
+  { id: 'lights', w: 108, hDay: 6, kwh: 0.6, pay: 'solar' as const },
+  { id: 'sealer', w: 300, hDay: 2, kwh: 0.6, pay: 'solar' as const },
+  { id: 'pumps', w: 250, hDay: 1, kwh: 0.3, pay: 'solar' as const },
 ];
 
-export const payLabels: LocaleCopy<Record<'bridge' | 'target' | 'ice', string>> = {
+export const payLabels: LocaleCopy<Record<'solar' | 'ice', string>> = {
   es: {
-    bridge: 'Puente (1 panel)',
-    target: 'Meta limpia (3 paneles)',
-    ice: 'Solo respaldo ICE',
+    solar: 'Sol (día)',
+    ice: 'Respaldo ICE',
   },
   'pt-BR': {
-    bridge: 'Ponte (1 painel)',
-    target: 'Meta limpa (3 painéis)',
-    ice: 'Só backup ICE',
+    solar: 'Sol (dia)',
+    ice: 'Backup ICE',
   },
   en: {
-    bridge: 'Bridge (1 panel)',
-    target: 'Clean target (3 panels)',
-    ice: 'ICE backup only',
+    solar: 'Solar (day)',
+    ice: 'ICE backup',
   },
 };
 
@@ -62,90 +58,62 @@ export const aguaSpec = {
 export const solarCopy: LocaleCopy<{
   title: string;
   lead: string;
-  idea: string;
-  budgetOne: string;
   path: string;
   storage: string;
   inverter: string;
   ice: string;
   fit: string;
-  disclaimer: string;
   loadsTitle: string;
   payCol: string;
   roof: string;
   motor: string;
   convertLabel: string;
   storeLabel: string;
-  phaseNow: string;
-  phaseLater: string;
-  cleanGoal: string;
-  compete: string;
 }> = {
   es: {
-    title: 'Energía solar · producción limpia',
-    lead: 'La meta del proyecto no es “usar ICE para siempre”: es proceso de día con sol (deshidratadora incluida). US$ 1 000 alcanza solo para arrancar el techo; el sistema limpio completo es la prioridad de fondeo, no un lujo.',
-    idea: 'Meta limpia: 3 × 625 W (~5,9 kWh/día) para correr el lote en horario solar. Fase puente: 1 panel + conversor chico mientras se cierra el gap.',
-    cleanGoal: 'Producción limpia = deshidratar y moler con kWh solares de día. La red ICE queda como respaldo (nublado/noche), no como motor principal del proceso.',
-    compete: 'Eficiencia y competitividad: cada kWh de sol baja la factura ICE, estabiliza el costo del lote y sostiene el relato de producto limpio frente a compradores y fondos. Recortar el solar “para ahorrar” sale caro en imagen y en operación.',
-    budgetOne: 'Con US$ 1 000 hoy: 1 panel 550–625 W + conversor ~1–1,5 kW + rieles/cable. Eso es puente, no la meta. Falta ~2 paneles más + subir el inversor hacia 3 kW. Cotizar ese gap (~US$ 1,5–2,5 k) como ítem de donación/ Impulsa, no como “opcional”.',
-    path: 'Arquitectura final: paneles → inversor en C7 → equipos de proceso en horario solar. Puente: el mismo cableado y tablero; solo faltan módulos e inversor más grande. No improvisar otra lógica eléctrica después.',
-    storage: 'Sin batería en el presupuesto puente (carísima). El respaldo limpio de corto plazo es la ICE; el de largo plazo puede ser batería si un fondo lo paga. Nunca presentar la ICE como el plan energético del proyecto.',
-    inverter: 'Puente: conversor ~1–1,5 kW. Meta: híbrido ~3 kW en el mismo hueco del tablero C7.',
-    ice: 'ICE 60 A: respaldo y arranque legal. No sustituye el techo solar en el discurso ni en el costo del lote.',
-    fit: 'Techo 22 m²: 1 módulo ahora + 2 marcados (meta). No comprar baterías antes de completar los 3 paneles.',
-    disclaimer: 'Precios CR de referencia: panel 550–625 W ≈ ₡160–195 mil. El tope US$ 1 000 es solo el puente; el paquete limpio completo se presupuesta aparte para donantes.',
-    loadsTitle: 'Cargas · meta limpia vs puente',
+    title: 'Energía solar del galerón',
+    lead: 'Tres paneles de 625 W (1,88 kWp) en el techo para proceso de día — deshidratadora incluida. La red ICE solo respalda nublado o noche. El fogón es gas.',
+    path: 'Paneles (DC) → inversor 3 kW en el tablero C7 (AC 120/240 V) → equipos. Excedente a ICE con medidor bidireccional, si aplica.',
+    storage: 'Sin baterías en este diseño. El respaldo es la red ICE.',
+    inverter: 'Inversor híbrido 3 kW en el tablero (C7): conversor DC→AC.',
+    ice: 'Servicio ICE 60 A + medidor bidireccional.',
+    fit: '3 módulos ≈ 8 m² sobre 22 m² de techo.',
+    loadsTitle: 'Cargas eléctricas de un día de proceso',
     payCol: 'Fuente',
     roof: 'Techo 4,0 × 5,5 m',
-    motor: 'Inversor meta 3 kW',
+    motor: 'Inversor 3 kW',
     convertLabel: 'Conversor',
     storeLabel: 'Sin batería',
-    phaseNow: 'Puente · US$1k',
-    phaseLater: 'Meta limpia',
   },
   'pt-BR': {
-    title: 'Energia solar · produção limpa',
-    lead: 'A meta do projeto não é “usar ICE para sempre”: é processo de dia com sol (desidratadora incluída). US$ 1 000 só serve para arrancar o telhado; o sistema limpo completo é prioridade de financiamento, não luxo.',
-    idea: 'Meta limpa: 3 × 625 W (~5,9 kWh/dia) para rodar o lote no horário solar. Fase ponte: 1 painel + conversor pequeno enquanto se fecha o gap.',
-    cleanGoal: 'Produção limpa = desidratar e moer com kWh solares de dia. A rede ICE fica como backup (nublado/noite), não como motor principal do processo.',
-    compete: 'Eficiência e competitividade: cada kWh de sol baixa a conta ICE, estabiliza o custo do lote e sustenta o discurso de produto limpo perante compradores e fundos. Cortar o solar “para economizar” sai caro em imagem e em operação.',
-    budgetOne: 'Com US$ 1 000 hoje: 1 painel 550–625 W + conversor ~1–1,5 kW + trilhos/cabo. Isso é ponte, não a meta. Faltam ~2 painéis + subir o inversor rumo a 3 kW. Cotizar esse gap (~US$ 1,5–2,5 k) como item de doação/Impulsa, não como “opcional”.',
-    path: 'Arquitetura final: painéis → inversor no C7 → equipamentos de processo no horário solar. Ponte: a mesma fiação e quadro; só faltam módulos e inversor maior. Não improvisar outra lógica elétrica depois.',
-    storage: 'Sem bateria no orçamento ponte (caríssima). O backup limpo de curto prazo é a ICE; o de longo prazo pode ser bateria se um fundo pagar. Nunca apresentar a ICE como o plano energético do projeto.',
-    inverter: 'Ponte: conversor ~1–1,5 kW. Meta: híbrido ~3 kW no mesmo vão do quadro C7.',
-    ice: 'ICE 60 A: backup e arranque legal. Não substitui o telhado solar no discurso nem no custo do lote.',
-    fit: 'Telhado 22 m²: 1 módulo agora + 2 marcados (meta). Não comprar baterias antes de completar os 3 painéis.',
-    disclaimer: 'Preços CR de referência: painel 550–625 W ≈ ₡160–195 mil. O teto US$ 1 000 é só a ponte; o pacote limpo completo se orça à parte para doadores.',
-    loadsTitle: 'Cargas · meta limpa vs ponte',
+    title: 'Energia solar do galpão',
+    lead: 'Três painéis de 625 W (1,88 kWp) no telhado para processo de dia — desidratadora incluída. A rede ICE só cobre nublado ou noite. O fogão é gás.',
+    path: 'Painéis (CC) → inversor 3 kW no quadro C7 (CA 120/240 V) → equipamentos. Sobra para a ICE com medidor bidirecional, se houver.',
+    storage: 'Sem baterias neste desenho. O backup é a rede ICE.',
+    inverter: 'Inversor híbrido 3 kW no quadro (C7): conversor CC→CA.',
+    ice: 'Serviço ICE 60 A + medidor bidirecional.',
+    fit: '3 módulos ≈ 8 m² sobre 22 m² de telhado.',
+    loadsTitle: 'Cargas elétricas de um dia de processo',
     payCol: 'Fonte',
     roof: 'Telhado 4,0 × 5,5 m',
-    motor: 'Inversor meta 3 kW',
+    motor: 'Inversor 3 kW',
     convertLabel: 'Conversor',
     storeLabel: 'Sem bateria',
-    phaseNow: 'Ponte · US$1k',
-    phaseLater: 'Meta limpa',
   },
   en: {
-    title: 'Solar · clean production',
-    lead: 'The project goal is not “ICE forever”: it is daytime process on solar (dehydrator included). US$1,000 only starts the roof; the full clean system is a funding priority, not a luxury.',
-    idea: 'Clean target: 3 × 625 W (~5.9 kWh/day) to run the batch in solar hours. Bridge: 1 panel + small converter while the gap is closed.',
-    cleanGoal: 'Clean production = dry and mill on daytime solar kWh. ICE is backup (clouds/night), not the main process driver.',
-    compete: 'Efficiency and competitiveness: each solar kWh cuts the ICE bill, stabilizes batch cost, and backs the clean-product story for buyers and funds. Cutting solar “to save money” costs more in image and operations.',
-    budgetOne: 'With US$1,000 today: one 550–625 W panel + ~1–1.5 kW converter + rails/cable. That is a bridge, not the goal. Still need ~2 panels + upsize toward 3 kW. Quote that gap (~US$1.5–2.5k) as a donation/Impulsa line item, not “optional”.',
-    path: 'Final architecture: panels → inverter at C7 → process loads in solar hours. Bridge: same wiring and panel; only modules and a larger inverter are missing. Do not invent a second electrical logic later.',
-    storage: 'No battery in the bridge budget (too expensive). Short-term clean backup is ICE; long-term battery only if a fund pays. Never present ICE as the project’s energy plan.',
-    inverter: 'Bridge: ~1–1.5 kW converter. Target: ~3 kW hybrid in the same C7 slot.',
-    ice: 'ICE 60 A: backup and legal start. It does not replace the solar roof in the story or in batch cost.',
-    fit: '22 m² roof: 1 module now + 2 marked (target). Do not buy batteries before completing 3 panels.',
-    disclaimer: 'CR reference panel prices: 550–625 W ≈ ₡160–195k. The US$1,000 cap is only the bridge; the full clean package is budgeted separately for donors.',
-    loadsTitle: 'Loads · clean target vs bridge',
+    title: 'Solar power for the shed',
+    lead: 'Three 625 W modules (1.88 kWp) on the roof for daytime process — dehydrator included. ICE only covers clouds or night. The stove is gas.',
+    path: 'Panels (DC) → 3 kW inverter at panel C7 (AC 120/240 V) → loads. Surplus to ICE with a bidirectional meter, if applicable.',
+    storage: 'No batteries in this design. Backup is the ICE grid.',
+    inverter: '3 kW hybrid inverter at the panel (C7): DC→AC converter.',
+    ice: 'ICE 60 A service + bidirectional meter.',
+    fit: '3 modules ≈ 8 m² on a 22 m² roof.',
+    loadsTitle: 'Electrical loads on a process day',
     payCol: 'Source',
     roof: 'Roof 4.0 × 5.5 m',
-    motor: 'Target inverter 3 kW',
+    motor: '3 kW inverter',
     convertLabel: 'Converter',
     storeLabel: 'No battery',
-    phaseNow: 'Bridge · US$1k',
-    phaseLater: 'Clean target',
   },
 };
 
