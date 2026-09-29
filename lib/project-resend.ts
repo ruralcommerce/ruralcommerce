@@ -106,13 +106,18 @@ export async function sendProjectResendEmail(
   });
 
   try {
+    if (!input.html && !input.text) {
+      return { ok: false, error: 'Missing email body' };
+    }
+
     const resend = new Resend(apiKey);
     const { data, error } = await resend.emails.send({
       from,
       to: input.to,
       subject: input.subject,
-      html: input.html,
-      text: input.text,
+      ...(input.html
+        ? { html: input.html, ...(input.text ? { text: input.text } : {}) }
+        : { text: input.text as string }),
       replyTo: replyTo || undefined,
       headers,
       tags: input.tags,
