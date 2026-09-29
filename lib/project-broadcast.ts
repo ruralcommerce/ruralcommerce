@@ -1,11 +1,11 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
-import { Resend } from 'resend';
 import { sendPushToEmails } from '@/lib/project-push';
 import { sendUtilityWhatsApp, isWhatsAppConfigured } from '@/lib/project-whatsapp';
-import { PROJECT_NAME } from '@/lib/project-brand';
+import { PROJECT_NAME_SHORT } from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
 import { buildBroadcastEmailContent } from '@/lib/project-email-messages';
+import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'project-inscriptions.json');
 
@@ -158,7 +158,7 @@ function buildEmailPayload(input: BroadcastMessageContent, recipient: BroadcastR
     recipient.locale
   );
   return {
-    subject: `[${PROJECT_NAME}] ${input.subject}`,
+    subject: `${PROJECT_NAME_SHORT} · ${input.subject}`,
     text: buildProjectEmailText(content),
     html: input.html || buildProjectEmailHtml(content),
   };
@@ -178,26 +178,29 @@ async function dispatchProjectMessages(
 
   if (!recipients.length) return result;
 
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-  const resend = apiKey && from ? new Resend(apiKey) : null;
+  const resendReady = isResendConfigured();
 
   if (channels.has('email')) {
-    if (!resend) {
+    if (!resendReady) {
       result.email.skipped = recipients.length;
     } else {
       for (const recipient of recipients) {
         try {
           const emailPayload = buildEmailPayload(input, recipient);
-          const { error } = await resend.emails.send({
-            from: from!,
+          const sendResult = await sendProjectResendEmail({
             to: [recipient.email],
             subject: emailPayload.subject,
             text: emailPayload.text,
             html: emailPayload.html,
+            kind: 'broadcast',
+            locale: recipient.locale,
+            tags: [
+              { name: 'category', value: 'project_broadcast' },
+              { name: 'locale', value: localeKeyOf(recipient.locale) },
+            ],
           });
-          if (error) {
-            console.error('[project-broadcast] email error:', recipient.email, error);
+          if (!sendResult.ok) {
+            console.error('[project-broadcast] email error:', recipient.email, sendResult.error);
             result.email.failed += 1;
           } else {
             result.email.sent += 1;

@@ -1,6 +1,6 @@
-import { Resend } from 'resend';
-import { PROJECT_NAME, projectSiteBaseUrl } from '@/lib/project-brand';
+import { PROJECT_NAME, PROJECT_NAME_SHORT, projectSiteBaseUrl } from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
+import { sendProjectResendEmail } from '@/lib/project-resend';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -58,24 +58,19 @@ export async function sendTeamInviteEmail(input: { email: string; token: string;
     ctaUrl: inviteUrl,
   };
 
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-  if (!apiKey || !from) {
-    console.warn('[team-invite] Resend not configured — invite saved but email skipped');
-    return { sent: false as const, inviteUrl };
-  }
-
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    from,
+  const sendResult = await sendProjectResendEmail({
     to: [input.email],
-    subject: `[${PROJECT_NAME}] ${t.subject}`,
+    subject: `${PROJECT_NAME_SHORT} · ${t.subject}`,
     text: buildProjectEmailText(content),
     html: buildProjectEmailHtml(content),
+    kind: 'transactional',
+    locale,
+    tags: [{ name: 'category', value: 'team_invite' }],
   });
 
-  if (error) {
-    console.error('[team-invite] Resend error:', error);
+  if (!sendResult.ok) {
+    if (!sendResult.skipped) console.error('[team-invite] Resend error:', sendResult.error);
+    else console.warn('[team-invite] Resend not configured — invite saved but email skipped');
     return { sent: false as const, inviteUrl };
   }
 

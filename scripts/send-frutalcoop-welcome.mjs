@@ -55,7 +55,35 @@ function isValidEmail(email) {
 }
 
 const siteUrl = (process.env.PROJETO_SITE_URL || 'https://ruralcommerceglobal.com').replace(/\/$/, '');
-const SUBJECT = 'Bienvenida Frutalcoop · activa tu cuenta, firma el convenio y completa el diagnóstico';
+const SUBJECT = 'Frutalcoop · activa tu cuenta y firma el convenio';
+
+function formatFromAddress(raw) {
+  const email = String(raw || '').trim();
+  if (!email) return '';
+  if (email.includes('<') && email.includes('>')) return email;
+  const name = (process.env.RESEND_FROM_NAME || 'Rural Commerce').replace(/"/g, '');
+  return `"${name}" <${email}>`;
+}
+
+function deliverabilityHeaders() {
+  const fromMailbox = String(
+    process.env.RESEND_FROM_EMAIL ||
+      process.env.PROJETO_EMAIL_FROM ||
+      process.env.RESEND_FROM ||
+      ''
+  )
+    .replace(/^.*<([^>]+)>.*$/, '$1')
+    .trim();
+  const unsubUrl = `${siteUrl}/es/perfil`;
+  const listUnsub = fromMailbox
+    ? `<${unsubUrl}>, <mailto:${fromMailbox}?subject=unsubscribe>`
+    : `<${unsubUrl}>`;
+  return {
+    'List-Unsubscribe': listUnsub,
+    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    Precedence: 'bulk',
+  };
+}
 
 function buildHtml(name) {
   const greeting = name ? `Hola ${escapeHtml(name)},` : 'Hola,';
@@ -114,11 +142,14 @@ if (fromSync) {
 }
 
 const apiKey = process.env.RESEND_API_KEY || '';
-const from =
+const fromRaw =
   process.env.RESEND_FROM_EMAIL ||
   process.env.PROJETO_EMAIL_FROM ||
   process.env.RESEND_FROM ||
   '';
+const from = formatFromAddress(fromRaw);
+const replyTo =
+  process.env.RESEND_REPLY_TO || fromRaw || undefined;
 if (!apiKey || !from) {
   console.error('Missing RESEND_API_KEY or RESEND_FROM_EMAIL');
   process.exit(1);
@@ -127,6 +158,7 @@ if (!apiKey || !from) {
 const resend = new Resend(apiKey);
 const records = JSON.parse(readFileSync(dataFile, 'utf8'));
 const results = [];
+const headers = deliverabilityHeaders();
 
 for (const record of records) {
   if (record.teamTag !== 'frutalcoop') continue;
@@ -145,9 +177,12 @@ for (const record of records) {
     const { error } = await resend.emails.send({
       from,
       to: [email],
+      replyTo: replyTo || undefined,
       subject: SUBJECT,
       html: buildHtml(name),
       text: buildText(name),
+      headers,
+      tags: [{ name: 'category', value: 'frutalcoop_welcome' }],
     });
     results.push({ id: record.id, email, name, ok: !error, error: error?.message || null });
     console.log(error ? `fail ${email}` : `sent ${email}`);

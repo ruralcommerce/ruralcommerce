@@ -13,6 +13,8 @@ const TARGET = path.join(root, 'resend-server.env');
 const KEYS = [
   'RESEND_API_KEY',
   'RESEND_FROM_EMAIL',
+  'RESEND_FROM_NAME',
+  'RESEND_REPLY_TO',
   'CONTACT_TO_EMAIL',
   'PROJETO_INSCRIPTION_NOTIFY_EMAILS',
   'PROJETO_SITE_URL',

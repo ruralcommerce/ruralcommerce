@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
-import { Resend } from 'resend';
-import { PROJECT_NAME, projectSiteBaseUrl } from '@/lib/project-brand';
+import { PROJECT_NAME_SHORT, projectSiteBaseUrl } from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
+import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 import { createPasswordResetToken, passwordResetExpiresAt } from '@/lib/project-password';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -115,9 +115,7 @@ export async function POST(request: Request) {
   };
   await writeRecords(records);
 
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-  if (!apiKey || !from) {
+  if (!isResendConfigured()) {
     console.warn('[password-forgot] Resend not configured — token saved but email skipped');
     return genericOk;
   }
@@ -136,15 +134,18 @@ export async function POST(request: Request) {
   };
 
   try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from,
+    const sendResult = await sendProjectResendEmail({
       to: [email],
-      subject: `[${PROJECT_NAME}] ${t.subject}`,
+      subject: `${PROJECT_NAME_SHORT} · ${t.subject}`,
       text: buildProjectEmailText(content),
       html: buildProjectEmailHtml(content),
+      kind: 'transactional',
+      locale,
+      tags: [{ name: 'category', value: 'password_reset' }],
     });
-    if (error) console.error('[password-forgot] Resend error:', error);
+    if (!sendResult.ok && !sendResult.skipped) {
+      console.error('[password-forgot] Resend error:', sendResult.error);
+    }
   } catch (error) {
     console.error('[password-forgot] email failed:', error);
   }

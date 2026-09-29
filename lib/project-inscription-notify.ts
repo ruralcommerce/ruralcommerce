@@ -1,11 +1,12 @@
-import { Resend } from 'resend';
 import { sendDirectProjectMessage } from '@/lib/project-broadcast';
 import {
   PROJECT_NAME,
+  PROJECT_NAME_SHORT,
   PROJECT_EXECUTOR,
 } from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
 import { buildApprovalEmailContent } from '@/lib/project-email-messages';
+import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 
 const DEFAULT_NOTIFY_EMAILS = [
   'operations@ruralcommerceglobal.com',
@@ -78,7 +79,7 @@ function buildTeamInscriptionEmail(record: InscriptionNotifyRecord) {
   ].filter(Boolean);
 
   return {
-    subject: `[${PROJECT_NAME}] Nova inscrição — ${subjectName}`,
+    subject: `${PROJECT_NAME_SHORT} · Nova inscrição — ${subjectName}`,
     content: {
       locale,
       recipientName: PROJECT_EXECUTOR,
@@ -93,10 +94,7 @@ function buildTeamInscriptionEmail(record: InscriptionNotifyRecord) {
 }
 
 export async function notifyNewProjectInscription(record: InscriptionNotifyRecord) {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-
-  if (!apiKey || !from) {
+  if (!isResendConfigured()) {
     console.warn('[project-inscription-notify] Resend not configured — email skipped');
     return;
   }
@@ -107,21 +105,19 @@ export async function notifyNewProjectInscription(record: InscriptionNotifyRecor
     return;
   }
 
-  const profile = record.profile;
-  const subjectName = profile.organization || profile.name;
   const { subject, content } = buildTeamInscriptionEmail(record);
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    from,
+  const sendResult = await sendProjectResendEmail({
     to,
     replyTo: record.user.email,
     subject,
     text: buildProjectEmailText(content),
     html: buildProjectEmailHtml(content),
+    kind: 'transactional',
+    tags: [{ name: 'category', value: 'inscription_team_notify' }],
   });
 
-  if (error) {
-    console.error('[project-inscription-notify] Resend error:', error);
+  if (!sendResult.ok && !sendResult.skipped) {
+    console.error('[project-inscription-notify] Resend error:', sendResult.error);
   }
 }
 

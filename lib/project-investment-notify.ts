@@ -1,7 +1,7 @@
-import { Resend } from 'resend';
 import { sendDirectProjectMessage, type BroadcastRecipient } from '@/lib/project-broadcast';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
-import { PROJECT_EXECUTOR, PROJECT_NAME } from '@/lib/project-brand';
+import { PROJECT_EXECUTOR, PROJECT_NAME, PROJECT_NAME_SHORT } from '@/lib/project-brand';
+import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 import { readTeamMembers } from '@/lib/project-team-members';
 import {
   inscriptionEmail,
@@ -70,9 +70,7 @@ export async function notifyTeamInvestmentSubmitted(input: {
   investment: InvestmentRecord;
   participant: InscriptionRecord;
 }) {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-  if (!apiKey || !from) return;
+  if (!isResendConfigured()) return;
 
   const to = await listInvestmentTeamEmails();
   if (!to.length) return;
@@ -92,7 +90,7 @@ export async function notifyTeamInvestmentSubmitted(input: {
   const content = {
     locale: 'es',
     recipientName: PROJECT_EXECUTOR,
-    subject: `[${PROJECT_NAME}] Nueva inversión firmada — ${person.organization || person.name}`,
+    subject: `${PROJECT_NAME_SHORT} · Nueva inversión firmada — ${person.organization || person.name}`,
     headline: 'Nueva inversión para revisar',
     paragraphs,
     ctaLabel: 'Abrir intranet',
@@ -100,16 +98,18 @@ export async function notifyTeamInvestmentSubmitted(input: {
     footnote: `ID: ${input.investment.id}`,
   };
 
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    from,
+  const sendResult = await sendProjectResendEmail({
     to,
     replyTo: person.email || undefined,
     subject: content.subject,
     text: buildProjectEmailText(content),
     html: buildProjectEmailHtml(content),
+    kind: 'transactional',
+    tags: [{ name: 'category', value: 'investment_submit' }],
   });
-  if (error) console.error('[investment-notify] submit email failed:', error);
+  if (!sendResult.ok && !sendResult.skipped) {
+    console.error('[investment-notify] submit email failed:', sendResult.error);
+  }
 }
 
 export type InvestmentDigestResult = {
@@ -141,11 +141,9 @@ export async function sendInvestmentMonthlyDigest(options?: { month?: string; re
   const month = options?.month || monthKey();
   const investments = await readInvestments();
   const digest = await buildInvestmentDigest(month, investments);
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
   const to = await listInvestmentTeamEmails();
 
-  if (apiKey && from && to.length) {
+  if (isResendConfigured() && to.length) {
     const submittedLines = digest.submittedThisMonth.slice(0, 40).map((item) => {
       const who = digest.eligible.find((person) => person.id === item.participantId);
       const label = who?.organization || who?.name || item.participantId;
@@ -164,21 +162,23 @@ export async function sendInvestmentMonthlyDigest(options?: { month?: string; re
     const content = {
       locale: 'es',
       recipientName: PROJECT_EXECUTOR,
-      subject: `[${PROJECT_NAME}] Inversiones ${month}: ${digest.silent.length} en silencio, ${digest.submittedThisMonth.length} enviadas`,
+      subject: `${PROJECT_NAME_SHORT} · Inversiones ${month}: ${digest.silent.length} en silencio, ${digest.submittedThisMonth.length} enviadas`,
       headline: `Inversiones ${month}`,
       paragraphs,
       ctaLabel: 'Abrir intranet',
       ctaUrl: adminInvestmentsUrl(),
     };
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({
-      from,
+    const sendResult = await sendProjectResendEmail({
       to,
       subject: content.subject,
       text: buildProjectEmailText(content),
       html: buildProjectEmailHtml(content),
+      kind: 'broadcast',
+      tags: [{ name: 'category', value: 'investment_digest' }],
     });
-    if (error) console.error('[investment-digest] team email failed:', error);
+    if (!sendResult.ok && !sendResult.skipped) {
+      console.error('[investment-digest] team email failed:', sendResult.error);
+    }
   }
 
   let beneficiaryReminders = 0;

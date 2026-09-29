@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { Resend } from 'resend';
+import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 
 const DEFAULT_TO = 'info@ruralcommerceglobal.com';
 
@@ -25,13 +25,11 @@ function trimField(value: unknown, max: number): string {
 }
 
 export async function POST(request: Request) {
-  const apiKey = process.env.RESEND_API_KEY?.trim();
-  const from = process.env.RESEND_FROM_EMAIL?.trim();
-  const to = process.env.CONTACT_TO_EMAIL?.trim() || DEFAULT_TO;
-
-  if (!apiKey || !from) {
+  if (!isResendConfigured()) {
     return NextResponse.json({ ok: false as const, key: 'config' as const }, { status: 503 });
   }
+
+  const to = process.env.CONTACT_TO_EMAIL?.trim() || DEFAULT_TO;
 
   let json: unknown;
   try {
@@ -79,17 +77,17 @@ export async function POST(request: Request) {
     message,
   ].join('\n');
 
-  const resend = new Resend(apiKey);
-  const { error } = await resend.emails.send({
-    from,
+  const sendResult = await sendProjectResendEmail({
     to: [to],
     replyTo: email,
-    subject: `[Rural Commerce — Web] ${subject}`,
+    subject: `Rural Commerce · Web — ${subject}`,
     text,
+    kind: 'transactional',
+    tags: [{ name: 'category', value: 'contact_form' }],
   });
 
-  if (error) {
-    console.error('[api/contact] Resend:', error);
+  if (!sendResult.ok) {
+    console.error('[api/contact] Resend:', sendResult.error);
     return NextResponse.json({ ok: false as const, key: 'sendFailed' as const }, { status: 502 });
   }
 
