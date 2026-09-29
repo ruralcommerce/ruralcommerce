@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
-import { PROJECT_NAME_SHORT, projectSiteBaseUrl } from '@/lib/project-brand';
+import { PROJECT_NAME, PROJECT_NAME_SHORT, projectSiteBaseUrl } from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
 import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 import { createPasswordResetToken, passwordResetExpiresAt } from '@/lib/project-password';
