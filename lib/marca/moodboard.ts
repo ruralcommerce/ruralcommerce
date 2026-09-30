@@ -228,21 +228,23 @@ export function buildFinalWorkshopMoodboard(
     const w = winnersBySection[section];
     if (w && !ordered.find((t) => t.id === w.id)) ordered.push(w);
   }
-  // Include every distinct palette pick so mixed tones (e.g. vibrante + sobrio) all appear
+  // Every participant pick (all sections) so the board is a real mix of choices
   const byId = new Map(images.map((img) => [img.id, img]));
   for (const p of contract.participants) {
-    const id = p.sectionPicks?.palette;
-    if (!id || ordered.find((t) => t.id === id)) continue;
-    const img = byId.get(id);
-    if (!img) continue;
-    ordered.push({
-      id: img.id,
-      src: img.src,
-      alt: img.alt,
-      tone: img.tone,
-      section: 'palette',
-      votes: voteCount(contract, img.id),
-    });
+    for (const section of sections) {
+      const id = p.sectionPicks?.[section];
+      if (!id || ordered.find((t) => t.id === id)) continue;
+      const img = byId.get(id);
+      if (!img) continue;
+      ordered.push({
+        id: img.id,
+        src: img.src,
+        alt: img.alt,
+        tone: img.tone,
+        section,
+        votes: voteCount(contract, img.id),
+      });
+    }
   }
   for (const tile of collageMap.values()) {
     if (!ordered.find((t) => t.id === tile.id)) ordered.push(tile);
@@ -264,7 +266,7 @@ export function buildFinalWorkshopMoodboard(
     contributingTones,
     paletteColors: paletteColors.slice(0, 6),
     winnersBySection,
-    collage: ordered.slice(0, 10),
+    collage: ordered.slice(0, 12),
     topWords,
     synthesis: buildSynthesis(computed.freeTexts, topWords.map((w) => w.word), dominantTone),
     onePage,
