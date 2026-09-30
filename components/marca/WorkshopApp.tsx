@@ -338,8 +338,8 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                   ? 'Toque nas palavras que mais representam o negócio. Pode escolher várias.'
                   : 'Toquen las palabras que más representan el negocio. Pueden elegir varias.'}
               </p>
-              <div className="mt-1.5 min-h-0 flex-1 overflow-hidden sm:mt-2">
-                <div className="flex h-full flex-wrap content-start gap-1 overflow-y-auto pb-1 sm:gap-1.5">
+              <div className="mt-2 min-h-0 flex-1 overflow-hidden">
+                <div className="flex h-full flex-wrap content-center justify-center gap-2 overflow-y-auto py-1 sm:gap-2.5">
                   {(workshop.wordBank || []).map((word) => {
                     const on = selectedWords.includes(word);
                     return (
@@ -347,7 +347,7 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                         key={word}
                         type="button"
                         onClick={() => toggleWord(word)}
-                        className={`rounded-full px-2 py-1 text-[11px] font-semibold sm:px-2.5 sm:py-1.5 sm:text-xs ${
+                        className={`min-h-11 rounded-2xl px-3.5 py-2.5 text-sm font-semibold sm:min-h-12 sm:px-4 sm:py-3 sm:text-base ${
                           on ? 'bg-[#009179] text-white' : 'bg-white text-[#071F5E] shadow-sm'
                         }`}
                       >
