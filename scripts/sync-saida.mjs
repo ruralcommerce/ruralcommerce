@@ -75,6 +75,7 @@ function assertNoRuntimeDataStaged() {
         line === 'data/project-broadcast-log.json' ||
         line === 'data/marca-contracts.json' ||
         line === 'data/marca-catalog.json' ||
+        line === 'data/intranet-users.json' ||
         (line.startsWith('public/images/uploads/') && !line.endsWith('.gitkeep')) ||
         (line.startsWith('public/images/marca/') && !line.endsWith('.gitkeep'))
     );

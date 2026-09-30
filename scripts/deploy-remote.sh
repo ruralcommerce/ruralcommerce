@@ -61,6 +61,7 @@ backup_path "data/sementes.json"
 backup_path "data/sementes-lotes.json"
 backup_path "data/marca-contracts.json"
 backup_path "data/marca-catalog.json"
+backup_path "data/intranet-users.json"
 
 # Production secrets (gitignored)
 backup_path ".env.production.local"
@@ -205,6 +206,12 @@ elif [ ! -f "$ROOT/data/marca-catalog.json" ]; then
     printf '{ "images": [] }\n' > "$ROOT/data/marca-catalog.json"
   fi
   log "seeded: data/marca-catalog.json"
+fi
+
+if [ -f "$BACKUP/data/intranet-users.json" ]; then
+  mkdir -p "$ROOT/data"
+  cp -a "$BACKUP/data/intranet-users.json" "$ROOT/data/intranet-users.json"
+  log "restored: data/intranet-users.json"
 fi
 
 if [ -f "$BACKUP/.env.production.local" ]; then
