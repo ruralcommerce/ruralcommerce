@@ -86,10 +86,11 @@ if [ -d "$ROOT/public/images/uploads" ]; then
   log "backup: public/images/uploads/"
 fi
 
-if [ -d "$ROOT/public/images/marca" ]; then
-  mkdir -p "$BACKUP/public/images"
-  cp -a "$ROOT/public/images/marca" "$BACKUP/public/images/"
-  log "backup: public/images/marca/"
+# Only runtime Drive cache — library/ is tracked in git and must not be overwritten
+if [ -d "$ROOT/public/images/marca/drive" ]; then
+  mkdir -p "$BACKUP/public/images/marca"
+  cp -a "$ROOT/public/images/marca/drive" "$BACKUP/public/images/marca/"
+  log "backup: public/images/marca/drive/"
 fi
 
 if [ -f "$ROOT/data/project-inscriptions.json" ]; then
@@ -225,7 +226,8 @@ merge_dir_from_backup "public/blog-posts" "update"
 
 # Uploads: full merge (runtime library; not in git)
 merge_dir_from_backup "public/images/uploads" "full"
-merge_dir_from_backup "public/images/marca" "full"
+# marca/library comes from git; only restore Drive cache
+merge_dir_from_backup "public/images/marca/drive" "full"
 
 if [ -d "$BACKUP_ROOT" ]; then
   mapfile -t OLD_BACKUPS < <(ls -1dt "$BACKUP_ROOT"/[0-9]* 2>/dev/null || true)
