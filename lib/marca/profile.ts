@@ -1,24 +1,13 @@
 import type {
   MarcaContract,
   MarcaImage,
-  MarcaTagScore,
+  MarcaSection,
   MarcaVisualProfile,
-  MarcaVoteValue,
   MarcaWords,
 } from './types';
 
-const VOTE_WEIGHT: Record<MarcaVoteValue, number> = {
-  yes: 1,
-  neutral: 0.15,
-  no: -1,
-};
-
-const STRONG_MIN = 0.45;
-const MODERATE_MIN = 0.15;
-const REJECTION_MAX = -0.35;
-
 function emptyWords(): MarcaWords {
-  return { people: [], places: [], product: [] };
+  return { selected: [], people: [], places: [], product: [] };
 }
 
 function mergeUnique(lists: string[][]): string[] {
@@ -38,81 +27,101 @@ function mergeUnique(lists: string[][]): string[] {
 }
 
 export function computeVisualProfile(contract: MarcaContract, images: MarcaImage[]): MarcaVisualProfile {
-  const tagMap = new Map<string, { score: number; yes: number; no: number; neutral: number; weight: number }>();
+  const byId = new Map(images.map((img) => [img.id, img]));
+  const sections: MarcaSection[] = ['palette', 'logo', 'packaging'];
+  const bySection: MarcaVisualProfile['bySection'] = {};
+  const toneTotals = new Map<string, number>();
+  const imagePickCount = new Map<string, number>();
 
-  for (const image of images) {
-    for (const tag of image.tags) {
-      if (!tagMap.has(tag)) {
-        tagMap.set(tag, { score: 0, yes: 0, no: 0, neutral: 0, weight: 0 });
-      }
+  for (const section of sections) {
+    const counts = new Map<string, number>();
+    for (const p of contract.participants) {
+      const pickId = p.sectionPicks?.[section];
+      if (!pickId) continue;
+      imagePickCount.set(pickId, (imagePickCount.get(pickId) || 0) + 1);
+      const img = byId.get(pickId);
+      const tone = (img?.tone || img?.tags?.[0] || 'otro').toString();
+      counts.set(tone, (counts.get(tone) || 0) + 1);
+      toneTotals.set(tone, (toneTotals.get(tone) || 0) + 1);
     }
+    bySection[section] = [...counts.entries()]
+      .map(([tone, count]) => ({ tone, count }))
+      .sort((a, b) => b.count - a.count);
   }
 
-  let completedCount = 0;
+  const rankedTones = [...toneTotals.entries()].sort((a, b) => b[1] - a[1]);
+  const strong = rankedTones.filter(([, c]) => c >= Math.max(2, Math.ceil(contract.participants.length * 0.5))).map(([t]) => t);
+  const moderate = rankedTones
+    .filter(([t, c]) => !strong.includes(t) && c >= 1)
+    .map(([t]) => t)
+    .slice(0, 4);
+  const low: string[] = [];
+  const rejections: string[] = [];
 
-  for (const participant of contract.participants) {
-    const hasVotes = Object.keys(participant.votes).length > 0;
-    if (participant.completedAt || hasVotes) completedCount += 1;
-
-    for (const image of images) {
-      const vote = participant.votes[image.id];
-      if (!vote) continue;
-      for (const tag of image.tags) {
-        const row = tagMap.get(tag);
-        if (!row) continue;
-        row.score += VOTE_WEIGHT[vote];
-        row.weight += 1;
-        if (vote === 'yes') row.yes += 1;
-        else if (vote === 'no') row.no += 1;
-        else row.neutral += 1;
-      }
+  const wordCounts = new Map<string, number>();
+  for (const p of contract.participants) {
+    for (const w of p.words?.selected || []) {
+      const key = w.trim();
+      if (!key) continue;
+      wordCounts.set(key, (wordCounts.get(key) || 0) + 1);
     }
   }
-
-  const tagScores: MarcaTagScore[] = [...tagMap.entries()]
-    .map(([tag, row]) => ({
-      tag,
-      score: row.weight > 0 ? row.score / row.weight : 0,
-      yes: row.yes,
-      no: row.no,
-      neutral: row.neutral,
-    }))
-    .sort((a, b) => b.score - a.score);
-
-  const strong = tagScores.filter((t) => t.score >= STRONG_MIN).map((t) => t.tag);
-  const moderate = tagScores
-    .filter((t) => t.score >= MODERATE_MIN && t.score < STRONG_MIN)
-    .map((t) => t.tag);
-  const low = tagScores
-    .filter((t) => t.score < MODERATE_MIN && t.score > REJECTION_MAX)
-    .map((t) => t.tag);
-  const rejections = tagScores.filter((t) => t.score <= REJECTION_MAX).map((t) => t.tag);
 
   const words: MarcaWords = {
+    selected: mergeUnique(contract.participants.map((p) => p.words?.selected || [])),
     people: mergeUnique(contract.participants.map((p) => p.words?.people || [])),
     places: mergeUnique(contract.participants.map((p) => p.words?.places || [])),
     product: mergeUnique(contract.participants.map((p) => p.words?.product || [])),
   };
+  if (!words.selected.length && !words.people.length) Object.assign(words, emptyWords());
 
-  if (!words.people.length && !words.places.length && !words.product.length) {
-    Object.assign(words, emptyWords());
-  }
+  const topImageIds = [...imagePickCount.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 12)
+    .map(([id]) => id);
 
   return {
     contractId: contract.id,
     participantCount: contract.participants.length,
-    completedCount,
+    completedCount: contract.participants.filter((p) => p.completedAt || Object.keys(p.sectionPicks || {}).length > 0).length,
+    bySection,
     strong,
     moderate,
     low,
     rejections,
-    tagScores,
+    tagScores: rankedTones.map(([tag, score]) => ({ tag, score, yes: score, no: 0, neutral: 0 })),
     words,
+    wordFrequency: [...wordCounts.entries()]
+      .map(([word, count]) => ({ word, count }))
+      .sort((a, b) => b.count - a.count),
     specialMeanings: contract.participants
       .filter((p) => p.specialMeaning?.trim())
       .map((p) => ({ name: p.name, text: p.specialMeaning.trim() })),
+    freeTexts: contract.participants
+      .filter((p) => p.freeText?.trim())
+      .map((p) => ({ name: p.name, text: p.freeText.trim() })),
     customerNotes: contract.participants
       .filter((p) => p.customer && Object.keys(p.customer).length > 0)
       .map((p) => ({ name: p.name, customer: p.customer })),
+    topImageIds,
+  };
+}
+
+export function buildOnePageCopy(input: {
+  clientName: string;
+  strong: string[];
+  words: string[];
+  freeTexts: string[];
+}): { headline: string; promise: string; personality: string; voice: string } {
+  const tone = input.strong[0] || 'natural';
+  const words = input.words.slice(0, 6).join(', ') || 'origen, cuidado, territorio';
+  const free = input.freeTexts[0] || '';
+  return {
+    headline: `${input.clientName}: marca con alma ${tone}`,
+    promise: free
+      ? free.slice(0, 180)
+      : `Una marca que se siente ${tone}, cercana al territorio y clara para quien compra.`,
+    personality: `Palabras que la representan: ${words}.`,
+    voice: `Hablar simple, con orgullo del origen y sin complicar. El tono visual dominante es ${tone}.`,
   };
 }

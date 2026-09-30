@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
-import { MARCA_SEED_CATALOG, filterCatalogByIds } from './catalog';
+import { filterCatalogByIds, loadSeedCatalogFromDisk } from './catalog';
 import type { MarcaImage } from './types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -9,14 +9,15 @@ const DATA_FILE = path.join(DATA_DIR, 'marca-catalog.json');
 type CatalogFile = { images: MarcaImage[] };
 
 async function readOrSeed(): Promise<CatalogFile> {
+  const seededImages = await loadSeedCatalogFromDisk();
   try {
     const raw = await readFile(DATA_FILE, 'utf8');
     const parsed = JSON.parse(raw) as CatalogFile;
-    if (parsed?.images?.length) return parsed;
+    if (parsed?.images?.length && parsed.images.length >= seededImages.length) return parsed;
   } catch {
-    // missing or invalid
+    // seed
   }
-  const seeded: CatalogFile = { images: structuredClone(MARCA_SEED_CATALOG) };
+  const seeded: CatalogFile = { images: seededImages };
   await mkdir(DATA_DIR, { recursive: true });
   await writeFile(DATA_FILE, JSON.stringify(seeded, null, 2), 'utf8');
   return seeded;
@@ -42,6 +43,12 @@ export async function getCatalogByIds(ids?: string[]): Promise<MarcaImage[]> {
   return filterCatalogByIds(all, ids);
 }
 
+export async function replaceCatalogFromSeed(): Promise<MarcaImage[]> {
+  const seededImages = await loadSeedCatalogFromDisk();
+  await saveCatalog({ images: seededImages });
+  return seededImages;
+}
+
 export async function upsertCatalogImage(
   input: Partial<MarcaImage> & { alt: string; tags: string[] }
 ): Promise<MarcaImage> {
@@ -60,6 +67,8 @@ export async function upsertCatalogImage(
         tags: (input.tags ?? current.tags).map((t) => t.trim()).filter(Boolean),
         src: input.src !== undefined ? input.src : current.src,
         moodColor: input.moodColor !== undefined ? input.moodColor : current.moodColor,
+        tone: input.tone !== undefined ? input.tone : current.tone,
+        section: input.section !== undefined ? input.section : current.section,
         active: input.active !== undefined ? input.active : current.active !== false,
         updatedAt: now,
       };
@@ -74,6 +83,8 @@ export async function upsertCatalogImage(
     src: input.src || '',
     alt: input.alt.trim() || 'Imagen',
     tags: input.tags.map((t) => t.trim()).filter(Boolean),
+    tone: input.tone,
+    section: input.section,
     moodColor: input.moodColor || '#071F5E',
     active: input.active !== false,
     createdAt: now,

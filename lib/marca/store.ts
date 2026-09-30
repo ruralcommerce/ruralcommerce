@@ -125,7 +125,9 @@ export async function joinContract(code: string, name: string): Promise<{ contra
     name: name.trim() || 'Participante',
     joinedAt: new Date().toISOString(),
     votes: {},
-    words: { people: [], places: [], product: [] },
+    sectionPicks: {},
+    words: { selected: [], people: [], places: [], product: [] },
+    freeText: '',
     customer: {},
     specialMeaning: '',
   };
@@ -140,7 +142,12 @@ export async function joinContract(code: string, name: string): Promise<{ contra
 export async function saveParticipantResponse(
   code: string,
   participantId: string,
-  patch: Partial<Pick<MarcaParticipant, 'votes' | 'words' | 'customer' | 'specialMeaning' | 'completedAt'>>
+  patch: Partial<
+    Pick<
+      MarcaParticipant,
+      'votes' | 'sectionPicks' | 'words' | 'freeText' | 'audioDataUrl' | 'customer' | 'specialMeaning' | 'completedAt'
+    >
+  >
 ): Promise<MarcaParticipant | null> {
   const store = await ensureStore();
   const normalized = code.trim().toUpperCase();
@@ -154,17 +161,22 @@ export async function saveParticipantResponse(
   const next: MarcaParticipant = {
     ...current,
     ...patch,
-    votes: patch.votes ? { ...current.votes, ...patch.votes } : current.votes,
+    votes: patch.votes ? { ...current.votes, ...patch.votes } : current.votes || {},
+    sectionPicks: patch.sectionPicks
+      ? { ...(current.sectionPicks || {}), ...patch.sectionPicks }
+      : current.sectionPicks || {},
     words: patch.words
       ? {
-          people: patch.words.people ?? current.words.people,
-          places: patch.words.places ?? current.words.places,
-          product: patch.words.product ?? current.words.product,
+          selected: patch.words.selected ?? current.words?.selected ?? [],
+          people: patch.words.people ?? current.words?.people ?? [],
+          places: patch.words.places ?? current.words?.places ?? [],
+          product: patch.words.product ?? current.words?.product ?? [],
         }
-      : current.words,
-    customer: patch.customer ? { ...current.customer, ...patch.customer } : current.customer,
-    specialMeaning:
-      patch.specialMeaning !== undefined ? patch.specialMeaning : current.specialMeaning,
+      : current.words || { selected: [], people: [], places: [], product: [] },
+    freeText: patch.freeText !== undefined ? patch.freeText : current.freeText || '',
+    audioDataUrl: patch.audioDataUrl !== undefined ? patch.audioDataUrl : current.audioDataUrl,
+    customer: patch.customer ? { ...current.customer, ...patch.customer } : current.customer || {},
+    specialMeaning: patch.specialMeaning !== undefined ? patch.specialMeaning : current.specialMeaning || '',
   };
 
   contract.participants[pIndex] = next;

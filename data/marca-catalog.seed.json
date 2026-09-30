@@ -1,0 +1,1226 @@
+{
+  "images": [
+    {
+      "id": "img-pastel-packaging-1",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-pastel-6.jpg",
+      "alt": "embalagem tom pastel 6",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-2",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-pastel-7.jpg",
+      "alt": "embalagem tom pastel 7",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-3",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-pastel-8.jpg",
+      "alt": "embalagem tom pastel 8",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-4",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-pastel-9.jpg",
+      "alt": "embalagem tom pastel 9",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-5",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-past-l-1.jpg",
+      "alt": "embalagem tom pastél 1",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-6",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-past-l-2.jpg",
+      "alt": "embalagem tom pastél 2",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-7",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-past-l-3.jpg",
+      "alt": "embalagem tom pastél 3",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-8",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-past-l-4.jpg",
+      "alt": "embalagem tom pastél 4",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-packaging-9",
+      "src": "/images/marca/library/pastel-packaging-embalagem-tom-past-l-5.jpg",
+      "alt": "embalagem tom pastél 5",
+      "tags": [
+        "pastel",
+        "packaging"
+      ],
+      "tone": "pastel",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-10",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-1.jpg",
+      "alt": "logo branding pastel 1",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-11",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-2.jpg",
+      "alt": "logo branding pastel 2",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-12",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-3.jpg",
+      "alt": "logo branding pastel 3",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-13",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-4.jpg",
+      "alt": "logo branding pastel 4",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-14",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-5.jpg",
+      "alt": "logo branding pastel 5",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-15",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-6.jpg",
+      "alt": "logo branding pastel 6",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-16",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-7.jpg",
+      "alt": "logo branding pastel 7",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-17",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-8.jpg",
+      "alt": "logo branding pastel 8",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-logo-18",
+      "src": "/images/marca/library/pastel-logo-logo-branding-pastel-9.jpg",
+      "alt": "logo branding pastel 9",
+      "tags": [
+        "pastel",
+        "logo"
+      ],
+      "tone": "pastel",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-19",
+      "src": "/images/marca/library/pastel-palette-pastel-1.jpg",
+      "alt": "pastel 1",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-20",
+      "src": "/images/marca/library/pastel-palette-pastel-10.jpg",
+      "alt": "pastel 10",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-21",
+      "src": "/images/marca/library/pastel-palette-pastel-11.jpg",
+      "alt": "pastel 11",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-22",
+      "src": "/images/marca/library/pastel-palette-pastel-12.jpg",
+      "alt": "pastel 12",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-23",
+      "src": "/images/marca/library/pastel-palette-pastel-13.jpg",
+      "alt": "pastel 13",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-24",
+      "src": "/images/marca/library/pastel-palette-pastel-14.jpg",
+      "alt": "pastel 14",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-25",
+      "src": "/images/marca/library/pastel-palette-pastel-15.jpg",
+      "alt": "pastel 15",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-26",
+      "src": "/images/marca/library/pastel-palette-pastel-16.jpg",
+      "alt": "pastel 16",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-27",
+      "src": "/images/marca/library/pastel-palette-pastel-17.jpg",
+      "alt": "pastel 17",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-28",
+      "src": "/images/marca/library/pastel-palette-pastel-18.jpg",
+      "alt": "pastel 18",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-29",
+      "src": "/images/marca/library/pastel-palette-pastel-19.jpg",
+      "alt": "pastel 19",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-30",
+      "src": "/images/marca/library/pastel-palette-pastel-2.jpg",
+      "alt": "pastel 2",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-31",
+      "src": "/images/marca/library/pastel-palette-pastel-20.jpg",
+      "alt": "pastel 20",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-32",
+      "src": "/images/marca/library/pastel-palette-pastel-3.jpg",
+      "alt": "pastel 3",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-33",
+      "src": "/images/marca/library/pastel-palette-pastel-4.jpg",
+      "alt": "pastel 4",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-34",
+      "src": "/images/marca/library/pastel-palette-pastel-5.jpg",
+      "alt": "pastel 5",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-35",
+      "src": "/images/marca/library/pastel-palette-pastel-6.jpg",
+      "alt": "pastel 6",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-36",
+      "src": "/images/marca/library/pastel-palette-pastel-7.jpg",
+      "alt": "pastel 7",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-37",
+      "src": "/images/marca/library/pastel-palette-pastel-8.jpg",
+      "alt": "pastel 8",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-pastel-palette-38",
+      "src": "/images/marca/library/pastel-palette-pastel-9.jpg",
+      "alt": "pastel 9",
+      "tags": [
+        "pastel",
+        "palette"
+      ],
+      "tone": "pastel",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E8D5D0"
+    },
+    {
+      "id": "img-sobrio-packaging-39",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-1.jpg",
+      "alt": "embalagem sóbria-refinada 1",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-40",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-10.jpg",
+      "alt": "embalagem sóbria-refinada 10",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-41",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-11.jpg",
+      "alt": "embalagem sóbria-refinada 11",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-42",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-2.jpg",
+      "alt": "embalagem sóbria-refinada 2",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-43",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-3.jpg",
+      "alt": "embalagem sóbria-refinada 3",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-44",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-4.jpg",
+      "alt": "embalagem sóbria-refinada 4",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-45",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-5.jpg",
+      "alt": "embalagem sóbria-refinada 5",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-46",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-6.jpg",
+      "alt": "embalagem sóbria-refinada 6",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-47",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-7.jpg",
+      "alt": "embalagem sóbria-refinada 7",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-48",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-8.jpg",
+      "alt": "embalagem sóbria-refinada 8",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-packaging-49",
+      "src": "/images/marca/library/sobrio-packaging-embalagem-s-bria-refinada-9.jpg",
+      "alt": "embalagem sóbria-refinada 9",
+      "tags": [
+        "sobrio",
+        "packaging"
+      ],
+      "tone": "sobrio",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-50",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-1.jpg",
+      "alt": "logo-branding refinado-sóbrio 1",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-51",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-2.jpg",
+      "alt": "logo-branding refinado-sóbrio 2",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-52",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-3.jpg",
+      "alt": "logo-branding refinado-sóbrio 3",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-53",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-4.jpg",
+      "alt": "logo-branding refinado-sóbrio 4",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-54",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-5.jpg",
+      "alt": "logo-branding refinado-sóbrio 5",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-55",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-6.jpg",
+      "alt": "logo-branding refinado-sóbrio 6",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-sobrio-logo-56",
+      "src": "/images/marca/library/sobrio-logo-logo-branding-refinado-s-brio-7.jpg",
+      "alt": "logo-branding refinado-sóbrio 7",
+      "tags": [
+        "sobrio",
+        "logo"
+      ],
+      "tone": "sobrio",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#2F3336"
+    },
+    {
+      "id": "img-terroso-palette-57",
+      "src": "/images/marca/library/terroso-palette-terroso-1.jpg",
+      "alt": "terroso 1",
+      "tags": [
+        "terroso",
+        "palette"
+      ],
+      "tone": "terroso",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-palette-58",
+      "src": "/images/marca/library/terroso-palette-terroso-10.jpg",
+      "alt": "terroso 10",
+      "tags": [
+        "terroso",
+        "palette"
+      ],
+      "tone": "terroso",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-vibrante-packaging-59",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-1.jpg",
+      "alt": "embalagem vibrante 1",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-60",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-10.jpg",
+      "alt": "embalagem vibrante 10",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-61",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-11.jpg",
+      "alt": "embalagem vibrante 11",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-62",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-12.jpg",
+      "alt": "embalagem vibrante 12",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-63",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-13.jpg",
+      "alt": "embalagem vibrante 13",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-64",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-14.jpg",
+      "alt": "embalagem vibrante 14",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-65",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-15.jpg",
+      "alt": "embalagem vibrante 15",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-66",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-16.jpg",
+      "alt": "embalagem vibrante 16",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-67",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-17.jpg",
+      "alt": "embalagem vibrante 17",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-68",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-18.jpg",
+      "alt": "embalagem vibrante 18",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-69",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-2.jpg",
+      "alt": "embalagem vibrante 2",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-70",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-3.jpg",
+      "alt": "embalagem vibrante 3",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-71",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-4.jpg",
+      "alt": "embalagem vibrante 4",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-72",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-5.jpg",
+      "alt": "embalagem vibrante 5",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-73",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-6.jpg",
+      "alt": "embalagem vibrante 6",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-74",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-7.jpg",
+      "alt": "embalagem vibrante 7",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-75",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-8.jpg",
+      "alt": "embalagem vibrante 8",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-packaging-76",
+      "src": "/images/marca/library/vibrante-packaging-embalagem-vibrante-9.jpg",
+      "alt": "embalagem vibrante 9",
+      "tags": [
+        "vibrante",
+        "packaging"
+      ],
+      "tone": "vibrante",
+      "section": "packaging",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-logo-77",
+      "src": "/images/marca/library/vibrante-logo-logo-branding-vibrante-tropical-1.jpg",
+      "alt": "logo-branding vibrante-tropical 1",
+      "tags": [
+        "vibrante",
+        "logo"
+      ],
+      "tone": "vibrante",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-logo-78",
+      "src": "/images/marca/library/vibrante-logo-logo-branding-vibrante-tropical-2.jpg",
+      "alt": "logo-branding vibrante-tropical 2",
+      "tags": [
+        "vibrante",
+        "logo"
+      ],
+      "tone": "vibrante",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-logo-79",
+      "src": "/images/marca/library/vibrante-logo-logo-branding-vibrante-tropical-3.jpg",
+      "alt": "logo-branding vibrante-tropical 3",
+      "tags": [
+        "vibrante",
+        "logo"
+      ],
+      "tone": "vibrante",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-logo-80",
+      "src": "/images/marca/library/vibrante-logo-logo-branding-vibrante-tropical-4.jpg",
+      "alt": "logo-branding vibrante-tropical 4",
+      "tags": [
+        "vibrante",
+        "logo"
+      ],
+      "tone": "vibrante",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-logo-81",
+      "src": "/images/marca/library/vibrante-logo-logo-branding-vibrante-tropical-5.jpg",
+      "alt": "logo-branding vibrante-tropical 5",
+      "tags": [
+        "vibrante",
+        "logo"
+      ],
+      "tone": "vibrante",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-logo-82",
+      "src": "/images/marca/library/vibrante-logo-logo-branding-vibrante-tropical-6.jpg",
+      "alt": "logo-branding vibrante-tropical 6",
+      "tags": [
+        "vibrante",
+        "logo"
+      ],
+      "tone": "vibrante",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-83",
+      "src": "/images/marca/library/vibrante-palette-vibrante-1.jpg",
+      "alt": "vibrante 1",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-84",
+      "src": "/images/marca/library/vibrante-palette-vibrante-10.jpg",
+      "alt": "vibrante 10",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-85",
+      "src": "/images/marca/library/vibrante-palette-vibrante-11.jpg",
+      "alt": "vibrante 11",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-86",
+      "src": "/images/marca/library/vibrante-palette-vibrante-12.jpg",
+      "alt": "vibrante 12",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-87",
+      "src": "/images/marca/library/vibrante-palette-vibrante-2.jpg",
+      "alt": "vibrante 2",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-88",
+      "src": "/images/marca/library/vibrante-palette-vibrante-3.jpg",
+      "alt": "vibrante 3",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-89",
+      "src": "/images/marca/library/vibrante-palette-vibrante-4.jpg",
+      "alt": "vibrante 4",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-90",
+      "src": "/images/marca/library/vibrante-palette-vibrante-5.jpg",
+      "alt": "vibrante 5",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-91",
+      "src": "/images/marca/library/vibrante-palette-vibrante-6.jpg",
+      "alt": "vibrante 6",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-92",
+      "src": "/images/marca/library/vibrante-palette-vibrante-7.jpg",
+      "alt": "vibrante 7",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-93",
+      "src": "/images/marca/library/vibrante-palette-vibrante-8.jpg",
+      "alt": "vibrante 8",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    },
+    {
+      "id": "img-vibrante-palette-94",
+      "src": "/images/marca/library/vibrante-palette-vibrante-9.jpg",
+      "alt": "vibrante 9",
+      "tags": [
+        "vibrante",
+        "palette"
+      ],
+      "tone": "vibrante",
+      "section": "palette",
+      "active": true,
+      "moodColor": "#E85D04"
+    }
+  ]
+}

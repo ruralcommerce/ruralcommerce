@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { saveParticipantResponse } from '@/lib/marca/store';
-import type { MarcaCustomer, MarcaVoteValue, MarcaWords } from '@/lib/marca/types';
+import type { MarcaCustomer, MarcaSectionPicks, MarcaWords } from '@/lib/marca/types';
 
 export const runtime = 'nodejs';
 
@@ -9,8 +9,10 @@ type Params = { params: { code: string } };
 export async function POST(request: Request, { params }: Params) {
   const body = (await request.json().catch(() => ({}))) as {
     participantId?: string;
-    votes?: Record<string, MarcaVoteValue>;
+    sectionPicks?: MarcaSectionPicks;
     words?: Partial<MarcaWords>;
+    freeText?: string;
+    audioDataUrl?: string;
     customer?: MarcaCustomer;
     specialMeaning?: string;
     complete?: boolean;
@@ -21,14 +23,17 @@ export async function POST(request: Request, { params }: Params) {
   }
 
   const participant = await saveParticipantResponse(params.code, body.participantId, {
-    votes: body.votes,
+    sectionPicks: body.sectionPicks,
     words: body.words
       ? {
+          selected: body.words.selected || [],
           people: body.words.people || [],
           places: body.words.places || [],
           product: body.words.product || [],
         }
       : undefined,
+    freeText: body.freeText,
+    audioDataUrl: body.audioDataUrl,
     customer: body.customer,
     specialMeaning: body.specialMeaning,
     completedAt: body.complete ? new Date().toISOString() : undefined,

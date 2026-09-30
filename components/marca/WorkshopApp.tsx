@@ -1,179 +1,104 @@
 'use client';
 
 import Image from 'next/image';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { MarcaCustomer, MarcaPublicImage, MarcaPublicWorkshop, MarcaVoteValue, MarcaWords } from '@/lib/marca/types';
-import { getMarcaIntro } from '@/lib/marca/intro';
-import { MarcaButton, MarcaInput, MarcaPanel, MarcaShell, MarcaTextarea } from './MarcaShell';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  MARCA_SECTIONS,
+  type MarcaPublicImage,
+  type MarcaPublicWorkshop,
+  type MarcaSection,
+  type MarcaSectionPicks,
+} from '@/lib/marca/types';
+import { buildOnePageCopy } from '@/lib/marca/profile';
+import { normalizeToneLabel } from '@/lib/marca/labels';
 
-type Step = 'join' | 'intro' | 'radar' | 'words' | 'customer' | 'special' | 'done';
+type Step = 'join' | 'intro' | MarcaSection | 'words' | 'story' | 'result';
 
-const VOTE_OPTIONS: { value: MarcaVoteValue; label: string }[] = [
-  { value: 'no', label: 'No combina' },
-  { value: 'neutral', label: 'Neutro / no sé' },
-  { value: 'yes', label: 'Combina' },
-];
-
-const BUY_FOR = ['Consumir en casa', 'Regalar', 'Llevar de viaje', 'Revender', 'Otro'];
-
-function ChipInput({
-  label,
-  hint,
-  values,
-  onChange,
-}: {
-  label: string;
-  hint: string;
-  values: string[];
-  onChange: (next: string[]) => void;
-}) {
-  const [draft, setDraft] = useState('');
-
-  function add() {
-    const word = draft.trim();
-    if (!word) return;
-    if (values.some((v) => v.toLocaleLowerCase() === word.toLocaleLowerCase())) {
-      setDraft('');
-      return;
-    }
-    onChange([...values, word]);
-    setDraft('');
-  }
-
-  return (
-    <div>
-      <p className="text-sm font-semibold text-[var(--rc-primary)]">{label}</p>
-      <p className="mt-1 text-xs text-[var(--rc-text)]/60">{hint}</p>
-      <div className="mt-3 flex gap-2">
-        <MarcaInput
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              add();
-            }
-          }}
-          placeholder="Escribe y Enter"
-        />
-        <MarcaButton variant="ghost" onClick={add}>
-          +
-        </MarcaButton>
-      </div>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {values.map((word) => (
-          <button
-            key={word}
-            type="button"
-            onClick={() => onChange(values.filter((v) => v !== word))}
-            className="rounded-md bg-[var(--rc-accent)]/12 px-3 py-1.5 text-sm font-medium text-[var(--rc-accent)]"
-          >
-            {word} ×
-          </button>
-        ))}
-      </div>
-    </div>
-  );
+function isPt(locale: string) {
+  return locale === 'pt-BR';
 }
 
-function ImageCard({
-  image,
-  vote,
-  onVote,
+function MoodboardGrid({
+  images,
+  words,
+  title,
 }: {
-  image: MarcaPublicImage;
-  vote?: MarcaVoteValue;
-  onVote: (value: MarcaVoteValue) => void;
+  images: MarcaPublicImage[];
+  words: string[];
+  title: string;
 }) {
+  const tiles = images.slice(0, 8);
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--rc-primary)]/10 bg-white">
-      <div className="relative aspect-[4/3] bg-[var(--rc-bg)]">
-        {image.src ? (
-          <Image src={image.src} alt={image.alt} fill className="object-cover" sizes="(max-width:768px) 100vw, 420px" />
-        ) : (
+    <div className="flex h-full min-h-0 flex-col">
+      <p className="mb-1 shrink-0 text-[10px] font-bold uppercase tracking-[0.16em] text-[#009179]">{title}</p>
+      <div className="grid min-h-0 flex-1 grid-cols-4 grid-rows-3 gap-1 overflow-hidden rounded-xl">
+        {tiles.map((img, i) => (
           <div
-            className="absolute inset-0 flex items-end p-5"
-            style={{ background: `linear-gradient(160deg, ${image.moodColor || '#071F5E'}, #00071B)` }}
+            key={img.id}
+            className={`relative overflow-hidden bg-[#EEF3F7] ${i === 0 ? 'col-span-2 row-span-2' : ''} ${
+              i === 1 ? 'col-span-2' : ''
+            }`}
           >
-            <p className="text-lg font-semibold text-white/90">{image.alt}</p>
+            {img.src ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={img.src} alt={img.alt} className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full" style={{ background: img.moodColor || '#071F5E' }} />
+            )}
+            {img.tone ? (
+              <span className="absolute bottom-1 left-1 rounded bg-black/50 px-1.5 py-0.5 text-[9px] font-semibold uppercase text-white">
+                {normalizeToneLabel(img.tone)}
+              </span>
+            ) : null}
           </div>
-        )}
-      </div>
-      <div className="grid grid-cols-3 gap-2 p-3">
-        {VOTE_OPTIONS.map((opt) => {
-          const active = vote === opt.value;
-          return (
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onVote(opt.value)}
-              className={`rounded-md px-2 py-2.5 text-xs font-semibold transition sm:text-sm ${
-                active
-                  ? opt.value === 'yes'
-                    ? 'bg-[var(--rc-accent)] text-white'
-                    : opt.value === 'no'
-                      ? 'bg-[var(--rc-primary)] text-white'
-                      : 'bg-[#D9E3EC] text-[var(--rc-primary)]'
-                  : 'bg-[var(--rc-bg)] text-[var(--rc-text)]/75 hover:bg-[#E8EEF4]'
-              }`}
-            >
-              {opt.label}
-            </button>
-          );
-        })}
+        ))}
+        <div className="col-span-2 flex flex-wrap content-start gap-1 overflow-hidden bg-[#071F5E] p-2 text-white">
+          {words.slice(0, 10).map((w) => (
+            <span key={w} className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-medium">
+              {w}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );
 }
 
 export function WorkshopApp({ locale, code }: { locale: string; code: string }) {
+  const pt = isPt(locale);
   const [workshop, setWorkshop] = useState<MarcaPublicWorkshop | null>(null);
   const [loadError, setLoadError] = useState('');
   const [step, setStep] = useState<Step>('join');
   const [name, setName] = useState('');
   const [participantId, setParticipantId] = useState('');
-  const [votes, setVotes] = useState<Record<string, MarcaVoteValue>>({});
-  const [words, setWords] = useState<MarcaWords>({ people: [], places: [], product: [] });
-  const [customer, setCustomer] = useState<MarcaCustomer>({});
-  const [specialMeaning, setSpecialMeaning] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [index, setIndex] = useState(0);
+  const [picks, setPicks] = useState<MarcaSectionPicks>({});
+  const [selectedWords, setSelectedWords] = useState<string[]>([]);
+  const [freeText, setFreeText] = useState('');
+  const [recording, setRecording] = useState(false);
+  const [audioDataUrl, setAudioDataUrl] = useState<string | undefined>();
+  const mediaRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
 
   useEffect(() => {
     void (async () => {
       const res = await fetch(`/api/marca/workshop/${encodeURIComponent(code)}`);
       if (!res.ok) {
-        setLoadError('Esta oficina no existe o ya no está disponible.');
+        setLoadError(pt ? 'Esta oficina não está disponível.' : 'Esta oficina no está disponible.');
         return;
       }
       const data = (await res.json()) as { workshop: MarcaPublicWorkshop };
       setWorkshop(data.workshop);
     })();
-  }, [code]);
-
-  const images = workshop?.images || [];
-  const current = images[index];
-  const votedCount = useMemo(() => Object.keys(votes).length, [votes]);
+  }, [code, pt]);
 
   const persist = useCallback(
-    async (patch: {
-      votes?: Record<string, MarcaVoteValue>;
-      words?: MarcaWords;
-      customer?: MarcaCustomer;
-      specialMeaning?: string;
-      complete?: boolean;
-    }) => {
+    async (patch: Record<string, unknown>) => {
       if (!participantId) return;
-      setSaving(true);
-      try {
-        await fetch(`/api/marca/workshop/${encodeURIComponent(code)}/respond`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ participantId, ...patch }),
-        });
-      } finally {
-        setSaving(false);
-      }
+      await fetch(`/api/marca/workshop/${encodeURIComponent(code)}/respond`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ participantId, ...patch }),
+      });
     },
     [code, participantId]
   );
@@ -186,7 +111,7 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
       body: JSON.stringify({ name }),
     });
     if (!res.ok) {
-      setLoadError('No se pudo entrar a la oficina.');
+      setLoadError(pt ? 'Não foi possível entrar.' : 'No se pudo entrar.');
       return;
     }
     const data = (await res.json()) as { participantId: string };
@@ -194,314 +119,344 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     setStep('intro');
   }
 
-  function voteCurrent(value: MarcaVoteValue) {
-    if (!current) return;
-    const next = { ...votes, [current.id]: value };
-    setVotes(next);
-    void persist({ votes: { [current.id]: value } });
-    if (index < images.length - 1) {
-      setIndex((i) => i + 1);
+  function pickImage(section: MarcaSection, imageId: string) {
+    const next = { ...picks, [section]: imageId };
+    setPicks(next);
+    void persist({ sectionPicks: { [section]: imageId } });
+  }
+
+  function toggleWord(word: string) {
+    setSelectedWords((prev) => {
+      const next = prev.includes(word) ? prev.filter((w) => w !== word) : [...prev, word];
+      return next;
+    });
+  }
+
+  async function startAudio() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream);
+      chunksRef.current = [];
+      recorder.ondataavailable = (ev) => {
+        if (ev.data.size) chunksRef.current.push(ev.data);
+      };
+      recorder.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const url = String(reader.result || '');
+          setAudioDataUrl(url);
+          void persist({ audioDataUrl: url });
+        };
+        reader.readAsDataURL(blob);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mediaRef.current = recorder;
+      recorder.start();
+      setRecording(true);
+    } catch {
+      // mic blocked — text is enough
     }
   }
 
+  function stopAudio() {
+    mediaRef.current?.stop();
+    setRecording(false);
+  }
+
+  const resultImages = useMemo(() => {
+    if (!workshop) return [] as MarcaPublicImage[];
+    const ids = Object.values(picks).filter(Boolean) as string[];
+    return ids
+      .map((id) => workshop.images.find((img) => img.id === id))
+      .filter(Boolean) as MarcaPublicImage[];
+  }, [picks, workshop]);
+
+  const onePage = useMemo(() => {
+    if (!workshop) return null;
+    const tones = resultImages.map((i) => i.tone || '').filter(Boolean);
+    return buildOnePageCopy({
+      clientName: workshop.clientName,
+      strong: tones,
+      words: selectedWords,
+      freeTexts: freeText ? [freeText] : [],
+    });
+  }, [workshop, resultImages, selectedWords, freeText]);
+
   if (loadError) {
     return (
-      <MarcaShell locale={locale} title="Oficina" subtitle={loadError}>
-        <MarcaPanel>
-          <p className="text-sm text-[var(--rc-text)]/70">Pide el link actualizado al equipo de Rural Commerce.</p>
-        </MarcaPanel>
-      </MarcaShell>
+      <div className="flex h-[100dvh] items-center justify-center bg-[#F2F2F2] p-4 text-center text-sm text-[#071F5E]">
+        {loadError}
+      </div>
     );
   }
 
   if (!workshop) {
     return (
-      <MarcaShell locale={locale} title="Oficina de marca" subtitle="Cargando…">
-        <MarcaPanel>
-          <p className="text-sm text-[var(--rc-text)]/70">Preparando la dinámica…</p>
-        </MarcaPanel>
-      </MarcaShell>
+      <div className="flex h-[100dvh] items-center justify-center bg-[#F2F2F2] text-sm text-[#071F5E]/70">
+        {pt ? 'Carregando oficina…' : 'Cargando oficina…'}
+      </div>
     );
   }
 
-  const intro = getMarcaIntro(locale);
+  const sectionMeta = MARCA_SECTIONS.find((s) => s.id === step);
+  const sectionImages =
+    step === 'palette' || step === 'logo' || step === 'packaging' ? workshop.sections[step] || [] : [];
 
   return (
-    <MarcaShell
-      locale={locale}
-      eyebrow={workshop.clientName}
-      title={workshop.title}
-      subtitle={
-        step === 'intro'
-          ? intro.kicker
-          : step === 'radar'
-            ? 'Mira cada imagen y di si combina con la marca que imaginan.'
-            : step === 'words'
-              ? 'Palabras que son solo de ustedes.'
-              : step === 'customer'
-                ? 'Unas preguntas cortas sobre quién compra.'
-                : step === 'special'
-                  ? 'Una última pregunta abierta.'
-                  : 'Dinámica de construcción de marca'
-      }
-    >
-      {step === 'join' ? (
-        <MarcaPanel className="max-w-lg">
-          <form onSubmit={join} className="space-y-4">
-            <p className="text-sm leading-6 text-[var(--rc-text)]/75">
-              No hay respuestas correctas. Es un juego visual para descubrir el perfil de la marca.
-            </p>
-            <label className="block text-sm font-semibold text-[var(--rc-primary)]">
-              Tu nombre
-              <MarcaInput className="mt-2" value={name} onChange={(e) => setName(e.target.value)} required autoFocus />
-            </label>
-            <MarcaButton type="submit">Empezar</MarcaButton>
-          </form>
-        </MarcaPanel>
-      ) : null}
-
-      {step === 'intro' ? (
-        <MarcaPanel className="max-w-2xl space-y-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
-            {intro.kicker}
-          </p>
-          <h2 className="text-2xl font-bold text-[var(--rc-primary)] sm:text-3xl">{intro.title}</h2>
-          {intro.paragraphs.map((p) => (
-            <p key={p} className="text-sm leading-7 text-[var(--rc-text)]/80">
-              {p}
-            </p>
-          ))}
-          <ul className="space-y-2 border-l-2 border-[var(--rc-accent)] pl-4">
-            {intro.bullets.map((b) => (
-              <li key={b} className="text-sm leading-6 text-[var(--rc-primary)]">
-                {b}
-              </li>
-            ))}
-          </ul>
-          <MarcaButton onClick={() => setStep('radar')}>{intro.cta}</MarcaButton>
-        </MarcaPanel>
-      ) : null}
-
-      {step === 'radar' && current ? (
-        <div className="space-y-5">
-          <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.14em] text-[var(--rc-text)]/50">
-            <span>
-              Imagen {index + 1} / {images.length}
-            </span>
-            <span>{votedCount} marcadas</span>
-          </div>
-          <ImageCard image={current} vote={votes[current.id]} onVote={voteCurrent} />
-          <div className="flex flex-wrap gap-2">
-            <MarcaButton variant="ghost" disabled={index === 0} onClick={() => setIndex((i) => Math.max(0, i - 1))}>
-              Anterior
-            </MarcaButton>
-            <MarcaButton
-              variant="ghost"
-              disabled={index >= images.length - 1}
-              onClick={() => setIndex((i) => Math.min(images.length - 1, i + 1))}
-            >
-              Siguiente
-            </MarcaButton>
-            <MarcaButton
-              variant="primary"
-              disabled={votedCount < Math.min(5, images.length)}
-              onClick={() => setStep('words')}
-            >
-              Continuar
-            </MarcaButton>
-          </div>
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-[#F2F2F2] text-[#1E1E1E]">
+      <header className="flex shrink-0 items-center justify-between bg-[#071F5E] px-3 py-2 text-white sm:px-4">
+        <div className="flex items-center gap-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/logo-branco.png" alt="Rural Commerce" className="h-7 w-auto sm:h-8" />
         </div>
-      ) : null}
+        <div className="flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-white/80">
+          <span>{pt ? 'Oficina de marca' : 'Oficina de marca'}</span>
+          <a href={`/${locale}`} className="hover:text-white">
+            Sitio
+          </a>
+        </div>
+      </header>
 
-      {step === 'words' ? (
-        <MarcaPanel className="space-y-8">
-          <ChipInput
-            label="Personas"
-            hint="Nombres, apellidos, apodos"
-            values={words.people}
-            onChange={(people) => setWords((w) => ({ ...w, people }))}
-          />
-          <ChipInput
-            label="Lugares"
-            hint="Propiedad, comunidad, río, montaña, ciudad…"
-            values={words.places}
-            onChange={(places) => setWords((w) => ({ ...w, places }))}
-          />
-          <ChipInput
-            label="Producto y trabajo"
-            hint="Productos, ingredientes, herramientas, etapas"
-            values={words.product}
-            onChange={(product) => setWords((w) => ({ ...w, product }))}
-          />
-          <div className="flex flex-wrap gap-2">
-            <MarcaButton variant="ghost" onClick={() => setStep('radar')}>
-              Volver
-            </MarcaButton>
-            <MarcaButton
-              onClick={() => {
-                void persist({ words });
-                setStep('customer');
-              }}
-            >
-              Continuar
-            </MarcaButton>
-          </div>
-        </MarcaPanel>
-      ) : null}
+      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col px-3 py-2 sm:px-4 sm:py-3">
+        <div className="shrink-0">
+          <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#009179]">{workshop.clientName}</p>
+          <h1 className="truncate text-lg font-bold text-[#071F5E] sm:text-xl">{workshop.title}</h1>
+        </div>
 
-      {step === 'customer' ? (
-        <MarcaPanel className="max-w-xl space-y-5">
-          <div>
-            <p className="text-sm font-semibold text-[var(--rc-primary)]">¿Ya venden?</p>
-            <div className="mt-2 flex gap-2">
-              <MarcaButton
-                variant={customer.alreadySells === true ? 'primary' : 'ghost'}
-                onClick={() => setCustomer((c) => ({ ...c, alreadySells: true }))}
-              >
-                Sí
-              </MarcaButton>
-              <MarcaButton
-                variant={customer.alreadySells === false ? 'primary' : 'ghost'}
-                onClick={() => setCustomer((c) => ({ ...c, alreadySells: false }))}
-              >
-                Todavía no
-              </MarcaButton>
-            </div>
-          </div>
-
-          {customer.alreadySells ? (
-            <>
-              <label className="block text-sm font-semibold text-[var(--rc-primary)]">
-                ¿Qué venden?
-                <MarcaInput
-                  className="mt-2"
-                  value={customer.whatSells || ''}
-                  onChange={(e) => setCustomer((c) => ({ ...c, whatSells: e.target.value }))}
-                />
-              </label>
-              <div>
-                <p className="text-sm font-semibold text-[var(--rc-primary)]">¿Ya preguntaron qué opinan sus clientes?</p>
-                <div className="mt-2 flex gap-2">
-                  <MarcaButton
-                    variant={customer.askedClients === true ? 'primary' : 'ghost'}
-                    onClick={() => setCustomer((c) => ({ ...c, askedClients: true }))}
-                  >
-                    Sí
-                  </MarcaButton>
-                  <MarcaButton
-                    variant={customer.askedClients === false ? 'primary' : 'ghost'}
-                    onClick={() => setCustomer((c) => ({ ...c, askedClients: false }))}
-                  >
-                    No aún
-                  </MarcaButton>
-                </div>
-              </div>
-              {customer.askedClients ? (
-                <label className="block text-sm font-semibold text-[var(--rc-primary)]">
-                  En una frase, ¿qué dicen?
-                  <MarcaTextarea
-                    className="mt-2"
-                    rows={3}
-                    value={customer.clientPraise || ''}
-                    onChange={(e) => setCustomer((c) => ({ ...c, clientPraise: e.target.value }))}
-                  />
-                </label>
-              ) : null}
-            </>
+        <div className="mt-2 min-h-0 flex-1">
+          {step === 'join' ? (
+            <form onSubmit={join} className="flex h-full flex-col justify-center gap-3">
+              <p className="text-sm text-[#1E1E1E]/70">
+                {pt
+                  ? 'Vamos escolher imagens e palavras. Não há resposta certa — é o que combina com vocês.'
+                  : 'Vamos a elegir imágenes y palabras. No hay respuesta correcta: es lo que combina con ustedes.'}
+              </p>
+              <input
+                className="min-h-11 rounded-xl border border-[#071F5E]/15 bg-white px-4 text-sm"
+                placeholder={pt ? 'Seu nome' : 'Tu nombre'}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                autoFocus
+              />
+              <button type="submit" className="min-h-11 rounded-xl bg-[#009179] text-sm font-bold text-white">
+                {pt ? 'Começar' : 'Empezar'}
+              </button>
+            </form>
           ) : null}
 
-          <div>
-            <p className="text-sm font-semibold text-[var(--rc-primary)]">¿Para qué compran (o comprarían)?</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {BUY_FOR.map((option) => {
-                const active = customer.buyFor?.includes(option);
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() =>
-                      setCustomer((c) => {
-                        const currentList = c.buyFor || [];
-                        return {
-                          ...c,
-                          buyFor: active ? currentList.filter((x) => x !== option) : [...currentList, option],
-                        };
-                      })
-                    }
-                    className={`rounded-md px-3 py-2 text-sm font-medium ${
-                      active ? 'bg-[var(--rc-accent)] text-white' : 'bg-[var(--rc-bg)] text-[var(--rc-primary)]'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
+          {step === 'intro' ? (
+            <div className="flex h-full flex-col justify-center gap-3">
+              <h2 className="text-xl font-bold text-[#071F5E]">
+                {pt ? 'Uma marca é como se sente o que vocês fazem' : 'Una marca es cómo se siente lo que hacen'}
+              </h2>
+              <p className="text-sm leading-6 text-[#1E1E1E]/75">
+                {pt
+                  ? 'Em poucos passos: escolha o tom de cores, um estilo de logo, uma embalagem, palavras suas e conte um pouco da história. No fim montamos um moodboard.'
+                  : 'En pocos pasos: elijan el tono de color, un estilo de logo, un embalaje, palabras propias y cuenten un poco la historia. Al final armamos un moodboard.'}
+              </p>
+              <button
+                type="button"
+                className="min-h-11 rounded-xl bg-[#071F5E] text-sm font-bold text-white"
+                onClick={() => setStep('palette')}
+              >
+                {pt ? 'Ir às imagens' : 'Ir a las imágenes'}
+              </button>
             </div>
-          </div>
+          ) : null}
 
-          <label className="block text-sm font-semibold text-[var(--rc-primary)]">
-            Cuando alguien vea el producto por primera vez, queremos que piense o sienta…
-            <MarcaTextarea
-              className="mt-2"
-              rows={3}
-              value={customer.wantFeel || ''}
-              onChange={(e) => setCustomer((c) => ({ ...c, wantFeel: e.target.value }))}
-            />
-          </label>
+          {(step === 'palette' || step === 'logo' || step === 'packaging') && sectionMeta ? (
+            <div className="flex h-full min-h-0 flex-col">
+              <p className="shrink-0 text-sm font-semibold text-[#071F5E]">
+                {pt ? sectionMeta.labelPt : sectionMeta.labelEs}
+              </p>
+              <p className="shrink-0 text-xs text-[#1E1E1E]/65">{pt ? sectionMeta.hintPt : sectionMeta.hintEs}</p>
+              <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
+                {sectionImages.map((img) => {
+                  const active = picks[step] === img.id;
+                  return (
+                    <button
+                      key={img.id}
+                      type="button"
+                      onClick={() => pickImage(step, img.id)}
+                      className={`relative min-h-0 overflow-hidden rounded-xl border-2 ${
+                        active ? 'border-[#009179] ring-2 ring-[#009179]/30' : 'border-transparent'
+                      }`}
+                    >
+                      <div className="relative h-full min-h-[28vh] sm:min-h-0">
+                        {img.src ? (
+                          <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="25vw" />
+                        ) : (
+                          <div className="absolute inset-0" style={{ background: img.moodColor || '#071F5E' }} />
+                        )}
+                        <span className="absolute bottom-1 left-1 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">
+                          {normalizeToneLabel(img.tone || '')}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="mt-2 flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  className="min-h-10 flex-1 rounded-xl border border-[#071F5E]/15 bg-white text-sm font-semibold text-[#071F5E]"
+                  onClick={() => {
+                    if (step === 'palette') setStep('intro');
+                    if (step === 'logo') setStep('palette');
+                    if (step === 'packaging') setStep('logo');
+                  }}
+                >
+                  {pt ? 'Voltar' : 'Volver'}
+                </button>
+                <button
+                  type="button"
+                  disabled={!picks[step]}
+                  className="min-h-10 flex-[1.4] rounded-xl bg-[#009179] text-sm font-bold text-white disabled:opacity-40"
+                  onClick={() => {
+                    if (step === 'palette') setStep('logo');
+                    else if (step === 'logo') setStep('packaging');
+                    else setStep('words');
+                  }}
+                >
+                  {pt ? 'Continuar' : 'Continuar'}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
-          <div className="flex flex-wrap gap-2">
-            <MarcaButton variant="ghost" onClick={() => setStep('words')}>
-              Volver
-            </MarcaButton>
-            <MarcaButton
-              onClick={() => {
-                void persist({ customer });
-                setStep('special');
-              }}
-            >
-              Continuar
-            </MarcaButton>
-          </div>
-        </MarcaPanel>
-      ) : null}
+          {step === 'words' ? (
+            <div className="flex h-full min-h-0 flex-col">
+              <p className="shrink-0 text-sm font-semibold text-[#071F5E]">
+                {pt ? 'Palavras que são só de vocês' : 'Palabras que son solo de ustedes'}
+              </p>
+              <p className="shrink-0 text-xs text-[#1E1E1E]/65">
+                {pt
+                  ? 'Toque nas palavras que mais representam o negócio. Pode escolher várias.'
+                  : 'Toquen las palabras que más representan el negocio. Pueden elegir varias.'}
+              </p>
+              <div className="mt-2 min-h-0 flex-1 overflow-hidden">
+                <div className="flex h-full flex-wrap content-start gap-1.5 overflow-y-auto pb-1">
+                  {(workshop.wordBank || []).map((word) => {
+                    const on = selectedWords.includes(word);
+                    return (
+                      <button
+                        key={word}
+                        type="button"
+                        onClick={() => toggleWord(word)}
+                        className={`rounded-full px-2.5 py-1.5 text-xs font-semibold ${
+                          on ? 'bg-[#009179] text-white' : 'bg-white text-[#071F5E] shadow-sm'
+                        }`}
+                      >
+                        {word}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              <div className="mt-2 flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  className="min-h-10 flex-1 rounded-xl border border-[#071F5E]/15 bg-white text-sm font-semibold"
+                  onClick={() => setStep('packaging')}
+                >
+                  {pt ? 'Voltar' : 'Volver'}
+                </button>
+                <button
+                  type="button"
+                  className="min-h-10 flex-[1.4] rounded-xl bg-[#009179] text-sm font-bold text-white"
+                  onClick={() => {
+                    void persist({ words: { selected: selectedWords, people: [], places: [], product: [] } });
+                    setStep('story');
+                  }}
+                >
+                  {pt ? 'Continuar' : 'Continuar'}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
-      {step === 'special' ? (
-        <MarcaPanel className="max-w-xl space-y-4">
-          <label className="block text-sm font-semibold text-[var(--rc-primary)]">
-            ¿Existe alguna color, imagen o elemento con un significado especial para ustedes?
-            <MarcaTextarea
-              className="mt-2"
-              rows={4}
-              value={specialMeaning}
-              onChange={(e) => setSpecialMeaning(e.target.value)}
-            />
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <MarcaButton variant="ghost" onClick={() => setStep('customer')}>
-              Volver
-            </MarcaButton>
-            <MarcaButton
-              disabled={saving}
-              onClick={async () => {
-                await persist({ specialMeaning, complete: true });
-                setStep('done');
-              }}
-            >
-              {saving ? 'Guardando…' : 'Terminar'}
-            </MarcaButton>
-          </div>
-        </MarcaPanel>
-      ) : null}
+          {step === 'story' ? (
+            <div className="flex h-full min-h-0 flex-col gap-2">
+              <p className="shrink-0 text-sm font-semibold text-[#071F5E]">
+                {pt ? 'Contem um pouco mais — com liberdade' : 'Cuénten un poco más — con libertad'}
+              </p>
+              <p className="shrink-0 text-xs leading-5 text-[#1E1E1E]/65">
+                {pt
+                  ? 'O que faz o negócio especial? O que querem que as pessoas sintam? Escrevam ou gravem um áudio curto.'
+                  : '¿Qué hace especial al negocio? ¿Qué quieren que la gente sienta? Escriban o graben un audio corto.'}
+              </p>
+              <textarea
+                className="min-h-0 flex-1 rounded-xl border border-[#071F5E]/15 bg-white p-3 text-sm"
+                value={freeText}
+                onChange={(e) => setFreeText(e.target.value)}
+                placeholder={pt ? 'Escrevam aqui…' : 'Escriban aquí…'}
+              />
+              <div className="flex shrink-0 flex-wrap items-center gap-2">
+                {!recording ? (
+                  <button
+                    type="button"
+                    onClick={() => void startAudio()}
+                    className="rounded-xl border border-[#071F5E]/15 bg-white px-3 py-2 text-xs font-semibold text-[#071F5E]"
+                  >
+                    {pt ? 'Gravar áudio' : 'Grabar audio'}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={stopAudio}
+                    className="rounded-xl bg-red-600 px-3 py-2 text-xs font-semibold text-white"
+                  >
+                    {pt ? 'Parar' : 'Detener'}
+                  </button>
+                )}
+                {audioDataUrl ? <span className="text-xs text-[#009179]">{pt ? 'Áudio salvo' : 'Audio guardado'}</span> : null}
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  className="min-h-10 flex-1 rounded-xl border border-[#071F5E]/15 bg-white text-sm font-semibold"
+                  onClick={() => setStep('words')}
+                >
+                  {pt ? 'Voltar' : 'Volver'}
+                </button>
+                <button
+                  type="button"
+                  className="min-h-10 flex-[1.4] rounded-xl bg-[#071F5E] text-sm font-bold text-white"
+                  onClick={async () => {
+                    await persist({ freeText, audioDataUrl, complete: true });
+                    setStep('result');
+                  }}
+                >
+                  {pt ? 'Ver resultado' : 'Ver resultado'}
+                </button>
+              </div>
+            </div>
+          ) : null}
 
-      {step === 'done' ? (
-        <MarcaPanel className="max-w-lg">
-          <h2 className="text-2xl font-bold text-[var(--rc-primary)]">Listo, {name}</h2>
-          <p className="mt-3 text-sm leading-6 text-[var(--rc-text)]/75">
-            Gracias. El equipo de Rural Commerce usa estas respuestas para montar el perfil visual de la marca.
-            No hay nada más que hacer aquí.
-          </p>
-        </MarcaPanel>
-      ) : null}
-    </MarcaShell>
+          {step === 'result' && onePage ? (
+            <div className="flex h-full min-h-0 flex-col gap-2">
+              <div className="min-h-0 flex-[1.2]">
+                <MoodboardGrid
+                  title={pt ? 'Seu moodboard' : 'Tu moodboard'}
+                  images={resultImages}
+                  words={selectedWords}
+                />
+              </div>
+              <div className="shrink-0 rounded-xl bg-white p-3 shadow-sm">
+                <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#009179]">
+                  {pt ? 'One-page sugerido de marca' : 'One-page sugerido de marca'}
+                </p>
+                <h3 className="mt-1 text-sm font-bold text-[#071F5E]">{onePage.headline}</h3>
+                <p className="mt-1 text-xs leading-5 text-[#1E1E1E]/75">{onePage.promise}</p>
+                <p className="mt-1 text-xs leading-5 text-[#1E1E1E]/75">{onePage.personality}</p>
+                <p className="mt-1 text-xs leading-5 text-[#1E1E1E]/75">{onePage.voice}</p>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
   );
 }

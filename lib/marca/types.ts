@@ -1,17 +1,18 @@
 export type MarcaLocale = 'es' | 'pt-BR' | 'en';
 
-export type MarcaVoteValue = 'no' | 'neutral' | 'yes';
+export type MarcaSection = 'palette' | 'logo' | 'packaging';
+
+export type MarcaTone = 'pastel' | 'sobrio' | 'terroso' | 'vibrante';
 
 export type MarcaContractStatus = 'draft' | 'active' | 'done';
 
 export type MarcaImage = {
   id: string;
-  /** URL pública ou path em /public */
   src: string;
   alt: string;
-  /** Só equipe vê; nunca enviado ao participante */
   tags: string[];
-  /** Tom visual de fallback se a imagem falhar */
+  tone?: MarcaTone | string;
+  section?: MarcaSection | string;
   moodColor?: string;
   active?: boolean;
   createdAt?: string;
@@ -19,6 +20,7 @@ export type MarcaImage = {
 };
 
 export type MarcaWords = {
+  selected: string[];
   people: string[];
   places: string[];
   product: string[];
@@ -33,21 +35,27 @@ export type MarcaCustomer = {
   wantFeel?: string;
 };
 
+/** One preferred image id per visual section */
+export type MarcaSectionPicks = Partial<Record<MarcaSection, string>>;
+
 export type MarcaParticipant = {
   id: string;
   name: string;
   joinedAt: string;
-  votes: Record<string, MarcaVoteValue>;
+  /** @deprecated kept for old responses */
+  votes: Record<string, 'no' | 'neutral' | 'yes'>;
+  sectionPicks: MarcaSectionPicks;
   words: MarcaWords;
+  freeText: string;
+  /** data URL or public path for short audio note */
+  audioDataUrl?: string;
   customer: MarcaCustomer;
   specialMeaning: string;
   completedAt?: string;
 };
 
-/** Contrato com cliente / oficina de marca */
 export type MarcaContract = {
   id: string;
-  /** Código curto do link público /oficina/[code] */
   code: string;
   clientName: string;
   title: string;
@@ -57,7 +65,6 @@ export type MarcaContract = {
   createdAt: string;
   updatedAt: string;
   createdBy: string;
-  /** Subconjunto do catálogo; vazio = catálogo completo */
   imageIds: string[];
   participants: MarcaParticipant[];
 };
@@ -66,26 +73,29 @@ export type MarcaStoreFile = {
   contracts: MarcaContract[];
 };
 
-export type MarcaTagScore = {
-  tag: string;
-  score: number;
-  yes: number;
-  no: number;
-  neutral: number;
+export type MarcaToneScore = {
+  tone: string;
+  count: number;
 };
 
 export type MarcaVisualProfile = {
   contractId: string;
   participantCount: number;
   completedCount: number;
+  /** most picked tones per section */
+  bySection: Record<string, MarcaToneScore[]>;
   strong: string[];
   moderate: string[];
   low: string[];
   rejections: string[];
-  tagScores: MarcaTagScore[];
+  tagScores: { tag: string; score: number; yes: number; no: number; neutral: number }[];
   words: MarcaWords;
+  wordFrequency: { word: string; count: number }[];
   specialMeanings: { name: string; text: string }[];
+  freeTexts: { name: string; text: string }[];
   customerNotes: { name: string; customer: MarcaCustomer }[];
+  /** top images for taller moodboard */
+  topImageIds: string[];
 };
 
 export type MarcaPublicImage = {
@@ -93,6 +103,8 @@ export type MarcaPublicImage = {
   src: string;
   alt: string;
   moodColor?: string;
+  tone?: string;
+  section?: string;
 };
 
 export type MarcaPublicWorkshop = {
@@ -101,4 +113,66 @@ export type MarcaPublicWorkshop = {
   clientName: string;
   status: MarcaContractStatus;
   images: MarcaPublicImage[];
+  /** one representative image per tone for each section */
+  sections: Record<MarcaSection, MarcaPublicImage[]>;
+  wordBank: string[];
 };
+
+export const MARCA_TONES: MarcaTone[] = ['pastel', 'sobrio', 'terroso', 'vibrante'];
+
+export const MARCA_SECTIONS: { id: MarcaSection; labelEs: string; labelPt: string; hintEs: string; hintPt: string }[] = [
+  {
+    id: 'palette',
+    labelEs: 'Paleta de colores',
+    labelPt: 'Paleta de cores',
+    hintEs: 'Elige el tono que más combina con su marca.',
+    hintPt: 'Escolha o tom que mais combina com a marca de vocês.',
+  },
+  {
+    id: 'logo',
+    labelEs: 'Logos',
+    labelPt: 'Logos',
+    hintEs: '¿Cuál estilo de marca/logo se siente más suyo?',
+    hintPt: 'Qual estilo de marca/logo parece mais de vocês?',
+  },
+  {
+    id: 'packaging',
+    labelEs: 'Embalajes',
+    labelPt: 'Embalagens',
+    hintEs: '¿Cuál embalaje se acerca más a lo que imaginan?',
+    hintPt: 'Qual embalagem se aproxima do que imaginam?',
+  },
+];
+
+export const MARCA_WORD_BANK = [
+  'natural',
+  'artesanal',
+  'fresco',
+  'familia',
+  'territorio',
+  'confianza',
+  'tradición',
+  'innovación',
+  'cuidado',
+  'sabor',
+  'origen',
+  'comunidad',
+  'honestidad',
+  'calidez',
+  'fuerza',
+  'delicadeza',
+  'raíz',
+  'cosecha',
+  'montaña',
+  'río',
+  'sol',
+  'tierra',
+  'manos',
+  'orgullo',
+  'simple',
+  'premium',
+  'alegre',
+  'sereno',
+  'vivo',
+  'auténtico',
+];

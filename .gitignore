@@ -21,7 +21,10 @@ data/intranet-users.json
 
 public/images/uploads/*
 !public/images/uploads/.gitkeep
+public/images/marca/drive/
 public/images/marca/*
 !public/images/marca/.gitkeep
+!public/images/marca/library/
+!public/images/marca/library/**
 tmp/
 client_secret*.json
