@@ -95,12 +95,16 @@ export function MarcaProfileReport({
   profile,
   contract,
   catalog,
+  onRefresh,
 }: {
   profile: MarcaVisualProfile;
   contract: MarcaContract;
   catalog: MarcaImage[];
+  onRefresh?: () => Promise<void> | void;
 }) {
   const [showFinal, setShowFinal] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [generationKey, setGenerationKey] = useState(0);
   const finalRef = useRef<HTMLDivElement>(null);
   const imageById = useMemo(() => Object.fromEntries(catalog.map((img) => [img.id, img])), [catalog]);
 
@@ -113,14 +117,23 @@ export function MarcaProfileReport({
 
   const finalBoard = useMemo(
     () => (showFinal ? buildFinalWorkshopMoodboard(contract, catalog, profile) : null),
-    [showFinal, contract, catalog, profile]
+    // generationKey forces rebuild after refresh / re-click
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [showFinal, contract, catalog, profile, generationKey]
   );
 
-  function generateFinal() {
-    setShowFinal(true);
-    requestAnimationFrame(() => {
-      finalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  async function generateFinal() {
+    setGenerating(true);
+    try {
+      await onRefresh?.();
+      setGenerationKey((k) => k + 1);
+      setShowFinal(true);
+      requestAnimationFrame(() => {
+        finalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } finally {
+      setGenerating(false);
+    }
   }
 
   return (
@@ -139,7 +152,9 @@ export function MarcaProfileReport({
               elegido (imágenes, paleta, palabras e historias) en una composición nueva.
             </p>
           </div>
-          <MarcaButton onClick={generateFinal}>Generar moodboard final de la oficina</MarcaButton>
+          <MarcaButton onClick={() => void generateFinal()} disabled={generating}>
+            {generating ? 'Generando…' : 'Generar moodboard final de la oficina'}
+          </MarcaButton>
         </div>
         <div className="mt-5 space-y-4">
           <TagList label="Tonos más elegidos en el grupo" items={profile.strong} tone="strong" />
@@ -172,7 +187,9 @@ export function MarcaProfileReport({
               votos e historias.
             </p>
             <div className="mt-4">
-              <MarcaButton onClick={generateFinal}>Generar ahora</MarcaButton>
+              <MarcaButton onClick={() => void generateFinal()} disabled={generating}>
+                {generating ? 'Generando…' : 'Generar ahora'}
+              </MarcaButton>
             </div>
           </MarcaPanel>
         )}

@@ -22,6 +22,8 @@ export type FinalWorkshopMoodboard = {
   title: string;
   generatedAt: string;
   dominantTone: string;
+  /** tones that contributed to the suggested palette, ranked */
+  contributingTones: string[];
   paletteColors: string[];
   winnersBySection: Partial<Record<MarcaSection, MoodboardTile>>;
   collage: MoodboardTile[];
@@ -68,6 +70,92 @@ function pickSectionWinner(
   };
 }
 
+/** Rank tones from palette votes first, then all section picks as tie-breakers. */
+export function rankTonesFromVotes(
+  contract: MarcaContract,
+  images: MarcaImage[]
+): { tone: string; count: number }[] {
+  const byId = new Map(images.map((img) => [img.id, img]));
+  const paletteCounts = new Map<string, number>();
+  const allCounts = new Map<string, number>();
+
+  for (const p of contract.participants) {
+    const paletteId = p.sectionPicks?.palette;
+    if (paletteId) {
+      const tone = (byId.get(paletteId)?.tone || 'outro').toString();
+      paletteCounts.set(tone, (paletteCounts.get(tone) || 0) + 1);
+    }
+    for (const section of ['palette', 'logo', 'packaging'] as MarcaSection[]) {
+      const id = p.sectionPicks?.[section];
+      if (!id) continue;
+      const tone = (byId.get(id)?.tone || 'outro').toString();
+      allCounts.set(tone, (allCounts.get(tone) || 0) + 1);
+    }
+  }
+
+  const tones = new Set([...paletteCounts.keys(), ...allCounts.keys()]);
+  return [...tones]
+    .map((tone) => ({
+      tone,
+      count: (paletteCounts.get(tone) || 0) * 3 + (allCounts.get(tone) || 0),
+    }))
+    .filter((t) => t.count > 0)
+    .sort((a, b) => b.count - a.count);
+}
+
+/**
+ * Build a suggested brand palette from ALL voted tones (interleaved),
+ * not a single hardcoded tone — so vibrante + sobrio does not collapse to greys.
+ */
+export function buildSuggestedPaletteColors(input: {
+  rankedTones: { tone: string; count: number }[];
+  images: MarcaImage[];
+  winnerIds: string[];
+}): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+
+  const push = (hex?: string) => {
+    if (!hex) return;
+    const key = hex.toUpperCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(hex);
+  };
+
+  for (const id of input.winnerIds) {
+    const img = input.images.find((i) => i.id === id);
+    push(img?.moodColor);
+  }
+
+  const top = input.rankedTones.slice(0, 3);
+  if (!top.length) {
+    TONE_PALETTES.pastel.forEach(push);
+    return out.slice(0, 6);
+  }
+
+  const pools = top.map(({ tone, count }) => ({
+    colors: [...(TONE_PALETTES[tone] || TONE_PALETTES.pastel)],
+    weight: Math.max(1, count),
+  }));
+
+  let guard = 0;
+  while (out.length < 6 && guard < 24) {
+    guard += 1;
+    let added = false;
+    for (const pool of pools) {
+      const take = pool.weight >= pools[0].weight ? 2 : 1;
+      for (let i = 0; i < take && pool.colors.length && out.length < 6; i += 1) {
+        push(pool.colors.shift());
+        added = true;
+      }
+    }
+    if (!added) break;
+  }
+
+  return out.slice(0, 6);
+}
+
 function buildSynthesis(freeTexts: { name: string; text: string }[], words: string[], tone: string): string {
   const snippets = freeTexts
     .map((f) => f.text.trim())
@@ -76,19 +164,12 @@ function buildSynthesis(freeTexts: { name: string; text: string }[], words: stri
   const wordLine = words.slice(0, 8).join(', ');
   if (snippets.length) {
     const joined = snippets.map((s) => (s.length > 140 ? `${s.slice(0, 140)}…` : s)).join(' · ');
-    return `A partir de las historias del grupo (${normalizeToneForCopy(tone)}): ${joined}${
-      wordLine ? ` Palabras clave: ${wordLine}.` : ''
-    }`;
+    return `A partir de las historias del grupo (${tone}): ${joined}${wordLine ? ` Palabras clave: ${wordLine}.` : ''}`;
   }
   if (wordLine) {
-    return `La marca del taller se organiza en torno a lo ${normalizeToneForCopy(tone)}, con énfasis en: ${wordLine}.`;
+    return `La marca del taller se organiza en torno a ${tone}, con énfasis en: ${wordLine}.`;
   }
-  return `El taller apunta a una identidad ${normalizeToneForCopy(tone)}, aún en construcción a partir de las elecciones visuales.`;
-}
-
-function normalizeToneForCopy(tone: string) {
-  if (tone === 'sobrio') return 'sóbrio / sobrio';
-  return tone;
+  return `El taller apunta a una identidad ${tone}, aún en construcción a partir de las elecciones visuales.`;
 }
 
 export function buildFinalWorkshopMoodboard(
@@ -104,19 +185,23 @@ export function buildFinalWorkshopMoodboard(
     if (winner) winnersBySection[section] = winner;
   }
 
+  const rankedTones = rankTonesFromVotes(contract, images);
+  const contributingTones = rankedTones.map((t) => t.tone);
   const dominantTone =
-    computed.strong[0] ||
-    winnersBySection.palette?.tone ||
-    winnersBySection.logo?.tone ||
-    'natural';
+    contributingTones.length > 1
+      ? contributingTones.slice(0, 2).join(' · ')
+      : contributingTones[0] || computed.strong[0] || 'natural';
 
-  const paletteColors =
-    TONE_PALETTES[dominantTone] ||
-    TONE_PALETTES.pastel.concat(
-      Object.values(winnersBySection)
-        .map((w) => images.find((i) => i.id === w.id)?.moodColor)
-        .filter((c): c is string => Boolean(c))
-    );
+  const winnerIds = [
+    ...Object.values(winnersBySection).map((w) => w.id),
+    ...computed.topImageIds,
+  ];
+
+  const paletteColors = buildSuggestedPaletteColors({
+    rankedTones,
+    images,
+    winnerIds,
+  });
 
   const collageMap = new Map<string, MoodboardTile>();
   for (const winner of Object.values(winnersBySection)) {
@@ -136,10 +221,35 @@ export function buildFinalWorkshopMoodboard(
     });
   }
 
+  const ordered: MoodboardTile[] = [];
+  for (const section of sections) {
+    const w = winnersBySection[section];
+    if (w && !ordered.find((t) => t.id === w.id)) ordered.push(w);
+  }
+  // Include every distinct palette pick so mixed tones (e.g. vibrante + sobrio) all appear
+  const byId = new Map(images.map((img) => [img.id, img]));
+  for (const p of contract.participants) {
+    const id = p.sectionPicks?.palette;
+    if (!id || ordered.find((t) => t.id === id)) continue;
+    const img = byId.get(id);
+    if (!img) continue;
+    ordered.push({
+      id: img.id,
+      src: img.src,
+      alt: img.alt,
+      tone: img.tone,
+      section: 'palette',
+      votes: voteCount(contract, img.id),
+    });
+  }
+  for (const tile of collageMap.values()) {
+    if (!ordered.find((t) => t.id === tile.id)) ordered.push(tile);
+  }
+
   const topWords = computed.wordFrequency.slice(0, 16);
   const onePage = buildOnePageCopy({
     clientName: contract.clientName,
-    strong: computed.strong.length ? computed.strong : [dominantTone],
+    strong: contributingTones.length ? contributingTones : computed.strong,
     words: topWords.map((w) => w.word),
     freeTexts: computed.freeTexts.map((f) => f.text),
   });
@@ -149,9 +259,10 @@ export function buildFinalWorkshopMoodboard(
     title: contract.title,
     generatedAt: new Date().toISOString(),
     dominantTone,
+    contributingTones,
     paletteColors: paletteColors.slice(0, 6),
     winnersBySection,
-    collage: [...collageMap.values()].slice(0, 10),
+    collage: ordered.slice(0, 10),
     topWords,
     synthesis: buildSynthesis(computed.freeTexts, topWords.map((w) => w.word), dominantTone),
     onePage,

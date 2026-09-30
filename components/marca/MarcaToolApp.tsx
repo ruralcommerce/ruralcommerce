@@ -276,7 +276,12 @@ function MarcaToolBody({ locale }: { locale: string }) {
                 </MarcaPanel>
 
                 {profile ? (
-                  <MarcaProfileReport profile={profile} contract={selected} catalog={catalog} />
+                  <MarcaProfileReport
+                    profile={profile}
+                    contract={selected}
+                    catalog={catalog}
+                    onRefresh={() => loadDetail(selected.id)}
+                  />
                 ) : null}
               </>
             ) : (

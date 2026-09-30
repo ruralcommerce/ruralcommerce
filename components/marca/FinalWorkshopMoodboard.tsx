@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { normalizeToneLabel } from '@/lib/marca/labels';
 import type { FinalWorkshopMoodboard as FinalMoodboard } from '@/lib/marca/moodboard';
 
@@ -8,6 +9,72 @@ const SECTION_LABEL: Record<string, string> = {
   logo: 'Logo',
   packaging: 'Embalaje',
 };
+
+function rgbToHex(r: number, g: number, b: number) {
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, '0')).join('')}`.toUpperCase();
+}
+
+async function sampleImageColors(src: string, max = 4): Promise<string[]> {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas');
+        const size = 48;
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) {
+          resolve([]);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, size, size);
+        const { data } = ctx.getImageData(0, 0, size, size);
+        const buckets = new Map<string, { r: number; g: number; b: number; n: number }>();
+        for (let i = 0; i < data.length; i += 16) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3];
+          if (a < 200) continue;
+          const lum = (r + g + b) / 3;
+          if (lum < 18 || lum > 245) continue;
+          const key = `${Math.round(r / 24)}_${Math.round(g / 24)}_${Math.round(b / 24)}`;
+          const cur = buckets.get(key) || { r: 0, g: 0, b: 0, n: 0 };
+          cur.r += r;
+          cur.g += g;
+          cur.b += b;
+          cur.n += 1;
+          buckets.set(key, cur);
+        }
+        const ranked = [...buckets.values()]
+          .sort((a, b) => b.n - a.n)
+          .slice(0, max)
+          .map((c) => rgbToHex(Math.round(c.r / c.n), Math.round(c.g / c.n), Math.round(c.b / c.n)));
+        resolve(ranked);
+      } catch {
+        resolve([]);
+      }
+    };
+    img.onerror = () => resolve([]);
+    img.src = src;
+  });
+}
+
+function mergePalettes(base: string[], sampled: string[], max = 6): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const push = (hex: string) => {
+    const key = hex.toUpperCase();
+    if (seen.has(key)) return;
+    seen.add(key);
+    out.push(hex.toUpperCase());
+  };
+  for (const c of sampled) push(c);
+  for (const c of base) push(c);
+  return out.slice(0, max);
+}
 
 export function FinalWorkshopMoodboardView({
   board,
@@ -20,6 +87,31 @@ export function FinalWorkshopMoodboardView({
   const hero = tiles[0];
   const side = tiles.slice(1, 5);
   const rest = tiles.slice(5, 9);
+  const [paletteColors, setPaletteColors] = useState(board.paletteColors);
+
+  useEffect(() => {
+    let cancelled = false;
+    setPaletteColors(board.paletteColors);
+    const sources = [
+      board.winnersBySection.palette?.src,
+      board.winnersBySection.logo?.src,
+      board.winnersBySection.packaging?.src,
+      ...board.collage.slice(0, 4).map((t) => t.src),
+    ].filter(Boolean) as string[];
+
+    void (async () => {
+      const sampled: string[] = [];
+      for (const src of sources.slice(0, 4)) {
+        const colors = await sampleImageColors(src, 3);
+        sampled.push(...colors);
+      }
+      if (!cancelled) setPaletteColors(mergePalettes(board.paletteColors, sampled, 6));
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [board]);
 
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--rc-primary)]/10 bg-[#F4F6F8] shadow-sm">
@@ -30,8 +122,12 @@ export function FinalWorkshopMoodboardView({
           </p>
           <h2 className="mt-1 text-xl font-bold text-[var(--rc-primary)] sm:text-2xl">{board.clientName}</h2>
           <p className="mt-1 text-xs text-[var(--rc-text)]/60">
-            Sistematización del taller · {board.completedCount}/{board.participantCount} respuestas · tono{' '}
-            <span className="font-semibold text-[var(--rc-primary)]">{normalizeToneLabel(board.dominantTone)}</span>
+            Sistematización del taller · {board.completedCount}/{board.participantCount} respuestas · tonos{' '}
+            <span className="font-semibold text-[var(--rc-primary)]">
+              {(board.contributingTones?.length ? board.contributingTones : [board.dominantTone])
+                .map((t) => normalizeToneLabel(t))
+                .join(' · ')}
+            </span>
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -54,7 +150,6 @@ export function FinalWorkshopMoodboardView({
         </div>
       </div>
 
-      {/* Dense collage — created board, not a flat gallery */}
       <div className="grid grid-cols-12 gap-1 p-1 sm:gap-1.5 sm:p-1.5">
         <div className="col-span-12 grid grid-cols-12 gap-1 sm:col-span-8 sm:gap-1.5">
           <div className="relative col-span-12 aspect-[16/10] overflow-hidden bg-[#EEF3F7] sm:col-span-7 sm:aspect-auto sm:min-h-[280px]">
@@ -104,13 +199,20 @@ export function FinalWorkshopMoodboardView({
 
           <div className="bg-white p-3">
             <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--rc-accent)]">Paleta sugerida</p>
+            <p className="mt-1 text-[10px] text-[var(--rc-text)]/55">
+              Mezcla de{' '}
+              {(board.contributingTones?.length ? board.contributingTones : [board.dominantTone])
+                .map((t) => normalizeToneLabel(t))
+                .join(' + ')}{' '}
+              · colores tomados de las imágenes elegidas
+            </p>
             <div className="mt-2 flex h-14 overflow-hidden rounded-lg sm:h-16">
-              {board.paletteColors.map((color) => (
+              {paletteColors.map((color) => (
                 <div key={color} className="flex-1" style={{ background: color }} title={color} />
               ))}
             </div>
             <div className="mt-2 flex flex-wrap gap-2">
-              {board.paletteColors.map((color) => (
+              {paletteColors.map((color) => (
                 <span key={`hex-${color}`} className="font-mono text-[10px] text-[var(--rc-text)]/55">
                   {color}
                 </span>
