@@ -59,6 +59,8 @@ backup_path "data/project-broadcast-log.json"
 backup_path "data/project-investments.json"
 backup_path "data/sementes.json"
 backup_path "data/sementes-lotes.json"
+backup_path "data/marca-contracts.json"
+backup_path "data/marca-catalog.json"
 
 # Production secrets (gitignored)
 backup_path ".env.production.local"
@@ -81,6 +83,12 @@ if [ -d "$ROOT/public/images/uploads" ]; then
   mkdir -p "$BACKUP/public/images"
   cp -a "$ROOT/public/images/uploads" "$BACKUP/public/images/"
   log "backup: public/images/uploads/"
+fi
+
+if [ -d "$ROOT/public/images/marca" ]; then
+  mkdir -p "$BACKUP/public/images"
+  cp -a "$ROOT/public/images/marca" "$BACKUP/public/images/"
+  log "backup: public/images/marca/"
 fi
 
 if [ -f "$ROOT/data/project-inscriptions.json" ]; then
@@ -171,6 +179,34 @@ elif [ ! -f "$ROOT/data/sementes-lotes.json" ]; then
   log "seeded: data/sementes-lotes.json"
 fi
 
+if [ -f "$BACKUP/data/marca-contracts.json" ]; then
+  mkdir -p "$ROOT/data"
+  cp -a "$BACKUP/data/marca-contracts.json" "$ROOT/data/marca-contracts.json"
+  log "restored: data/marca-contracts.json"
+elif [ ! -f "$ROOT/data/marca-contracts.json" ]; then
+  mkdir -p "$ROOT/data"
+  if [ -f "$ROOT/data/marca-contracts.example.json" ]; then
+    cp "$ROOT/data/marca-contracts.example.json" "$ROOT/data/marca-contracts.json"
+  else
+    printf '{ "contracts": [] }\n' > "$ROOT/data/marca-contracts.json"
+  fi
+  log "seeded: data/marca-contracts.json"
+fi
+
+if [ -f "$BACKUP/data/marca-catalog.json" ]; then
+  mkdir -p "$ROOT/data"
+  cp -a "$BACKUP/data/marca-catalog.json" "$ROOT/data/marca-catalog.json"
+  log "restored: data/marca-catalog.json"
+elif [ ! -f "$ROOT/data/marca-catalog.json" ]; then
+  mkdir -p "$ROOT/data"
+  if [ -f "$ROOT/data/marca-catalog.example.json" ]; then
+    cp "$ROOT/data/marca-catalog.example.json" "$ROOT/data/marca-catalog.json"
+  else
+    printf '{ "images": [] }\n' > "$ROOT/data/marca-catalog.json"
+  fi
+  log "seeded: data/marca-catalog.json"
+fi
+
 if [ -f "$BACKUP/.env.production.local" ]; then
   cp -a "$BACKUP/.env.production.local" "$ROOT/.env.production.local"
   log "restored: .env.production.local"
@@ -182,6 +218,7 @@ merge_dir_from_backup "public/blog-posts" "update"
 
 # Uploads: full merge (runtime library; not in git)
 merge_dir_from_backup "public/images/uploads" "full"
+merge_dir_from_backup "public/images/marca" "full"
 
 if [ -d "$BACKUP_ROOT" ]; then
   mapfile -t OLD_BACKUPS < <(ls -1dt "$BACKUP_ROOT"/[0-9]* 2>/dev/null || true)

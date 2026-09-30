@@ -73,7 +73,10 @@ function assertNoRuntimeDataStaged() {
         line === 'data/project-inscriptions.json' ||
         line === 'data/project-push-subscriptions.json' ||
         line === 'data/project-broadcast-log.json' ||
-        (line.startsWith('public/images/uploads/') && !line.endsWith('.gitkeep'))
+        line === 'data/marca-contracts.json' ||
+        line === 'data/marca-catalog.json' ||
+        (line.startsWith('public/images/uploads/') && !line.endsWith('.gitkeep')) ||
+        (line.startsWith('public/images/marca/') && !line.endsWith('.gitkeep'))
     );
 
   if (blocked.length) {

@@ -15,7 +15,12 @@ data/project-investments.json
 data/project-planta-invites.json
 data/sementes.json
 data/sementes-lotes.json
+data/marca-contracts.json
+data/marca-catalog.json
+
 public/images/uploads/*
 !public/images/uploads/.gitkeep
+public/images/marca/*
+!public/images/marca/.gitkeep
 tmp/
 client_secret*.json
