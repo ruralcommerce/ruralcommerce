@@ -4,7 +4,10 @@ import { useMemo, useRef, useState } from 'react';
 import type { MarcaContract, MarcaImage, MarcaVisualProfile } from '@/lib/marca/types';
 import { normalizeToneLabel } from '@/lib/marca/labels';
 import { buildOnePageCopy } from '@/lib/marca/profile';
-import { buildFinalWorkshopMoodboard } from '@/lib/marca/moodboard';
+import {
+  buildFinalWorkshopMoodboard,
+  type FinalWorkshopMoodboard,
+} from '@/lib/marca/moodboard';
 import { MarcaButton, MarcaPanel } from './MarcaShell';
 import { FinalWorkshopMoodboardView } from './FinalWorkshopMoodboard';
 
@@ -104,7 +107,8 @@ export function MarcaProfileReport({
 }) {
   const [showFinal, setShowFinal] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [generationKey, setGenerationKey] = useState(0);
+  const [aiError, setAiError] = useState('');
+  const [finalBoard, setFinalBoard] = useState<FinalWorkshopMoodboard | null>(null);
   const finalRef = useRef<HTMLDivElement>(null);
   const imageById = useMemo(() => Object.fromEntries(catalog.map((img) => [img.id, img])), [catalog]);
 
@@ -115,18 +119,30 @@ export function MarcaProfileReport({
     freeTexts: profile.freeTexts?.map((f) => f.text) || [],
   });
 
-  const finalBoard = useMemo(
-    () => (showFinal ? buildFinalWorkshopMoodboard(contract, catalog, profile) : null),
-    // generationKey forces rebuild after refresh / re-click
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [showFinal, contract, catalog, profile, generationKey]
-  );
-
-  async function generateFinal() {
+  async function generateFinal(withAi: boolean) {
     setGenerating(true);
+    setAiError('');
     try {
       await onRefresh?.();
-      setGenerationKey((k) => k + 1);
+      if (withAi) {
+        const res = await fetch(`/api/marca/contracts/${contract.id}/generate-ai`, { method: 'POST' });
+        const data = (await res.json().catch(() => ({}))) as {
+          board?: FinalWorkshopMoodboard;
+          error?: string;
+        };
+        if (!res.ok || !data.board) {
+          setAiError(data.error || 'No se pudo generar con Gemini.');
+          const local = await fetch(`/api/marca/contracts/${contract.id}`);
+          const localData = (await local.json()) as { contract: MarcaContract; profile: MarcaVisualProfile };
+          setFinalBoard(buildFinalWorkshopMoodboard(localData.contract, catalog, localData.profile));
+        } else {
+          setFinalBoard(data.board);
+        }
+      } else {
+        const res = await fetch(`/api/marca/contracts/${contract.id}`);
+        const data = (await res.json()) as { contract: MarcaContract; profile: MarcaVisualProfile };
+        setFinalBoard(buildFinalWorkshopMoodboard(data.contract, catalog, data.profile));
+      }
       setShowFinal(true);
       requestAnimationFrame(() => {
         finalRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -148,14 +164,20 @@ export function MarcaProfileReport({
               {profile.completedCount} de {profile.participantCount} participantes con respuestas
             </p>
             <p className="mt-2 max-w-xl text-xs leading-5 text-[var(--rc-text)]/60">
-              Abajo: moodboard de cada persona. El moodboard final de la oficina se genera aparte — junta lo más
-              elegido (imágenes, paleta, palabras e historias) en una composición nueva.
+              Abajo: moodboard de cada persona. El moodboard final se genera con Gemini a partir de votos,
+              palabras e historias — no es solo un recuento automático.
             </p>
           </div>
-          <MarcaButton onClick={() => void generateFinal()} disabled={generating}>
-            {generating ? 'Generando…' : 'Generar moodboard final de la oficina'}
-          </MarcaButton>
+          <div className="flex flex-wrap gap-2">
+            <MarcaButton onClick={() => void generateFinal(true)} disabled={generating}>
+              {generating ? 'Generando con IA…' : 'Generar moodboard con IA'}
+            </MarcaButton>
+            <MarcaButton variant="ghost" onClick={() => void generateFinal(false)} disabled={generating}>
+              Versión básica
+            </MarcaButton>
+          </div>
         </div>
+        {aiError ? <p className="mt-3 text-xs text-red-600">{aiError}</p> : null}
         <div className="mt-5 space-y-4">
           <TagList label="Tonos más elegidos en el grupo" items={profile.strong} tone="strong" />
           <TagList label="También apareció" items={profile.moderate} tone="mid" />
@@ -175,22 +197,31 @@ export function MarcaProfileReport({
       </MarcaPanel>
 
       <div ref={finalRef}>
-        {finalBoard ? (
-          <FinalWorkshopMoodboardView board={finalBoard} onClose={() => setShowFinal(false)} />
+        {showFinal && finalBoard ? (
+          <FinalWorkshopMoodboardView
+            board={finalBoard}
+            onClose={() => {
+              setShowFinal(false);
+              setFinalBoard(null);
+            }}
+          />
         ) : (
           <MarcaPanel>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
               Moodboard final de la oficina
             </p>
             <p className="mt-2 text-sm text-[var(--rc-text)]/70">
-              Todavía no generado. Pulsa el botón para crear la sistematización visual a partir de todos los
-              votos e historias.
+              Todavía no generado. Usa Gemini para sistematizar textos, paleta y dirección visual del taller.
             </p>
-            <div className="mt-4">
-              <MarcaButton onClick={() => void generateFinal()} disabled={generating}>
-                {generating ? 'Generando…' : 'Generar ahora'}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <MarcaButton onClick={() => void generateFinal(true)} disabled={generating}>
+                {generating ? 'Generando con IA…' : 'Generar con IA'}
+              </MarcaButton>
+              <MarcaButton variant="ghost" onClick={() => void generateFinal(false)} disabled={generating}>
+                Versión básica
               </MarcaButton>
             </div>
+            {aiError ? <p className="mt-3 text-xs text-red-600">{aiError}</p> : null}
           </MarcaPanel>
         )}
       </div>

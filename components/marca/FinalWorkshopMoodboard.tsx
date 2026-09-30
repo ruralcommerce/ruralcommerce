@@ -118,7 +118,7 @@ export function FinalWorkshopMoodboardView({
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--rc-primary)]/8 bg-white px-4 py-3 sm:px-5">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
-            Moodboard final de la oficina
+            Moodboard final de la oficina{board.generatedByAi ? ' · Gemini' : ''}
           </p>
           <h2 className="mt-1 text-xl font-bold text-[var(--rc-primary)] sm:text-2xl">{board.clientName}</h2>
           <p className="mt-1 text-xs text-[var(--rc-text)]/60">
@@ -265,6 +265,14 @@ export function FinalWorkshopMoodboardView({
         <div className="col-span-12 bg-[var(--rc-primary)] p-4 text-white sm:col-span-5 sm:p-5">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">Síntesis de las historias</p>
           <p className="mt-3 text-sm leading-6 text-white/90">{board.synthesis}</p>
+          {board.visualDirection ? (
+            <>
+              <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">
+                Dirección visual
+              </p>
+              <p className="mt-2 text-sm leading-6 text-white/90">{board.visualDirection}</p>
+            </>
+          ) : null}
         </div>
       </div>
     </div>

@@ -29,6 +29,8 @@ export type FinalWorkshopMoodboard = {
   collage: MoodboardTile[];
   topWords: { word: string; count: number }[];
   synthesis: string;
+  visualDirection?: string;
+  generatedByAi?: boolean;
   onePage: { headline: string; promise: string; personality: string; voice: string };
   participantCount: number;
   completedCount: number;
