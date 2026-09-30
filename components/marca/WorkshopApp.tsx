@@ -218,13 +218,13 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
         </div>
       </header>
 
-      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col px-3 py-2 sm:px-4 sm:py-3">
+      <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col overflow-hidden px-3 py-1.5 sm:px-4 sm:py-3">
         <div className="shrink-0">
           <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-[#009179]">{workshop.clientName}</p>
-          <h1 className="truncate text-lg font-bold text-[#071F5E] sm:text-xl">{workshop.title}</h1>
+          <h1 className="truncate text-base font-bold leading-tight text-[#071F5E] sm:text-xl">{workshop.title}</h1>
         </div>
 
-        <div className="mt-2 min-h-0 flex-1">
+        <div className="mt-1.5 min-h-0 flex-1 overflow-hidden sm:mt-2">
           {step === 'join' ? (
             <form onSubmit={join} className="flex h-full flex-col justify-center gap-3">
               <p className="text-sm text-[#1E1E1E]/70">
@@ -267,12 +267,14 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           ) : null}
 
           {(step === 'palette' || step === 'logo' || step === 'packaging') && sectionMeta ? (
-            <div className="flex h-full min-h-0 flex-col">
-              <p className="shrink-0 text-sm font-semibold text-[#071F5E]">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden">
+              <p className="shrink-0 text-sm font-semibold leading-tight text-[#071F5E]">
                 {pt ? sectionMeta.labelPt : sectionMeta.labelEs}
               </p>
-              <p className="shrink-0 text-xs text-[#1E1E1E]/65">{pt ? sectionMeta.hintPt : sectionMeta.hintEs}</p>
-              <div className="mt-2 grid min-h-0 flex-1 grid-cols-2 gap-2 sm:grid-cols-4">
+              <p className="shrink-0 text-[11px] leading-snug text-[#1E1E1E]/65 sm:text-xs">
+                {pt ? sectionMeta.hintPt : sectionMeta.hintEs}
+              </p>
+              <div className="mt-1.5 grid min-h-0 flex-1 grid-cols-2 grid-rows-2 gap-1.5 sm:mt-2 sm:grid-cols-4 sm:grid-rows-1 sm:gap-2">
                 {sectionImages.map((img) => {
                   const active = picks[step] === img.id;
                   return (
@@ -284,9 +286,9 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                         active ? 'border-[#009179] ring-2 ring-[#009179]/30' : 'border-transparent'
                       }`}
                     >
-                      <div className="relative h-full min-h-[28vh] sm:min-h-0">
+                      <div className="absolute inset-0">
                         {img.src ? (
-                          <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="25vw" />
+                          <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="(max-width:640px) 50vw, 25vw" />
                         ) : (
                           <div className="absolute inset-0" style={{ background: img.moodColor || '#071F5E' }} />
                         )}
@@ -298,7 +300,7 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                   );
                 })}
               </div>
-              <div className="mt-2 flex shrink-0 gap-2">
+              <div className="mt-1.5 flex shrink-0 gap-2 sm:mt-2">
                 <button
                   type="button"
                   className="min-h-10 flex-1 rounded-xl border border-[#071F5E]/15 bg-white text-sm font-semibold text-[#071F5E]"
@@ -327,17 +329,17 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           ) : null}
 
           {step === 'words' ? (
-            <div className="flex h-full min-h-0 flex-col">
-              <p className="shrink-0 text-sm font-semibold text-[#071F5E]">
+            <div className="flex h-full min-h-0 flex-col overflow-hidden">
+              <p className="shrink-0 text-sm font-semibold leading-tight text-[#071F5E]">
                 {pt ? 'Palavras que são só de vocês' : 'Palabras que son solo de ustedes'}
               </p>
-              <p className="shrink-0 text-xs text-[#1E1E1E]/65">
+              <p className="shrink-0 text-[11px] leading-snug text-[#1E1E1E]/65 sm:text-xs">
                 {pt
                   ? 'Toque nas palavras que mais representam o negócio. Pode escolher várias.'
                   : 'Toquen las palabras que más representan el negocio. Pueden elegir varias.'}
               </p>
-              <div className="mt-2 min-h-0 flex-1 overflow-hidden">
-                <div className="flex h-full flex-wrap content-start gap-1.5 overflow-y-auto pb-1">
+              <div className="mt-1.5 min-h-0 flex-1 overflow-hidden sm:mt-2">
+                <div className="flex h-full flex-wrap content-start gap-1 overflow-y-auto pb-1 sm:gap-1.5">
                   {(workshop.wordBank || []).map((word) => {
                     const on = selectedWords.includes(word);
                     return (
@@ -345,7 +347,7 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                         key={word}
                         type="button"
                         onClick={() => toggleWord(word)}
-                        className={`rounded-full px-2.5 py-1.5 text-xs font-semibold ${
+                        className={`rounded-full px-2 py-1 text-[11px] font-semibold sm:px-2.5 sm:py-1.5 sm:text-xs ${
                           on ? 'bg-[#009179] text-white' : 'bg-white text-[#071F5E] shadow-sm'
                         }`}
                       >
@@ -355,7 +357,7 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                   })}
                 </div>
               </div>
-              <div className="mt-2 flex shrink-0 gap-2">
+              <div className="mt-1.5 flex shrink-0 gap-2 sm:mt-2">
                 <button
                   type="button"
                   className="min-h-10 flex-1 rounded-xl border border-[#071F5E]/15 bg-white text-sm font-semibold"
@@ -378,17 +380,17 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           ) : null}
 
           {step === 'story' ? (
-            <div className="flex h-full min-h-0 flex-col gap-2">
-              <p className="shrink-0 text-sm font-semibold text-[#071F5E]">
+            <div className="flex h-full min-h-0 flex-col gap-1.5 overflow-hidden sm:gap-2">
+              <p className="shrink-0 text-sm font-semibold leading-tight text-[#071F5E]">
                 {pt ? 'Contem um pouco mais — com liberdade' : 'Cuénten un poco más — con libertad'}
               </p>
-              <p className="shrink-0 text-xs leading-5 text-[#1E1E1E]/65">
+              <p className="shrink-0 text-[11px] leading-snug text-[#1E1E1E]/65 sm:text-xs sm:leading-5">
                 {pt
                   ? 'O que faz o negócio especial? O que querem que as pessoas sintam? Escrevam ou gravem um áudio curto.'
                   : '¿Qué hace especial al negocio? ¿Qué quieren que la gente sienta? Escriban o graben un audio corto.'}
               </p>
               <textarea
-                className="min-h-0 flex-1 rounded-xl border border-[#071F5E]/15 bg-white p-3 text-sm"
+                className="min-h-0 flex-1 resize-none rounded-xl border border-[#071F5E]/15 bg-white p-3 text-sm"
                 value={freeText}
                 onChange={(e) => setFreeText(e.target.value)}
                 placeholder={pt ? 'Escrevam aqui…' : 'Escriban aquí…'}
@@ -436,22 +438,22 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           ) : null}
 
           {step === 'result' && onePage ? (
-            <div className="flex h-full min-h-0 flex-col gap-2">
-              <div className="min-h-0 flex-[1.2]">
+            <div className="flex h-full min-h-0 flex-col gap-1.5 overflow-hidden sm:gap-2">
+              <div className="min-h-0 flex-[1.2] overflow-hidden">
                 <MoodboardGrid
                   title={pt ? 'Seu moodboard' : 'Tu moodboard'}
                   images={resultImages}
                   words={selectedWords}
                 />
               </div>
-              <div className="shrink-0 rounded-xl bg-white p-3 shadow-sm">
+              <div className="max-h-[38%] shrink-0 overflow-hidden rounded-xl bg-white p-2.5 shadow-sm sm:p-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#009179]">
                   {pt ? 'One-page sugerido de marca' : 'One-page sugerido de marca'}
                 </p>
-                <h3 className="mt-1 text-sm font-bold text-[#071F5E]">{onePage.headline}</h3>
-                <p className="mt-1 text-xs leading-5 text-[#1E1E1E]/75">{onePage.promise}</p>
-                <p className="mt-1 text-xs leading-5 text-[#1E1E1E]/75">{onePage.personality}</p>
-                <p className="mt-1 text-xs leading-5 text-[#1E1E1E]/75">{onePage.voice}</p>
+                <h3 className="mt-1 text-sm font-bold leading-tight text-[#071F5E]">{onePage.headline}</h3>
+                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[#1E1E1E]/75 sm:text-xs sm:leading-5">{onePage.promise}</p>
+                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[#1E1E1E]/75 sm:text-xs sm:leading-5">{onePage.personality}</p>
+                <p className="mt-1 line-clamp-2 text-[11px] leading-4 text-[#1E1E1E]/75 sm:text-xs sm:leading-5">{onePage.voice}</p>
               </div>
             </div>
           ) : null}
