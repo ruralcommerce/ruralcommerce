@@ -159,5 +159,10 @@ export function filterCatalogByIds(catalog: MarcaImage[], ids?: string[]): Marca
   const active = catalog.filter((img) => img.active !== false);
   if (!ids || ids.length === 0) return active;
   const map = new Map(catalog.map((item) => [item.id, item]));
-  return ids.map((id) => map.get(id)).filter((img): img is MarcaImage => Boolean(img) && img.active !== false);
+  const selected: MarcaImage[] = [];
+  for (const id of ids) {
+    const img = map.get(id);
+    if (img && img.active !== false) selected.push(img);
+  }
+  return selected;
 }
