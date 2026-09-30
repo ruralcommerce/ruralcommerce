@@ -16,6 +16,7 @@ import { CatalogManager } from '@/components/marca/CatalogManager';
 import { IntranetGate } from '@/components/intranet/IntranetGate';
 
 type Tab = 'contratos' | 'catalogo';
+type ContratosView = 'list' | 'create' | 'detail';
 
 export function MarcaToolApp({ locale }: { locale: string }) {
   return (
@@ -30,14 +31,25 @@ export function MarcaToolApp({ locale }: { locale: string }) {
   );
 }
 
+function formatDate(iso?: string) {
+  if (!iso) return '—';
+  try {
+    return new Date(iso).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+  } catch {
+    return '—';
+  }
+}
+
 function MarcaToolBody({ locale }: { locale: string }) {
   const [tab, setTab] = useState<Tab>('contratos');
+  const [view, setView] = useState<ContratosView>('list');
   const [contracts, setContracts] = useState<MarcaContract[]>([]);
   const [catalog, setCatalog] = useState<MarcaImage[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [profile, setProfile] = useState<MarcaVisualProfile | null>(null);
   const [creating, setCreating] = useState(false);
   const [savingImages, setSavingImages] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [form, setForm] = useState({ clientName: '', title: '', notes: '' });
   const [pickedIds, setPickedIds] = useState<string[]>([]);
 
@@ -61,13 +73,23 @@ function MarcaToolBody({ locale }: { locale: string }) {
   }
 
   async function loadDetail(id: string) {
-    const res = await fetch(`/api/marca/contracts/${id}`);
-    if (!res.ok) return;
-    const data = (await res.json()) as { contract: MarcaContract; profile: MarcaVisualProfile };
-    setContracts((prev) => prev.map((c) => (c.id === id ? data.contract : c)));
-    setProfile(data.profile);
-    setSelectedId(id);
-    setPickedIds(data.contract.imageIds || []);
+    setLoadingDetail(true);
+    try {
+      const res = await fetch(`/api/marca/contracts/${id}`);
+      if (!res.ok) return;
+      const data = (await res.json()) as { contract: MarcaContract; profile: MarcaVisualProfile };
+      setContracts((prev) => {
+        const exists = prev.some((c) => c.id === id);
+        return exists ? prev.map((c) => (c.id === id ? data.contract : c)) : [data.contract, ...prev];
+      });
+      setProfile(data.profile);
+      setSelectedId(id);
+      setPickedIds(data.contract.imageIds || []);
+      setView('detail');
+      setTab('contratos');
+    } finally {
+      setLoadingDetail(false);
+    }
   }
 
   useEffect(() => {
@@ -93,7 +115,6 @@ function MarcaToolBody({ locale }: { locale: string }) {
       const data = (await res.json()) as { contract: MarcaContract };
       setContracts((prev) => [data.contract, ...prev]);
       setForm({ clientName: '', title: '', notes: '' });
-      setTab('contratos');
       await loadDetail(data.contract.id);
     } finally {
       setCreating(false);
@@ -122,176 +143,277 @@ function MarcaToolBody({ locale }: { locale: string }) {
     }
   }
 
+  function backToList() {
+    setSelectedId(null);
+    setProfile(null);
+    setView('list');
+    void loadContracts();
+  }
+
   const workshopPath = selected ? `/${locale}/oficina/${selected.code}` : '';
   const workshopUrl =
     typeof window !== 'undefined' && workshopPath ? `${window.location.origin}${workshopPath}` : workshopPath;
 
   return (
     <div>
-      <div className="mb-5 flex flex-wrap gap-2">
-        <MarcaButton variant={tab === 'contratos' ? 'primary' : 'ghost'} onClick={() => setTab('contratos')}>
-          Contratos
-        </MarcaButton>
-        <MarcaButton
-          variant={tab === 'catalogo' ? 'primary' : 'ghost'}
-          onClick={() => {
-            setTab('catalogo');
-            void loadCatalog();
-          }}
-        >
-          Catálogo de imágenes
-        </MarcaButton>
-        <Link href={`/${locale}/intranet/herramientas`} className={marcaGhostLinkClass}>
-          ← Herramientas
-        </Link>
-      </div>
+      {view !== 'detail' ? (
+        <div className="mb-5 flex flex-wrap gap-2">
+          <MarcaButton
+            variant={tab === 'contratos' ? 'primary' : 'ghost'}
+            onClick={() => {
+              setTab('contratos');
+              setView('list');
+            }}
+          >
+            Contratos
+          </MarcaButton>
+          <MarcaButton
+            variant={tab === 'catalogo' ? 'primary' : 'ghost'}
+            onClick={() => {
+              setTab('catalogo');
+              void loadCatalog();
+            }}
+          >
+            Catálogo de imágenes
+          </MarcaButton>
+          <Link href={`/${locale}/intranet/herramientas`} className={marcaGhostLinkClass}>
+            ← Herramientas
+          </Link>
+        </div>
+      ) : null}
 
-      {tab === 'catalogo' ? <CatalogManager /> : null}
+      {tab === 'catalogo' && view !== 'detail' ? <CatalogManager /> : null}
 
-      {tab === 'contratos' ? (
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-          <div className="space-y-5">
-            <MarcaPanel>
-              <h2 className="text-lg font-bold text-[var(--rc-primary)]">Nuevo contrato</h2>
-              <form onSubmit={createContract} className="mt-4 space-y-3">
-                <MarcaInput
-                  placeholder="Nombre del cliente / grupo"
-                  value={form.clientName}
-                  onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))}
-                  required
-                />
-                <MarcaInput
-                  placeholder="Título de la oficina (opcional)"
-                  value={form.title}
-                  onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                />
-                <MarcaTextarea
-                  placeholder="Notas internas"
-                  rows={3}
-                  value={form.notes}
-                  onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-                />
+      {tab === 'contratos' && view === 'list' ? (
+        <div className="space-y-4">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-[var(--rc-primary)]">Contratos</h2>
+              <p className="mt-1 text-sm text-[var(--rc-text)]/60">
+                Abre un contrato para ver el link, resultados y moodboard final.
+              </p>
+            </div>
+            <MarcaButton onClick={() => setView('create')}>Nuevo contrato</MarcaButton>
+          </div>
+
+          <div className="overflow-hidden rounded-xl border border-[var(--rc-primary)]/10 bg-white">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-[var(--rc-primary)]/10 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--rc-text)]/45">
+                  <th className="px-4 py-3 font-bold">Cliente</th>
+                  <th className="hidden px-4 py-3 font-bold sm:table-cell">Código</th>
+                  <th className="hidden px-4 py-3 font-bold md:table-cell">Participantes</th>
+                  <th className="hidden px-4 py-3 font-bold sm:table-cell">Estado</th>
+                  <th className="hidden px-4 py-3 font-bold lg:table-cell">Creado</th>
+                  <th className="px-4 py-3 font-bold text-right"> </th>
+                </tr>
+              </thead>
+              <tbody>
+                {contracts.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-[var(--rc-text)]/55">
+                      Aún no hay contratos. Crea el primero para generar un link de oficina.
+                    </td>
+                  </tr>
+                ) : (
+                  contracts.map((c) => (
+                    <tr
+                      key={c.id}
+                      className="border-b border-[var(--rc-primary)]/8 last:border-b-0 transition hover:bg-[var(--rc-bg)]/80"
+                    >
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => void loadDetail(c.id)}
+                          className="text-left font-semibold text-[var(--rc-primary)] hover:text-[var(--rc-accent)]"
+                        >
+                          {c.clientName}
+                          <span className="mt-0.5 block text-xs font-normal text-[var(--rc-text)]/55 sm:hidden">
+                            {c.code} · {c.participants.length} · {c.status}
+                          </span>
+                        </button>
+                      </td>
+                      <td className="hidden px-4 py-3 font-mono text-xs text-[var(--rc-text)]/70 sm:table-cell">
+                        {c.code}
+                      </td>
+                      <td className="hidden px-4 py-3 text-[var(--rc-text)]/70 md:table-cell">
+                        {c.participants.length}
+                      </td>
+                      <td className="hidden px-4 py-3 sm:table-cell">
+                        <span className="rounded border border-[var(--rc-primary)]/12 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--rc-primary)]">
+                          {c.status}
+                        </span>
+                      </td>
+                      <td className="hidden px-4 py-3 text-[var(--rc-text)]/55 lg:table-cell">
+                        {formatDate(c.createdAt)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => void loadDetail(c.id)}
+                          className="text-xs font-semibold text-[var(--rc-accent)] hover:underline"
+                        >
+                          Abrir →
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
+
+      {tab === 'contratos' && view === 'create' ? (
+        <div className="mx-auto max-w-xl space-y-4">
+          <button
+            type="button"
+            onClick={() => setView('list')}
+            className="text-sm font-semibold text-[var(--rc-accent)] hover:underline"
+          >
+            ← Volver a contratos
+          </button>
+          <MarcaPanel>
+            <h2 className="text-lg font-bold text-[var(--rc-primary)]">Nuevo contrato</h2>
+            <form onSubmit={createContract} className="mt-4 space-y-3">
+              <MarcaInput
+                placeholder="Nombre del cliente / grupo"
+                value={form.clientName}
+                onChange={(e) => setForm((f) => ({ ...f, clientName: e.target.value }))}
+                required
+                autoFocus
+              />
+              <MarcaInput
+                placeholder="Título de la oficina (opcional)"
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              />
+              <MarcaTextarea
+                placeholder="Notas internas"
+                rows={3}
+                value={form.notes}
+                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              />
+              <div className="flex flex-wrap gap-2">
                 <MarcaButton type="submit" disabled={creating}>
                   {creating ? 'Creando…' : 'Crear contrato + link'}
                 </MarcaButton>
-              </form>
-            </MarcaPanel>
+                <MarcaButton type="button" variant="ghost" onClick={() => setView('list')}>
+                  Cancelar
+                </MarcaButton>
+              </div>
+            </form>
+          </MarcaPanel>
+        </div>
+      ) : null}
 
-            <MarcaPanel>
-              <h2 className="text-lg font-bold text-[var(--rc-primary)]">Contratos</h2>
-              <ul className="mt-4 divide-y divide-[var(--rc-primary)]/8">
-                {contracts.length === 0 ? (
-                  <li className="py-3 text-sm text-[var(--rc-text)]/65">Aún no hay contratos.</li>
-                ) : (
-                  contracts.map((c) => (
-                    <li key={c.id}>
-                      <button
-                        type="button"
-                        onClick={() => void loadDetail(c.id)}
-                        className={`flex w-full flex-col items-start gap-1 py-3 text-left transition ${
-                          selectedId === c.id ? 'text-[var(--rc-accent)]' : 'text-[var(--rc-primary)]'
-                        }`}
-                      >
-                        <span className="font-semibold">{c.clientName}</span>
-                        <span className="text-xs text-[var(--rc-text)]/60">
-                          {c.code} · {c.participants.length} participantes · {c.status}
-                        </span>
-                      </button>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </MarcaPanel>
+      {tab === 'contratos' && view === 'detail' ? (
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={backToList}
+              className="text-sm font-semibold text-[var(--rc-accent)] hover:underline"
+            >
+              ← Volver a contratos
+            </button>
+            <Link href={`/${locale}/intranet/herramientas`} className={marcaGhostLinkClass}>
+              Herramientas
+            </Link>
           </div>
 
-          <div className="space-y-5">
-            {selected ? (
-              <>
-                <MarcaPanel>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
+          {loadingDetail && !selected ? (
+            <MarcaPanel>
+              <p className="text-sm text-[var(--rc-text)]/65">Cargando contrato…</p>
+            </MarcaPanel>
+          ) : null}
+
+          {selected ? (
+            <>
+              <MarcaPanel>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
+                  Contrato · {selected.code}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-[var(--rc-primary)]">{selected.title}</h2>
+                <p className="mt-1 text-sm text-[var(--rc-text)]/70">
+                  {selected.clientName} · {selected.participants.length} participantes · {selected.status}
+                </p>
+                <div className="mt-4 rounded-xl bg-[var(--rc-bg)] p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--rc-text)]/45">
                     Link de oficina
                   </p>
-                  <h2 className="mt-2 text-2xl font-bold text-[var(--rc-primary)]">{selected.title}</h2>
-                  <p className="mt-1 text-sm text-[var(--rc-text)]/70">{selected.clientName}</p>
-                  <div className="mt-4 rounded-xl bg-[var(--rc-bg)] p-4">
-                    <p className="break-all text-sm font-medium text-[var(--rc-primary)]">{workshopUrl}</p>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <MarcaButton
-                        variant="primary"
-                        onClick={() => void navigator.clipboard.writeText(workshopUrl)}
-                      >
-                        Copiar link
-                      </MarcaButton>
-                      <Link href={workshopPath} target="_blank" className={marcaGhostLinkClass}>
-                        Abrir oficina
-                      </Link>
-                      <MarcaButton variant="ghost" onClick={() => void loadDetail(selected.id)}>
-                        Actualizar perfil
-                      </MarcaButton>
-                    </div>
-                  </div>
-                </MarcaPanel>
-
-                <MarcaPanel>
-                  <h3 className="text-lg font-bold text-[var(--rc-primary)]">Imágenes de esta oficina</h3>
-                  <p className="mt-1 text-sm text-[var(--rc-text)]/65">
-                    Vacío = catálogo completo activo. Selecciona un subconjunto si quieres.
-                  </p>
-                  <div className="mt-4 grid max-h-[360px] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-3">
-                    {catalog.map((img) => {
-                      const on = pickedIds.includes(img.id);
-                      return (
-                        <button
-                          key={img.id}
-                          type="button"
-                          onClick={() => togglePick(img.id)}
-                          className={`overflow-hidden rounded-lg border text-left ${
-                            on
-                              ? 'border-[var(--rc-accent)] ring-2 ring-[var(--rc-accent)]/30'
-                              : 'border-[var(--rc-primary)]/10'
-                          }`}
-                        >
-                          <div className="relative aspect-square bg-[var(--rc-bg)]">
-                            {img.src ? (
-                              <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="140px" />
-                            ) : (
-                              <div className="absolute inset-0" style={{ background: img.moodColor || '#071F5E' }} />
-                            )}
-                          </div>
-                          <p className="truncate px-2 py-1.5 text-[11px] font-medium text-[var(--rc-primary)]">
-                            {img.alt}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <p className="mt-2 break-all text-sm font-medium text-[var(--rc-primary)]">{workshopUrl}</p>
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <MarcaButton variant="ghost" onClick={() => setPickedIds([])}>
-                      Usar catálogo completo
+                    <MarcaButton
+                      variant="primary"
+                      onClick={() => void navigator.clipboard.writeText(workshopUrl)}
+                    >
+                      Copiar link
                     </MarcaButton>
-                    <MarcaButton onClick={() => void saveImageSelection()} disabled={savingImages}>
-                      {savingImages ? 'Guardando…' : 'Guardar selección'}
+                    <Link href={workshopPath} target="_blank" className={marcaGhostLinkClass}>
+                      Abrir oficina
+                    </Link>
+                    <MarcaButton variant="ghost" onClick={() => void loadDetail(selected.id)}>
+                      Actualizar perfil
                     </MarcaButton>
                   </div>
-                </MarcaPanel>
-
-                {profile ? (
-                  <MarcaProfileReport
-                    profile={profile}
-                    contract={selected}
-                    catalog={catalog}
-                    onRefresh={() => loadDetail(selected.id)}
-                  />
-                ) : null}
-              </>
-            ) : (
-              <MarcaPanel>
-                <p className="text-sm text-[var(--rc-text)]/65">
-                  Selecciona un contrato o crea uno nuevo para ver el perfil visual.
-                </p>
+                </div>
               </MarcaPanel>
-            )}
-          </div>
+
+              <MarcaPanel>
+                <h3 className="text-lg font-bold text-[var(--rc-primary)]">Imágenes de esta oficina</h3>
+                <p className="mt-1 text-sm text-[var(--rc-text)]/65">
+                  Vacío = catálogo completo activo. Selecciona un subconjunto si quieres.
+                </p>
+                <div className="mt-4 grid max-h-[360px] grid-cols-2 gap-3 overflow-y-auto sm:grid-cols-4 lg:grid-cols-5">
+                  {catalog.map((img) => {
+                    const on = pickedIds.includes(img.id);
+                    return (
+                      <button
+                        key={img.id}
+                        type="button"
+                        onClick={() => togglePick(img.id)}
+                        className={`overflow-hidden rounded-lg border text-left ${
+                          on
+                            ? 'border-[var(--rc-accent)] ring-2 ring-[var(--rc-accent)]/30'
+                            : 'border-[var(--rc-primary)]/10'
+                        }`}
+                      >
+                        <div className="relative aspect-square bg-[var(--rc-bg)]">
+                          {img.src ? (
+                            <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="140px" />
+                          ) : (
+                            <div className="absolute inset-0" style={{ background: img.moodColor || '#071F5E' }} />
+                          )}
+                        </div>
+                        <p className="truncate px-2 py-1.5 text-[11px] font-medium text-[var(--rc-primary)]">
+                          {img.alt}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <MarcaButton variant="ghost" onClick={() => setPickedIds([])}>
+                    Usar catálogo completo
+                  </MarcaButton>
+                  <MarcaButton onClick={() => void saveImageSelection()} disabled={savingImages}>
+                    {savingImages ? 'Guardando…' : 'Guardar selección'}
+                  </MarcaButton>
+                </div>
+              </MarcaPanel>
+
+              {profile ? (
+                <MarcaProfileReport
+                  profile={profile}
+                  contract={selected}
+                  catalog={catalog}
+                  onRefresh={() => loadDetail(selected.id)}
+                />
+              ) : null}
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>
