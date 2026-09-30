@@ -1029,110 +1029,6 @@
     },
     {
       "id": "img-terroso-packaging-80",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-12.jpg",
-      "alt": "embalagem terrosa 12",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-81",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-13.jpg",
-      "alt": "embalagem terrosa 13",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-82",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-14.jpg",
-      "alt": "embalagem terrosa 14",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-83",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-15.jpg",
-      "alt": "embalagem terrosa 15",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-84",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-16.jpg",
-      "alt": "embalagem terrosa 16",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-85",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-17.jpg",
-      "alt": "embalagem terrosa 17",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-86",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-18.jpg",
-      "alt": "embalagem terrosa 18",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-87",
-      "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-19.jpg",
-      "alt": "embalagem terrosa 19",
-      "tags": [
-        "terroso",
-        "packaging"
-      ],
-      "tone": "terroso",
-      "section": "packaging",
-      "active": true,
-      "moodColor": "#8B6914"
-    },
-    {
-      "id": "img-terroso-packaging-88",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-2.jpg",
       "alt": "embalagem terrosa 2",
       "tags": [
@@ -1145,7 +1041,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-89",
+      "id": "img-terroso-packaging-81",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-3.jpg",
       "alt": "embalagem terrosa 3",
       "tags": [
@@ -1158,7 +1054,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-90",
+      "id": "img-terroso-packaging-82",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-4.jpg",
       "alt": "embalagem terrosa 4",
       "tags": [
@@ -1171,7 +1067,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-91",
+      "id": "img-terroso-packaging-83",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-5.jpg",
       "alt": "embalagem terrosa 5",
       "tags": [
@@ -1184,7 +1080,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-92",
+      "id": "img-terroso-packaging-84",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-6.jpg",
       "alt": "embalagem terrosa 6",
       "tags": [
@@ -1197,7 +1093,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-93",
+      "id": "img-terroso-packaging-85",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-7.jpg",
       "alt": "embalagem terrosa 7",
       "tags": [
@@ -1210,7 +1106,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-94",
+      "id": "img-terroso-packaging-86",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-8.jpg",
       "alt": "embalagem terrosa 8",
       "tags": [
@@ -1223,7 +1119,7 @@
       "moodColor": "#8B6914"
     },
     {
-      "id": "img-terroso-packaging-95",
+      "id": "img-terroso-packaging-87",
       "src": "/images/marca/library/terroso-packaging-embalagem-terrosa-9.jpg",
       "alt": "embalagem terrosa 9",
       "tags": [
@@ -1232,6 +1128,110 @@
       ],
       "tone": "terroso",
       "section": "packaging",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-88",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-1.jpg",
+      "alt": "logo-branding terroso 1",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-89",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-2.jpg",
+      "alt": "logo-branding terroso 2",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-90",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-3.jpg",
+      "alt": "logo-branding terroso 3",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-91",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-4.jpg",
+      "alt": "logo-branding terroso 4",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-92",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-5.jpg",
+      "alt": "logo-branding terroso 5",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-93",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-6.jpg",
+      "alt": "logo-branding terroso 6",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-94",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-7.jpg",
+      "alt": "logo-branding terroso 7",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
+      "active": true,
+      "moodColor": "#8B6914"
+    },
+    {
+      "id": "img-terroso-logo-95",
+      "src": "/images/marca/library/terroso-logo-logo-branding-terroso-8.jpg",
+      "alt": "logo-branding terroso 8",
+      "tags": [
+        "terroso",
+        "logo"
+      ],
+      "tone": "terroso",
+      "section": "logo",
       "active": true,
       "moodColor": "#8B6914"
     },
