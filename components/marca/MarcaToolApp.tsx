@@ -276,11 +276,7 @@ function MarcaToolBody({ locale }: { locale: string }) {
                 </MarcaPanel>
 
                 {profile ? (
-                  <MarcaProfileReport
-                    profile={profile}
-                    clientName={selected.clientName}
-                    imageSrcById={Object.fromEntries(catalog.map((img) => [img.id, img.src]))}
-                  />
+                  <MarcaProfileReport profile={profile} contract={selected} catalog={catalog} />
                 ) : null}
               </>
             ) : (
