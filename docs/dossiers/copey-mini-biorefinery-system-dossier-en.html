@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Copey Mini-Biorefinery · System Dossier · Impulsa CR / Rural Commerce</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #071f5e;
+      --teal: #009179;
+      --teal-soft: #eef8f5;
+      --ink: #2f3336;
+      --muted: #5c6570;
+      --line: #d9e3ec;
+      --paper: #f5f7fa;
+      --white: #ffffff;
+      --accent: #52adad;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Lexend, system-ui, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+      font-size: 10.5pt;
+    }
+
+    .page {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 0 1.25rem 3rem;
+    }
+
+    /* —— Cover —— */
+    .cover {
+      background:
+        radial-gradient(120% 80% at 10% 0%, rgba(82, 173, 173, 0.28), transparent 55%),
+        linear-gradient(165deg, #071f5e 0%, #0a2a6e 48%, #005f52 100%);
+      color: #f2f2f2;
+      border-radius: 0 0 28px 28px;
+      padding: 2rem 1.75rem 2.75rem;
+      margin: 0 -1.25rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -40% 40%;
+      height: 70%;
+      background: radial-gradient(circle, rgba(0, 145, 121, 0.35), transparent 70%);
+      pointer-events: none;
+    }
+    .cover-brands {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+    }
+    .cover-brands img.rc { height: 36px; width: auto; }
+    .cover-brands img.im { height: 52px; width: auto; }
+    .cover-divider {
+      width: 1px;
+      height: 36px;
+      background: rgba(242, 242, 242, 0.35);
+    }
+    .cover-kicker {
+      margin: 2.2rem 0 0.5rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #7fd4c4;
+      position: relative;
+      z-index: 1;
+    }
+    .cover h1 {
+      margin: 0;
+      font-size: clamp(1.7rem, 4vw, 2.45rem);
+      font-weight: 700;
+      line-height: 1.15;
+      max-width: 18ch;
+      position: relative;
+      z-index: 1;
+    }
+    .cover-lead {
+      margin: 1rem 0 0;
+      max-width: 38rem;
+      font-size: 1.02rem;
+      line-height: 1.6;
+      color: rgba(242, 242, 242, 0.88);
+      position: relative;
+      z-index: 1;
+    }
+    .cover-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin-top: 1.6rem;
+      position: relative;
+      z-index: 1;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 34px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(242, 242, 242, 0.28);
+      background: rgba(255, 255, 255, 0.08);
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* —— Doc chrome —— */
+    .doc-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: center;
+      margin: 0 0 1.5rem;
+      padding: 0.85rem 1rem;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+    }
+    .doc-bar-brands {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .doc-bar-brands img.rc { height: 28px; }
+    .doc-bar-brands img.im { height: 40px; }
+    .doc-bar-brands .sep {
+      width: 1px;
+      height: 28px;
+      background: var(--line);
+    }
+    .doc-bar p {
+      margin: 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+      max-width: 22rem;
+      text-align: right;
+    }
+
+    nav.toc {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 1.15rem 1.25rem 1.35rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 8px 24px rgba(7, 31, 94, 0.04);
+    }
+    nav.toc h2 {
+      margin: 0 0 0.75rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+    nav.toc ol {
+      margin: 0;
+      padding-left: 1.2rem;
+      columns: 2;
+      gap: 1.5rem;
+    }
+    nav.toc a {
+      color: var(--navy);
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.88rem;
+    }
+    nav.toc a:hover { color: var(--teal); }
+    nav.toc li { margin: 0.35rem 0; break-inside: avoid; }
+
+    section {
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 1.35rem 1.4rem 1.5rem;
+      margin-bottom: 1.1rem;
+      box-shadow: 0 8px 24px rgba(7, 31, 94, 0.04);
+    }
+    .kicker {
+      margin: 0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--teal);
+    }
+    h2 {
+      margin: 0.35rem 0 0.65rem;
+      color: var(--navy);
+      font-size: 1.35rem;
+      line-height: 1.25;
+    }
+    h3 {
+      margin: 1.1rem 0 0.4rem;
+      color: var(--navy);
+      font-size: 1.02rem;
+    }
+    p { margin: 0.45rem 0 0; }
+    ul, ol { margin: 0.45rem 0 0; padding-left: 1.2rem; }
+    li { margin-top: 0.35rem; }
+    strong { color: var(--navy); }
+
+    .grid-2 {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 0.9rem;
+    }
+    @media (min-width: 720px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+    }
+    .grid-3 {
+      display: grid;
+      gap: 0.85rem;
+      margin-top: 0.9rem;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 0.9rem 1rem;
+      background: #fbfcfd;
+    }
+    .card h3 { margin-top: 0; font-size: 0.98rem; }
+    .card p { font-size: 0.9rem; }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-top: 0.9rem;
+    }
+    .flow span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      min-height: 36px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--teal-soft);
+      border: 1px solid #c5e8df;
+      color: var(--navy);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .flow span em {
+      font-style: normal;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 999px;
+      background: var(--navy);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+    }
+
+    .zone-dirty { border-left: 4px solid #c45c26; }
+    .zone-wet { border-left: 4px solid #009179; }
+    .zone-clean { border-left: 4px solid #c4a35a; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.85rem;
+      font-size: 0.86rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 0.55rem 0.65rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: var(--teal-soft);
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .figure {
+      margin-top: 1rem;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: #fff;
+    }
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .figure figcaption {
+      padding: 0.65rem 0.9rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+      background: #fbfcfd;
+    }
+
+    .callout {
+      margin-top: 0.9rem;
+      padding: 1rem 1.1rem;
+      border-radius: 16px;
+      background: var(--navy);
+      color: rgba(242, 242, 242, 0.92);
+    }
+    .callout strong { color: #fff; }
+    .callout p { margin-top: 0.35rem; }
+
+    .footer {
+      margin-top: 2rem;
+      padding: 1.25rem 0 0.5rem;
+      border-top: 1px solid var(--line);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+    .footer-brands {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .footer-brands img.rc { height: 24px; }
+    .footer-brands img.im { height: 34px; }
+
+    .print-hint {
+      margin: 0 0 1rem;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    @media print {
+      body { background: #fff; font-size: 9.5pt; }
+      .page { max-width: none; padding: 0; }
+      .cover {
+        margin: 0 0 1rem;
+        border-radius: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .print-hint, nav.toc { display: none; }
+      section {
+        break-inside: avoid;
+        box-shadow: none;
+        margin-bottom: 0.75rem;
+      }
+      .doc-bar { box-shadow: none; }
+      a { color: inherit; text-decoration: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="cover">
+      <div class="cover-brands">
+        <img class="rc" src="assets/ruralcommerce-logo-white.png" alt="Rural Commerce" />
+        <span class="cover-divider" aria-hidden="true"></span>
+        <img class="im" src="assets/impulsacr-logo-header.png" alt="Impulsa CR" />
+      </div>
+      <p class="cover-kicker">Project evidence dossier · English</p>
+      <h1>Shared mini-biorefinery system · Copey de Dota</h1>
+      <p class="cover-lead">
+        Systematization of the digital plant guide developed for Impulsa CR: invite-only access,
+        hygienic layout for a 4.0 × 5.5 m (22 m²) shed, interactive drawings, works checklist,
+        permits, GMP, water, solar power and equipment — as published on Rural Commerce.
+      </p>
+      <div class="cover-meta">
+        <span class="pill">22 m² · 4.0 × 5.5 m</span>
+        <span class="pill">Frutalcoop · Copey de Dota</span>
+        <span class="pill">Invite-gated guide</span>
+        <span class="pill">ruralcommerceglobal.com</span>
+      </div>
+    </header>
+
+    <p class="print-hint">Open this file in a browser · File → Print → Save as PDF to attach to the project.</p>
+
+    <div class="doc-bar">
+      <div class="doc-bar-brands">
+        <img class="rc" src="assets/ruralcommerce-logo.png" alt="Rural Commerce" />
+        <span class="sep" aria-hidden="true"></span>
+        <img class="im" src="assets/impulsacr-logo.png" alt="Impulsa CR" />
+      </div>
+      <p>Digital deliverable of the Impulsa CR shared-plant workstream. Content mirrors the live guide; this dossier is the portable evidence pack.</p>
+    </div>
+
+    <nav class="toc" aria-label="Contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#purpose">Purpose of this dossier</a></li>
+        <li><a href="#system">What was developed</a></li>
+        <li><a href="#access">Access model</a></li>
+        <li><a href="#facility">Facility overview</a></li>
+        <li><a href="#hygiene">Hygienic zoning</a></li>
+        <li><a href="#flow">Process flow</a></li>
+        <li><a href="#zones">Zones in detail</a></li>
+        <li><a href="#drawings">Drawings suite</a></li>
+        <li><a href="#works">Works checklist</a></li>
+        <li><a href="#legal">Permits</a></li>
+        <li><a href="#gmp">Good manufacturing practices</a></li>
+        <li><a href="#water">Water &amp; wastewater</a></li>
+        <li><a href="#energy">Solar &amp; electricity</a></li>
+        <li><a href="#equipment">Equipment</a></li>
+        <li><a href="#evidence">Live evidence &amp; URLs</a></li>
+      </ol>
+    </nav>
+
+    <section id="purpose">
+      <p class="kicker">01 · Purpose</p>
+      <h2>Purpose of this dossier</h2>
+      <p>
+        This document consolidates, in English, the agro-industrial plant system designed and published
+        for the Impulsa CR project: a shared mini-biorefinery beside the collection center in Copey de Dota
+        (Municipality of Dota, Costa Rica), operated with Frutalcoop.
+      </p>
+      <p>
+        It is intended as <strong>project evidence</strong> — what Rural Commerce developed in the digital
+        guide — not as a substitute for stamped engineering drawings or municipal filings.
+      </p>
+    </section>
+
+    <section id="system">
+      <p class="kicker">02 · Digital system</p>
+      <h2>What was developed</h2>
+      <p>A multilingual (ES / PT-BR / EN), invite-only web guide integrated into the Impulsa CR area of ruralcommerceglobal.com:</p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Guide modules</h3>
+          <ul>
+            <li>Home / overview</li>
+            <li>Works checklist (browser-saved progress)</li>
+            <li>Interactive drawings (9 views)</li>
+            <li>Legal / permits</li>
+            <li>GMP (good manufacturing practices)</li>
+            <li>Water, power &amp; wastewater</li>
+            <li>Equipment &amp; meters</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Drawing views inside “Plantas”</h3>
+          <ul>
+            <li>Original cooperative sketch + review</li>
+            <li>Zoning (interactive zones)</li>
+            <li>Process flow (7 steps)</li>
+            <li>Equipment plan</li>
+            <li>Interactive 3D view</li>
+            <li>Materials &amp; partitions</li>
+            <li>Electrical &amp; plumbing</li>
+            <li>Water networks</li>
+            <li>Solar / energy</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">
+        <strong>Design language.</strong>
+        <p>Same visual system as the Impulsa CR / Rural Commerce project surfaces: Lexend type, navy (#071F5E), teal (#009179), soft paper background, pill navigation, and rounded content cards.</p>
+      </div>
+    </section>
+
+    <section id="access">
+      <p class="kicker">03 · Access</p>
+      <h2>Invite-only access model</h2>
+      <p>
+        The Copey mini-biorefinery guide does <strong>not</strong> open with beneficiary login or the intranet.
+        Entry requires an invite code issued by the Rural Commerce team (WhatsApp or email).
+      </p>
+      <ul>
+        <li>Invite gate: <code>/en/impulsacr/convite</code></li>
+        <li>Plant shell after redeem: <code>/en/impulsacr/planta</code>…</li>
+        <li>Demo code used with the cooperative for walkthroughs: <strong>COPEY-22M2</strong></li>
+      </ul>
+    </section>
+
+    <section id="facility">
+      <p class="kicker">04 · Facility</p>
+      <h2>Facility overview</h2>
+      <p>
+        Shed footprint <strong>4.0 × 5.5 m (22 m²)</strong> beside the collection center in Copey de Dota.
+        Product and people move: receive → wash → peel/cut → transform → pack → store → exit.
+      </p>
+      <ul>
+        <li><strong>P1</strong> — front door: people in / finished goods out</li>
+        <li><strong>P2</strong> — service door: raw material from the collection center</li>
+        <li><strong>V1</strong> — front window · <strong>V2</strong> — side window with insect screen</li>
+      </ul>
+      <figure class="figure">
+        <img src="assets/croquis-cooperativa.jpg" alt="Original cooperative sketch for the Copey shed" />
+        <figcaption>Original sketch supplied by the cooperative (reviewed in the “Original” drawing tab).</figcaption>
+      </figure>
+    </section>
+
+    <section id="hygiene">
+      <p class="kicker">05 · Hygiene logic</p>
+      <h2>Hygienic zoning (one room, clear flow)</h2>
+      <p>In 22 m² the shed is one continuous room. Floor marks and process order create hygiene — not separate changing rooms between every strip.</p>
+      <div class="grid-3">
+        <div class="card zone-dirty">
+          <h3>Dirty · receiving</h3>
+          <p>Collection-center side: crates, raw material and waste. Enters by the back door. No packing here.</p>
+        </div>
+        <div class="card zone-wet">
+          <h3>Wet · wash, cut, transform</h3>
+          <p>Sink, peel/cut table, then dry, mill or cook by recipe. Sloped floor. Steam must not blow toward packing.</p>
+        </div>
+        <div class="card zone-clean">
+          <h3>Clean · pack &amp; store</h3>
+          <p>Packing, finished-goods shelf and exit. Enter with washed hands. Floor +1 cm vs wet zone.</p>
+        </div>
+      </div>
+      <h3>People clothing</h3>
+      <p>
+        Staff put on hairnet / apron / gloves once at the front entry, wash hands at the pedal sink, then work the dirty→clean line in the same process attire.
+        Floor tape (e.g. orange between receiving and wash) is a visual hygiene cue, not a door requiring a clothing change.
+      </p>
+    </section>
+
+    <section id="flow">
+      <p class="kicker">06 · Process</p>
+      <h2>Seven-step product flow</h2>
+      <div class="flow">
+        <span><em>01</em> Receive</span>
+        <span><em>02</em> Wash</span>
+        <span><em>03</em> Peel &amp; cut</span>
+        <span><em>04</em> Transform</span>
+        <span><em>05</em> Pack</span>
+        <span><em>06</em> Store</span>
+        <span><em>07</em> Exit</span>
+      </div>
+      <ol>
+        <li><strong>Receive</strong> — Back door from the collection center. Crates, not the floor.</li>
+        <li><strong>Wash</strong> — Back sink, potable water, drain D1.</li>
+        <li><strong>Peel and cut</strong> — Work table. Already washed product.</li>
+        <li><strong>Transform</strong> — Dry, mill or cook: the recipe chooses. Same zone.</li>
+        <li><strong>Pack</strong> — Clean zone. Lot, date, moisture.</li>
+        <li><strong>Store</strong> — Finished-goods shelf, apart from raw material.</li>
+        <li><strong>Exit</strong> — Product out the front door.</li>
+      </ol>
+      <p><strong>Rule:</strong> nothing dirty crosses the packing table. Never reverse the path on the same tray.</p>
+    </section>
+
+    <section id="zones">
+      <p class="kicker">07 · Zones</p>
+      <h2>Zones in detail</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th>Role</th>
+            <th>Size</th>
+            <th>Do / don’t</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Receiving</td>
+            <td>Raw material from collection center (P2)</td>
+            <td>1.95 × 1.20 m</td>
+            <td>Plastic crates, steel table · no finished goods</td>
+          </tr>
+          <tr>
+            <td>Wash</td>
+            <td>Wash produce &amp; utensils</td>
+            <td>2.05 × 1.20 m</td>
+            <td>Steel sink, potable, D1 · not a staff handwash</td>
+          </tr>
+          <tr>
+            <td>Peel &amp; cut</td>
+            <td>Peel, chop, portion</td>
+            <td>4.00 × 1.05 m</td>
+            <td>Steel table, T2 · no packing / no dirty crates</td>
+          </tr>
+          <tr>
+            <td>Transformation</td>
+            <td>Dry, mill or cook</td>
+            <td>4.00 × 1.35 m</td>
+            <td>Cabinet T4, mill T3, gas stove + extractor · steam away from packing</td>
+          </tr>
+          <tr>
+            <td>Packing</td>
+            <td>Clean dry packing</td>
+            <td>2.35 × 0.95 m</td>
+            <td>Table, sealer, scale · floor +1 cm</td>
+          </tr>
+          <tr>
+            <td>Storage</td>
+            <td>Packed product</td>
+            <td>1.65 × 0.95 m</td>
+            <td>Clean shelf · away from raw material</td>
+          </tr>
+          <tr>
+            <td>Exit / entry</td>
+            <td>Staff in · goods out (P1)</td>
+            <td>4.00 × 0.95 m</td>
+            <td>Pedal handwash, apron wall, mat</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Separations</h3>
+      <ul>
+        <li>Dirty / wet (back) vs clean (front): packing and storage sit 1 cm higher.</li>
+        <li>1.20 m screen between transformation and packing; 50 cm clear around each machine.</li>
+        <li>Peel and cut has its own strip — not a corner of the sink.</li>
+        <li>Drying, milling and cooking share transformation; the recipe picks the technique.</li>
+      </ul>
+    </section>
+
+    <section id="drawings">
+      <p class="kicker">08 · Drawings</p>
+      <h2>Drawings suite (systematized plants)</h2>
+      <p>All views share doors/windows (P1, P2, V1, V2) and the same 4.0 × 5.5 m envelope.</p>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Original</h3>
+          <p>Cooperative sketch + keep / drop review against hygienic flow (stove not in packing; dehydrator indoors; six covered lights; slope and drains).</p>
+        </div>
+        <div class="card">
+          <h3>Zoning</h3>
+          <p>Interactive zone chips with role, do/don’t and separation notes for each strip.</p>
+        </div>
+        <div class="card">
+          <h3>Process</h3>
+          <p>Numbered path on the plan plus the seven-step narrative.</p>
+        </div>
+        <div class="card">
+          <h3>Equipment / 3D</h3>
+          <p>Plan symbols and an interactive 3D shed: orbit, zoom, pan; technique filters dim unused transform machines; click syncs the equipment selector.</p>
+        </div>
+        <div class="card">
+          <h3>Materials</h3>
+          <p>Partitions, raised packing floor, screen line toward transformation.</p>
+        </div>
+        <div class="card">
+          <h3>Technical</h3>
+          <p>Receptacles (NEMA, GFCI, circuits), lighting points, drains D1/D2, panel TAB and solar feed C7.</p>
+        </div>
+        <div class="card">
+          <h3>Water</h3>
+          <p>Blue potable network vs green rain network; first flush 40 L; 1,000 L tank; grease trap.</p>
+        </div>
+        <div class="card">
+          <h3>Energy</h3>
+          <p>Three 625 W modules (1.88 kWp), ~3 kW hybrid inverter at C7, no batteries in base design; ICE as backup.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="works">
+      <p class="kicker">09 · Works</p>
+      <h2>Works checklist (build-now items)</h2>
+      <p>Urgent items highlighted in the live guide while the shed is being built:</p>
+      <ul>
+        <li><strong>Sloped floor</strong> 1–2% toward drains (not flat).</li>
+        <li><strong>Two floor drains</strong> with pest screens (wet zone + near service sink).</li>
+        <li><strong>Second handwash</strong> at the front door (hands-free + paper).</li>
+        <li><strong>Six covered luminaires</strong> (IP65 class), not two bare bulbs.</li>
+        <li><strong>Conduit to the roof</strong> for solar before ceilings close.</li>
+      </ul>
+      <p>Additional checklist items: back-wall process sink, grease/solids traps, dry-zone electrical panel, potable water without cross-connection, washable surfaces, screened window, door sweeps, floor zone marks, chemicals niche, lidded waste exiting via the dirty route.</p>
+    </section>
+
+    <section id="legal">
+      <p class="kicker">10 · Permits</p>
+      <h2>Dota and Health permits</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Municipality of Dota</h3>
+          <p>Land use, building permit if required, municipal business license. Confirm small-scale food industry is allowed beside the collection center.</p>
+        </div>
+        <div class="card">
+          <h3>Los Santos Health Area</h3>
+          <p>Operating sanitary permit (PSF) before operations. Risk group under Decree 43432-S; drawings, sworn statement, Article 8 preconditions; processed-food GMP inspection sheet.</p>
+        </div>
+        <div class="card">
+          <h3>ICE and ASADA / AyA</h3>
+          <p>Real electrical load; consumption meter; generation meter if solar; potable water with chlorine records if treated on site.</p>
+        </div>
+        <div class="card">
+          <h3>Wastewater &amp; environment</h3>
+          <p>Pretreatment before discharge (grease trap, solids basket). Decree 33601-S-MINAE; SETENA only if a D1 applies — 22 m² is not an automatic waiver.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="gmp">
+      <p class="kicker">11 · GMP</p>
+      <h2>Good manufacturing practices</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>People flow</h3>
+          <p>Front door → pedal handwash and aprons → process. Product enters by the back door. Do not move from dirty to packing in the same apron or boots.</p>
+        </div>
+        <div class="card">
+          <h3>Product flow</h3>
+          <p>Collection center → receiving → wash → peel/cut → transform → pack → store → exit.</p>
+        </div>
+        <div class="card">
+          <h3>Hygiene</h3>
+          <p>Soap, short nails, hairnet, washable apron. Back sink = process; front sink = entry.</p>
+        </div>
+        <div class="card">
+          <h3>Records</h3>
+          <p>Daily cleaning, cook time/temperature, product moisture, water chlorine if dosed, incoming lots, trap cleaning.</p>
+        </div>
+        <div class="card">
+          <h3>Pests</h3>
+          <p>Screens, door sweeps, no food on the floor, no standing water.</p>
+        </div>
+        <div class="card">
+          <h3>Inspection focus</h3>
+          <p>Slope, water, hands at entry, wastewater, lighting; packing/storage higher; stove stays in transformation.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="water">
+      <p class="kicker">12 · Water</p>
+      <h2>Water &amp; wastewater</h2>
+      <div class="grid-3">
+        <div class="card">
+          <h3>1 · Blue (potable)</h3>
+          <p>AyA/ASADA for food, final rinse and handwash. Never crossed with rain (RTCA 5.3).</p>
+        </div>
+        <div class="card">
+          <h3>2 · Green (rain)</h3>
+          <p>22 m² roof → first flush 40 L → 1,000 L tank. Floors, dirty crates, outdoor sink, irrigation. Filtered, not potable.</p>
+        </div>
+        <div class="card">
+          <h3>3 · Out</h3>
+          <p>Sinks and floors → drains D1/D2 → solids basket → grease trap 50–100 L → authorized discharge. Never to the creek untreated.</p>
+        </div>
+      </div>
+      <p>Indicative capture: ~39,000 L/year possible from the roof at local rainfall; day-to-day storage is the 1,000 L tank.</p>
+    </section>
+
+    <section id="energy">
+      <p class="kicker">13 · Energy</p>
+      <h2>Solar &amp; electricity</h2>
+      <p>
+        Design on the published guide: <strong>three 625 W modules (1.88 kWp)</strong> on the 22 m² roof,
+        <strong>~3 kW hybrid inverter</strong> at panel circuit C7 (DC→AC), <strong>no batteries</strong> in the base design.
+        ICE 60 A service with bidirectional meter as backup for clouds/night. The industrial stove is gas.
+      </p>
+      <table>
+        <thead>
+          <tr>
+            <th>Load</th>
+            <th>W</th>
+            <th>h/day</th>
+            <th>kWh</th>
+            <th>Source (design)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Electric dehydrator</td><td>1200</td><td>5</td><td>6.0</td><td>Solar (day)</td></tr>
+          <tr><td>Mill</td><td>1100</td><td>1</td><td>1.1</td><td>Solar (day)</td></tr>
+          <tr><td>6 LEDs</td><td>108</td><td>6</td><td>0.6</td><td>Solar (day)</td></tr>
+          <tr><td>Sealer and table</td><td>300</td><td>2</td><td>0.6</td><td>Solar (day)</td></tr>
+          <tr><td>Rainwater pump</td><td>250</td><td>1</td><td>0.3</td><td>Solar (day)</td></tr>
+        </tbody>
+      </table>
+      <p>Indicative daytime yield ~5.9 kWh/day in Dota conditions for the three-module array. Separate circuits for lights, process receptacles, pump and solar reserve; grounding; do not feed the plant from an extension in the collection center.</p>
+    </section>
+
+    <section id="equipment">
+      <p class="kicker">14 · Equipment</p>
+      <h2>Equipment &amp; meters</h2>
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Specification (guide)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Process sink</td><td>Stainless, two bowls; potable; drain to D1</td></tr>
+          <tr><td>Receiving table</td><td>Steel; plastic crates; raw material never on the floor</td></tr>
+          <tr><td>Cutting table</td><td>Steel; peel/chop/portion; T2</td></tr>
+          <tr><td>Electric dehydrator</td><td>Indoor tray cabinet; 1.2 kW; T4 120 V</td></tr>
+          <tr><td>Mill</td><td>1–1.5 HP; dedicated T3 240 V 20 A</td></tr>
+          <tr><td>Industrial stove</td><td>Four burners; outdoor extractor; fat to grease trap</td></tr>
+          <tr><td>Moisture extractor</td><td>Duct outdoors with screen; air not toward packing</td></tr>
+          <tr><td>Packing table / sealer</td><td>540 lux; T6; lot and date</td></tr>
+          <tr><td>Finished-goods shelf</td><td>Apart from raw material</td></tr>
+          <tr><td>Apron wall / staff handwash</td><td>Entry barrier; pedal/knee/sensor; RTCA 5.4.3</td></tr>
+          <tr><td>Panel TAB</td><td>12 spaces, 60 A, 120/240 V, inverter C7</td></tr>
+          <tr><td>Outdoor sink / rain tank</td><td>Crates &amp; boots; green network; 1,000 L tank</td></tr>
+        </tbody>
+      </table>
+      <p>Project follow-up meters (water, electricity, product humidity): support Impulsa CR coaching; they do not replace the ICE fiscal meter.</p>
+    </section>
+
+    <section id="evidence">
+      <p class="kicker">15 · Evidence</p>
+      <h2>Live evidence &amp; URLs</h2>
+      <p>Published on the Rural Commerce production site:</p>
+      <ul>
+        <li>Project hub: <strong>https://ruralcommerceglobal.com/en/impulsacr</strong></li>
+        <li>Invite gate: <strong>https://ruralcommerceglobal.com/en/impulsacr/convite</strong></li>
+        <li>Plant guide (after invite): <strong>https://ruralcommerceglobal.com/en/impulsacr/planta</strong></li>
+        <li>Drawings: <strong>…/planta/croquis</strong></li>
+        <li>Works · Legal · GMP · Services · Equipment: sibling routes under <strong>…/planta/</strong></li>
+      </ul>
+      <p>Also available in Spanish and Portuguese (<code>/es/</code>, <code>/pt-BR/</code>) with the same structure.</p>
+      <div class="callout">
+        <strong>How to use this file.</strong>
+        <p>Attach this HTML or a PDF printout to project reports as evidence of the digital agro-industry plant system delivered by Rural Commerce for Impulsa CR. Keep engineering stamp sets and municipal submissions as separate formal packages.</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-brands">
+        <img class="rc" src="assets/ruralcommerce-logo.png" alt="Rural Commerce" />
+        <img class="im" src="assets/impulsacr-logo-header.png" alt="Impulsa CR" />
+      </div>
+      <div>
+        <div>Impulsa CR · Copey de Dota mini-biorefinery · System dossier (EN)</div>
+        <div>Rural Commerce · ruralcommerceglobal.com</div>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>
