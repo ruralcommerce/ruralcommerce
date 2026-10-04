@@ -34,6 +34,22 @@ export type DiagnosisExportDoc = {
   rows: Array<[string, string]>;
 };
 
+export type InscriptionExportDoc = {
+  id: string;
+  name: string;
+  email: string;
+  organization?: string;
+  createdAt?: string;
+  status?: string;
+  rows: Array<[string, string]>;
+  signature: {
+    signed: boolean;
+    fullName?: string;
+    signedAt?: string;
+    documentId?: string;
+  };
+};
+
 function escapeHtml(value: string) {
   return value
     .replace(/&/g, '&amp;')

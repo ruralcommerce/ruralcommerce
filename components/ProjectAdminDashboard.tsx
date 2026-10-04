@@ -36,7 +36,22 @@ import {
   triggerBrowserDownload,
   type BeneficiaryExportRow,
   type DiagnosisExportDoc,
+  type InscriptionExportDoc,
 } from '@/lib/project-export-documents';
+import {
+  buildLegacyAgreementDocumentId,
+  buildLegacyVerificationCode,
+  type SignedAgreementDocumentInput,
+} from '@/lib/project-agreement-document';
+import {
+  buildCompiledSignedAgreementsPdfBlob,
+  buildSignedAgreementPdfBlob,
+  buildSignedAgreementPdfFilename,
+} from '@/lib/project-agreement-pdf';
+import { buildCompiledDiagnosesPdfBlob } from '@/lib/project-diagnosis-pdf';
+import { buildCompiledInscriptionsPdfBlob } from '@/lib/project-inscription-pdf';
+import { buildCompiledProjectPackPdfBlob } from '@/lib/project-compiled-export-pdf';
+import { triggerPdfBlobDownload } from '@/lib/project-pdf-common';
 
 type EnrollmentRecord = {
   id: string;
@@ -79,6 +94,10 @@ type EnrollmentRecord = {
       signed?: boolean;
       signedAt?: string;
       fullName?: string;
+      locale?: string;
+      documentId?: string;
+      verificationCode?: string;
+      ip?: string;
     };
   };
 };
@@ -339,7 +358,19 @@ const uiCopy = {
     exportFilterDiagnosis: 'Diagnóstico',
     exportFilterTag: 'Etiqueta',
     exportListGroup: 'Lista de beneficiarios',
+    exportInscriptionGroup: 'Inscripciones',
     exportDiagnosisGroup: 'Diagnósticos',
+    exportConvenioGroup: 'Convenios firmados',
+    exportPackGroup: 'Expediente',
+    exportDiagnosesPdf: 'PDF compilado (una ficha por persona)',
+    exportInscriptionsPdf: 'PDF compilado (formulario + firma)',
+    exportConveniosPdf: 'PDF compilado (texto + firma)',
+    exportPackPdf: 'PDF único con inscripciones, convenios y diagnósticos',
+    exportGenerating: 'Generando PDF…',
+    exportNoConvenio: 'No hay convenios firmados en la selección o filtro actual.',
+    exportNoInscription: 'No hay inscripciones en la selección o filtro actual.',
+    exportNoPack: 'No hay inscripciones, convenios ni diagnósticos en la selección o filtro actual.',
+    downloadSignedConvenio: 'Descargar convenio firmado (PDF)',
     moreActions: 'Más',
     bulkActions: 'Acciones',
     openRecord: 'Abrir',
@@ -452,7 +483,19 @@ const uiCopy = {
     exportFilterDiagnosis: 'Diagnóstico',
     exportFilterTag: 'Etiqueta',
     exportListGroup: 'Lista de beneficiários',
+    exportInscriptionGroup: 'Inscrições',
     exportDiagnosisGroup: 'Diagnósticos',
+    exportConvenioGroup: 'Convênios assinados',
+    exportPackGroup: 'Expediente',
+    exportDiagnosesPdf: 'PDF compilado (uma ficha por pessoa)',
+    exportInscriptionsPdf: 'PDF compilado (formulário + assinatura)',
+    exportConveniosPdf: 'PDF compilado (texto + assinatura)',
+    exportPackPdf: 'PDF único com inscrições, convênios e diagnósticos',
+    exportGenerating: 'Gerando PDF…',
+    exportNoConvenio: 'Não há convênios assinados na seleção ou filtro atual.',
+    exportNoInscription: 'Não há inscrições na seleção ou filtro atual.',
+    exportNoPack: 'Não há inscrições, convênios nem diagnósticos na seleção ou filtro atual.',
+    downloadSignedConvenio: 'Baixar convênio assinado (PDF)',
     moreActions: 'Mais',
     bulkActions: 'Ações',
     openRecord: 'Abrir',
@@ -565,7 +608,19 @@ const uiCopy = {
     exportFilterDiagnosis: 'Diagnosis',
     exportFilterTag: 'Tag',
     exportListGroup: 'Beneficiary list',
+    exportInscriptionGroup: 'Registrations',
     exportDiagnosisGroup: 'Diagnoses',
+    exportConvenioGroup: 'Signed agreements',
+    exportPackGroup: 'Compiled file',
+    exportDiagnosesPdf: 'Compiled PDF (one sheet per person)',
+    exportInscriptionsPdf: 'Compiled PDF (form + signature)',
+    exportConveniosPdf: 'Compiled PDF (text + signature)',
+    exportPackPdf: 'Single PDF with registrations, agreements and diagnoses',
+    exportGenerating: 'Generating PDF…',
+    exportNoConvenio: 'No signed agreements in the current selection or filter.',
+    exportNoInscription: 'No registrations in the current selection or filter.',
+    exportNoPack: 'No registrations, agreements or diagnoses in the current selection or filter.',
+    downloadSignedConvenio: 'Download signed agreement (PDF)',
     moreActions: 'More',
     bulkActions: 'Actions',
     openRecord: 'Open',
@@ -661,6 +716,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [selectedRecord, setSelectedRecord] = useState<EnrollmentRecord | null>(null);
   const [selectedDiagnosisRecord, setSelectedDiagnosisRecord] = useState<EnrollmentRecord | null>(null);
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
+  const [exportBusy, setExportBusy] = useState(false);
   const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
   const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
@@ -672,6 +728,12 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const getDiagnosisRows = (record: EnrollmentRecord) =>
     getOrderedAnswerEntries(record.profile.diagnosis?.answers).map(([key, value]) => [
       getDiagnosisAnswerLabel(key, record.profile.diagnosis?.locale || record.profile.locale),
+      formatProjectAnswerValue(value, localeKey),
+    ]) as Array<[string, string]>;
+
+  const getInscriptionRows = (record: EnrollmentRecord) =>
+    getOrderedAnswerEntries(record.profile.answers).map(([key, value]) => [
+      getInscriptionAnswerLabel(key, record.profile.locale),
       formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
 
@@ -890,6 +952,52 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         rows: getDiagnosisRows(record),
       }));
 
+  const toAgreementInputs = (source: EnrollmentRecord[]): SignedAgreementDocumentInput[] =>
+    source
+      .filter((record) => record.profile.agreement?.signed === true)
+      .map((record) => {
+        const agreement = record.profile.agreement;
+        const signedName = agreement?.fullName || record.profile.name || record.user.email || t.participantFallback;
+        return {
+          candidateId: record.id,
+          fullName: signedName,
+          email: record.user.email || record.profile.email || '',
+          organization: record.profile.organization,
+          signedAt: agreement?.signedAt || record.updatedAt,
+          locale: agreement?.locale || record.profile.locale || localeKey,
+          documentId: agreement?.documentId || buildLegacyAgreementDocumentId(record.id, agreement?.signedAt),
+          verificationCode:
+            agreement?.verificationCode ||
+            buildLegacyVerificationCode(record.id, agreement?.signedAt, agreement?.fullName),
+          ipAddress: agreement?.ip,
+        };
+      });
+
+  const toInscriptionDocs = (source: EnrollmentRecord[]): InscriptionExportDoc[] =>
+    source.map((record) => {
+      const agreement = record.profile.agreement;
+      const signed = agreement?.signed === true;
+      return {
+        id: record.id,
+        name: record.profile.name || t.participantFallback,
+        email: record.user.email || record.profile.email || '',
+        organization: record.profile.organization || '',
+        createdAt: formatProjectDate(record.createdAt, localeKey),
+        status: getProjectStatusLabel(record.status, localeKey),
+        rows: getInscriptionRows(record),
+        signature: {
+          signed,
+          fullName: signed
+            ? agreement?.fullName || record.profile.name || record.user.email || t.participantFallback
+            : undefined,
+          signedAt: signed && agreement?.signedAt ? formatProjectDate(agreement.signedAt, localeKey) : undefined,
+          documentId: signed
+            ? agreement?.documentId || buildLegacyAgreementDocumentId(record.id, agreement?.signedAt)
+            : undefined,
+        },
+      };
+    });
+
   const downloadListExcel = () => {
     const rows = toBeneficiaryRows(exportSourceRecords);
     triggerBrowserDownload(
@@ -976,8 +1084,124 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     downloadDiagnosesExcel([record]);
   };
 
-  const downloadDiagnosisPdf = (record: EnrollmentRecord) => {
-    printDiagnoses([record]);
+  const downloadDiagnosisPdf = async (record: EnrollmentRecord) => {
+    const docs = toDiagnosisDocs([record]);
+    if (!docs.length) return;
+    setExportBusy(true);
+    try {
+      const blob = await buildCompiledDiagnosesPdfBlob({
+        locale: localeKey,
+        docs,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+        cover: false,
+      });
+      triggerPdfBlobDownload(blob, `diagnostico-${record.id}.pdf`);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const downloadCompiledDiagnosesPdf = async (source?: EnrollmentRecord[]) => {
+    const docs = toDiagnosisDocs(source || exportSourceRecords);
+    if (!docs.length) {
+      window.alert(t.exportNoDiagnosis);
+      return;
+    }
+    setExportBusy(true);
+    setExportMenuOpen(false);
+    try {
+      const blob = await buildCompiledDiagnosesPdfBlob({
+        locale: localeKey,
+        docs,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+        filterSummary,
+      });
+      triggerPdfBlobDownload(blob, `diagnosticos-completos-${stamp()}.pdf`);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const downloadCompiledConveniosPdf = async () => {
+    const inputs = toAgreementInputs(exportSourceRecords);
+    if (!inputs.length) {
+      window.alert(t.exportNoConvenio);
+      return;
+    }
+    setExportBusy(true);
+    setExportMenuOpen(false);
+    try {
+      const blob = await buildCompiledSignedAgreementsPdfBlob({
+        locale: localeKey,
+        inputs,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+        filterSummary,
+      });
+      triggerPdfBlobDownload(blob, `convenios-firmados-${stamp()}.pdf`);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const downloadCompiledInscriptionsPdf = async () => {
+    const docs = toInscriptionDocs(exportSourceRecords);
+    if (!docs.length) {
+      window.alert(t.exportNoInscription);
+      return;
+    }
+    setExportBusy(true);
+    setExportMenuOpen(false);
+    try {
+      const blob = await buildCompiledInscriptionsPdfBlob({
+        locale: localeKey,
+        docs,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+        filterSummary,
+      });
+      triggerPdfBlobDownload(blob, `inscripciones-${stamp()}.pdf`);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const downloadCompiledPackPdf = async () => {
+    const inscriptions = toInscriptionDocs(exportSourceRecords);
+    const agreements = toAgreementInputs(exportSourceRecords);
+    const diagnoses = toDiagnosisDocs(exportSourceRecords);
+    if (!inscriptions.length && !agreements.length && !diagnoses.length) {
+      window.alert(t.exportNoPack);
+      return;
+    }
+    setExportBusy(true);
+    setExportMenuOpen(false);
+    try {
+      const blob = await buildCompiledProjectPackPdfBlob({
+        locale: localeKey,
+        inscriptions,
+        agreements,
+        diagnoses,
+        generatedAtLabel: formatProjectDate(new Date().toISOString(), localeKey),
+        filterSummary,
+      });
+      triggerPdfBlobDownload(blob, `expediente-completo-${stamp()}.pdf`);
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const downloadSignedConvenioPdf = async (record: EnrollmentRecord) => {
+    const [input] = toAgreementInputs([record]);
+    if (!input) {
+      window.alert(t.exportNoConvenio);
+      return;
+    }
+    setExportBusy(true);
+    try {
+      const blob = await buildSignedAgreementPdfBlob(input);
+      triggerPdfBlobDownload(blob, buildSignedAgreementPdfFilename(input.fullName, input.locale || localeKey));
+    } finally {
+      setExportBusy(false);
+    }
   };
 
   const downloadDiagnosisWord = (record: EnrollmentRecord) => {
@@ -1422,14 +1646,18 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 setBulkMenuOpen(false);
                 setExportMenuOpen((open) => !open);
               }}
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#D9E3EC] bg-white text-[#071F5E] hover:bg-[#F7FAFB]"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#D9E3EC] bg-white text-[#071F5E] hover:bg-[#F7FAFB] disabled:opacity-60"
+              disabled={exportBusy}
               aria-label={t.exportEyebrow}
               title={t.exportEyebrow}
             >
               <Download size={17} />
             </button>
             {exportMenuOpen ? (
-              <div className="absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-2xl border border-[#E6EBF1] bg-white py-2 shadow-lg">
+              <div className="absolute right-0 z-30 mt-2 w-80 overflow-hidden rounded-2xl border border-[#E6EBF1] bg-white py-2 shadow-lg">
+                {exportBusy ? (
+                  <p className="px-4 py-2 text-sm text-[#1D6359]">{t.exportGenerating}</p>
+                ) : null}
                 <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
                   {t.exportListGroup}
                 </p>
@@ -1465,8 +1693,30 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 </button>
                 <div className="my-2 border-t border-[#E6EBF1]" />
                 <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
+                  {t.exportInscriptionGroup}
+                </p>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    void downloadCompiledInscriptionsPdf();
+                  }}
+                >
+                  {t.exportInscriptionsPdf}
+                </button>
+                <div className="my-2 border-t border-[#E6EBF1]" />
+                <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
                   {t.exportDiagnosisGroup}
                 </p>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    void downloadCompiledDiagnosesPdf();
+                  }}
+                >
+                  {t.exportDiagnosesPdf}
+                </button>
                 <button
                   type="button"
                   className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
@@ -1496,6 +1746,32 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   }}
                 >
                   {t.exportDiagnosesCsv}
+                </button>
+                <div className="my-2 border-t border-[#E6EBF1]" />
+                <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
+                  {t.exportConvenioGroup}
+                </p>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    void downloadCompiledConveniosPdf();
+                  }}
+                >
+                  {t.exportConveniosPdf}
+                </button>
+                <div className="my-2 border-t border-[#E6EBF1]" />
+                <p className="px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#1D6359]">
+                  {t.exportPackGroup}
+                </p>
+                <button
+                  type="button"
+                  className="block w-full px-4 py-2 text-left text-sm text-[#071F5E] hover:bg-[#F7FAFB]"
+                  onClick={() => {
+                    void downloadCompiledPackPdf();
+                  }}
+                >
+                  {t.exportPackPdf}
                 </button>
               </div>
             ) : null}
@@ -1913,15 +2189,25 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 ) : null}
                 <p className="mt-1 text-sm text-[#2F3336]/75">{selectedRecord.user.email}</p>
                 {selectedRecord.profile.agreement?.signed ? (
-                  <p className="mt-1 text-sm text-[#1D6359]">
-                    {t.convenioSignedBadge}
-                    {selectedRecord.profile.agreement.fullName
-                      ? ` · ${selectedRecord.profile.agreement.fullName}`
-                      : ''}
-                    {selectedRecord.profile.agreement.signedAt
-                      ? ` · ${formatProjectDate(selectedRecord.profile.agreement.signedAt, localeKey)}`
-                      : ''}
-                  </p>
+                  <>
+                    <p className="mt-1 text-sm text-[#1D6359]">
+                      {t.convenioSignedBadge}
+                      {selectedRecord.profile.agreement.fullName
+                        ? ` · ${selectedRecord.profile.agreement.fullName}`
+                        : ''}
+                      {selectedRecord.profile.agreement.signedAt
+                        ? ` · ${formatProjectDate(selectedRecord.profile.agreement.signedAt, localeKey)}`
+                        : ''}
+                    </p>
+                    <button
+                      type="button"
+                      disabled={exportBusy}
+                      onClick={() => void downloadSignedConvenioPdf(selectedRecord)}
+                      className="mt-2 rounded-full border border-[#D9E3EC] px-3 py-1.5 text-xs font-semibold text-[#071F5E] disabled:opacity-60"
+                    >
+                      {exportBusy ? t.exportGenerating : t.downloadSignedConvenio}
+                    </button>
+                  </>
                 ) : null}
               </div>
               <button
@@ -1978,7 +2264,8 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => downloadDiagnosisPdf(selectedDiagnosisRecord)}
+                  disabled={exportBusy}
+                  onClick={() => void downloadDiagnosisPdf(selectedDiagnosisRecord)}
                   className="rounded-full border border-[#D9E3EC] px-3 py-1.5 text-xs font-semibold text-[#071F5E]"
                 >
                   PDF / Print

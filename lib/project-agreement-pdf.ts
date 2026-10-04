@@ -1,23 +1,15 @@
 import { jsPDF } from 'jspdf';
 import { getProjectAgreementCopy, type ProjectAgreementLocaleKey } from '@/lib/project-agreement-copy';
-import {
-  PROJECT_EXECUTOR,
-  PROJECT_LOGO_PATH,
-  PROJECT_NAME,
-  RURAL_COMMERCE_LOGO_WHITE_PATH,
-  RURAL_COMMERCE_TAGLINE,
-} from '@/lib/project-brand';
+import { PROJECT_EXECUTOR, PROJECT_NAME, RURAL_COMMERCE_TAGLINE } from '@/lib/project-brand';
 import { formatProjectDate } from '@/lib/project-locale';
 import type { SignedAgreementDocumentInput } from '@/lib/project-agreement-document';
-
-const COLORS = {
-  navy: [6, 31, 91] as [number, number, number],
-  teal: [35, 184, 181] as [number, number, number],
-  text: [51, 51, 51] as [number, number, number],
-  muted: [102, 102, 102] as [number, number, number],
-  panel: [239, 250, 250] as [number, number, number],
-  footer: [32, 32, 32] as [number, number, number],
-};
+import {
+  PROJECT_PDF_COLORS as COLORS,
+  drawProjectPdfCover,
+  loadProjectPdfLogos,
+  yieldToUi,
+  type ProjectPdfLogos,
+} from '@/lib/project-pdf-common';
 
 function getLocaleKey(locale?: string): ProjectAgreementLocaleKey {
   return locale === 'pt-BR' || locale === 'en' ? locale : 'es';
@@ -102,18 +94,6 @@ const labels: Record<
   },
 };
 
-async function loadImageDataUrl(path: string) {
-  const response = await fetch(path);
-  if (!response.ok) throw new Error('logo-load-failed');
-  const blob = await response.blob();
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
 function formatSignedDateTime(value: string | undefined, locale: ProjectAgreementLocaleKey) {
   if (!value) return '—';
   const date = new Date(value);
@@ -144,21 +124,21 @@ function ensureSpace(doc: jsPDF, y: number, needed: number) {
   return 24;
 }
 
-export async function buildSignedAgreementPdfBlob(input: SignedAgreementDocumentInput) {
+export function renderSignedAgreementPdf(
+  doc: jsPDF,
+  input: SignedAgreementDocumentInput,
+  logos: ProjectPdfLogos
+) {
   const localeKey = getLocaleKey(input.locale);
   const agreement = getProjectAgreementCopy(localeKey);
   const t = labels[localeKey];
-  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageWidth = doc.internal.pageSize.getWidth();
-
-  const [rcLogo, projectLogo] = await Promise.all([
-    loadImageDataUrl(RURAL_COMMERCE_LOGO_WHITE_PATH),
-    loadImageDataUrl(PROJECT_LOGO_PATH),
-  ]);
+  const rcLogo = logos.rcLogo;
+  const projectLogo = logos.projectLogo;
 
   doc.setFillColor(...COLORS.navy);
   doc.rect(0, 0, pageWidth, 42, 'F');
-  doc.addImage(rcLogo, 'PNG', 16, 10, 34, 10);
+  if (rcLogo) doc.addImage(rcLogo, 'PNG', 16, 10, 34, 10);
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8);
@@ -275,16 +255,16 @@ export async function buildSignedAgreementPdfBlob(input: SignedAgreementDocument
   doc.text(formatSignedDateTime(input.signedAt, localeKey), 14, y);
 
   y = ensureSpace(doc, y, 28);
-  doc.addImage(projectLogo, 'PNG', 14, y, 24, 24);
+  if (projectLogo) doc.addImage(projectLogo, 'PNG', 14, y, 24, 24);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(9);
   doc.setTextColor(...COLORS.navy);
-  doc.text(t.traceabilityTitle, 42, y + 4);
+  doc.text(t.traceabilityTitle, projectLogo ? 42 : 14, y + 4);
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(...COLORS.muted);
-  const traceLines = doc.splitTextToSize(t.traceabilityText, pageWidth - 56);
-  doc.text(traceLines, 42, y + 10);
+  const traceLines = doc.splitTextToSize(t.traceabilityText, pageWidth - (projectLogo ? 56 : 28));
+  doc.text(traceLines, projectLogo ? 42 : 14, y + 10);
 
   const footerY = doc.internal.pageSize.getHeight() - 12;
   doc.setFillColor(...COLORS.footer);
@@ -295,6 +275,67 @@ export async function buildSignedAgreementPdfBlob(input: SignedAgreementDocument
   doc.text(`${PROJECT_NAME} · ${PROJECT_EXECUTOR}`, 14, footerY);
   doc.text(RURAL_COMMERCE_TAGLINE, 14, footerY + 4);
   doc.text(t.electronicNote, 14, footerY + 8);
+}
+
+export async function buildSignedAgreementPdfBlob(input: SignedAgreementDocumentInput) {
+  const logos = await loadProjectPdfLogos();
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  renderSignedAgreementPdf(doc, input, logos);
+  return doc.output('blob');
+}
+
+export async function buildCompiledSignedAgreementsPdfBlob(options: {
+  locale?: string;
+  inputs: SignedAgreementDocumentInput[];
+  generatedAtLabel: string;
+  filterSummary?: string;
+}) {
+  const logos = await loadProjectPdfLogos();
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const localeKey = getLocaleKey(options.locale);
+  const t = labels[localeKey];
+  const coverLines =
+    localeKey === 'pt-BR'
+      ? [
+          `Gerado em: ${options.generatedAtLabel}`,
+          options.filterSummary ? `Filtros: ${options.filterSummary}` : '',
+          `Total: ${options.inputs.length}`,
+        ]
+      : localeKey === 'en'
+        ? [
+            `Generated on: ${options.generatedAtLabel}`,
+            options.filterSummary ? `Filters: ${options.filterSummary}` : '',
+            `Total: ${options.inputs.length}`,
+          ]
+        : [
+            `Generado el: ${options.generatedAtLabel}`,
+            options.filterSummary ? `Filtros: ${options.filterSummary}` : '',
+            `Total: ${options.inputs.length}`,
+          ];
+
+  drawProjectPdfCover(doc, {
+    officialNotice: t.officialNotice,
+    title:
+      localeKey === 'pt-BR'
+        ? 'Convênios firmados — compilação'
+        : localeKey === 'en'
+          ? 'Signed agreements — compilation'
+          : 'Convenios firmados — compilación',
+    subtitle:
+      localeKey === 'pt-BR'
+        ? 'Cada convênio inclui o texto integral e a assinatura eletrônica registrada.'
+        : localeKey === 'en'
+          ? 'Each agreement includes the full text and the recorded electronic signature.'
+          : 'Cada convenio incluye el texto completo y la firma electrónica registrada.',
+    lines: coverLines.filter(Boolean),
+    logos,
+  });
+
+  for (const input of options.inputs) {
+    doc.addPage();
+    renderSignedAgreementPdf(doc, input, logos);
+    await yieldToUi();
+  }
 
   return doc.output('blob');
 }
