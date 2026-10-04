@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { ScrollText } from 'lucide-react';
 import { mapProjectApiMessage } from '@/lib/project-locale';
+import { getProjectSexOptions, type ProjectSex } from '@/lib/project-sex';
 
 type LocaleKey = 'es' | 'pt-BR' | 'en';
 
@@ -14,6 +15,9 @@ const formCopy = {
   es: {
     q1: 'Nombre del emprendimiento, finca o empresa',
     q2: 'Nombre completo de la persona representante',
+    sexLabel: 'Sexo / tipo de representante',
+    sexPlaceholder: 'Seleccione una opción',
+    sexRequired: 'Seleccione el sexo o tipo de representante.',
     q3: 'Teléfono / WhatsApp de contacto',
     q4: 'Correo electrónico',
     q5: 'Ubicación exacta (Cantón y Distrito dentro de la Región de Los Santos)',
@@ -65,6 +69,9 @@ const formCopy = {
   'pt-BR': {
     q1: 'Nome do empreendimento, fazenda ou empresa',
     q2: 'Nome completo da pessoa representante',
+    sexLabel: 'Sexo / tipo de representante',
+    sexPlaceholder: 'Selecione uma opção',
+    sexRequired: 'Selecione o sexo ou tipo de representante.',
     q3: 'Telefone / WhatsApp de contato',
     q4: 'Endereço de e-mail',
     q5: 'Localização exata (Cantão e Distrito na Região de Los Santos)',
@@ -116,6 +123,9 @@ const formCopy = {
   en: {
     q1: 'Name of the venture, farm or company',
     q2: 'Full name of the representative',
+    sexLabel: 'Sex / representative type',
+    sexPlaceholder: 'Select an option',
+    sexRequired: 'Select the sex or representative type.',
     q3: 'Phone / WhatsApp contact',
     q4: 'Email address',
     q5: 'Exact location (Canton and District within the Los Santos Region)',
@@ -167,14 +177,14 @@ const formCopy = {
 } as const;
 
 type FormData = {
-  q1: string; q2: string; q3: string; q4: string; q5: string;
+  q1: string; q2: string; sex: ProjectSex | ''; q3: string; q4: string; q5: string;
   q6: string; q7: string; q8: string; q9: string[];
   q10: string; q11: string; q12: number; q13: string; q14: string;
   q15: string; password: string; passwordConfirm: string;
 };
 
 const emptyForm = (): FormData => ({
-  q1: '', q2: '', q3: '', q4: '', q5: '',
+  q1: '', q2: '', sex: '', q3: '', q4: '', q5: '',
   q6: '', q7: '', q8: '', q9: [],
   q10: '', q11: '', q12: 0, q13: '', q14: '',
   q15: '', password: '', passwordConfirm: '',
@@ -231,7 +241,9 @@ export function ProjectEnrollmentForm({
   nextStepsTitle,
   nextSteps,
 }: ProjectEnrollmentFormProps) {
-  const t = formCopy[getLocaleKey(locale)];
+  const localeKey = getLocaleKey(locale);
+  const t = formCopy[localeKey];
+  const sexOptions = getProjectSexOptions(localeKey);
   const [form, setForm] = useState<FormData>(emptyForm());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -253,6 +265,10 @@ export function ProjectEnrollmentForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!form.sex) {
+      setError(t.sexRequired);
+      return;
+    }
     if (form.password !== form.passwordConfirm) {
       setError(t.passwordMismatch);
       return;
@@ -275,6 +291,7 @@ export function ProjectEnrollmentForm({
           phone: form.q3,
           organization: form.q1,
           city: form.q5,
+          sex: form.sex,
           role: locale === 'en' ? 'Legal representative' : locale === 'pt-BR' ? 'Representante legal' : 'Representante legal',
           interest: form.q7,
           message: form.q15,
@@ -320,6 +337,11 @@ export function ProjectEnrollmentForm({
               : t.sectionCommitment;
 
   function goNext() {
+    if (currentStep === 1 && !form.sex) {
+      setError(t.sexRequired);
+      return;
+    }
+    setError('');
     setCurrentStep((value) => Math.min(value + 1, totalSteps - 1));
   }
 
@@ -375,18 +397,34 @@ export function ProjectEnrollmentForm({
               <input required value={form.q2} onChange={(e) => set('q2', e.target.value)} className={`mt-1 ${inputCls}`} />
             </label>
           </div>
+          <label className="block">
+            <span className="block text-sm font-medium text-[#071F5E]">3. {t.sexLabel}</span>
+            <select
+              required
+              value={form.sex}
+              onChange={(e) => set('sex', e.target.value as ProjectSex | '')}
+              className={`mt-1 ${inputCls}`}
+            >
+              <option value="">{t.sexPlaceholder}</option>
+              {sexOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
           <div className="grid gap-2.5 sm:grid-cols-2">
             <label className="block">
-              <span className="block text-sm font-medium text-[#071F5E]">3. {t.q3}</span>
+              <span className="block text-sm font-medium text-[#071F5E]">4. {t.q3}</span>
               <input value={form.q3} onChange={(e) => set('q3', e.target.value)} className={`mt-1 ${inputCls}`} />
             </label>
             <label className="block">
-              <span className="block text-sm font-medium text-[#071F5E]">4. {t.q4}</span>
+              <span className="block text-sm font-medium text-[#071F5E]">5. {t.q4}</span>
               <input type="email" required value={form.q4} onChange={(e) => set('q4', e.target.value)} className={`mt-1 ${inputCls}`} />
             </label>
           </div>
           <label className="block">
-            <span className="block text-sm font-medium text-[#071F5E]">5. {t.q5}</span>
+            <span className="block text-sm font-medium text-[#071F5E]">6. {t.q5}</span>
             <input value={form.q5} onChange={(e) => set('q5', e.target.value)} className={`mt-1 ${inputCls}`} />
           </label>
         </div>
@@ -397,7 +435,7 @@ export function ProjectEnrollmentForm({
       return (
         <div className={panelCls}>
           <fieldset>
-            <legend className={legendCls}>6. {t.q6}</legend>
+            <legend className={legendCls}>7. {t.q6}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {t.q6opts.map((opt) => (
                 <Radio key={opt} name="q6" value={opt} checked={form.q6 === opt} onChange={(v) => set('q6', v)} label={opt} />
@@ -405,7 +443,7 @@ export function ProjectEnrollmentForm({
             </div>
           </fieldset>
           <label className="block">
-            <span className="block text-sm font-medium text-[#071F5E]">7. {t.q7}</span>
+            <span className="block text-sm font-medium text-[#071F5E]">8. {t.q7}</span>
             <textarea rows={2} value={form.q7} onChange={(e) => set('q7', e.target.value)} className={`mt-1 ${inputCls} resize-none`} />
           </label>
         </div>
@@ -416,7 +454,7 @@ export function ProjectEnrollmentForm({
       return (
         <div className={panelCls}>
           <fieldset>
-            <legend className={legendCls}>8. {t.q8}</legend>
+            <legend className={legendCls}>9. {t.q8}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {t.q8opts.map((opt) => (
                 <Radio key={opt} name="q8" value={opt} checked={form.q8 === opt} onChange={(v) => set('q8', v)} label={opt} />
@@ -431,7 +469,7 @@ export function ProjectEnrollmentForm({
       return (
         <div className={panelCls}>
           <fieldset>
-            <legend className={legendCls}>9. {t.q9}</legend>
+            <legend className={legendCls}>10. {t.q9}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {t.q9opts.map((opt) => (
                 <Checkbox key={opt} value={opt} checked={form.q9.includes(opt)} onChange={toggleCheck} label={opt} />
@@ -439,7 +477,7 @@ export function ProjectEnrollmentForm({
             </div>
           </fieldset>
           <fieldset>
-            <legend className={legendCls}>10. {t.q10}</legend>
+            <legend className={legendCls}>11. {t.q10}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {t.q10opts.map((opt) => (
                 <Radio key={opt} name="q10" value={opt} checked={form.q10 === opt} onChange={(v) => set('q10', v)} label={opt} />
@@ -454,7 +492,7 @@ export function ProjectEnrollmentForm({
       return (
         <div className={panelCls}>
           <fieldset>
-            <legend className={legendCls}>11. {t.q11}</legend>
+            <legend className={legendCls}>12. {t.q11}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {t.q11opts.map((opt) => (
                 <Radio key={opt} name="q11" value={opt} checked={form.q11 === opt} onChange={(v) => set('q11', v)} label={opt} />
@@ -462,7 +500,7 @@ export function ProjectEnrollmentForm({
             </div>
           </fieldset>
           <fieldset>
-            <legend className={legendCls}>12. {t.q12}</legend>
+            <legend className={legendCls}>13. {t.q12}</legend>
             <div className="flex flex-wrap items-center gap-2.5">
               <span className="text-xs text-[#2F3336]/60">{t.q12low}</span>
               {[1, 2, 3, 4, 5].map((n) => (
@@ -482,7 +520,7 @@ export function ProjectEnrollmentForm({
             </div>
           </fieldset>
           <fieldset>
-            <legend className={legendCls}>13. {t.q13}</legend>
+            <legend className={legendCls}>14. {t.q13}</legend>
             <select required value={form.q13} onChange={(e) => set('q13', e.target.value)} className={inputCls}>
               <option value="" disabled>
                 {t.q13SelectPlaceholder}
@@ -502,7 +540,7 @@ export function ProjectEnrollmentForm({
       return (
         <div className={panelCls}>
           <fieldset>
-            <legend className={legendCls}>14. {t.q14}</legend>
+            <legend className={legendCls}>15. {t.q14}</legend>
             <div className="grid gap-2 sm:grid-cols-2">
               {t.q14opts.map((opt) => (
                 <Radio key={opt} name="q14" value={opt} checked={form.q14 === opt} onChange={(v) => set('q14', v)} label={opt} />
@@ -510,7 +548,7 @@ export function ProjectEnrollmentForm({
             </div>
           </fieldset>
           <label className="block">
-            <span className="block text-sm font-medium text-[#071F5E]">15. {t.q15}</span>
+            <span className="block text-sm font-medium text-[#071F5E]">16. {t.q15}</span>
             <textarea rows={2} required value={form.q15} onChange={(e) => set('q15', e.target.value)} className={`mt-1 ${inputCls} resize-none`} />
           </label>
         </div>

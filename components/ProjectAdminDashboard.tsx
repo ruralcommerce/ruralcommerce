@@ -26,6 +26,13 @@ import {
 } from '@/lib/project-team-tags';
 import { getProjectPageTitle } from '@/lib/project-nav';
 import {
+  getProjectSexLabel,
+  getProjectSexOptions,
+  isProjectSex,
+  type ProjectSex,
+  type ProjectSexFilter,
+} from '@/lib/project-sex';
+import {
   buildBeneficiaryListCsv,
   buildBeneficiaryListExcelHtml,
   buildBeneficiaryListPrintHtml,
@@ -72,6 +79,7 @@ type EnrollmentRecord = {
     organization?: string;
     cooperative?: string;
     city?: string;
+    sex?: ProjectSex | null;
     role?: string;
     interest?: string;
     message?: string;
@@ -285,6 +293,11 @@ const uiCopy = {
     filterConvenioAll: 'Todos los convenios',
     filterConvenioSigned: 'Convenio firmado',
     filterConvenioPending: 'Convenio pendiente',
+    filterSexLabel: 'Sexo',
+    filterSexAll: 'Todos los sexos',
+    filterSexUnknown: 'Sin sexo',
+    sexUnknown: 'Sin sexo',
+    exportFilterSex: 'Sexo',
     filterDiagnosisLabel: 'Diagnóstico',
     filterDiagnosisAll: 'Todos los diagnósticos',
     filterDiagnosisDone: 'Diagnóstico enviado',
@@ -410,6 +423,11 @@ const uiCopy = {
     filterConvenioAll: 'Todos os convênios',
     filterConvenioSigned: 'Convênio assinado',
     filterConvenioPending: 'Convênio pendente',
+    filterSexLabel: 'Sexo',
+    filterSexAll: 'Todos os sexos',
+    filterSexUnknown: 'Sem sexo',
+    sexUnknown: 'Sem sexo',
+    exportFilterSex: 'Sexo',
     filterDiagnosisLabel: 'Diagnóstico',
     filterDiagnosisAll: 'Todos os diagnósticos',
     filterDiagnosisDone: 'Diagnóstico enviado',
@@ -535,6 +553,11 @@ const uiCopy = {
     filterConvenioAll: 'All agreements',
     filterConvenioSigned: 'Agreement signed',
     filterConvenioPending: 'Agreement pending',
+    filterSexLabel: 'Sex',
+    filterSexAll: 'All sexes',
+    filterSexUnknown: 'No sex set',
+    sexUnknown: 'No sex set',
+    exportFilterSex: 'Sex',
     filterDiagnosisLabel: 'Diagnosis',
     filterDiagnosisAll: 'All diagnoses',
     filterDiagnosisDone: 'Diagnosis submitted',
@@ -703,6 +726,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [filter, setFilter] = useState('all');
   const [convenioFilter, setConvenioFilter] = useState<'all' | 'signed' | 'pending'>('all');
   const [diagnosisFilter, setDiagnosisFilter] = useState<'all' | 'done' | 'pending'>('all');
+  const [sexFilter, setSexFilter] = useState<ProjectSexFilter>('all');
   const [tagFilter, setTagFilter] = useState<ProjectTeamTagFilter>('all');
   const [bulkTag, setBulkTag] = useState<'' | ProjectTeamTag | 'none'>('');
   const [section, setSection] = useState<AdminSection>('hub');
@@ -731,11 +755,17 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
 
-  const getInscriptionRows = (record: EnrollmentRecord) =>
-    getOrderedAnswerEntries(record.profile.answers).map(([key, value]) => [
+  const getInscriptionRows = (record: EnrollmentRecord) => {
+    const sexLabel = t.filterSexLabel;
+    const sexValue = isProjectSex(record.profile.sex)
+      ? getProjectSexLabel(record.profile.sex, record.profile.locale || localeKey)
+      : t.sexUnknown;
+    const answerRows = getOrderedAnswerEntries(record.profile.answers).map(([key, value]) => [
       getInscriptionAnswerLabel(key, record.profile.locale),
       formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
+    return [[sexLabel, sexValue], ...answerRows];
+  };
 
   async function authenticateTeam() {
     setLoading(true);
@@ -850,9 +880,13 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       if (tagFilter === 'none' && tag) return false;
       if (tagFilter !== 'all' && tagFilter !== 'none' && tag !== tagFilter) return false;
 
+      const sex = isProjectSex(record.profile.sex) ? record.profile.sex : null;
+      if (sexFilter === 'unknown' && sex) return false;
+      if (sexFilter !== 'all' && sexFilter !== 'unknown' && sex !== sexFilter) return false;
+
       return true;
     });
-  }, [convenioFilter, diagnosisFilter, filter, records, tagFilter]);
+  }, [convenioFilter, diagnosisFilter, filter, records, sexFilter, tagFilter]);
 
   const allFilteredSelected =
     filteredRecords.length > 0 && filteredRecords.every((record) => selectedIds.has(record.id));
@@ -861,12 +895,14 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     (filter !== 'all' ? 1 : 0) +
     (convenioFilter !== 'all' ? 1 : 0) +
     (diagnosisFilter !== 'all' ? 1 : 0) +
+    (sexFilter !== 'all' ? 1 : 0) +
     (tagFilter !== 'all' ? 1 : 0);
 
   const clearAllFilters = () => {
     setFilter('all');
     setConvenioFilter('all');
     setDiagnosisFilter('all');
+    setSexFilter('all');
     setTagFilter('all');
   };
 
@@ -907,13 +943,20 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
         }`
       );
     }
+    if (sexFilter !== 'all') {
+      parts.push(
+        `${t.exportFilterSex}: ${
+          sexFilter === 'unknown' ? t.filterSexUnknown : getProjectSexLabel(sexFilter, localeKey)
+        }`
+      );
+    }
     if (tagFilter !== 'all') {
       parts.push(
         `${t.exportFilterTag}: ${tagFilter === 'none' ? t.filterTagNone : getProjectTeamTagLabel(tagFilter)}`
       );
     }
     return parts.length ? parts.join(' · ') : t.exportFilterAll;
-  }, [convenioFilter, diagnosisFilter, filter, t, tagFilter]);
+  }, [convenioFilter, diagnosisFilter, filter, localeKey, sexFilter, t, tagFilter]);
 
   const exportSourceRecords = useMemo(() => {
     if (selectedIds.size > 0) {
@@ -930,6 +973,9 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       phone: record.profile.phone || '',
       organization: record.profile.organization || '',
       city: record.profile.city || '',
+      sex: isProjectSex(record.profile.sex)
+        ? getProjectSexLabel(record.profile.sex, localeKey)
+        : t.sexUnknown,
       status: getProjectStatusLabel(record.status, localeKey),
       tag: record.teamTag ? getProjectTeamTagLabel(record.teamTag) : t.tagNone,
       convenio: record.profile.agreement?.signed ? t.convenioSignedBadge : t.convenioPendingBadge,
@@ -1610,6 +1656,22 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   </select>
                 </label>
                 <label className="flex flex-col gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
+                  {t.filterSexLabel}
+                  <select
+                    value={sexFilter}
+                    onChange={(e) => setSexFilter(e.target.value as ProjectSexFilter)}
+                    className="h-9 w-full rounded-xl border border-[#D9E3EC] bg-white px-3 text-sm font-medium normal-case tracking-normal text-[#071F5E]"
+                  >
+                    <option value="all">{t.filterSexAll}</option>
+                    {getProjectSexOptions(localeKey).map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                    <option value="unknown">{t.filterSexUnknown}</option>
+                  </select>
+                </label>
+                <label className="flex flex-col gap-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#2F3336]/55">
                   {t.filterTagLabel}
                   <select
                     value={tagFilter}
@@ -1974,6 +2036,11 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                 <div className="flex flex-wrap items-center gap-1.5 sm:max-w-[40%] sm:justify-end">
                   <span className="rounded-full bg-[#EEF7F7] px-2 py-0.5 text-[11px] font-semibold text-[#1D6359]">
                     {getProjectStatusLabel(record.status, localeKey)}
+                  </span>
+                  <span className="rounded-full bg-[#F3F0FF] px-2 py-0.5 text-[11px] font-semibold text-[#4C3A8C]">
+                    {isProjectSex(record.profile.sex)
+                      ? getProjectSexLabel(record.profile.sex, localeKey)
+                      : t.sexUnknown}
                   </span>
                   {record.teamTag ? (
                     <span

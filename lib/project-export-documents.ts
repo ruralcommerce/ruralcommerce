@@ -17,6 +17,7 @@ export type BeneficiaryExportRow = {
   phone: string;
   organization: string;
   city: string;
+  sex: string;
   status: string;
   tag: string;
   convenio: string;
@@ -84,6 +85,7 @@ const copy: Record<
       phone: string;
       organization: string;
       city: string;
+      sex: string;
       status: string;
       tag: string;
       convenio: string;
@@ -113,6 +115,7 @@ const copy: Record<
       phone: 'Teléfono',
       organization: 'Organización',
       city: 'Ciudad / ubicación',
+      sex: 'Sexo',
       status: 'Estado',
       tag: 'Etiqueta',
       convenio: 'Convenio',
@@ -141,6 +144,7 @@ const copy: Record<
       phone: 'Telefone',
       organization: 'Organização',
       city: 'Cidade / localização',
+      sex: 'Sexo',
       status: 'Status',
       tag: 'Etiqueta',
       convenio: 'Convênio',
@@ -169,6 +173,7 @@ const copy: Record<
       phone: 'Phone',
       organization: 'Organization',
       city: 'City / location',
+      sex: 'Sex',
       status: 'Status',
       tag: 'Tag',
       convenio: 'Agreement',
@@ -283,6 +288,7 @@ export function buildBeneficiaryListPrintHtml(options: {
       <td>${escapeHtml(row.phone)}</td>
       <td>${escapeHtml(row.organization)}</td>
       <td>${escapeHtml(row.city)}</td>
+      <td>${escapeHtml(row.sex)}</td>
       <td>${escapeHtml(row.status)}</td>
       <td>${escapeHtml(row.tag)}</td>
       <td>${escapeHtml(row.convenio)}</td>
@@ -301,6 +307,7 @@ export function buildBeneficiaryListPrintHtml(options: {
           <th>${escapeHtml(cols.phone)}</th>
           <th>${escapeHtml(cols.organization)}</th>
           <th>${escapeHtml(cols.city)}</th>
+          <th>${escapeHtml(cols.sex)}</th>
           <th>${escapeHtml(cols.status)}</th>
           <th>${escapeHtml(cols.tag)}</th>
           <th>${escapeHtml(cols.convenio)}</th>
@@ -308,7 +315,7 @@ export function buildBeneficiaryListPrintHtml(options: {
           <th>${escapeHtml(cols.createdAt)}</th>
         </tr>
       </thead>
-      <tbody>${bodyRows || `<tr><td colspan="10">—</td></tr>`}</tbody>
+      <tbody>${bodyRows || `<tr><td colspan="11">—</td></tr>`}</tbody>
     </table>`;
 
   return brandedShell({
@@ -386,6 +393,7 @@ export function buildBeneficiaryListCsv(options: {
     cols.phone,
     cols.organization,
     cols.city,
+    cols.sex,
     cols.status,
     cols.tag,
     cols.convenio,
@@ -403,6 +411,7 @@ export function buildBeneficiaryListCsv(options: {
       row.phone,
       row.organization,
       row.city,
+      row.sex,
       row.status,
       row.tag,
       row.convenio,
@@ -431,6 +440,7 @@ export function buildBeneficiaryListExcelHtml(options: {
     cols.phone,
     cols.organization,
     cols.city,
+    cols.sex,
     cols.status,
     cols.tag,
     cols.convenio,
@@ -449,6 +459,7 @@ export function buildBeneficiaryListExcelHtml(options: {
       <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.phone)}</td>
       <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.organization)}</td>
       <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.city)}</td>
+      <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.sex)}</td>
       <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.status)}</td>
       <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.tag)}</td>
       <td style="border:1px solid #d9e3ec;padding:8px;">${escapeHtml(row.convenio)}</td>

@@ -4,6 +4,7 @@ import { randomBytes, scryptSync } from 'crypto';
 import path from 'path';
 import { notifyNewProjectInscription } from '@/lib/project-inscription-notify';
 import { verifyTeamAccess } from '@/lib/project-team-auth-request';
+import { normalizeProjectSex } from '@/lib/project-sex';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -90,11 +91,16 @@ export async function POST(request: Request) {
   const interest = trimField(body.interest, MAX.interest);
   const message = trimField(body.message, MAX.message);
   const password = trimField(body.password, MAX.password);
+  const sex = normalizeProjectSex(body.sex);
   const answers =
     typeof body.answers === 'object' && body.answers !== null ? body.answers : null;
 
   if (!name || !email || !message) {
     return NextResponse.json({ ok: false, message: 'Nome, e-mail e mensagem são obrigatórios.' }, { status: 400 });
+  }
+
+  if (!sex) {
+    return NextResponse.json({ ok: false, message: 'Sexo / tipo de representante é obrigatório.' }, { status: 400 });
   }
 
   if (!password || password.length < 6) {
@@ -126,6 +132,7 @@ export async function POST(request: Request) {
       phone,
       organization,
       city,
+      sex,
       role,
       interest,
       message,
