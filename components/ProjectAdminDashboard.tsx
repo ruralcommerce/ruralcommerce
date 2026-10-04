@@ -755,7 +755,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
 
-  const getInscriptionRows = (record: EnrollmentRecord) => {
+  const getInscriptionRows = (record: EnrollmentRecord): Array<[string, string]> => {
     const sexLabel = t.filterSexLabel;
     const sexValue = isProjectSex(record.profile.sex)
       ? getProjectSexLabel(record.profile.sex, record.profile.locale || localeKey)
@@ -764,7 +764,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       getInscriptionAnswerLabel(key, record.profile.locale),
       formatProjectAnswerValue(value, localeKey),
     ]) as Array<[string, string]>;
-    return [[sexLabel, sexValue], ...answerRows];
+    return [[sexLabel, sexValue] as [string, string], ...answerRows];
   };
 
   async function authenticateTeam() {
