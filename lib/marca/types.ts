@@ -133,28 +133,28 @@ export const MARCA_PALETTE_META: Record<
     labelPt: 'Paleta sóbria',
     blurbEs: 'Elegancia, contraste y sofisticación',
     blurbPt: 'Elegância, contraste e sofisticação',
-    colors: ['#1A1D21', '#2F3336', '#5A6168', '#A8ADB2', '#E8E4DC'],
+    colors: ['#162D20', '#0D2735', '#4E0C09', '#C7AA8B', '#C6AA8A'],
   },
   terroso: {
     labelEs: 'Paleta terrosa',
     labelPt: 'Paleta terrosa',
     blurbEs: 'Calidez, origen, natural y cercanía',
     blurbPt: 'Calor, origem, natural e proximidade',
-    colors: ['#8B6914', '#C4A574', '#5C4033', '#D4C4A8', '#3D2914'],
+    colors: ['#92381D', '#BC6B36', '#D3AD85', '#867C51', '#F3E4D0'],
   },
   vibrante: {
     labelEs: 'Paleta vibrante',
     labelPt: 'Paleta vibrante',
     blurbEs: 'Energía, frescura y alto impacto visual',
     blurbPt: 'Energia, frescor e alto impacto visual',
-    colors: ['#FFBE54', '#E85D04', '#EF5D36', '#2A9D8F', '#31442B'],
+    colors: ['#FABE24', '#F47A19', '#F25542', '#0C7878', '#5A8054'],
   },
   pastel: {
     labelEs: 'Paleta pastel',
     labelPt: 'Paleta pastel',
     blurbEs: 'Suavidad, delicadeza y cercanía',
     blurbPt: 'Suavidade, delicadeza e proximidade',
-    colors: ['#E8D5D0', '#F0C9B0', '#C9D5C4', '#A8B5C4', '#D8C4E0'],
+    colors: ['#CD8072', '#F1A887', '#93A990', '#A5B9C5', '#DAC8DF'],
   },
 };
 

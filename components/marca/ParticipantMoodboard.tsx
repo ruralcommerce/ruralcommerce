@@ -289,7 +289,11 @@ function SummaryPage({
                 </p>
                 <div className="mt-2 flex gap-1.5">
                   {meta.colors.map((c) => (
-                    <span key={c} className="size-3 rounded-full border border-black/10 sm:size-4" style={{ background: c }} />
+                    <span
+                      key={c}
+                      className="inline-block h-5 w-5 shrink-0 rounded-full border border-black/10 sm:h-6 sm:w-6"
+                      style={{ backgroundColor: c }}
+                    />
                   ))}
                 </div>
               </div>

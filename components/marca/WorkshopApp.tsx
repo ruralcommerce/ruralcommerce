@@ -318,13 +318,18 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={src} alt="" className="h-full w-full object-cover" />
                   </div>
-                  <div className="px-3 pb-3 pt-2.5">
-                    <div className="flex justify-center gap-1.5">
-                      {meta.colors.map((c) => (
-                        <span key={c} className="size-4 rounded-full border border-black/10 sm:size-5" style={{ background: c }} />
-                      ))}
+                  <div className="px-3 pb-3 pt-3">
+                    <div className="flex justify-center">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/images/marca/ui/swatch-${tone}.svg`}
+                        alt=""
+                        width={169}
+                        height={29}
+                        className="h-[29px] w-[169px] max-w-full"
+                      />
                     </div>
-                    <p className="mt-2 text-center text-sm font-medium sm:text-[17px]">
+                    <p className="mt-2.5 text-center text-sm font-medium sm:text-[17px]">
                       {pt ? meta.labelPt : meta.labelEs}
                     </p>
                     <button
