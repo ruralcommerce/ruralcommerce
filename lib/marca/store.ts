@@ -145,7 +145,16 @@ export async function saveParticipantResponse(
   patch: Partial<
     Pick<
       MarcaParticipant,
-      'votes' | 'sectionPicks' | 'words' | 'freeText' | 'audioDataUrl' | 'customer' | 'specialMeaning' | 'completedAt'
+      | 'votes'
+      | 'sectionPicks'
+      | 'paletteTones'
+      | 'styleImageIds'
+      | 'words'
+      | 'freeText'
+      | 'audioDataUrl'
+      | 'customer'
+      | 'specialMeaning'
+      | 'completedAt'
     >
   >
 ): Promise<MarcaParticipant | null> {
@@ -165,6 +174,8 @@ export async function saveParticipantResponse(
     sectionPicks: patch.sectionPicks
       ? { ...(current.sectionPicks || {}), ...patch.sectionPicks }
       : current.sectionPicks || {},
+    paletteTones: patch.paletteTones !== undefined ? patch.paletteTones.slice(0, 2) : current.paletteTones,
+    styleImageIds: patch.styleImageIds !== undefined ? patch.styleImageIds : current.styleImageIds,
     words: patch.words
       ? {
           selected: patch.words.selected ?? current.words?.selected ?? [],

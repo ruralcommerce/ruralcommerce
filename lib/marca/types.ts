@@ -45,6 +45,10 @@ export type MarcaParticipant = {
   /** @deprecated kept for old responses */
   votes: Record<string, 'no' | 'neutral' | 'yes'>;
   sectionPicks: MarcaSectionPicks;
+  /** Figma flow: up to 2 palette tones */
+  paletteTones?: string[];
+  /** Figma flow: multi-select visual style image ids */
+  styleImageIds?: string[];
   words: MarcaWords;
   freeText: string;
   /** data URL or public path for short audio note */
@@ -119,6 +123,40 @@ export type MarcaPublicWorkshop = {
 };
 
 export const MARCA_TONES: MarcaTone[] = ['pastel', 'sobrio', 'terroso', 'vibrante'];
+
+export const MARCA_PALETTE_META: Record<
+  MarcaTone,
+  { labelEs: string; labelPt: string; blurbEs: string; blurbPt: string; colors: string[] }
+> = {
+  sobrio: {
+    labelEs: 'Paleta sobria',
+    labelPt: 'Paleta sóbria',
+    blurbEs: 'Elegancia, contraste y sofisticación',
+    blurbPt: 'Elegância, contraste e sofisticação',
+    colors: ['#1A1D21', '#2F3336', '#5A6168', '#A8ADB2', '#E8E4DC'],
+  },
+  terroso: {
+    labelEs: 'Paleta terrosa',
+    labelPt: 'Paleta terrosa',
+    blurbEs: 'Calidez, origen, natural y cercanía',
+    blurbPt: 'Calor, origem, natural e proximidade',
+    colors: ['#8B6914', '#C4A574', '#5C4033', '#D4C4A8', '#3D2914'],
+  },
+  vibrante: {
+    labelEs: 'Paleta vibrante',
+    labelPt: 'Paleta vibrante',
+    blurbEs: 'Energía, frescura y alto impacto visual',
+    blurbPt: 'Energia, frescor e alto impacto visual',
+    colors: ['#FFBE54', '#E85D04', '#EF5D36', '#2A9D8F', '#31442B'],
+  },
+  pastel: {
+    labelEs: 'Paleta pastel',
+    labelPt: 'Paleta pastel',
+    blurbEs: 'Suavidad, delicadeza y cercanía',
+    blurbPt: 'Suavidade, delicadeza e proximidade',
+    colors: ['#E8D5D0', '#F0C9B0', '#C9D5C4', '#A8B5C4', '#D8C4E0'],
+  },
+};
 
 export const MARCA_SECTIONS: { id: MarcaSection; labelEs: string; labelPt: string; hintEs: string; hintPt: string }[] = [
   {

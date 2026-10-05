@@ -26,5 +26,7 @@ public/images/marca/*
 !public/images/marca/.gitkeep
 !public/images/marca/library/
 !public/images/marca/library/**
+!public/images/marca/ui/
+!public/images/marca/ui/**
 tmp/
 client_secret*.json

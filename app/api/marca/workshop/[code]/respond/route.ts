@@ -10,6 +10,8 @@ export async function POST(request: Request, { params }: Params) {
   const body = (await request.json().catch(() => ({}))) as {
     participantId?: string;
     sectionPicks?: MarcaSectionPicks;
+    paletteTones?: string[];
+    styleImageIds?: string[];
     words?: Partial<MarcaWords>;
     freeText?: string;
     audioDataUrl?: string;
@@ -24,6 +26,8 @@ export async function POST(request: Request, { params }: Params) {
 
   const participant = await saveParticipantResponse(params.code, body.participantId, {
     sectionPicks: body.sectionPicks,
+    paletteTones: body.paletteTones,
+    styleImageIds: body.styleImageIds,
     words: body.words
       ? {
           selected: body.words.selected || [],

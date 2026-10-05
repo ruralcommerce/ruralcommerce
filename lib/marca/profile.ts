@@ -36,6 +36,14 @@ export function computeVisualProfile(contract: MarcaContract, images: MarcaImage
   for (const section of sections) {
     const counts = new Map<string, number>();
     for (const p of contract.participants) {
+      if (section === 'palette' && p.paletteTones?.length) {
+        for (const tone of p.paletteTones) {
+          const t = tone.toString();
+          counts.set(t, (counts.get(t) || 0) + 1);
+          toneTotals.set(t, (toneTotals.get(t) || 0) + 1);
+        }
+        continue;
+      }
       const pickId = p.sectionPicks?.[section];
       if (!pickId) continue;
       imagePickCount.set(pickId, (imagePickCount.get(pickId) || 0) + 1);
@@ -47,6 +55,15 @@ export function computeVisualProfile(contract: MarcaContract, images: MarcaImage
     bySection[section] = [...counts.entries()]
       .map(([tone, count]) => ({ tone, count }))
       .sort((a, b) => b.count - a.count);
+  }
+
+  for (const p of contract.participants) {
+    for (const id of p.styleImageIds || []) {
+      imagePickCount.set(id, (imagePickCount.get(id) || 0) + 1);
+      const img = byId.get(id);
+      const tone = (img?.tone || img?.tags?.[0] || '').toString();
+      if (tone) toneTotals.set(tone, (toneTotals.get(tone) || 0) + 1);
+    }
   }
 
   const rankedTones = [...toneTotals.entries()].sort((a, b) => b[1] - a[1]);
@@ -83,7 +100,13 @@ export function computeVisualProfile(contract: MarcaContract, images: MarcaImage
   return {
     contractId: contract.id,
     participantCount: contract.participants.length,
-    completedCount: contract.participants.filter((p) => p.completedAt || Object.keys(p.sectionPicks || {}).length > 0).length,
+    completedCount: contract.participants.filter(
+      (p) =>
+        p.completedAt ||
+        Object.keys(p.sectionPicks || {}).length > 0 ||
+        (p.paletteTones && p.paletteTones.length > 0) ||
+        (p.styleImageIds && p.styleImageIds.length > 0)
+    ).length,
     bySection,
     strong,
     moderate,

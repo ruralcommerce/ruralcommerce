@@ -1028,8 +1028,8 @@
 /* Print only the marca moodboard collage (not the whole intranet page) */
 @media print {
   @page {
-    size: landscape;
-    margin: 6mm;
+    size: auto;
+    margin: 8mm;
   }
 
   body.printing-marca-moodboard * {
@@ -1037,7 +1037,9 @@
   }
 
   body.printing-marca-moodboard .marca-moodboard-sheet,
-  body.printing-marca-moodboard .marca-moodboard-sheet * {
+  body.printing-marca-moodboard .marca-moodboard-sheet *,
+  body.printing-marca-moodboard .marca-moodboard-print-stack,
+  body.printing-marca-moodboard .marca-moodboard-print-stack * {
     visibility: visible !important;
   }
 
@@ -1046,20 +1048,39 @@
     visibility: hidden !important;
   }
 
+  body.printing-marca-moodboard .marca-moodboard-print-stack {
+    position: static !important;
+    left: auto !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+  }
+
+  body.printing-marca-moodboard #marca-participant-moodboard {
+    display: none !important;
+  }
+
   body.printing-marca-moodboard .marca-moodboard-sheet {
-    position: fixed !important;
-    inset: 0 !important;
+    position: relative !important;
+    inset: auto !important;
     width: 100% !important;
+    max-width: 190mm !important;
     height: auto !important;
-    max-height: 100vh !important;
-    aspect-ratio: 16 / 10 !important;
-    margin: 0 !important;
+    max-height: none !important;
+    aspect-ratio: 850 / 978 !important;
+    margin: 0 auto 8mm !important;
     border: none !important;
     border-radius: 0 !important;
     box-shadow: none !important;
+    page-break-after: always;
+    break-after: page;
     z-index: 99999 !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+  }
+
+  body.printing-marca-moodboard .marca-moodboard-print-stack .marca-moodboard-sheet:last-child {
+    page-break-after: auto;
+    break-after: auto;
   }
 }

@@ -39,12 +39,14 @@ function TagList({ label, items, tone }: { label: string; items: string[]; tone:
 function ParticipantMoodCard({
   name,
   picks,
+  tones,
   words,
   freeText,
   imageById,
 }: {
   name: string;
   picks: string[];
+  tones?: string[];
   words: string[];
   freeText?: string;
   imageById: Record<string, MarcaImage>;
@@ -56,6 +58,9 @@ function ParticipantMoodCard({
         <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-accent)]">
           Moodboard individual
         </p>
+        {tones?.length ? (
+          <p className="mt-1 text-[11px] text-[var(--rc-text)]/65">Paletas: {tones.join(', ')}</p>
+        ) : null}
       </div>
       {picks.length ? (
         <div className="grid grid-cols-3 gap-0.5 bg-[#EEF3F7]">
@@ -241,7 +246,11 @@ export function MarcaProfileReport({
               <ParticipantMoodCard
                 key={p.id}
                 name={p.name}
-                picks={Object.values(p.sectionPicks || {}).filter(Boolean) as string[]}
+                picks={[
+                  ...Object.values(p.sectionPicks || {}).filter(Boolean),
+                  ...(p.styleImageIds || []),
+                ].filter((v, i, a) => a.indexOf(v) === i) as string[]}
+                tones={p.paletteTones || []}
                 words={p.words?.selected || []}
                 freeText={p.freeText}
                 imageById={imageById}

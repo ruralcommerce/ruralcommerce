@@ -42,6 +42,9 @@ function voteCount(contract: MarcaContract, imageId: string): number {
     for (const id of Object.values(p.sectionPicks || {})) {
       if (id === imageId) n += 1;
     }
+    for (const id of p.styleImageIds || []) {
+      if (id === imageId) n += 1;
+    }
   }
   return n;
 }
@@ -54,6 +57,14 @@ function pickSectionWinner(
   const byId = new Map(images.map((img) => [img.id, img]));
   const counts = new Map<string, number>();
   for (const p of contract.participants) {
+    if (section === 'logo' || section === 'packaging') {
+      for (const id of p.styleImageIds || []) {
+        const img = byId.get(id);
+        if (!img) continue;
+        if (img.section && img.section !== section) continue;
+        counts.set(id, (counts.get(id) || 0) + 1);
+      }
+    }
     const id = p.sectionPicks?.[section];
     if (!id) continue;
     counts.set(id, (counts.get(id) || 0) + 1);
@@ -82,14 +93,26 @@ export function rankTonesFromVotes(
   const allCounts = new Map<string, number>();
 
   for (const p of contract.participants) {
-    const paletteId = p.sectionPicks?.palette;
-    if (paletteId) {
-      const tone = (byId.get(paletteId)?.tone || 'outro').toString();
-      paletteCounts.set(tone, (paletteCounts.get(tone) || 0) + 1);
+    if (p.paletteTones?.length) {
+      for (const tone of p.paletteTones) {
+        const t = tone.toString();
+        paletteCounts.set(t, (paletteCounts.get(t) || 0) + 1);
+        allCounts.set(t, (allCounts.get(t) || 0) + 1);
+      }
+    } else {
+      const paletteId = p.sectionPicks?.palette;
+      if (paletteId) {
+        const tone = (byId.get(paletteId)?.tone || 'outro').toString();
+        paletteCounts.set(tone, (paletteCounts.get(tone) || 0) + 1);
+      }
     }
     for (const section of ['palette', 'logo', 'packaging'] as MarcaSection[]) {
       const id = p.sectionPicks?.[section];
       if (!id) continue;
+      const tone = (byId.get(id)?.tone || 'outro').toString();
+      allCounts.set(tone, (allCounts.get(tone) || 0) + 1);
+    }
+    for (const id of p.styleImageIds || []) {
       const tone = (byId.get(id)?.tone || 'outro').toString();
       allCounts.set(tone, (allCounts.get(tone) || 0) + 1);
     }
@@ -242,6 +265,19 @@ export function buildFinalWorkshopMoodboard(
         alt: img.alt,
         tone: img.tone,
         section,
+        votes: voteCount(contract, img.id),
+      });
+    }
+    for (const id of p.styleImageIds || []) {
+      if (ordered.find((t) => t.id === id)) continue;
+      const img = byId.get(id);
+      if (!img) continue;
+      ordered.push({
+        id: img.id,
+        src: img.src,
+        alt: img.alt,
+        tone: img.tone,
+        section: img.section,
         votes: voteCount(contract, img.id),
       });
     }
