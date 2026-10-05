@@ -596,10 +596,25 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                 >
                   {img.src ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img.src} alt={img.alt} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="h-full w-full" style={{ background: img.moodColor || '#071F5E' }} />
-                  )}
+                    <img
+                      src={img.src}
+                      alt={img.alt}
+                      className="h-full w-full object-cover"
+                      onError={(e) => {
+                        const el = e.currentTarget;
+                        el.style.display = 'none';
+                        const fallback = el.nextElementSibling as HTMLElement | null;
+                        if (fallback) fallback.style.display = 'block';
+                      }}
+                    />
+                  ) : null}
+                  <div
+                    className="h-full w-full"
+                    style={{
+                      display: img.src ? 'none' : 'block',
+                      background: img.moodColor || '#DDE3EA',
+                    }}
+                  />
                   <span
                     className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-md ${
                       on
