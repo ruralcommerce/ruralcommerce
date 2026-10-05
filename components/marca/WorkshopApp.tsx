@@ -14,6 +14,65 @@ type Step = 'intro' | 'name' | 'colors' | 'estilo' | 'result';
 
 const PALETTE_ORDER: MarcaTone[] = ['sobrio', 'terroso', 'vibrante', 'pastel'];
 
+type SavedSession = {
+  participantId: string;
+  name: string;
+  step: Step;
+  paletteTones: string[];
+  styleImageIds: string[];
+  completedAt?: string | null;
+};
+
+function sessionKey(code: string) {
+  return `marca-oficina:${code.trim().toUpperCase()}`;
+}
+
+function loadSession(code: string): SavedSession | null {
+  if (typeof window === 'undefined') return null;
+  try {
+    const raw = localStorage.getItem(sessionKey(code));
+    if (!raw) return null;
+    const data = JSON.parse(raw) as SavedSession;
+    if (!data?.participantId || !data?.name) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
+function saveSession(code: string, data: SavedSession) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(sessionKey(code), JSON.stringify(data));
+  } catch {
+    // ignore quota
+  }
+}
+
+function clearSession(code: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(sessionKey(code));
+  } catch {
+    // ignore
+  }
+}
+
+function inferStep(data: {
+  completedAt?: string | null;
+  paletteTones?: string[];
+  styleImageIds?: string[];
+  savedStep?: Step;
+}): Step {
+  if (data.completedAt) return 'result';
+  if (data.savedStep === 'result' || data.savedStep === 'estilo' || data.savedStep === 'colors') {
+    return data.savedStep;
+  }
+  if (data.styleImageIds?.length) return 'estilo';
+  if (data.paletteTones?.length) return 'estilo';
+  return 'colors';
+}
+
 function isPt(locale: string) {
   return locale === 'pt-BR';
 }
@@ -92,6 +151,15 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
   const [participantId, setParticipantId] = useState('');
   const [paletteTones, setPaletteTones] = useState<string[]>([]);
   const [styleImageIds, setStyleImageIds] = useState<string[]>([]);
+  const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [forceNew, setForceNew] = useState(false);
+
+  useEffect(() => {
+    setSavedSession(loadSession(code));
+    setHydrated(true);
+  }, [code]);
 
   useEffect(() => {
     void (async () => {
@@ -105,6 +173,18 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     })();
   }, [code, pt]);
 
+  useEffect(() => {
+    if (!participantId || !name) return;
+    saveSession(code, {
+      participantId,
+      name,
+      step,
+      paletteTones,
+      styleImageIds,
+      completedAt: step === 'result' ? new Date().toISOString() : null,
+    });
+  }, [code, participantId, name, step, paletteTones, styleImageIds]);
+
   const persist = useCallback(
     async (patch: Record<string, unknown>) => {
       if (!participantId) return;
@@ -117,20 +197,93 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     [code, participantId]
   );
 
-  async function joinAndContinue() {
-    if (!name.trim()) return;
-    const res = await fetch(`/api/marca/workshop/${encodeURIComponent(code)}/join`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: name.trim() }),
-    });
-    if (!res.ok) {
-      setLoadError(pt ? 'Não foi possível entrar.' : 'No se pudo entrar.');
-      return;
-    }
-    const data = (await res.json()) as { participantId: string };
+  function applyParticipant(data: {
+    participantId: string;
+    name: string;
+    paletteTones?: string[];
+    styleImageIds?: string[];
+    completedAt?: string | null;
+    stepHint?: Step;
+  }) {
     setParticipantId(data.participantId);
-    setStep('colors');
+    setName(data.name);
+    setPaletteTones(data.paletteTones || []);
+    setStyleImageIds(data.styleImageIds || []);
+    const nextStep = inferStep({
+      completedAt: data.completedAt,
+      paletteTones: data.paletteTones,
+      styleImageIds: data.styleImageIds,
+      savedStep: data.stepHint,
+    });
+    setStep(nextStep);
+  }
+
+  async function joinAndContinue(opts?: { forceNew?: boolean; fromSession?: SavedSession }) {
+    const session = opts?.fromSession;
+    const joinName = (session?.name || name).trim();
+    if (!joinName && !session?.participantId) return;
+    const shouldForceNew = Boolean(opts?.forceNew || (!session && forceNew));
+    setJoining(true);
+    setLoadError('');
+    try {
+      const res = await fetch(`/api/marca/workshop/${encodeURIComponent(code)}/join`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: joinName,
+          forceNew: shouldForceNew,
+          participantId: shouldForceNew ? undefined : session?.participantId,
+        }),
+      });
+      if (!res.ok) {
+        setLoadError(pt ? 'Não foi possível entrar.' : 'No se pudo entrar.');
+        return;
+      }
+      const data = (await res.json()) as {
+        participantId: string;
+        name: string;
+        resumed?: boolean;
+        paletteTones?: string[];
+        styleImageIds?: string[];
+        completedAt?: string | null;
+      };
+      applyParticipant({
+        participantId: data.participantId,
+        name: data.name || joinName,
+        paletteTones: shouldForceNew
+          ? []
+          : data.paletteTones?.length
+            ? data.paletteTones
+            : session?.paletteTones,
+        styleImageIds: shouldForceNew
+          ? []
+          : data.styleImageIds?.length
+            ? data.styleImageIds
+            : session?.styleImageIds,
+        completedAt: shouldForceNew ? null : data.completedAt || session?.completedAt,
+        stepHint: shouldForceNew ? 'colors' : session?.step,
+      });
+      setForceNew(false);
+      setSavedSession(null);
+    } finally {
+      setJoining(false);
+    }
+  }
+
+  function startFresh() {
+    clearSession(code);
+    setSavedSession(null);
+    setParticipantId('');
+    setPaletteTones([]);
+    setStyleImageIds([]);
+    setName('');
+    setForceNew(true);
+    setStep('name');
+  }
+
+  async function continueSaved() {
+    if (!savedSession) return;
+    await joinAndContinue({ fromSession: savedSession });
   }
 
   function toggleTone(tone: MarcaTone) {
@@ -147,12 +300,32 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
 
   const styleImages = useMemo(() => {
     if (!workshop) return [] as MarcaPublicImage[];
-    const logo = workshop.sections?.logo || [];
-    const pack = workshop.sections?.packaging || [];
-    const merged = [...logo, ...pack];
-    if (merged.length >= 8) return merged.slice(0, 20);
-    const extras = workshop.images.filter((img) => !merged.some((m) => m.id === img.id));
-    return [...merged, ...extras].slice(0, 20);
+    const STYLE_CAP = 60;
+    const isStyleSection = (section?: string) =>
+      section === 'logo' || section === 'packaging' || !section;
+
+    const pool = (workshop.images || []).filter(
+      (img) => img.section !== 'palette' && isStyleSection(img.section)
+    );
+    // If catalog has few tagged logo/packaging, fall back to all non-palette images
+    const source =
+      pool.length >= 12
+        ? pool
+        : (workshop.images || []).filter((img) => img.section !== 'palette');
+
+    const byId = new Set<string>();
+    const bySrc = new Set<string>();
+    const unique: MarcaPublicImage[] = [];
+    for (const img of source) {
+      if (!img?.id || byId.has(img.id)) continue;
+      const srcKey = (img.src || '').trim().toLowerCase();
+      if (srcKey && bySrc.has(srcKey)) continue;
+      byId.add(img.id);
+      if (srcKey) bySrc.add(srcKey);
+      unique.push(img);
+      if (unique.length >= STYLE_CAP) break;
+    }
+    return unique;
   }, [workshop]);
 
   const selectedStyleImages = useMemo(
@@ -238,14 +411,36 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                 ? 'Escolham o que mais representa o negócio e a marca que querem construir. Pensem no que querem comunicar e a quem querem chegar.'
                 : 'Elijan lo que más represente su negocio y la marca que quieren construir. Piensen en qué quieren comunicar y a quién quieren llegar.'}
             </p>
-            <button
-              type="button"
-              onClick={() => setStep('name')}
-              className="mt-8 inline-flex min-h-[66px] w-full max-w-[328px] items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2]"
-            >
-              {pt ? 'Começar a dinâmica' : 'Comenzar la dinámica'}
-              <ArrowIcon />
-            </button>
+            {hydrated && savedSession ? (
+              <div className="mt-8 flex w-full max-w-[360px] flex-col gap-3">
+                <button
+                  type="button"
+                  disabled={joining}
+                  onClick={() => void continueSaved()}
+                  className="inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-50"
+                >
+                  {`Continuar como ${savedSession.name}`}
+                  <ArrowIcon />
+                </button>
+                <button
+                  type="button"
+                  disabled={joining}
+                  onClick={startFresh}
+                  className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-[#071F5E]/30 bg-white/80 px-5 text-sm font-bold text-[#071F5E]"
+                >
+                  {pt ? 'Começar de novo' : 'Empezar de nuevo'}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setStep('name')}
+                className="mt-8 inline-flex min-h-[66px] w-full max-w-[328px] items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2]"
+              >
+                {pt ? 'Começar a dinâmica' : 'Comenzar la dinámica'}
+                <ArrowIcon />
+              </button>
+            )}
           </div>
         </div>
       ) : null}
@@ -260,8 +455,8 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           </h2>
           <p className="mt-3 text-[15px] text-[#071F5E] sm:text-[17px]">
             {pt
-              ? 'Usaremos seu nome para identificar suas respostas.'
-              : 'Usaremos tu nombre para identificar tus respuestas.'}
+              ? 'Usaremos seu nome para identificar suas respostas. Se já começou, use o mesmo nome para continuar.'
+              : 'Usaremos tu nombre para identificar tus respuestas. Si ya empezaste, usa el mismo nombre para continuar.'}
           </p>
           <input
             className="mt-8 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm text-[#071F5E] placeholder:text-[#72777A]/50"
@@ -276,12 +471,19 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           />
           <button
             type="button"
-            disabled={!name.trim()}
+            disabled={!name.trim() || joining}
             onClick={() => void joinAndContinue()}
             className="mt-4 inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-40"
           >
-            {pt ? 'Continuar' : 'Continuar'}
+            {joining ? (pt ? 'Entrando…' : 'Entrando…') : pt ? 'Continuar' : 'Continuar'}
             <ArrowIcon />
+          </button>
+          <button
+            type="button"
+            className="mt-3 text-sm font-semibold text-[#071F5E]/60 underline-offset-2 hover:underline"
+            onClick={() => setStep('intro')}
+          >
+            {pt ? 'Voltar' : 'Volver'}
           </button>
         </div>
       ) : null}
@@ -377,7 +579,10 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
             </p>
           </div>
 
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-5">
+          <p className="mt-2 shrink-0 text-center text-xs text-[#071F5E]/55">
+            {styleImages.length} {pt ? 'referências' : 'referencias'}
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4 md:grid-cols-5">
             {styleImages.map((img) => {
               const on = styleImageIds.includes(img.id);
               return (
@@ -385,7 +590,9 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                   key={img.id}
                   type="button"
                   onClick={() => toggleStyle(img.id)}
-                  className="group relative aspect-square overflow-hidden rounded-[15px] bg-[#EEF3F7]"
+                  className={`group relative aspect-square overflow-hidden rounded-[15px] bg-[#EEF3F7] ring-2 transition ${
+                    on ? 'ring-[#52ADAD]' : 'ring-transparent'
+                  }`}
                 >
                   {img.src ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -394,11 +601,14 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
                     <div className="h-full w-full" style={{ background: img.moodColor || '#071F5E' }} />
                   )}
                   <span
-                    className={`absolute right-2 top-2 flex size-7 items-center justify-center rounded-full border-2 border-white shadow ${
-                      on ? 'bg-[#52ADAD]' : 'bg-white/90'
+                    className={`absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full border-2 shadow-md ${
+                      on
+                        ? 'border-white bg-[#071F5E] text-white'
+                        : 'border-[#071F5E] bg-white text-transparent'
                     }`}
+                    aria-hidden
                   >
-                    {on ? <span className="text-xs font-bold text-white">✓</span> : null}
+                    {on ? <span className="text-sm font-bold leading-none">✓</span> : null}
                   </span>
                 </button>
               );

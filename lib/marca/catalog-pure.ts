@@ -30,14 +30,24 @@ export function pickSectionRepresentatives(
   tones: readonly string[] = MARCA_TONES
 ): MarcaPublicImage[] {
   const out: MarcaPublicImage[] = [];
+  const usedIds = new Set<string>();
+  const usedSrc = new Set<string>();
+
   for (const tone of tones) {
     const sameTone = (img: MarcaImage) =>
       img.active !== false && (img.tone === tone || img.tags.includes(tone));
+    const unused = (img: MarcaImage) =>
+      !usedIds.has(img.id) && !(img.src && usedSrc.has(img.src.toLowerCase()));
+
     const match =
+      catalog.find((img) => sameTone(img) && img.section === section && unused(img)) ||
       catalog.find((img) => sameTone(img) && img.section === section) ||
-      // fallback if Drive is missing that section for a tone (e.g. terroso packaging)
-      catalog.find((img) => sameTone(img));
-    if (match) out.push(stripTagsForPublic([match])[0]);
+      catalog.find((img) => sameTone(img) && unused(img));
+
+    if (!match || usedIds.has(match.id)) continue;
+    usedIds.add(match.id);
+    if (match.src) usedSrc.add(match.src.toLowerCase());
+    out.push(stripTagsForPublic([match])[0]);
   }
   return out;
 }

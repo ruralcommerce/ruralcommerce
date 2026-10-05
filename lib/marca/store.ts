@@ -112,7 +112,11 @@ export async function updateContract(
   return next;
 }
 
-export async function joinContract(code: string, name: string): Promise<{ contract: MarcaContract; participant: MarcaParticipant } | null> {
+export async function joinContract(
+  code: string,
+  name: string,
+  opts?: { forceNew?: boolean; participantId?: string }
+): Promise<{ contract: MarcaContract; participant: MarcaParticipant; resumed: boolean } | null> {
   const store = await ensureStore();
   const normalized = code.trim().toUpperCase();
   const index = store.contracts.findIndex((c) => c.code.toUpperCase() === normalized);
@@ -120,9 +124,28 @@ export async function joinContract(code: string, name: string): Promise<{ contra
   const contract = store.contracts[index];
   if (contract.status === 'done') return null;
 
+  const trimmed = name.trim() || 'Participante';
+
+  if (opts?.participantId && !opts.forceNew) {
+    const existing = contract.participants.find((p) => p.id === opts.participantId);
+    if (existing) {
+      return { contract, participant: existing, resumed: true };
+    }
+  }
+
+  if (!opts?.forceNew) {
+    const key = trimmed.toLocaleLowerCase();
+    const existing = [...contract.participants]
+      .reverse()
+      .find((p) => (p.name || '').trim().toLocaleLowerCase() === key);
+    if (existing) {
+      return { contract, participant: existing, resumed: true };
+    }
+  }
+
   const participant: MarcaParticipant = {
     id: newId('prt'),
-    name: name.trim() || 'Participante',
+    name: trimmed,
     joinedAt: new Date().toISOString(),
     votes: {},
     sectionPicks: {},
@@ -136,7 +159,16 @@ export async function joinContract(code: string, name: string): Promise<{ contra
   contract.updatedAt = new Date().toISOString();
   store.contracts[index] = contract;
   await saveStore(store);
-  return { contract, participant };
+  return { contract, participant, resumed: false };
+}
+
+export async function getParticipantById(
+  code: string,
+  participantId: string
+): Promise<MarcaParticipant | null> {
+  const contract = await getContractByCode(code);
+  if (!contract) return null;
+  return contract.participants.find((p) => p.id === participantId) || null;
 }
 
 export async function saveParticipantResponse(
