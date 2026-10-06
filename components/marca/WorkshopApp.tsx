@@ -86,7 +86,7 @@ function ArrowIcon() {
 
 function WorkshopHeader({ locale }: { locale: string }) {
   return (
-    <header className="relative z-20 flex h-16 shrink-0 items-center justify-between bg-[#071F5E] px-4 text-white sm:h-20 sm:px-[12.85%]">
+    <header className="relative z-20 flex h-16 shrink-0 items-center justify-between bg-[#071F5E] px-6 text-white sm:h-20 sm:px-10 lg:px-16">
       <a href={`/${locale}`} className="inline-flex items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/images/logo-branco.png" alt="Rural Commerce" className="h-8 w-auto sm:h-10" />
@@ -391,56 +391,59 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
       <WorkshopHeader locale={locale} />
 
       {step === 'intro' ? (
-        <div className="relative min-h-0 flex-1 overflow-hidden">
+        <div className="relative min-h-0 flex-1 overflow-y-auto">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/marca/ui/oficina-hero.jpg"
             alt=""
             className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-white/75 via-white/45 to-transparent" />
-          <div className="relative z-10 flex h-full max-w-xl flex-col justify-center px-6 sm:px-[12.85%]">
-            <p className="text-base font-normal tracking-[0.02em] text-[#071F5E] sm:text-[23px]">
-              {workshop.clientName}
-            </p>
-            <h1 className="mt-2 text-3xl font-bold leading-tight tracking-[0.01em] text-[#071F5E] sm:text-[46px] sm:leading-[48px]">
-              {workshop.title || (pt ? `Criação de marca ${workshop.clientName}` : `Creación de Marca ${workshop.clientName}`)}
-            </h1>
-            <p className="mt-5 max-w-md text-[15px] leading-6 text-[#071F5E] sm:text-[17px] sm:leading-[23px]">
-              {pt
-                ? 'Escolham o que mais representa o negócio e a marca que querem construir. Pensem no que querem comunicar e a quem querem chegar.'
-                : 'Elijan lo que más represente su negocio y la marca que quieren construir. Piensen en qué quieren comunicar y a quién quieren llegar.'}
-            </p>
-            {hydrated && savedSession ? (
-              <div className="mt-8 flex w-full max-w-[360px] flex-col gap-3">
+          <div className="absolute inset-0 bg-gradient-to-r from-white/80 via-white/50 to-transparent" />
+          {/* rem padding + max-w in rem — never Figma % padding inside max-w (collapses under zoom) */}
+          <div className="relative z-10 flex min-h-full w-full items-center px-6 py-10 sm:px-10 lg:px-16">
+            <div className="w-full max-w-xl">
+              <p className="text-base font-normal tracking-[0.02em] text-[#071F5E] sm:text-[23px]">
+                {workshop.clientName}
+              </p>
+              <h1 className="mt-2 text-3xl font-bold leading-tight tracking-[0.01em] text-[#071F5E] sm:text-[42px] sm:leading-[1.15] lg:text-[46px] lg:leading-[48px]">
+                {workshop.title || (pt ? `Criação de marca ${workshop.clientName}` : `Creación de Marca ${workshop.clientName}`)}
+              </h1>
+              <p className="mt-5 max-w-md text-[15px] leading-6 text-[#071F5E] sm:text-[17px] sm:leading-[23px]">
+                {pt
+                  ? 'Escolham o que mais representa o negócio e a marca que querem construir. Pensem no que querem comunicar e a quem querem chegar.'
+                  : 'Elijan lo que más represente su negocio y la marca que quieren construir. Piensen en qué quieren comunicar y a quién quieren llegar.'}
+              </p>
+              {hydrated && savedSession ? (
+                <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+                  <button
+                    type="button"
+                    disabled={joining}
+                    onClick={() => void continueSaved()}
+                    className="inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-50"
+                  >
+                    {`Continuar como ${savedSession.name}`}
+                    <ArrowIcon />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={joining}
+                    onClick={startFresh}
+                    className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-[#071F5E]/30 bg-white/80 px-5 text-sm font-bold text-[#071F5E]"
+                  >
+                    {pt ? 'Começar de novo' : 'Empezar de nuevo'}
+                  </button>
+                </div>
+              ) : (
                 <button
                   type="button"
-                  disabled={joining}
-                  onClick={() => void continueSaved()}
-                  className="inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-50"
+                  onClick={() => setStep('name')}
+                  className="mt-8 inline-flex min-h-[66px] w-full max-w-sm items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2]"
                 >
-                  {`Continuar como ${savedSession.name}`}
+                  {pt ? 'Começar a dinâmica' : 'Comenzar la dinámica'}
                   <ArrowIcon />
                 </button>
-                <button
-                  type="button"
-                  disabled={joining}
-                  onClick={startFresh}
-                  className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-[#071F5E]/30 bg-white/80 px-5 text-sm font-bold text-[#071F5E]"
-                >
-                  {pt ? 'Começar de novo' : 'Empezar de nuevo'}
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setStep('name')}
-                className="mt-8 inline-flex min-h-[66px] w-full max-w-[328px] items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2]"
-              >
-                {pt ? 'Começar a dinâmica' : 'Comenzar la dinámica'}
-                <ArrowIcon />
-              </button>
-            )}
+              )}
+            </div>
           </div>
         </div>
       ) : null}
