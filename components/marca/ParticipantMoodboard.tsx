@@ -162,11 +162,13 @@ export function ParticipantMoodboard({
   const sheetStyle =
     sheetSize.w > 0
       ? ({
-          width: sheetSize.w,
-          height: sheetSize.h,
+          width: '100%',
+          height: '100%',
           ['--sw' as string]: `${sheetSize.w}px`,
+          ['--sh' as string]: `${sheetSize.h}px`,
         } as CSSProperties)
       : undefined;
+  const edgeBtn = sheetSize.w > 0 ? (54 / SHEET_W) * sheetSize.w : 54;
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
@@ -185,37 +187,52 @@ export function ParticipantMoodboard({
           </p>
         </div>
 
-        <div className="relative mt-2 flex min-h-0 w-full flex-1 items-center justify-center px-10 sm:px-14">
+        <div className="relative mt-2 flex min-h-0 w-full flex-1 items-center justify-center px-8 sm:px-12">
           <div ref={stageRef} className="flex h-full w-full items-center justify-center">
-            <div
-              id="marca-participant-moodboard"
-              className="relative overflow-hidden bg-white shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
-              style={sheetStyle}
-            >
-              {sheetSize.w > 0 ? sheetPages[page] : null}
+            <div className="relative" style={sheetSize.w > 0 ? { width: sheetSize.w, height: sheetSize.h } : undefined}>
+              <div
+                id="marca-participant-moodboard"
+                className="h-full w-full overflow-hidden bg-white shadow-[0_4px_16.5px_1px_rgba(0,0,0,0.25)]"
+                style={sheetStyle}
+              >
+                {sheetSize.w > 0 ? sheetPages[page] : null}
+              </div>
+              {page < totalPages - 1 ? (
+                <button
+                  type="button"
+                  aria-label={pt ? 'Próxima página' : 'Siguiente página'}
+                  onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                  className="absolute top-1/2 z-10 flex items-center justify-center rounded-full bg-[#071F5E] text-white shadow-md"
+                  style={{
+                    width: edgeBtn,
+                    height: edgeBtn,
+                    right: -edgeBtn / 2,
+                    transform: 'translateY(-50%)',
+                    fontSize: edgeBtn * 0.33,
+                  }}
+                >
+                  →
+                </button>
+              ) : null}
+              {page > 0 ? (
+                <button
+                  type="button"
+                  aria-label={pt ? 'Página anterior' : 'Página anterior'}
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  className="absolute top-1/2 z-10 flex items-center justify-center rounded-full bg-[#071F5E] text-white shadow-md"
+                  style={{
+                    width: edgeBtn,
+                    height: edgeBtn,
+                    left: -edgeBtn / 2,
+                    transform: 'translateY(-50%)',
+                    fontSize: edgeBtn * 0.33,
+                  }}
+                >
+                  ←
+                </button>
+              ) : null}
             </div>
           </div>
-
-          {page < totalPages - 1 ? (
-            <button
-              type="button"
-              aria-label={pt ? 'Próxima página' : 'Siguiente página'}
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              className="absolute right-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#071F5E] text-white shadow-lg sm:right-2 sm:h-12 sm:w-12"
-            >
-              <span className="text-xl">→</span>
-            </button>
-          ) : null}
-          {page > 0 ? (
-            <button
-              type="button"
-              aria-label={pt ? 'Página anterior' : 'Página anterior'}
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="absolute left-1 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#071F5E] text-white shadow-lg sm:left-2 sm:h-12 sm:w-12"
-            >
-              <span className="text-xl">←</span>
-            </button>
-          ) : null}
         </div>
 
         <p className="mt-1.5 shrink-0 text-center text-xs text-[#071F5E]/55">
@@ -246,7 +263,12 @@ export function ParticipantMoodboard({
           <div
             key={i}
             className="marca-moodboard-sheet"
-            style={{ ['--sw' as string]: '190mm' } as CSSProperties}
+            style={
+              {
+                ['--sw' as string]: '190mm',
+                ['--sh' as string]: 'calc(190mm * 978 / 850)',
+              } as CSSProperties
+            }
           >
             {node}
           </div>
@@ -289,6 +311,38 @@ function CoverPage({ name }: { name: string }) {
   );
 }
 
+function sw(px: number) {
+  return `calc(var(--sw, 850px) * ${px / SHEET_W})`;
+}
+
+function PaletteDots({ colors }: { colors: string[] }) {
+  return (
+    <div className="flex items-center" style={{ gap: sw(6) }}>
+      {colors.slice(0, 5).map((color, i) => (
+        <span
+          key={`${color}-${i}`}
+          className="shrink-0 rounded-full"
+          style={{
+            width: sw(23.36),
+            height: sw(23.36),
+            background: color,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SheetLogo() {
+  return (
+    <div className="flex w-full shrink-0 flex-col items-center" style={{ marginTop: 'auto', paddingTop: sw(20) }}>
+      <div className="w-full bg-[#071F5E]/25" style={{ height: 1, marginBottom: sw(18) }} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/images/logo-branco.png" alt="Rural Commerce" className="w-auto brightness-0" style={{ height: sw(32) }} />
+    </div>
+  );
+}
+
 function SummaryPage({
   tones,
   styleImages,
@@ -306,14 +360,21 @@ function SummaryPage({
     <div
       className="flex h-full w-full flex-col overflow-hidden bg-white"
       style={{
-        padding: 'calc(var(--sw, 850px) * 0.055)',
-        gap: 'calc(var(--sw, 850px) * 0.012)',
+        paddingLeft: sw(63),
+        paddingRight: sw(63),
+        paddingTop: sw(58),
+        paddingBottom: sw(36),
       }}
     >
-      <div className="flex shrink-0 items-start justify-between gap-3">
+      <div className="flex shrink-0 items-start justify-between">
         <h3
-          className="font-medium uppercase leading-[1.05] tracking-[0.01em] text-[#1D1B1D]"
-          style={{ fontSize: 'calc(var(--sw, 850px) * 0.055)' }}
+          className="uppercase text-[#1D1B1D]"
+          style={{
+            fontSize: sw(58.5),
+            fontWeight: 500,
+            lineHeight: sw(60),
+            letterSpacing: sw(0.585),
+          }}
         >
           {pt ? (
             <>
@@ -329,117 +390,170 @@ function SummaryPage({
             </>
           )}
         </h3>
-        <p
-          className="shrink-0 text-right font-light uppercase leading-relaxed tracking-[0.22em] text-[#071F5E]"
-          style={{ fontSize: 'calc(var(--sw, 850px) * 0.018)' }}
-        >
-          {pt ? (
-            <>
-              Cores
-              <br />
-              Formas
-              <br />
-              Letras
-              <br />
-              Texturas
-              <br />
-              Embalagens
-            </>
-          ) : (
-            <>
-              Colores
-              <br />
-              Formas
-              <br />
-              Letras
-              <br />
-              Texturas
-              <br />
-              Empaques
-            </>
-          )}
-        </p>
+        <div className="shrink-0" style={{ paddingTop: sw(3) }}>
+          <p
+            className="uppercase text-[#071F5E]"
+            style={{
+              fontSize: sw(19.93),
+              fontWeight: 300,
+              lineHeight: sw(27.93),
+              letterSpacing: sw(5.78),
+              textAlign: 'left',
+            }}
+          >
+            {pt ? (
+              <>
+                Cores
+                <br />
+                Formas
+                <br />
+                Letras
+                <br />
+                Texturas
+                <br />
+                Embalagens
+              </>
+            ) : (
+              <>
+                Colores
+                <br />
+                Formas
+                <br />
+                Letras
+                <br />
+                Texturas
+                <br />
+                Empaques
+              </>
+            )}
+          </p>
+          <div className="bg-[#071F5E]/40" style={{ width: sw(85), height: 1, marginTop: sw(12) }} />
+        </div>
       </div>
 
-      <div className="h-px w-12 shrink-0 bg-[#071F5E]/35" />
       <p
-        className="max-w-[62%] shrink-0 font-light leading-snug text-[#071F5E]"
-        style={{ fontSize: 'calc(var(--sw, 850px) * 0.016)' }}
+        className="text-[#071F5E]"
+        style={{
+          marginTop: sw(22),
+          maxWidth: sw(358),
+          fontSize: sw(17),
+          fontWeight: 300,
+          lineHeight: sw(23),
+          letterSpacing: sw(0.17),
+        }}
       >
         {pt
           ? 'Essas referências ajudam a entender o universo visual que mais se aproxima da marca que querem construir.'
           : 'Estas referencias nos ayudan a entender el universo visual que más se acerca a la marca que quiere construir.'}
       </p>
 
-      <div className="h-px w-full shrink-0 bg-[#071F5E]/18" />
+      <div className="bg-[#071F5E]/30" style={{ height: 1, width: '100%', marginTop: sw(32) }} />
       <p
-        className="shrink-0 font-normal uppercase tracking-[0.1em] text-[#071F5E]"
-        style={{ fontSize: 'calc(var(--sw, 850px) * 0.018)' }}
+        className="uppercase text-[#071F5E]"
+        style={{
+          marginTop: sw(12),
+          fontSize: sw(19.93),
+          fontWeight: 400,
+          lineHeight: sw(28),
+          letterSpacing: sw(1.79),
+        }}
       >
         {pt ? 'Paletas selecionadas' : 'Paletas seleccionadas'}
       </p>
 
-      {tones.length ? (
-        <div className="grid shrink-0 grid-cols-2 gap-2">
-          {tones.map((tone) => {
-            const meta = MARCA_PALETTE_META[tone];
-            const src = paletteImages[tone] || `/images/marca/ui/palette-${tone}.jpg`;
-            return (
-              <div key={tone} className="flex min-w-0 gap-2">
-                <div
-                  className="shrink-0 overflow-hidden rounded-[8px] bg-[#EEF3F7]"
+      <div
+        className="grid shrink-0 grid-cols-2"
+        style={{ marginTop: sw(18), columnGap: sw(12), rowGap: sw(12) }}
+      >
+        {(tones.length ? tones : []).map((tone) => {
+          const meta = MARCA_PALETTE_META[tone];
+          const src = paletteImages[tone] || `/images/marca/ui/palette-${tone}.jpg`;
+          return (
+            <div key={tone} className="flex min-w-0 items-start" style={{ gap: sw(12) }}>
+              <div
+                className="shrink-0 overflow-hidden bg-[#EEF3F7]"
+                style={{
+                  width: sw(178),
+                  height: sw(129),
+                  borderRadius: sw(10.31),
+                }}
+              >
+                <SafeImg src={src} alt="" className="h-full w-full object-cover" />
+              </div>
+              <div className="flex min-w-0 flex-1 flex-col" style={{ paddingTop: sw(6) }}>
+                <p
+                  className="text-[#071F5E]"
                   style={{
-                    width: 'calc(var(--sw, 850px) * 0.14)',
-                    height: 'calc(var(--sw, 850px) * 0.105)',
+                    fontSize: sw(18.71),
+                    fontWeight: 400,
+                    lineHeight: sw(26),
+                    letterSpacing: sw(1.68),
                   }}
                 >
-                  <SafeImg src={src} alt="" className="h-full w-full object-cover" />
-                </div>
-                <div className="flex min-w-0 flex-1 flex-col justify-center">
-                  <p
-                    className="truncate font-normal text-[#071F5E]"
-                    style={{ fontSize: 'calc(var(--sw, 850px) * 0.018)' }}
-                  >
-                    {pt ? meta.labelPt.replace(/^Paleta\s+/i, '') : meta.labelEs.replace(/^Paleta\s+/i, '')}
-                  </p>
-                  <p
-                    className="mt-0.5 line-clamp-2 font-light leading-snug text-[#071F5E]"
-                    style={{ fontSize: 'calc(var(--sw, 850px) * 0.014)' }}
-                  >
-                    {pt ? meta.blurbPt : meta.blurbEs}
-                  </p>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`/images/marca/ui/swatch-${tone}.svg`}
-                    alt=""
-                    className="mt-1.5 w-auto max-w-full"
-                    style={{ height: 'calc(var(--sw, 850px) * 0.028)' }}
-                  />
+                  {pt ? meta.labelPt.replace(/^Paleta\s+/i, '') : meta.labelEs.replace(/^Paleta\s+/i, '')}
+                </p>
+                <p
+                  className="text-[#071F5E]"
+                  style={{
+                    marginTop: sw(4),
+                    maxWidth: sw(152),
+                    fontSize: sw(15.96),
+                    fontWeight: 300,
+                    lineHeight: sw(21.6),
+                    letterSpacing: sw(0.16),
+                  }}
+                >
+                  {pt ? meta.blurbPt : meta.blurbEs}
+                </p>
+                <div style={{ marginTop: sw(10) }}>
+                  <PaletteDots colors={meta.colors} />
                 </div>
               </div>
-            );
-          })}
-        </div>
-      ) : null}
+            </div>
+          );
+        })}
+      </div>
 
-      <div className="h-px w-full shrink-0 bg-[#071F5E]/18" />
+      <div className="bg-[#071F5E]/30" style={{ height: 1, width: '100%', marginTop: sw(28) }} />
       <p
-        className="shrink-0 font-normal uppercase tracking-[0.1em] text-[#071F5E]"
-        style={{ fontSize: 'calc(var(--sw, 850px) * 0.018)' }}
+        className="uppercase text-[#071F5E]"
+        style={{
+          marginTop: sw(12),
+          fontSize: sw(19.93),
+          fontWeight: 400,
+          lineHeight: sw(28),
+          letterSpacing: sw(1.79),
+        }}
       >
         {pt ? 'Estilo visual' : 'Estilo visual'}
       </p>
 
       {styleImages.length ? (
-        <div className="grid min-h-0 flex-1 grid-cols-4 content-start gap-2">
+        <div
+          className="grid shrink-0 grid-cols-4"
+          style={{ marginTop: sw(18), columnGap: sw(17) }}
+        >
           {styleImages.map((img, i) => (
             <div key={img.id} className="min-w-0">
-              <div className="aspect-square overflow-hidden rounded-[10px] bg-[#EEF3F7]">
+              <div
+                className="overflow-hidden bg-[#EEF3F7]"
+                style={{
+                  width: '100%',
+                  aspectRatio: '1 / 1',
+                  borderRadius: sw(12.73),
+                }}
+              >
                 <SafeImg src={img.src} alt={img.alt} className="h-full w-full object-cover" />
               </div>
               <p
-                className="mt-1 text-center font-light leading-tight text-[#071F5E]"
-                style={{ fontSize: 'calc(var(--sw, 850px) * 0.013)' }}
+                className="text-center text-[#071F5E]"
+                style={{
+                  marginTop: sw(12),
+                  fontSize: sw(15.96),
+                  fontWeight: 300,
+                  lineHeight: sw(21.6),
+                  letterSpacing: sw(0.16),
+                }}
               >
                 {captions[i % captions.length]}
               </p>
@@ -448,15 +562,7 @@ function SummaryPage({
         </div>
       ) : null}
 
-      <div className="mt-auto flex shrink-0 justify-center pt-1">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-branco.png"
-          alt="Rural Commerce"
-          className="w-auto brightness-0"
-          style={{ height: 'calc(var(--sw, 850px) * 0.04)' }}
-        />
-      </div>
+      <SheetLogo />
     </div>
   );
 }
@@ -470,45 +576,57 @@ function StylesOnlyPage({
   captions: string[];
   pt: boolean;
 }) {
-  const cols = styleImages.length >= 3 ? 4 : Math.max(2, styleImages.length);
   return (
     <div
       className="flex h-full w-full flex-col overflow-hidden bg-white"
-      style={{ padding: 'calc(var(--sw, 850px) * 0.06)' }}
+      style={{
+        paddingLeft: sw(63),
+        paddingRight: sw(63),
+        paddingTop: sw(58),
+        paddingBottom: sw(36),
+      }}
     >
       <p
-        className="shrink-0 font-normal uppercase tracking-[0.1em] text-[#071F5E]"
-        style={{ fontSize: 'calc(var(--sw, 850px) * 0.02)' }}
+        className="uppercase text-[#071F5E]"
+        style={{
+          fontSize: sw(19.93),
+          fontWeight: 400,
+          letterSpacing: sw(1.79),
+        }}
       >
         {pt ? 'Estilo visual' : 'Estilo visual'}
       </p>
       <div
-        className="mt-4 grid min-h-0 flex-1 content-start gap-x-3 gap-y-4"
-        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        className="grid shrink-0 grid-cols-4"
+        style={{ marginTop: sw(24), columnGap: sw(17), rowGap: sw(28) }}
       >
         {styleImages.map((img, i) => (
-          <div key={img.id} className="min-w-0 overflow-hidden">
-            <div className="aspect-square overflow-hidden rounded-[12px] bg-[#EEF3F7]">
+          <div key={img.id} className="min-w-0">
+            <div
+              className="overflow-hidden bg-[#EEF3F7]"
+              style={{
+                width: '100%',
+                aspectRatio: '1 / 1',
+                borderRadius: sw(12.73),
+              }}
+            >
               <SafeImg src={img.src} alt={img.alt} className="h-full w-full object-cover" />
             </div>
             <p
-              className="mt-2 break-words text-center font-light leading-snug text-[#071F5E]"
-              style={{ fontSize: 'calc(var(--sw, 850px) * 0.014)' }}
+              className="text-center text-[#071F5E]"
+              style={{
+                marginTop: sw(12),
+                fontSize: sw(15.96),
+                fontWeight: 300,
+                lineHeight: sw(21.6),
+              }}
             >
               {captions[i % captions.length]}
             </p>
           </div>
         ))}
       </div>
-      <div className="mt-auto flex shrink-0 justify-center pt-3">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/logo-branco.png"
-          alt="Rural Commerce"
-          className="w-auto brightness-0"
-          style={{ height: 'calc(var(--sw, 850px) * 0.04)' }}
-        />
-      </div>
+      <SheetLogo />
     </div>
   );
 }

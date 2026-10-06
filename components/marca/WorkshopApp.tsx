@@ -642,7 +642,7 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
       ) : null}
 
       {step === 'result' ? (
-        <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col overflow-hidden px-3 py-2 sm:px-6 sm:py-3">
+        <div className="mx-auto flex min-h-0 w-full max-w-[1280px] flex-1 flex-col overflow-hidden px-4 py-2 sm:px-8 sm:py-3">
           <ParticipantMoodboard
             participantName={name}
             paletteTones={paletteTones}
