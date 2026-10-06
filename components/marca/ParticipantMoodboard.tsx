@@ -121,24 +121,34 @@ export function ParticipantMoodboard({
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="marca-moodboard-screen flex min-h-0 flex-1 flex-col overflow-hidden">
-        <div className="shrink-0 text-center">
-          <p className="text-[15px] font-light tracking-[0.02em] text-[#071F5E] sm:text-[23px]">
+        <div className="shrink-0 px-1 text-center">
+          <p className="text-[13px] font-light tracking-[0.02em] text-[#071F5E] sm:text-[18px]">
             {pt ? 'RESUMO VISUAL' : 'RESUMEN VISUAL'}
           </p>
-          <h2 className="mt-1 text-2xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-[46px] sm:leading-[48px]">
+          <h2 className="mt-0.5 text-xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-[32px] sm:leading-9">
             {pt ? 'Seu moodboard está pronto' : 'Su moodboard está listo'}
           </h2>
-          <p className="mx-auto mt-2 max-w-3xl text-sm leading-5 text-[#071F5E] sm:text-[17px] sm:leading-[23px]">
+          <p className="mx-auto mt-1 max-w-3xl text-xs leading-4 text-[#071F5E] sm:text-sm sm:leading-5">
             {pt
               ? 'Um moodboard é um painel visual com cores, estilos e imagens de referência. Essas referências, junto com suas próximas respostas, vão ajudar a construir a parte visual da marca.'
               : 'Un moodboard es un panel visual con colores, estilos e imágenes de referencia. Estas referencias, junto con sus próximas respuestas, nos ayudarán a construir la parte visual de su marca.'}
           </p>
         </div>
 
-        <div className="relative mx-auto mt-4 flex min-h-0 w-full max-w-[850px] flex-1 items-center justify-center px-2">
+        {/* Size container so sheet can fit portrait 850×978 inside available space */}
+        <div
+          className="relative mx-auto mt-2 min-h-0 w-full flex-1 px-8 sm:px-12"
+          style={{ containerType: 'size' }}
+        >
           <div
             id="marca-participant-moodboard"
-            className="relative aspect-[850/978] h-auto max-h-full w-full overflow-hidden bg-white shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
+            className="absolute left-1/2 top-1/2 overflow-hidden bg-white shadow-[0_4px_16px_rgba(0,0,0,0.25)]"
+            style={{
+              aspectRatio: '850 / 978',
+              width: 'min(100cqw, calc(100cqh * 850 / 978))',
+              height: 'min(100cqh, calc(100cqw * 978 / 850))',
+              transform: 'translate(-50%, -50%)',
+            }}
           >
             {sheetPages[page]}
           </div>
@@ -148,7 +158,7 @@ export function ParticipantMoodboard({
               type="button"
               aria-label={pt ? 'Próxima página' : 'Siguiente página'}
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              className="absolute right-0 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 translate-x-1/3 items-center justify-center rounded-full bg-[#071F5E] text-white shadow-lg sm:h-14 sm:w-14"
+              className="absolute right-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#071F5E] text-white shadow-lg sm:h-14 sm:w-14"
             >
               <span className="text-xl">→</span>
             </button>
@@ -158,29 +168,29 @@ export function ParticipantMoodboard({
               type="button"
               aria-label={pt ? 'Página anterior' : 'Página anterior'}
               onClick={() => setPage((p) => Math.max(0, p - 1))}
-              className="absolute left-0 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 -translate-x-1/3 items-center justify-center rounded-full bg-[#071F5E] text-white shadow-lg sm:h-14 sm:w-14"
+              className="absolute left-0 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full bg-[#071F5E] text-white shadow-lg sm:h-14 sm:w-14"
             >
               <span className="text-xl">←</span>
             </button>
           ) : null}
         </div>
 
-        <p className="mt-2 shrink-0 text-center text-xs text-[#071F5E]/55">
+        <p className="mt-1.5 shrink-0 text-center text-xs text-[#071F5E]/55">
           {page + 1} / {totalPages}
         </p>
 
-        <div className="marca-moodboard-toolbar mt-3 flex shrink-0 flex-col gap-2 sm:flex-row sm:justify-center">
+        <div className="marca-moodboard-toolbar mt-2 flex shrink-0 flex-col gap-2 sm:flex-row sm:justify-center">
           <button
             type="button"
             onClick={onBack}
-            className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-[14px] border border-[#8D99AE] bg-white px-5 text-sm font-bold text-[#071F5E] sm:max-w-[409px]"
+            className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-[14px] border border-[#8D99AE] bg-white px-5 text-sm font-bold text-[#071F5E] sm:max-w-[409px]"
           >
             {pt ? 'Voltar' : 'Volver'}
           </button>
           <button
             type="button"
             onClick={downloadPdf}
-            className="inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-sm font-bold text-[#F2F2F2] sm:max-w-[409px]"
+            className="inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-sm font-bold text-[#F2F2F2] sm:max-w-[409px]"
           >
             {pt ? 'Baixar PDF' : 'Descargar PDF'}
             <ArrowIcon />
