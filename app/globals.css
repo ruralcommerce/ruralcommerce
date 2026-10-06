@@ -1065,12 +1065,10 @@
   body.printing-marca-moodboard .marca-moodboard-print-stack .marca-moodboard-sheet {
     display: block !important;
     position: relative !important;
-    width: 100% !important;
+    width: 190mm !important;
     max-width: 190mm !important;
-    height: auto !important;
-    min-height: 240mm !important;
-    aspect-ratio: 850 / 978 !important;
-    margin: 0 auto 0 !important;
+    height: calc(190mm * 978 / 850) !important;
+    margin: 0 auto !important;
     overflow: hidden !important;
     border: none !important;
     border-radius: 0 !important;
@@ -1082,6 +1080,7 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
     color-adjust: exact !important;
+    --sw: 190mm;
   }
 
   body.printing-marca-moodboard .marca-moodboard-print-stack .marca-moodboard-sheet:last-child {
