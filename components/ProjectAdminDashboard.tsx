@@ -742,6 +742,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const [exportBusy, setExportBusy] = useState(false);
   const [openActionMenuId, setOpenActionMenuId] = useState<string | null>(null);
+  const [actionMenuOpensUp, setActionMenuOpensUp] = useState(false);
   const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
   const [filterMenuOpen, setFilterMenuOpen] = useState(false);
   const exportMenuRef = useRef<HTMLDivElement>(null);
@@ -1985,7 +1986,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
       {loading ? (
         <p className="text-sm text-[#2F3336]/70">{t.loading}</p>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-[#E6EBF1] bg-white shadow-sm">
+        <div className="overflow-visible rounded-2xl border border-[#E6EBF1] bg-white shadow-sm">
           {filteredRecords.map((record) => {
             const organizationTitle =
               record.profile.organization || record.profile.name || t.participantFallback;
@@ -2090,9 +2091,11 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                   >
                     <button
                       type="button"
-                      onClick={() => {
+                      onClick={(event) => {
                         setBulkMenuOpen(false);
                         setExportMenuOpen(false);
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        setActionMenuOpensUp(window.innerHeight - rect.bottom < 320);
                         setOpenActionMenuId((current) => (current === record.id ? null : record.id));
                       }}
                       className="inline-flex items-center gap-1 rounded-full border border-transparent px-2 py-1.5 text-sm font-medium text-[#2F3336]/70 hover:border-[#D9E3EC] hover:bg-[#F7FAFB]"
@@ -2105,7 +2108,9 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
                     {openActionMenuId === record.id ? (
                       <div
                         role="menu"
-                        className="absolute right-0 z-20 mt-1.5 min-w-[14rem] overflow-hidden rounded-xl border border-[#E6EBF1] bg-white py-1 shadow-lg"
+                        className={`absolute right-0 z-40 min-w-[14rem] overflow-visible rounded-xl border border-[#E6EBF1] bg-white py-1 shadow-lg ${
+                          actionMenuOpensUp ? 'bottom-full mb-1.5' : 'top-full mt-1.5'
+                        }`}
                       >
                         {hasDiagnosis ? (
                           <button
