@@ -9,8 +9,9 @@ import {
   type MarcaTone,
 } from '@/lib/marca/types';
 import { ParticipantMoodboard } from './ParticipantMoodboard';
+import { IDENTITY_WORDS, PERCEPTION_PHRASES } from '@/lib/marca/workshop-copy';
 
-type Step = 'intro' | 'name' | 'colors' | 'estilo' | 'result';
+type Step = 'intro' | 'name' | 'colors' | 'estilo' | 'wordsIdentity' | 'perception' | 'freeWords' | 'result';
 
 const PALETTE_ORDER: MarcaTone[] = ['sobrio', 'terroso', 'vibrante', 'pastel'];
 
@@ -20,6 +21,9 @@ type SavedSession = {
   step: Step;
   paletteTones: string[];
   styleImageIds: string[];
+  identityWords: string[];
+  perceptionPicks: string[];
+  freeText: string;
   completedAt?: string | null;
 };
 
@@ -62,13 +66,18 @@ function inferStep(data: {
   completedAt?: string | null;
   paletteTones?: string[];
   styleImageIds?: string[];
+  identityWords?: string[];
+  perceptionPicks?: string[];
+  freeText?: string;
   savedStep?: Step;
 }): Step {
+  const mid: Step[] = ['wordsIdentity', 'perception', 'freeWords', 'estilo', 'colors', 'result'];
   if (data.completedAt) return 'result';
-  if (data.savedStep === 'result' || data.savedStep === 'estilo' || data.savedStep === 'colors') {
-    return data.savedStep;
-  }
-  if (data.styleImageIds?.length) return 'estilo';
+  if (data.savedStep && mid.includes(data.savedStep)) return data.savedStep;
+  if (data.freeText?.trim()) return 'freeWords';
+  if (data.perceptionPicks?.length) return 'freeWords';
+  if (data.identityWords?.length) return 'perception';
+  if (data.styleImageIds?.length) return 'wordsIdentity';
   if (data.paletteTones?.length) return 'estilo';
   return 'colors';
 }
@@ -151,6 +160,9 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
   const [participantId, setParticipantId] = useState('');
   const [paletteTones, setPaletteTones] = useState<string[]>([]);
   const [styleImageIds, setStyleImageIds] = useState<string[]>([]);
+  const [identityWords, setIdentityWords] = useState<string[]>([]);
+  const [perceptionPicks, setPerceptionPicks] = useState<string[]>([]);
+  const [freeText, setFreeText] = useState('');
   const [savedSession, setSavedSession] = useState<SavedSession | null>(null);
   const [hydrated, setHydrated] = useState(false);
   const [joining, setJoining] = useState(false);
@@ -181,9 +193,12 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
       step,
       paletteTones,
       styleImageIds,
+      identityWords,
+      perceptionPicks,
+      freeText,
       completedAt: step === 'result' ? new Date().toISOString() : null,
     });
-  }, [code, participantId, name, step, paletteTones, styleImageIds]);
+  }, [code, participantId, name, step, paletteTones, styleImageIds, identityWords, perceptionPicks, freeText]);
 
   const persist = useCallback(
     async (patch: Record<string, unknown>) => {
@@ -202,6 +217,9 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     name: string;
     paletteTones?: string[];
     styleImageIds?: string[];
+    identityWords?: string[];
+    perceptionPicks?: string[];
+    freeText?: string;
     completedAt?: string | null;
     stepHint?: Step;
   }) {
@@ -209,10 +227,16 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     setName(data.name);
     setPaletteTones(data.paletteTones || []);
     setStyleImageIds(data.styleImageIds || []);
+    setIdentityWords(data.identityWords || []);
+    setPerceptionPicks(data.perceptionPicks || []);
+    setFreeText(data.freeText || '');
     const nextStep = inferStep({
       completedAt: data.completedAt,
       paletteTones: data.paletteTones,
       styleImageIds: data.styleImageIds,
+      identityWords: data.identityWords,
+      perceptionPicks: data.perceptionPicks,
+      freeText: data.freeText,
       savedStep: data.stepHint,
     });
     setStep(nextStep);
@@ -245,21 +269,31 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
         resumed?: boolean;
         paletteTones?: string[];
         styleImageIds?: string[];
+        identityWords?: string[];
+        perceptionPicks?: string[];
+        freeText?: string;
         completedAt?: string | null;
       };
       applyParticipant({
         participantId: data.participantId,
         name: data.name || joinName,
-        paletteTones: shouldForceNew
-          ? []
-          : data.paletteTones?.length
-            ? data.paletteTones
-            : session?.paletteTones,
+        paletteTones: shouldForceNew ? [] : data.paletteTones?.length ? data.paletteTones : session?.paletteTones,
         styleImageIds: shouldForceNew
           ? []
           : data.styleImageIds?.length
             ? data.styleImageIds
             : session?.styleImageIds,
+        identityWords: shouldForceNew
+          ? []
+          : data.identityWords?.length
+            ? data.identityWords
+            : session?.identityWords,
+        perceptionPicks: shouldForceNew
+          ? []
+          : data.perceptionPicks?.length
+            ? data.perceptionPicks
+            : session?.perceptionPicks,
+        freeText: shouldForceNew ? '' : data.freeText || session?.freeText || '',
         completedAt: shouldForceNew ? null : data.completedAt || session?.completedAt,
         stepHint: shouldForceNew ? 'colors' : session?.step,
       });
@@ -276,6 +310,9 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     setParticipantId('');
     setPaletteTones([]);
     setStyleImageIds([]);
+    setIdentityWords([]);
+    setPerceptionPicks([]);
+    setFreeText('');
     setName('');
     setForceNew(true);
     setStep('name');
@@ -343,7 +380,19 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
     return map;
   }, [workshop]);
 
-  async function finishEstilo() {
+  function toggleIdentity(id: string) {
+    setIdentityWords((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  }
+
+  function togglePerception(id: string) {
+    setPerceptionPicks((prev) => {
+      if (prev.includes(id)) return prev.filter((x) => x !== id);
+      if (prev.length >= 5) return prev;
+      return [...prev, id];
+    });
+  }
+
+  async function continueFromEstilo() {
     const sectionPicks: Record<string, string> = {};
     const firstTone = paletteTones[0];
     if (firstTone) {
@@ -361,6 +410,27 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
       paletteTones,
       styleImageIds,
       sectionPicks,
+    });
+    setStep('wordsIdentity');
+  }
+
+  async function continueFromIdentity() {
+    await persist({ words: { selected: identityWords } });
+    setStep('perception');
+  }
+
+  async function continueFromPerception() {
+    await persist({ perceptionPicks });
+    setStep('freeWords');
+  }
+
+  async function finishFreeWords() {
+    await persist({
+      paletteTones,
+      styleImageIds,
+      words: { selected: identityWords },
+      perceptionPicks,
+      freeText,
       complete: true,
     });
     setStep('result');
@@ -636,9 +706,132 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
           <NavRow
             pt={pt}
             onBack={() => setStep('colors')}
-            onNext={() => void finishEstilo()}
+            onNext={() => void continueFromEstilo()}
             nextLabel={pt ? 'Continuar' : 'Continuar'}
             nextDisabled={styleImageIds.length === 0}
+            primaryTeal
+          />
+        </div>
+      ) : null}
+
+      {step === 'wordsIdentity' ? (
+        <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col overflow-y-auto px-6 py-8 sm:px-10">
+          <div className="shrink-0 text-center">
+            <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">{pt ? 'PALAVRAS' : 'PALABRAS'}</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-[0.01em] sm:text-[46px] sm:leading-[52px]">
+              {pt ? 'Como vocês são?' : '¿Cómo son ustedes?'}
+            </h2>
+            <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 sm:text-[17px] sm:leading-[23px]">
+              {pt
+                ? 'Escolham todas as palavras que sentem que representam vocês. Podem escolher todas as que quiserem.'
+                : 'Elijan todas las palabras que sientan que los representan, pueden elegir todas las que quieran.'}
+            </p>
+          </div>
+          <div className="mx-auto mt-8 flex max-w-4xl flex-wrap justify-center gap-3">
+            {IDENTITY_WORDS.map((word) => {
+              const on = identityWords.includes(word.id);
+              return (
+                <button
+                  key={word.id}
+                  type="button"
+                  onClick={() => toggleIdentity(word.id)}
+                  className={`rounded-full px-6 py-3 text-sm font-bold sm:text-base ${
+                    on ? 'bg-[#071F5E] text-white' : 'border border-[#C5CDD8] bg-white text-[#071F5E]'
+                  }`}
+                >
+                  {pt ? word.pt : word.es}
+                </button>
+              );
+            })}
+          </div>
+          <NavRow
+            pt={pt}
+            onBack={() => setStep('estilo')}
+            onNext={() => void continueFromIdentity()}
+            nextLabel={pt ? 'Continuar' : 'Continuar'}
+            nextDisabled={identityWords.length === 0}
+            primaryTeal
+          />
+        </div>
+      ) : null}
+
+      {step === 'perception' ? (
+        <div className="mx-auto flex min-h-0 w-full max-w-5xl flex-1 flex-col overflow-y-auto px-6 py-8 sm:px-10">
+          <div className="shrink-0 text-center">
+            <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">{pt ? 'PERCEPÇÃO' : 'PERCEPCIÓN'}</p>
+            <h2 className="mx-auto mt-2 max-w-4xl text-2xl font-bold leading-tight tracking-[0.01em] sm:text-[40px] sm:leading-[48px]">
+              {pt
+                ? 'O que gostariam que uma pessoa pensasse ao conhecer a marca?'
+                : '¿Qué les gustaría que una persona pensara al conocer su marca?'}
+            </h2>
+            <p className="mx-auto mt-3 max-w-3xl text-sm leading-6 sm:text-[17px] sm:leading-[23px]">
+              {pt
+                ? 'Podem escolher até 5 opções. Pensem na primeira impressão que querem causar quando alguém conhece a marca pela primeira vez: o que deveria pensar, sentir ou imaginar sobre ela.'
+                : 'Pueden elegir hasta 5 opciones. Piensen en la primera impresión que les gustaría causar cuando una persona conozca su marca por primera vez: qué debería pensar, sentir o imaginar sobre ella.'}
+            </p>
+          </div>
+          <div className="mx-auto mt-8 grid w-full max-w-4xl grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {PERCEPTION_PHRASES.map((phrase) => {
+              const on = perceptionPicks.includes(phrase.id);
+              return (
+                <button
+                  key={phrase.id}
+                  type="button"
+                  onClick={() => togglePerception(phrase.id)}
+                  className={`min-h-[72px] rounded-[18px] px-4 py-3 text-center text-sm font-bold leading-snug sm:text-[15px] ${
+                    on ? 'bg-[#071F5E] text-white' : 'border border-[#C5CDD8] bg-white text-[#071F5E]'
+                  }`}
+                >
+                  {pt ? phrase.pt : phrase.es}
+                </button>
+              );
+            })}
+          </div>
+          <NavRow
+            pt={pt}
+            onBack={() => setStep('wordsIdentity')}
+            onNext={() => void continueFromPerception()}
+            nextLabel={pt ? 'Continuar' : 'Continuar'}
+            nextDisabled={perceptionPicks.length === 0}
+            primaryTeal
+          />
+        </div>
+      ) : null}
+
+      {step === 'freeWords' ? (
+        <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col overflow-y-auto px-6 py-8 sm:px-10">
+          <div className="shrink-0 text-center">
+            <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">{pt ? 'PALAVRAS' : 'PALABRAS'}</p>
+            <h2 className="mt-2 text-3xl font-bold tracking-[0.01em] sm:text-[42px] sm:leading-[48px]">
+              {pt ? 'Palavras que são de vocês' : 'Palabras que son de ustedes'}
+            </h2>
+          </div>
+          <p className="mx-auto mt-4 max-w-2xl text-left text-sm leading-6 text-[#071F5E] sm:text-[16px] sm:leading-[23px]">
+            {pt
+              ? 'Há palavras, lembranças e referências que só vocês podem contar. Escrevam tudo o que tenha algum significado para vocês, mesmo que pareça pequeno ou curioso.'
+              : 'Hay palabras, recuerdos y referencias que solo ustedes pueden contarnos. Escriban todo lo que tenga algún significado para ustedes, aunque parezca algo pequeño o curioso.'}
+          </p>
+          <p className="mt-4 text-sm font-medium text-[#071F5E] sm:text-[16px]">{pt ? 'Pode ser:' : 'Puede ser:'}</p>
+          <div className="mt-3 rounded-[18px] bg-[#071F5E] px-5 py-4 text-center text-sm leading-6 text-white sm:text-[15px] sm:leading-7">
+            {pt
+              ? 'Sobrenomes · Apelidos · Nomes de sítios ou comunidades · Lugares · Palavras da região · Expressões familiares · Nomes de frutas, plantas ou formas de trabalhar · Palavras antigas · Ditados · Lembranças · Elementos da terra, da natureza ou do cultivo'
+              : 'Apellidos · Apodos · Nombres de fincas o comunidades · Lugares · Palabras de la región · Expresiones familiares · Nombres de frutas, plantas o formas de trabajar · Palabras antiguas · Dichos · Recuerdos · Elementos de la tierra, la naturaleza o el cultivo'}
+          </div>
+          <textarea
+            value={freeText}
+            onChange={(e) => setFreeText(e.target.value)}
+            placeholder={
+              pt
+                ? 'Escrevam aqui todas as palavras ou expressões que quiserem compartilhar.'
+                : 'Escriban aquí todas las palabras o expresiones que quieran compartir.'
+            }
+            className="mt-4 min-h-[140px] w-full resize-y rounded-[18px] border border-[#C5CDD8] bg-white px-4 py-3 text-sm text-[#071F5E] placeholder:text-[#8D99AE]"
+          />
+          <NavRow
+            pt={pt}
+            onBack={() => setStep('perception')}
+            onNext={() => void finishFreeWords()}
+            nextLabel={pt ? 'Continuar' : 'Continuar'}
             primaryTeal
           />
         </div>

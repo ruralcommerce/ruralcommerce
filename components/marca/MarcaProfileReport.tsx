@@ -10,6 +10,7 @@ import {
 } from '@/lib/marca/moodboard';
 import { MarcaButton, MarcaPanel } from './MarcaShell';
 import { FinalWorkshopMoodboardView } from './FinalWorkshopMoodboard';
+import { IDENTITY_WORDS, PERCEPTION_PHRASES, phraseLabel } from '@/lib/marca/workshop-copy';
 
 function TagList({ label, items, tone }: { label: string; items: string[]; tone: 'strong' | 'mid' | 'low' | 'no' }) {
   if (!items.length) return null;
@@ -41,6 +42,7 @@ function ParticipantMoodCard({
   picks,
   tones,
   words,
+  perception,
   freeText,
   imageById,
 }: {
@@ -48,6 +50,7 @@ function ParticipantMoodCard({
   picks: string[];
   tones?: string[];
   words: string[];
+  perception?: string[];
   freeText?: string;
   imageById: Record<string, MarcaImage>;
 }) {
@@ -89,6 +92,11 @@ function ParticipantMoodCard({
             </span>
           ))}
         </div>
+      ) : null}
+      {perception?.length ? (
+        <p className="px-3 pb-2 text-[11px] leading-5 text-[var(--rc-text)]/70">
+          Percepción: {perception.join(' · ')}
+        </p>
       ) : null}
       {freeText ? (
         <p className="border-t border-[var(--rc-primary)]/8 px-3 py-2 text-[11px] leading-5 text-[var(--rc-text)]/75 line-clamp-3">
@@ -251,7 +259,8 @@ export function MarcaProfileReport({
                   ...(p.styleImageIds || []),
                 ].filter((v, i, a) => a.indexOf(v) === i) as string[]}
                 tones={p.paletteTones || []}
-                words={p.words?.selected || []}
+                words={(p.words?.selected || []).map((id) => phraseLabel(IDENTITY_WORDS, id, false))}
+                perception={(p.perceptionPicks || []).map((id) => phraseLabel(PERCEPTION_PHRASES, id, false))}
                 freeText={p.freeText}
                 imageById={imageById}
               />

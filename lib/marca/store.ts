@@ -181,14 +181,14 @@ export async function saveParticipantResponse(
       | 'sectionPicks'
       | 'paletteTones'
       | 'styleImageIds'
-      | 'words'
+      | 'perceptionPicks'
       | 'freeText'
       | 'audioDataUrl'
       | 'customer'
       | 'specialMeaning'
       | 'completedAt'
     >
-  >
+  > & { words?: Partial<MarcaParticipant['words']> }
 ): Promise<MarcaParticipant | null> {
   const store = await ensureStore();
   const normalized = code.trim().toUpperCase();
@@ -216,6 +216,8 @@ export async function saveParticipantResponse(
           product: patch.words.product ?? current.words?.product ?? [],
         }
       : current.words || { selected: [], people: [], places: [], product: [] },
+    perceptionPicks:
+      patch.perceptionPicks !== undefined ? patch.perceptionPicks.slice(0, 5) : current.perceptionPicks || [],
     freeText: patch.freeText !== undefined ? patch.freeText : current.freeText || '',
     audioDataUrl: patch.audioDataUrl !== undefined ? patch.audioDataUrl : current.audioDataUrl,
     customer: patch.customer ? { ...current.customer, ...patch.customer } : current.customer || {},

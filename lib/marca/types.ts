@@ -50,6 +50,8 @@ export type MarcaParticipant = {
   /** Figma flow: multi-select visual style image ids */
   styleImageIds?: string[];
   words: MarcaWords;
+  /** Perception phrases (max 5), stored as Spanish canonical ids */
+  perceptionPicks?: string[];
   freeText: string;
   /** data URL or public path for short audio note */
   audioDataUrl?: string;

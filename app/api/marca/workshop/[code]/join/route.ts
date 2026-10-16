@@ -32,6 +32,9 @@ export async function POST(request: Request, { params }: Params) {
     resumed: result.resumed,
     paletteTones: p.paletteTones || [],
     styleImageIds: p.styleImageIds || [],
+    identityWords: p.words?.selected || [],
+    perceptionPicks: p.perceptionPicks || [],
+    freeText: p.freeText || '',
     completedAt: p.completedAt || null,
   });
 }

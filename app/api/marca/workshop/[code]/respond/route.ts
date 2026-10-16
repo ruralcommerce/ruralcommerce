@@ -13,6 +13,7 @@ export async function POST(request: Request, { params }: Params) {
     paletteTones?: string[];
     styleImageIds?: string[];
     words?: Partial<MarcaWords>;
+    perceptionPicks?: string[];
     freeText?: string;
     audioDataUrl?: string;
     customer?: MarcaCustomer;
@@ -30,12 +31,13 @@ export async function POST(request: Request, { params }: Params) {
     styleImageIds: body.styleImageIds,
     words: body.words
       ? {
-          selected: body.words.selected || [],
-          people: body.words.people || [],
-          places: body.words.places || [],
-          product: body.words.product || [],
+          selected: body.words.selected,
+          people: body.words.people,
+          places: body.words.places,
+          product: body.words.product,
         }
       : undefined,
+    perceptionPicks: Array.isArray(body.perceptionPicks) ? body.perceptionPicks.slice(0, 5) : undefined,
     freeText: body.freeText,
     audioDataUrl: body.audioDataUrl,
     customer: body.customer,
