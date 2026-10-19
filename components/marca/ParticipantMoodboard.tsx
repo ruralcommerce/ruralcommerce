@@ -7,6 +7,7 @@ import {
   type MarcaPublicImage,
   type MarcaTone,
 } from '@/lib/marca/types';
+import { IDENTITY_WORDS, PERCEPTION_PHRASES, phraseLabel } from '@/lib/marca/workshop-copy';
 
 const SHEET_W = 850;
 const SHEET_H = 978;
@@ -106,6 +107,9 @@ export function ParticipantMoodboard({
   paletteTones,
   styleImages,
   paletteImages,
+  identityWords,
+  perceptionPicks,
+  freeText,
   locale,
   onBack,
 }: {
@@ -113,6 +117,9 @@ export function ParticipantMoodboard({
   paletteTones: string[];
   styleImages: MarcaPublicImage[];
   paletteImages: Partial<Record<string, string>>;
+  identityWords?: string[];
+  perceptionPicks?: string[];
+  freeText?: string;
   locale: string;
   onBack: () => void;
 }) {
@@ -126,7 +133,11 @@ export function ParticipantMoodboard({
   const page1Styles = styleImages.slice(0, 4);
   const page2Styles = styleImages.slice(4, 8);
   const hasSummary = tones.length > 0 || styleImages.length > 0;
-  const totalPages = 1 + (hasSummary ? 1 : 0) + (page2Styles.length > 0 ? 1 : 0);
+  const identityIds = identityWords || [];
+  const perceptionIds = (perceptionPicks || []).slice(0, 5);
+  const note = (freeText || '').trim();
+  const hasWords = identityIds.length > 0 || perceptionIds.length > 0;
+  const hasNote = note.length > 0;
 
   useEffect(() => {
     return () => {
@@ -157,7 +168,13 @@ export function ParticipantMoodboard({
     page2Styles.length > 0 ? (
       <StylesOnlyPage key="styles2" styleImages={page2Styles} captions={captions.slice(4)} pt={pt} />
     ) : null,
+    hasWords ? (
+      <WordsPage key="words" identityIds={identityIds} perceptionIds={perceptionIds} pt={pt} />
+    ) : null,
+    hasNote ? <FreeTextPage key="note" text={note} pt={pt} /> : null,
   ].filter(Boolean) as JSX.Element[];
+
+  const totalPages = sheetPages.length;
 
   const sheetStyle =
     sheetSize.w > 0
@@ -626,6 +643,140 @@ function StylesOnlyPage({
           </div>
         ))}
       </div>
+      <SheetLogo />
+    </div>
+  );
+}
+
+function WordsPage({
+  identityIds,
+  perceptionIds,
+  pt,
+}: {
+  identityIds: string[];
+  perceptionIds: string[];
+  pt: boolean;
+}) {
+  return (
+    <div
+      className="flex h-full w-full flex-col overflow-hidden bg-white"
+      style={{
+        paddingLeft: sw(63),
+        paddingRight: sw(63),
+        paddingTop: sw(58),
+        paddingBottom: sw(36),
+      }}
+    >
+      <p
+        className="uppercase text-[#071F5E]"
+        style={{ fontSize: sw(16), fontWeight: 300, letterSpacing: sw(1.4) }}
+      >
+        {pt ? 'Palavras' : 'Palabras'}
+      </p>
+      <h3
+        className="text-[#1D1B1D]"
+        style={{
+          marginTop: sw(8),
+          fontSize: sw(36),
+          fontWeight: 500,
+          lineHeight: sw(42),
+        }}
+      >
+        {pt ? 'Como vocês são' : 'Cómo son ustedes'}
+      </h3>
+
+      {identityIds.length ? (
+        <div className="flex flex-wrap" style={{ marginTop: sw(22), gap: sw(10) }}>
+          {identityIds.map((id) => (
+            <span
+              key={id}
+              className="rounded-full bg-[#071F5E] font-bold text-white"
+              style={{
+                padding: `${sw(8)} ${sw(16)}`,
+                fontSize: sw(16),
+                lineHeight: sw(20),
+              }}
+            >
+              {phraseLabel(IDENTITY_WORDS, id, pt)}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {perceptionIds.length ? (
+        <>
+          <div className="bg-[#071F5E]/30" style={{ height: 1, width: '100%', marginTop: sw(28) }} />
+          <p
+            className="uppercase text-[#071F5E]"
+            style={{
+              marginTop: sw(14),
+              fontSize: sw(16),
+              fontWeight: 400,
+              letterSpacing: sw(1.4),
+            }}
+          >
+            {pt ? 'Percepção' : 'Percepción'}
+          </p>
+          <div className="flex flex-col" style={{ marginTop: sw(14), gap: sw(10) }}>
+            {perceptionIds.map((id) => (
+              <p
+                key={id}
+                className="text-[#071F5E]"
+                style={{ fontSize: sw(18), fontWeight: 400, lineHeight: sw(24) }}
+              >
+                {phraseLabel(PERCEPTION_PHRASES, id, pt)}
+              </p>
+            ))}
+          </div>
+        </>
+      ) : null}
+
+      <SheetLogo />
+    </div>
+  );
+}
+
+function FreeTextPage({ text, pt }: { text: string; pt: boolean }) {
+  return (
+    <div
+      className="flex h-full w-full flex-col overflow-hidden bg-white"
+      style={{
+        paddingLeft: sw(63),
+        paddingRight: sw(63),
+        paddingTop: sw(58),
+        paddingBottom: sw(36),
+      }}
+    >
+      <p
+        className="uppercase text-[#071F5E]"
+        style={{ fontSize: sw(16), fontWeight: 300, letterSpacing: sw(1.4) }}
+      >
+        {pt ? 'Palavras' : 'Palabras'}
+      </p>
+      <h3
+        className="text-[#1D1B1D]"
+        style={{
+          marginTop: sw(8),
+          fontSize: sw(36),
+          fontWeight: 500,
+          lineHeight: sw(42),
+        }}
+      >
+        {pt ? 'Palavras que são de vocês' : 'Palabras que son de ustedes'}
+      </h3>
+      <p
+        className="text-[#071F5E]"
+        style={{
+          marginTop: sw(28),
+          fontSize: sw(18),
+          fontWeight: 300,
+          lineHeight: sw(28),
+          whiteSpace: 'pre-wrap',
+          overflowWrap: 'anywhere',
+        }}
+      >
+        {text}
+      </p>
       <SheetLogo />
     </div>
   );

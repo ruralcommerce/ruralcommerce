@@ -844,8 +844,11 @@ export function WorkshopApp({ locale, code }: { locale: string; code: string }) 
             paletteTones={paletteTones}
             styleImages={selectedStyleImages}
             paletteImages={paletteImages}
+            identityWords={identityWords}
+            perceptionPicks={perceptionPicks}
+            freeText={freeText}
             locale={locale}
-            onBack={() => setStep('estilo')}
+            onBack={() => setStep('freeWords')}
           />
         </div>
       ) : null}
