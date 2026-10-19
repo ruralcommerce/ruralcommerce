@@ -10,7 +10,7 @@ export function intranetTools(locale: string): IntranetTool[] {
         'Oficinas de briefing visual, catálogo con tags invisibles y perfil visual del negocio.',
       href: `/${locale}/intranet/herramientas/marca`,
       permission: 'tools.marca',
-      image: '/images/Mercado artesanal com loja acolhedora.png',
+      image: '/images/intranet/marca.png',
       accent: '#009179',
     },
     {
@@ -19,7 +19,7 @@ export function intranetTools(locale: string): IntranetTool[] {
       description: 'Dinámica de ideas, cartas y mesa para innovar con productores y equipos.',
       href: `/${locale}/sementes`,
       permission: 'tools.sementes',
-      image: '/images/Reunião casual ao ar livre.png',
+      image: '/images/intranet/sementes.png',
       accent: '#071F5E',
     },
     {
@@ -29,7 +29,7 @@ export function intranetTools(locale: string): IntranetTool[] {
         'Capacitaciones y visitas. Convite para quien no está en el sistema y confirmación de presencia desde el celular de la persona.',
       href: `/${locale}/intranet/herramientas/actividades`,
       permission: 'tools.actividades',
-      image: '/images/Consulta agrícola ao fim da tarde.png',
+      image: '/images/intranet/actividades.png',
       accent: '#009179',
     },
   ];

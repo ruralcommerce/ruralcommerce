@@ -104,8 +104,8 @@ export function IntranetShell({
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1">
-          <div className="relative overflow-hidden rounded-2xl bg-[#071F5E] px-5 pb-16 pt-5 text-white sm:px-7 sm:pb-20 sm:pt-6">
+        <div className="min-w-0 flex-1 overflow-x-hidden">
+          <div className="relative overflow-hidden rounded-2xl bg-[#071F5E] px-4 pb-16 pt-4 text-white sm:px-7 sm:pb-20 sm:pt-6">
             <svg
               className="pointer-events-none absolute inset-0 h-full w-full opacity-40"
               viewBox="0 0 800 240"
@@ -115,17 +115,27 @@ export function IntranetShell({
               <path d="M0 180 C120 120 220 200 340 140 S560 60 800 120" fill="none" stroke="#A5D9EF" strokeWidth="1.2" />
               <path d="M0 200 C160 150 280 220 420 160 S680 80 800 150" fill="none" stroke="#52ADAD" strokeWidth="1" opacity="0.7" />
             </svg>
-            <div className="relative flex flex-wrap items-start justify-between gap-3">
-              <div>
+            <div className="relative flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <Link href={`/${locale}`} className="mb-3 inline-flex lg:hidden">
+                  <Image
+                    src="/images/logo-branco.png"
+                    alt="Rural Commerce"
+                    width={140}
+                    height={40}
+                    className="h-8 w-auto"
+                    priority
+                  />
+                </Link>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/65">
                   {breadcrumb || `Páginas / ${title}`}
                 </p>
-                <h1 className="mt-1 text-2xl font-bold sm:text-3xl">{title}</h1>
+                <h1 className="mt-1 truncate text-2xl font-bold sm:text-3xl">{title}</h1>
               </div>
               <button
                 type="button"
                 onClick={() => void logout()}
-                className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white/20"
+                className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur transition hover:bg-white/20"
               >
                 <LogOut className="h-3.5 w-3.5" />
                 Salir
@@ -134,7 +144,7 @@ export function IntranetShell({
           </div>
 
           <div className="relative z-10 -mt-10 px-1 sm:-mt-12 sm:px-2">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_12px_40px_rgba(7,31,94,0.08)] sm:px-5">
+            <div className="mb-4 flex flex-col gap-3 rounded-2xl bg-white px-4 py-3 shadow-[0_12px_40px_rgba(7,31,94,0.08)] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
               <div className="flex min-w-0 items-center gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[#071F5E] text-sm font-bold text-white">
                   {session.name.slice(0, 1).toUpperCase()}
@@ -157,15 +167,15 @@ export function IntranetShell({
               </div>
             </div>
 
-            {/* mobile nav */}
-            <div className="mb-4 flex gap-2 overflow-x-auto lg:hidden">
+            {/* mobile nav — wrap instead of horizontal scroll that clips tabs */}
+            <nav className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:hidden">
               {items.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`shrink-0 rounded-full px-3 py-2 text-xs font-semibold ${
+                    className={`rounded-xl px-3 py-2.5 text-center text-xs font-semibold ${
                       active ? 'bg-[#009179] text-white' : 'bg-white text-[#071F5E] shadow-sm'
                     }`}
                   >
@@ -173,7 +183,7 @@ export function IntranetShell({
                   </Link>
                 );
               })}
-            </div>
+            </nav>
 
             {children}
           </div>
