@@ -22,5 +22,15 @@ export function intranetTools(locale: string): IntranetTool[] {
       image: '/images/Reunião casual ao ar livre.png',
       accent: '#071F5E',
     },
+    {
+      id: 'actividades',
+      title: 'Actividades de campo',
+      description:
+        'Capacitaciones y visitas. Convite para quien no está en el sistema y confirmación de presencia desde el celular de la persona.',
+      href: `/${locale}/intranet/herramientas/actividades`,
+      permission: 'tools.actividades',
+      image: '/images/Consulta agrícola ao fim da tarde.png',
+      accent: '#009179',
+    },
   ];
 }

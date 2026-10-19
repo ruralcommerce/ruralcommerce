@@ -77,6 +77,7 @@ function verifyLegacyToken(token: string | undefined | null): IntranetSession | 
         'tools.access',
         'tools.marca',
         'tools.sementes',
+        'tools.actividades',
       ],
     };
   } catch {

@@ -18,6 +18,7 @@ data/sementes-lotes.json
 data/marca-contracts.json
 data/marca-catalog.json
 data/intranet-users.json
+data/actividades.json
 
 public/images/uploads/*
 !public/images/uploads/.gitkeep

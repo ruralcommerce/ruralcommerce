@@ -7,7 +7,8 @@ export type IntranetPermission =
   | 'permissions.manage'
   | 'tools.access'
   | 'tools.marca'
-  | 'tools.sementes';
+  | 'tools.sementes'
+  | 'tools.actividades';
 
 export type IntranetUser = {
   id: string;
@@ -40,8 +41,9 @@ export const ROLE_DEFAULT_PERMISSIONS: Record<IntranetRole, IntranetPermission[]
     'tools.access',
     'tools.marca',
     'tools.sementes',
+    'tools.actividades',
   ],
-  editor: ['dashboard', 'tools.access', 'tools.marca', 'tools.sementes'],
+  editor: ['dashboard', 'tools.access', 'tools.marca', 'tools.sementes', 'tools.actividades'],
   viewer: ['dashboard', 'tools.access', 'tools.sementes'],
 };
 
