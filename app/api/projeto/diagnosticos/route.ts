@@ -3,6 +3,8 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import { appendAuditEntry } from '@/lib/project-audit-log';
 import { hasAllDiagnosisAnswers, sanitizeDiagnosisAnswers } from '@/lib/project-diagnosis';
+import { canSubmitDiagnosis } from '@/lib/project-onboarding';
+import { markInviteDiagnosisCompleted } from '@/lib/project-participant-invites';
 import { readTeamSessionFromRequest } from '@/lib/project-team-session';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
     index = records.findIndex((item) => {
       const user = ((item.user as RecordItem) || {}) as RecordItem;
       const userEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      return userEmail === email && item.status === 'approved';
+      return userEmail === email && canSubmitDiagnosis(item.status);
     });
   }
 
@@ -107,14 +109,20 @@ export async function POST(request: Request) {
   const current = records[index];
   const status = typeof current.status === 'string' ? current.status : 'pending';
 
-  if (status !== 'approved') {
+  if (!canSubmitDiagnosis(status)) {
     return NextResponse.json({ ok: false, message: 'Diagnóstico disponível apenas para participantes aprovados.' }, { status: 403 });
   }
 
   const profile = ((current.profile as RecordItem) || {}) as RecordItem;
+  const agreement = ((profile.agreement as RecordItem) || {}) as RecordItem;
+  if (agreement.signed !== true && !teamAssist) {
+    return NextResponse.json({ ok: false, message: 'Assine o convênio antes de enviar o diagnóstico.' }, { status: 403 });
+  }
+
   const now = new Date().toISOString();
   const previousDiagnosis = ((profile.diagnosis as RecordItem) || {}) as RecordItem;
   const hadDiagnosis = Boolean(previousDiagnosis.answers);
+  const finishingOnboarding = status === 'onboarding';
 
   const submittedBy = teamAssist && teamSession
     ? {
@@ -130,9 +138,16 @@ export async function POST(request: Request) {
         email,
       };
 
+  const nextUser = ((current.user as RecordItem) || {}) as RecordItem;
+
   records[index] = {
     ...current,
+    status: finishingOnboarding ? 'approved' : current.status,
     updatedAt: now,
+    user: {
+      ...nextUser,
+      accessStatus: finishingOnboarding ? 'active' : nextUser.accessStatus,
+    },
     profile: {
       ...profile,
       diagnosis: {
@@ -147,6 +162,15 @@ export async function POST(request: Request) {
 
   await writeRecords(records);
 
+  const inviteToken = typeof current.inviteToken === 'string' ? current.inviteToken : '';
+  if (finishingOnboarding && inviteToken) {
+    try {
+      await markInviteDiagnosisCompleted(inviteToken);
+    } catch (error) {
+      console.error('[api/projeto/diagnosticos] invite progress update failed:', error);
+    }
+  }
+
   await appendAuditEntry({
     action: hadDiagnosis ? 'diagnosis_update' : 'diagnosis_submit',
     actorType: teamAssist ? 'team' : 'candidate',
@@ -157,6 +181,7 @@ export async function POST(request: Request) {
       email,
       teamAssist,
       submittedBy,
+      finishingOnboarding,
     },
   });
 

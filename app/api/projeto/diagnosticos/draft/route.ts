@@ -7,6 +7,7 @@ import {
   countFilledDiagnosisAnswers,
   sanitizeDiagnosisAnswers,
 } from '@/lib/project-diagnosis';
+import { canSubmitDiagnosis } from '@/lib/project-onboarding';
 import { readTeamSessionFromRequest } from '@/lib/project-team-session';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
@@ -59,7 +60,7 @@ function findRecordIndex(records: RecordItem[], candidateId: string, email: stri
     index = records.findIndex((item) => {
       const user = ((item.user as RecordItem) || {}) as RecordItem;
       const userEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
-      return userEmail === email.toLowerCase() && item.status === 'approved';
+      return userEmail === email.toLowerCase() && canSubmitDiagnosis(item.status);
     });
   }
 
@@ -111,7 +112,7 @@ export async function PUT(request: Request) {
   const current = records[index];
   const status = typeof current.status === 'string' ? current.status : 'pending';
 
-  if (status !== 'approved') {
+  if (!canSubmitDiagnosis(status)) {
     return NextResponse.json({ ok: false, message: 'Diagnóstico disponível apenas para participantes aprovados.' }, { status: 403 });
   }
 

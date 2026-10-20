@@ -14,7 +14,7 @@ type LocaleKey = 'es' | 'pt-BR' | 'en';
 
 type CandidateRecord = {
   id: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'onboarding' | 'approved' | 'rejected';
   user: {
     email: string;
   };
@@ -580,9 +580,15 @@ function clearLocalDraft(recordId: string) {
   window.localStorage.removeItem(`${LOCAL_DRAFT_PREFIX}${recordId}`);
 }
 
+function canAccessDiagnosisStatus(status: string | undefined) {
+  return status === 'approved' || status === 'onboarding';
+}
+
 export function ProjectDiagnosisForm({
   locale,
   teamAssist,
+  embedded: _embedded,
+  onSubmitted,
 }: {
   locale: string;
   teamAssist?: {
@@ -590,6 +596,8 @@ export function ProjectDiagnosisForm({
     memberName: string;
     record: CandidateRecord;
   };
+  embedded?: boolean;
+  onSubmitted?: () => void;
 }) {
   const localeKey = getLocaleKey(locale);
   const t = copy[localeKey];
@@ -626,7 +634,7 @@ export function ProjectDiagnosisForm({
     setIncompleteIds((prev) => prev.filter((id) => id !== key));
   };
 
-  const isApproved = record?.status === 'approved';
+  const isApproved = canAccessDiagnosisStatus(record?.status);
   const agreementSigned = record?.profile?.agreement?.signed === true;
 
   const showFeedback = (message: string, kind: 'error' | 'success' = 'error') => {
@@ -644,12 +652,12 @@ export function ProjectDiagnosisForm({
 
   const hydrateFromSession = () => {
     const parsed = readCandidateSession();
-    if (!parsed?.email || parsed.status !== 'approved' || !parsed.id) return;
+    if (!parsed?.email || !canAccessDiagnosisStatus(parsed.status) || !parsed.id) return;
     setEmail(parsed.email);
     if (parsed.password) setPassword(parsed.password);
     setRecord({
       id: parsed.id,
-      status: 'approved',
+      status: parsed.status === 'onboarding' ? 'onboarding' : 'approved',
       user: { email: parsed.email },
       profile: {
         name: parsed.name || '',
@@ -702,7 +710,7 @@ export function ProjectDiagnosisForm({
     nextStep: number,
     silent = false
   ) => {
-    if (activeRecord.status !== 'approved' || activeRecord.profile.agreement?.signed !== true) return;
+    if (!canAccessDiagnosisStatus(activeRecord.status) || activeRecord.profile.agreement?.signed !== true) return;
     if (success) return;
 
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -752,7 +760,7 @@ export function ProjectDiagnosisForm({
 
   const restoreCandidateSession = async () => {
     const session = readCandidateSession();
-    if (!session?.email || !session.password || session.status !== 'approved') {
+    if (!session?.email || !session.password || !canAccessDiagnosisStatus(session.status)) {
       hydrateFromSession();
       return;
     }
@@ -774,7 +782,7 @@ export function ProjectDiagnosisForm({
 
       const loadedRecord = payload.record as CandidateRecord;
       setRecord(loadedRecord);
-      if (loadedRecord.status === 'approved') {
+      if (canAccessDiagnosisStatus(loadedRecord.status)) {
         applyDiagnosisFromProfile(loadedRecord, true);
       }
     } catch {
@@ -842,7 +850,7 @@ export function ProjectDiagnosisForm({
       }
       const loadedRecord = payload.record as CandidateRecord;
       setRecord(loadedRecord);
-      if (loadedRecord.status !== 'approved') {
+      if (!canAccessDiagnosisStatus(loadedRecord.status)) {
         return;
       }
       writeCandidateSession({
@@ -886,7 +894,7 @@ export function ProjectDiagnosisForm({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!record || record.status !== 'approved') {
+    if (!record || !canAccessDiagnosisStatus(record.status)) {
       showFeedback(t.blockedText);
       return;
     }
@@ -924,8 +932,14 @@ export function ProjectDiagnosisForm({
         return;
       }
       if (record?.id) clearLocalDraft(record.id);
-      patchCandidateSession({ id: record.id, email: record.user.email });
+      patchCandidateSession({
+        id: record.id,
+        email: record.user.email,
+        status: 'approved',
+        agreementSigned: true,
+      });
       showFeedback(t.success, 'success');
+      onSubmitted?.();
     } catch {
       showFeedback(t.requiredError);
     } finally {

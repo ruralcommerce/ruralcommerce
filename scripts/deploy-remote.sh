@@ -63,6 +63,7 @@ backup_path "data/marca-contracts.json"
 backup_path "data/marca-catalog.json"
 backup_path "data/intranet-users.json"
 backup_path "data/actividades.json"
+backup_path "data/project-participant-invites.json"
 
 # Production secrets (gitignored)
 backup_path ".env.production.local"
@@ -220,6 +221,16 @@ if [ -f "$BACKUP/data/actividades.json" ]; then
   mkdir -p "$ROOT/data"
   cp -a "$BACKUP/data/actividades.json" "$ROOT/data/actividades.json"
   log "restored: data/actividades.json"
+fi
+
+if [ -f "$BACKUP/data/project-participant-invites.json" ]; then
+  mkdir -p "$ROOT/data"
+  cp -a "$BACKUP/data/project-participant-invites.json" "$ROOT/data/project-participant-invites.json"
+  log "restored: data/project-participant-invites.json"
+elif [ ! -f "$ROOT/data/project-participant-invites.json" ]; then
+  mkdir -p "$ROOT/data"
+  printf '[]\n' > "$ROOT/data/project-participant-invites.json"
+  log "seeded: data/project-participant-invites.json"
 fi
 
 if [ -f "$BACKUP/.env.production.local" ]; then

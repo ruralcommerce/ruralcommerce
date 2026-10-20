@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { randomBytes, scryptSync, timingSafeEqual } from 'crypto';
 import path from 'path';
+import { canSignAgreement } from '@/lib/project-onboarding';
+import { markInviteAgreementSigned } from '@/lib/project-participant-invites';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 const DATA_FILE = path.join(DATA_DIR, 'project-inscriptions.json');
@@ -101,7 +103,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: 'Senha inválida.' }, { status: 401 });
   }
 
-  if (record.status !== 'approved') {
+  if (!canSignAgreement(record.status)) {
     return NextResponse.json({ ok: false, message: 'Seu perfil ainda não foi aprovado.' }, { status: 403 });
   }
 
@@ -135,5 +137,15 @@ export async function POST(request: Request) {
   };
 
   await writeRecords(records);
+
+  const inviteToken = typeof record.inviteToken === 'string' ? record.inviteToken : '';
+  if (inviteToken) {
+    try {
+      await markInviteAgreementSigned(inviteToken);
+    } catch (error) {
+      console.error('[api/projeto/agreement] invite progress update failed:', error);
+    }
+  }
+
   return NextResponse.json({ ok: true, record: sanitizeRecord(records[index]) });
 }

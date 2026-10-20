@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ScrollText } from 'lucide-react';
 import { mapProjectApiMessage } from '@/lib/project-locale';
 import { getProjectSexOptions, type ProjectSex } from '@/lib/project-sex';
@@ -230,6 +230,17 @@ type ProjectEnrollmentFormProps = {
   introNote: string;
   nextStepsTitle: string;
   nextSteps: readonly string[];
+  inviteToken?: string;
+  initialEmail?: string;
+  initialDraft?: Partial<FormData> | null;
+  initialStep?: number | null;
+  hideSuccessPanel?: boolean;
+  onRegistered?: (info: {
+    id: string;
+    email: string;
+    password: string;
+    name: string;
+  }) => void;
 };
 
 export function ProjectEnrollmentForm({
@@ -240,18 +251,40 @@ export function ProjectEnrollmentForm({
   introNote,
   nextStepsTitle,
   nextSteps,
+  inviteToken,
+  initialEmail,
+  initialDraft,
+  initialStep,
+  hideSuccessPanel,
+  onRegistered,
 }: ProjectEnrollmentFormProps) {
   const localeKey = getLocaleKey(locale);
   const t = formCopy[localeKey];
   const sexOptions = getProjectSexOptions(localeKey);
-  const [form, setForm] = useState<FormData>(emptyForm());
+  const [form, setForm] = useState<FormData>(() => {
+    const base = emptyForm();
+    if (initialDraft) {
+      return {
+        ...base,
+        ...initialDraft,
+        q9: Array.isArray(initialDraft.q9) ? initialDraft.q9 : base.q9,
+        password: '',
+        passwordConfirm: '',
+        q4: initialDraft.q4 || initialEmail || base.q4,
+      };
+    }
+    return { ...base, q4: initialEmail || '' };
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [recordId, setRecordId] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(() =>
+    typeof initialStep === 'number' && initialStep >= 0 ? Math.min(initialStep, 6) : 0
+  );
   const [submittedEmail, setSubmittedEmail] = useState('');
+  const draftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const totalSteps = 8;
   const profileHref = submittedEmail ? `/${locale}/perfil?email=${encodeURIComponent(submittedEmail)}` : `/${locale}/perfil`;
@@ -262,6 +295,26 @@ export function ProjectEnrollmentForm({
       ...prev,
       q9: checked ? [...prev.q9, value] : prev.q9.filter((v) => v !== value),
     }));
+
+  useEffect(() => {
+    if (!inviteToken || success) return;
+    if (draftTimer.current) clearTimeout(draftTimer.current);
+    draftTimer.current = setTimeout(() => {
+      const { password: _password, passwordConfirm: _passwordConfirm, ...draft } = form;
+      void fetch(`/api/projeto/participant-invites/${encodeURIComponent(inviteToken)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          enrollmentDraft: draft,
+          enrollmentDraftStep: currentStep,
+          registrationEmail: form.q4 || undefined,
+        }),
+      }).catch(() => undefined);
+    }, 800);
+    return () => {
+      if (draftTimer.current) clearTimeout(draftTimer.current);
+    };
+  }, [inviteToken, form, currentStep, success]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -298,6 +351,7 @@ export function ProjectEnrollmentForm({
           password: form.password,
           answers,
           locale,
+          inviteToken: inviteToken || undefined,
         }),
       });
       const payload = await res.json();
@@ -305,9 +359,22 @@ export function ProjectEnrollmentForm({
         setError(mapProjectApiMessage(payload.message, locale, t.errorGeneric));
         return;
       }
+      const registeredId = payload.record?.id || '';
+      const registeredEmail = form.q4;
+      const registeredPassword = form.password;
+      const registeredName = form.q2;
       setSuccess(t.successMsg);
-      setRecordId(payload.record?.id || '');
-      setSubmittedEmail(form.q4);
+      setRecordId(registeredId);
+      setSubmittedEmail(registeredEmail);
+      if (onRegistered) {
+        onRegistered({
+          id: registeredId,
+          email: registeredEmail,
+          password: registeredPassword,
+          name: registeredName,
+        });
+        return;
+      }
       setForm(emptyForm());
       setCurrentStep(totalSteps - 1);
     } catch {
@@ -592,7 +659,7 @@ export function ProjectEnrollmentForm({
         </div>
 
         {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-        {success ? (
+        {success && !hideSuccessPanel ? (
           <div className="rounded-2xl bg-[#EEF7F7] p-4 text-sm text-[#1D6359]">
             <p>{success}</p>
             {recordId ? <p className="mt-1 text-xs opacity-70">ID: {recordId}</p> : null}

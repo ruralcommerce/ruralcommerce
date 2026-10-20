@@ -31,16 +31,19 @@ export function getProjectStatusLabel(status: string, locale?: string) {
   const labels: Record<ProjectLocaleKey, Record<string, string>> = {
     es: {
       pending: 'Pendiente',
+      onboarding: 'En onboarding',
       approved: 'Aprobada',
       rejected: 'Rechazada',
     },
     'pt-BR': {
       pending: 'Pendente',
+      onboarding: 'Em onboarding',
       approved: 'Aprovada',
       rejected: 'Rejeitada',
     },
     en: {
       pending: 'Pending',
+      onboarding: 'Onboarding',
       approved: 'Approved',
       rejected: 'Rejected',
     },

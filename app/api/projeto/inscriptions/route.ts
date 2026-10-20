@@ -3,6 +3,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import { randomBytes, scryptSync } from 'crypto';
 import path from 'path';
 import { notifyNewProjectInscription } from '@/lib/project-inscription-notify';
+import { markInviteRegistered, findInviteByToken } from '@/lib/project-participant-invites';
 import { verifyTeamAccess } from '@/lib/project-team-auth-request';
 import { normalizeProjectSex } from '@/lib/project-sex';
 
@@ -83,7 +84,7 @@ export async function POST(request: Request) {
 
   const body = payload as Record<string, unknown>;
   const name = trimField(body.name, MAX.name);
-  const email = trimField(body.email, MAX.email);
+  const email = trimField(body.email, MAX.email).toLowerCase();
   const phone = trimField(body.phone, MAX.phone);
   const organization = trimField(body.organization, MAX.organization);
   const city = trimField(body.city, MAX.city);
@@ -91,6 +92,7 @@ export async function POST(request: Request) {
   const interest = trimField(body.interest, MAX.interest);
   const message = trimField(body.message, MAX.message);
   const password = trimField(body.password, MAX.password);
+  const inviteToken = trimField(body.inviteToken, 128);
   const sex = normalizeProjectSex(body.sex);
   const answers =
     typeof body.answers === 'object' && body.answers !== null ? body.answers : null;
@@ -111,20 +113,51 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: 'E-mail inválido.' }, { status: 400 });
   }
 
-  const records = await readRecords();
+  let invite = null as Awaited<ReturnType<typeof findInviteByToken>>;
+  if (inviteToken) {
+    invite = await findInviteByToken(inviteToken);
+    if (!invite || invite.status === 'revoked' || invite.status === 'completed') {
+      return NextResponse.json({ ok: false, message: 'Invitación no válida o ya completada.' }, { status: 400 });
+    }
+    if (invite.inscriptionId) {
+      return NextResponse.json(
+        { ok: false, message: 'Esta invitación ya tiene un registro iniciado. Continúa desde el enlace del correo.' },
+        { status: 409 }
+      );
+    }
+  }
+
+  const records = (await readRecords()) as Array<Record<string, unknown>>;
+  const existing = records.find((item) => {
+    const user = (item.user as Record<string, unknown>) || {};
+    const userEmail = typeof user.email === 'string' ? user.email.toLowerCase() : '';
+    return userEmail === email;
+  });
+  if (existing) {
+    return NextResponse.json(
+      { ok: false, message: 'Ya existe una inscripción con este correo.' },
+      { status: 409 }
+    );
+  }
+
   const id = `participant_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const createdAt = new Date().toISOString();
   const passwordHash = hashPassword(password);
+  const isInvitePath = Boolean(invite);
 
   const record = {
     id,
     createdAt,
-    status: 'pending',
+    status: isInvitePath ? 'onboarding' : 'pending',
+    source: isInvitePath ? 'invite' : 'open',
+    inviteId: invite?.id || null,
+    inviteToken: invite?.token || null,
+    invitedEmail: invite?.invitedEmail || null,
     user: {
       id,
       email,
       username: email,
-      accessStatus: 'pending',
+      accessStatus: isInvitePath ? 'onboarding' : 'pending',
       passwordHash,
     },
     profile: {
@@ -137,7 +170,7 @@ export async function POST(request: Request) {
       interest,
       message,
       answers,
-      locale: typeof body.locale === 'string' ? body.locale : 'pt-BR',
+      locale: typeof body.locale === 'string' ? body.locale : invite?.locale || 'pt-BR',
       marketingConsent: body.marketingConsent === true,
       consentAt: body.marketingConsent === true ? createdAt : null,
     },
@@ -145,6 +178,13 @@ export async function POST(request: Request) {
 
   records.push(record);
   await writeRecords(records);
+
+  if (invite) {
+    await markInviteRegistered(invite.token, {
+      inscriptionId: id,
+      registrationEmail: email,
+    });
+  }
 
   try {
     await notifyNewProjectInscription({
@@ -159,7 +199,7 @@ export async function POST(request: Request) {
         role,
         interest,
         message,
-        locale: typeof body.locale === 'string' ? body.locale : 'pt-BR',
+        locale: typeof body.locale === 'string' ? body.locale : invite?.locale || 'pt-BR',
       },
     });
   } catch (error) {

@@ -13,6 +13,7 @@ data/project-team-members.json
 data/project-audit-log.json
 data/project-investments.json
 data/project-planta-invites.json
+data/project-participant-invites.json
 data/sementes.json
 data/sementes-lotes.json
 data/marca-contracts.json

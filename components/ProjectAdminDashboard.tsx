@@ -11,6 +11,7 @@ import {
   type ProjectLocaleKey,
 } from '@/lib/project-locale';
 import { ProjectBroadcastPanel } from '@/components/ProjectBroadcastPanel';
+import { ProjectInvitePanel } from '@/components/ProjectInvitePanel';
 import { ProjectTeamMembersPanel } from '@/components/ProjectTeamMembersPanel';
 import { ProjectInvestmentAdminPanel } from '@/components/ProjectInvestmentAdminPanel';
 import { PlantaInvitesPanel } from '@/components/planta/PlantaInvitesPanel';
@@ -62,7 +63,7 @@ import { triggerPdfBlobDownload } from '@/lib/project-pdf-common';
 
 type EnrollmentRecord = {
   id: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'onboarding' | 'approved' | 'rejected';
   createdAt: string;
   updatedAt?: string;
   notes?: string;
@@ -1560,7 +1561,10 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
             title={t.sectionCommsTitle}
             onBack={() => setSection('hub')}
           />
-          <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} teamToken={teamToken} />
+          <div className="space-y-6">
+            <ProjectInvitePanel locale={locale} teamPassword={teamPassword} teamToken={teamToken} />
+            <ProjectBroadcastPanel locale={locale} teamPassword={teamPassword} teamToken={teamToken} />
+          </div>
         </div>
       ) : null}
 

@@ -27,7 +27,7 @@ type LocaleKey = 'es' | 'pt-BR' | 'en';
 
 type CandidateRecord = {
   id: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'onboarding' | 'approved' | 'rejected';
   updatedAt?: string;
   user: { email: string };
   profile: {
@@ -225,7 +225,17 @@ function CheckRow({
   );
 }
 
-export function ProjectAgreementForm({ locale, initialEmail }: { locale: string; initialEmail?: string }) {
+export function ProjectAgreementForm({
+  locale,
+  initialEmail,
+  embedded,
+  onSigned,
+}: {
+  locale: string;
+  initialEmail?: string;
+  embedded?: boolean;
+  onSigned?: () => void;
+}) {
   const localeKey = getLocaleKey(locale);
   const t = uiCopy[localeKey];
   const agreement = getProjectAgreementCopy(localeKey);
@@ -244,11 +254,12 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
   const [fullName, setFullName] = useState('');
   const [isSigning, setIsSigning] = useState(false);
 
-  const isApproved = record?.status === 'approved';
+  const canSign = record?.status === 'approved' || record?.status === 'onboarding';
   const alreadySigned = record?.profile?.agreement?.signed === true;
 
   const persistSession = useCallback(
     (loaded: CandidateRecord, passwordValue?: string) => {
+      if (loaded.status !== 'approved' && loaded.status !== 'onboarding') return;
       writeCandidateSession({
         id: loaded.id,
         email: loaded.user.email,
@@ -282,7 +293,9 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
         setEmail(loaded.user.email);
         setPassword(targetPassword);
         if (loaded.profile?.name && !fullName) setFullName(loaded.profile.name);
-        if (loaded.status === 'approved') persistSession(loaded, targetPassword);
+        if (loaded.status === 'approved' || loaded.status === 'onboarding') {
+          persistSession(loaded, targetPassword);
+        }
         return loaded;
       } catch {
         if (!silent) setError(t.genericError);
@@ -350,6 +363,7 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
       setRecord(loaded);
       persistSession(loaded, signPassword);
       patchCandidateSession({ agreementSigned: true, password: signPassword });
+      onSigned?.();
     } catch {
       setError(t.genericError);
     } finally {
@@ -378,14 +392,17 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
     };
   };
 
-  const pageShell = (content: React.ReactNode) => (
-    <div className="space-y-5">
-      <ProjectPortalHero eyebrow={t.eyebrow} title={t.pageTitle} description={t.pageIntro} />
-      <ProjectPortalShell sidebar={<ProjectPortalSteps title={t.stepsTitle} steps={t.steps} />}>
-        {content}
-      </ProjectPortalShell>
-    </div>
-  );
+  const pageShell = (content: React.ReactNode) =>
+    embedded ? (
+      <div className="space-y-4">{content}</div>
+    ) : (
+      <div className="space-y-5">
+        <ProjectPortalHero eyebrow={t.eyebrow} title={t.pageTitle} description={t.pageIntro} />
+        <ProjectPortalShell sidebar={<ProjectPortalSteps title={t.stepsTitle} steps={t.steps} />}>
+          {content}
+        </ProjectPortalShell>
+      </div>
+    );
 
   if (isBootstrapping) {
     return pageShell(
@@ -432,7 +449,7 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
     );
   }
 
-  if (!isApproved) {
+  if (!canSign) {
     return pageShell(
       <ProjectPortalPanel title={t.blockedTitle} subtitle={t.blockedText}>
           <a
@@ -449,6 +466,23 @@ export function ProjectAgreementForm({ locale, initialEmail }: { locale: string;
     const agreement = record.profile.agreement;
     const signedName = agreement?.fullName || record.profile.name || record.user.email;
     const signedAt = agreement?.signedAt || '';
+
+    if (embedded && onSigned) {
+      return pageShell(
+        <ProjectPortalPanel title={t.signedTitle} subtitle={t.signedText} tone="accent">
+          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E7F3F3] text-[#1D6359]">
+            <CheckCircle2 size={22} />
+          </div>
+          <button
+            type="button"
+            onClick={() => onSigned()}
+            className="mt-4 inline-flex items-center justify-center rounded-full bg-[#52ADAD] px-5 py-2.5 text-sm font-semibold text-[#071F5E]"
+          >
+            {t.goToDiagnosis}
+          </button>
+        </ProjectPortalPanel>
+      );
+    }
 
     return pageShell(
       <ProjectPortalPanel title={t.signedTitle} subtitle={t.signedText} tone="accent">
