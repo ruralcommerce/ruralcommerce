@@ -108,7 +108,9 @@ export function ProjectInvitePanel({
 
   const load = async () => {
     try {
-      const response = await fetch('/api/projeto/participant-invites', {
+      const params = new URLSearchParams();
+      if (!teamToken && teamPassword) params.set('password', teamPassword);
+      const response = await fetch(`/api/projeto/participant-invites?${params.toString()}`, {
         headers: teamToken ? { Authorization: `Bearer ${teamToken}` } : undefined,
       });
       const payload = await response.json();

@@ -18,7 +18,9 @@ function trimField(value: unknown, max: number) {
 }
 
 export async function GET(request: Request) {
-  const auth = verifyTeamAccess(request);
+  const { searchParams } = new URL(request.url);
+  const password = searchParams.get('password') || '';
+  const auth = verifyTeamAccess(request, password);
   if (!auth.ok) {
     return NextResponse.json({ ok: false, message: auth.message }, { status: 401 });
   }
@@ -39,11 +41,6 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const auth = verifyTeamAccess(request);
-  if (!auth.ok) {
-    return NextResponse.json({ ok: false, message: auth.message }, { status: 401 });
-  }
-
   let payload: unknown;
   try {
     payload = await request.json();
@@ -52,6 +49,15 @@ export async function POST(request: Request) {
   }
 
   const body = payload as Record<string, unknown>;
+  const password = trimField(body.password, 128);
+  const auth = verifyTeamAccess(request, password);
+  if (!auth.ok) {
+    return NextResponse.json(
+      { ok: false, message: auth.message },
+      { status: auth.message.includes('inválida') ? 401 : 500 }
+    );
+  }
+
   const email = trimField(body.email, 254).toLowerCase();
   const locale = trimField(body.locale, 12) || 'es';
   const note = trimField(body.note, 500);
