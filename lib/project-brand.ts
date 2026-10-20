@@ -1,9 +1,9 @@
 /** Official project name used in agreements, notifications and broadcasts. */
-export const PROJECT_NAME = 'Impulso MiPyMEs: digitaliza Los Santos';
+export const PROJECT_NAME = 'Impulsa Mipymes: digitaliza Los Santos';
 
 export const PROJECT_EXECUTOR = 'Rural Commerce';
 
-export const PROJECT_NAME_SHORT = 'Impulso MiPyMEs';
+export const PROJECT_NAME_SHORT = 'Impulsa Mipymes';
 
 /** Public paths (under /public). Use absoluteProjectAsset() in emails. */
 export const PROJECT_LOGO_PATH = '/images/projeto/im-los-santos-logo-azul.png';

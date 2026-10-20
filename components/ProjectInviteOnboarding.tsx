@@ -56,7 +56,7 @@ const copy: Record<
     stepDiagnosis: 'Diagnóstico',
     stepDone: 'Listo',
     doneTitle: 'Ya formas parte del proyecto',
-    doneText: 'Completaste el registro, firmaste el convenio y enviaste el diagnóstico. Tu lugar en Impulso MiPyMEs quedó activo.',
+    doneText: 'Completaste el registro, firmaste el convenio y enviaste el diagnóstico. Tu lugar en Impulsa Mipymes quedó activo.',
     profileCta: 'Ir a mi perfil',
     resumeLoginHint: 'Si ya creaste tu contraseña, inicia sesión abajo para continuar donde lo dejaste.',
   },
@@ -71,7 +71,7 @@ const copy: Record<
     stepDiagnosis: 'Diagnóstico',
     stepDone: 'Pronto',
     doneTitle: 'Você já faz parte do projeto',
-    doneText: 'Você concluiu o cadastro, assinou o convênio e enviou o diagnóstico. Seu lugar no Impulso MiPyMEs está ativo.',
+    doneText: 'Você concluiu o cadastro, assinou o convênio e enviou o diagnóstico. Seu lugar no Impulsa Mipymes está ativo.',
     profileCta: 'Ir ao meu perfil',
     resumeLoginHint: 'Se já criou a senha, entre abaixo para continuar de onde parou.',
   },
@@ -86,7 +86,7 @@ const copy: Record<
     stepDiagnosis: 'Diagnosis',
     stepDone: 'Done',
     doneTitle: 'You are now part of the project',
-    doneText: 'You completed registration, signed the agreement and submitted the diagnosis. Your place in Impulso MiPyMEs is active.',
+    doneText: 'You completed registration, signed the agreement and submitted the diagnosis. Your place in Impulsa Mipymes is active.',
     profileCta: 'Go to my profile',
     resumeLoginHint: 'If you already created your password, sign in below to continue where you left off.',
   },
@@ -175,7 +175,7 @@ export function ProjectInviteOnboarding({
   return (
     <div className="space-y-5">
       <div className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-[#E6EBF1] sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">Impulso MiPyMEs</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#1D6359]">Impulsa Mipymes</p>
         <h1 className="mt-2 text-2xl font-semibold text-[#071F5E] sm:text-3xl">{t.title}</h1>
         <p className="mt-2 max-w-3xl text-sm leading-6 text-[#2F3336]/80">{t.text}</p>
         <p className="mt-3 text-xs text-[#2F3336]/55">
