@@ -1,3 +1,5 @@
+import type { ProjectSex } from '@/lib/project-sex';
+
 export type ActivityKind = 'capacitacion' | 'visita';
 export type ActivityStatus = 'abierta' | 'cerrada';
 export type ParticipantState = 'invitado' | 'inscrito' | 'presente' | 'ausente';
@@ -24,7 +26,13 @@ export type ActivityParticipant = {
   name: string;
   phone: string;
   email: string;
+  /** Sex / gender for disaggregation — same codes as Impulsa CR. */
+  sex: ProjectSex | null;
+  age: number | null;
+  locality: string;
   organization: string;
+  companyName: string;
+  documentId: string;
   state: ParticipantState;
   confirmToken: string;
   invitedAt?: string;
@@ -71,5 +79,7 @@ export type ImpulsaPerson = {
   phone: string;
   email: string;
   organization: string;
+  locality: string;
+  sex: ProjectSex | null;
   status: string;
 };

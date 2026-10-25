@@ -14,12 +14,7 @@ export async function GET(_request: Request, { params }: { params: { code: strin
 
 export async function POST(request: Request, { params }: { params: { code: string } }) {
   try {
-    const body = (await request.json().catch(() => ({}))) as {
-      name?: string;
-      phone?: string;
-      email?: string;
-      organization?: string;
-    };
+    const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
     const result = await enrollByInvite(params.code, body);
     return NextResponse.json({
       ok: true,

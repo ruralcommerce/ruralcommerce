@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import path from 'path';
+import { normalizeProjectSex } from '@/lib/project-sex';
 import type { ImpulsaPerson } from './types';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'project-inscriptions.json');
@@ -12,6 +13,8 @@ type RawInscription = {
     phone?: unknown;
     email?: unknown;
     organization?: unknown;
+    city?: unknown;
+    sex?: unknown;
   };
   user?: {
     email?: unknown;
@@ -45,6 +48,8 @@ export async function listImpulsaPeople(): Promise<ImpulsaPerson[]> {
       phone: text(item.profile?.phone, 40),
       email: text(item.profile?.email, 254) || text(item.user?.email, 254),
       organization: text(item.profile?.organization, 200),
+      locality: text(item.profile?.city, 120),
+      sex: normalizeProjectSex(item.profile?.sex),
       status,
     });
   }

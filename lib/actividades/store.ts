@@ -1,8 +1,15 @@
 import { randomBytes } from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
-import { normalizePhone } from '@/lib/project-phone';
 import { classifyGeo, cleanDeviceId } from './geo';
+import {
+  parseEnrollmentProfile,
+  ProfileError,
+  requireEnrollmentProfile,
+  requireStaffProfile,
+  type EnrollmentProfile,
+  type EnrollmentProfileInput,
+} from './profile';
 import type {
   Activity,
   ActivityActor,
@@ -53,13 +60,30 @@ function phoneKey(phone: string) {
   return digits.slice(-8);
 }
 
-function storePhone(phone: string) {
-  return normalizePhone(phone) || clean(phone, 40);
+function documentKey(documentId: string) {
+  return documentId.replace(/\W/g, '').toLowerCase();
 }
 
-function isEmail(value: string) {
-  if (!value) return true;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+function normalizeParticipant(person: ActivityParticipant): ActivityParticipant {
+  return {
+    ...person,
+    sex: person.sex ?? null,
+    age: person.age ?? null,
+    locality: person.locality || '',
+    organization: person.organization || '',
+    companyName: person.companyName || '',
+    documentId: person.documentId || '',
+    email: person.email || '',
+  };
+}
+
+function normalizeActivity(activity: Activity): Activity {
+  return {
+    ...activity,
+    participants: (activity.participants || []).map(normalizeParticipant),
+    photoLinks: activity.photoLinks || [],
+    audit: activity.audit || [],
+  };
 }
 
 function parseStarts(value: unknown): string {
@@ -107,7 +131,7 @@ function makeToken() {
 async function readAll(): Promise<Activity[]> {
   try {
     const parsed = JSON.parse(await readFile(DATA_FILE, 'utf8'));
-    return Array.isArray(parsed) ? (parsed as Activity[]) : [];
+    return Array.isArray(parsed) ? (parsed as Activity[]).map(normalizeActivity) : [];
   } catch {
     return [];
   }
@@ -234,95 +258,115 @@ export async function createActivity(input: {
   });
 }
 
-function newParticipant(input: {
-  source: ParticipantSource;
-  inscriptionId?: string;
-  name: string;
-  phone: string;
-  email: string;
-  organization: string;
-  state: ActivityParticipant['state'];
-}): ActivityParticipant {
+function newParticipant(
+  source: ParticipantSource,
+  profile: EnrollmentProfile,
+  state: ActivityParticipant['state'],
+  inscriptionId?: string
+): ActivityParticipant {
   const stamp = now();
-  return {
+  const person: ActivityParticipant = {
     id: makeId('par'),
-    source: input.source,
-    inscriptionId: input.inscriptionId,
-    name: input.name,
-    phone: input.phone,
-    email: input.email,
-    organization: input.organization,
-    state: input.state,
+    source,
+    inscriptionId,
+    name: profile.name,
+    phone: profile.phone,
+    email: profile.email,
+    sex: profile.sex,
+    age: profile.age,
+    locality: profile.locality,
+    organization: profile.organization,
+    companyName: profile.companyName,
+    documentId: profile.documentId,
+    state,
     confirmToken: makeToken(),
-    invitedAt: input.state === 'invitado' ? stamp : undefined,
-    enrolledAt: input.state === 'inscrito' ? stamp : undefined,
+    invitedAt: state === 'invitado' ? stamp : undefined,
+    enrolledAt: state === 'inscrito' ? stamp : undefined,
   };
+  return person;
+}
+
+function findDuplicate(activity: Activity, profile: EnrollmentProfile, inscriptionId?: string) {
+  if (inscriptionId) {
+    const byInscription = activity.participants.find((item) => item.inscriptionId === inscriptionId);
+    if (byInscription) return byInscription;
+  }
+  const key = phoneKey(profile.phone);
+  if (key) {
+    const byPhone = activity.participants.find((item) => phoneKey(item.phone) === key);
+    if (byPhone) return byPhone;
+  }
+  const doc = documentKey(profile.documentId);
+  if (doc) {
+    const byDoc = activity.participants.find((item) => documentKey(item.documentId) === doc);
+    if (byDoc) return byDoc;
+  }
+  return null;
 }
 
 export async function addPeople(
   id: string,
-  people: Array<{
-    source: 'impulsa' | 'manual';
-    inscriptionId?: string;
-    name: string;
-    phone?: string;
-    email?: string;
-    organization?: string;
-  }>,
+  people: Array<
+    EnrollmentProfileInput & {
+      source: 'impulsa' | 'manual';
+      inscriptionId?: string;
+    }
+  >,
   actor: string
 ): Promise<{ activity: Activity; added: number; skipped: number }> {
   let added = 0;
   let skipped = 0;
-  const activity = await mutate(id, (current) => {
-    assertOpen(current);
-    for (const person of people) {
-      const name = clean(person.name, 160);
-      if (name.length < 2) continue;
-      const phone = storePhone(clean(person.phone, 40));
-      const email = clean(person.email, 254);
-      if (!isEmail(email)) throw new ActividadError(400, 'Correo inválido');
-      if (person.source === 'impulsa' && person.inscriptionId) {
-        if (current.participants.some((item) => item.inscriptionId === person.inscriptionId)) {
+  try {
+    const activity = await mutate(id, (current) => {
+      assertOpen(current);
+      for (const person of people) {
+        let profile: EnrollmentProfile;
+        try {
+          profile =
+            person.source === 'manual' ? requireStaffProfile(person) : parseEnrollmentProfile(person);
+        } catch (err) {
+          if (err instanceof ProfileError) throw new ActividadError(400, err.message);
+          throw err;
+        }
+        if (profile.name.length < 2) continue;
+        if (findDuplicate(current, profile, person.inscriptionId)) {
           skipped += 1;
           continue;
         }
-      } else if (phoneKey(phone) && current.participants.some((item) => phoneKey(item.phone) === phoneKey(phone))) {
-        skipped += 1;
-        continue;
+        if (current.participants.length >= MAX_PEOPLE) {
+          throw new ActividadError(400, 'Esta actividad ya tiene el máximo de personas.');
+        }
+        current.participants.push(
+          newParticipant(
+            person.source,
+            profile,
+            person.source === 'impulsa' ? 'invitado' : 'inscrito',
+            person.source === 'impulsa' ? clean(person.inscriptionId, 80) : undefined
+          )
+        );
+        added += 1;
       }
-      if (current.participants.length >= MAX_PEOPLE) {
-        throw new ActividadError(400, 'Esta actividad ya tiene el máximo de personas.');
-      }
-      current.participants.push(
-        newParticipant({
-          source: person.source,
-          inscriptionId: person.source === 'impulsa' ? clean(person.inscriptionId, 80) : undefined,
-          name,
-          phone,
-          email,
-          organization: clean(person.organization, 200),
-          state: person.source === 'impulsa' ? 'invitado' : 'inscrito',
-        })
-      );
-      added += 1;
-    }
-    if (added > 0) audit(current, actor, 'Personas agregadas', String(added));
-  });
-  return { activity, added, skipped };
+      if (added > 0) audit(current, actor, 'Personas agregadas', String(added));
+    });
+    return { activity, added, skipped };
+  } catch (err) {
+    if (err instanceof ProfileError) throw new ActividadError(400, err.message);
+    throw err;
+  }
 }
 
 export async function enrollByInvite(
   code: string,
-  input: { name?: string; phone?: string; email?: string; organization?: string }
+  input: EnrollmentProfileInput
 ): Promise<{ activity: Activity; participant: ActivityParticipant; already: boolean }> {
   const inviteCode = clean(code, 16).toUpperCase();
-  const name = clean(input.name, 160);
-  const phone = storePhone(clean(input.phone, 40));
-  const email = clean(input.email, 254);
-  const organization = clean(input.organization, 200);
-  if (name.length < 2) throw new ActividadError(400, 'Escribe tu nombre');
-  if (!phoneKey(phone)) throw new ActividadError(400, 'Escribe un teléfono válido');
-  if (!isEmail(email)) throw new ActividadError(400, 'Correo inválido');
+  let profile: EnrollmentProfile;
+  try {
+    profile = requireEnrollmentProfile(input);
+  } catch (err) {
+    if (err instanceof ProfileError) throw new ActividadError(400, err.message);
+    throw err;
+  }
 
   return withLock(async () => {
     const all = await readAll();
@@ -333,23 +377,27 @@ export async function enrollByInvite(
     }
     if (activity.status !== 'abierta') throw new ActividadError(409, 'La actividad está cerrada');
 
-    const key = phoneKey(phone);
-    const existing = activity.participants.find((item) => phoneKey(item.phone) === key);
-    if (existing) return { activity, participant: existing, already: true };
+    const existing = findDuplicate(activity, profile);
+    if (existing) {
+      // Keep list identity; fill blanks if the person returns with more indicator data.
+      if (!existing.sex && profile.sex) existing.sex = profile.sex;
+      if (existing.age == null && profile.age != null) existing.age = profile.age;
+      if (!existing.locality && profile.locality) existing.locality = profile.locality;
+      if (!existing.organization && profile.organization) existing.organization = profile.organization;
+      if (!existing.companyName && profile.companyName) existing.companyName = profile.companyName;
+      if (!existing.documentId && profile.documentId) existing.documentId = profile.documentId;
+      if (!existing.email && profile.email) existing.email = profile.email;
+      touch(activity);
+      await writeAll(all);
+      return { activity, participant: existing, already: true };
+    }
     if (activity.participants.length >= MAX_PEOPLE) {
       throw new ActividadError(400, 'Esta actividad ya no acepta más inscripciones');
     }
 
-    const participant = newParticipant({
-      source: 'convite',
-      name,
-      phone,
-      email,
-      organization,
-      state: 'inscrito',
-    });
+    const participant = newParticipant('convite', profile, 'inscrito');
     activity.participants.push(participant);
-    audit(activity, name, 'Inscripción por convite', phone);
+    audit(activity, profile.name, 'Inscripción por convite', profile.phone);
     touch(activity);
     await writeAll(all);
     return { activity, participant, already: false };
@@ -542,7 +590,12 @@ export function activitiesToCsv(activities: Activity[]) {
     'estado_actividad',
     'abierta_por',
     'nombre',
+    'documento',
+    'sexo',
+    'edad',
+    'localidad',
     'organizacion',
+    'empresa',
     'telefono',
     'correo',
     'origen',
@@ -573,7 +626,12 @@ export function activitiesToCsv(activities: Activity[]) {
       const cells = [
         ...base,
         person?.name || '',
+        person?.documentId || '',
+        person?.sex || '',
+        person?.age ?? '',
+        person?.locality || '',
         person?.organization || '',
+        person?.companyName || '',
         person?.phone || '',
         person?.email || '',
         person?.source || '',

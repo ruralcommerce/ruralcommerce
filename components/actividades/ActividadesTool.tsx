@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { IntranetGate } from '@/components/intranet/IntranetGate';
-import { normalizePhone } from '@/lib/project-phone';
+import { emptyEnrollmentForm, type EnrollmentFormState } from '@/lib/actividades/profile';
 import type {
   Activity,
   ActivityKind,
@@ -10,6 +10,8 @@ import type {
   ImpulsaPerson,
   ParticipantState,
 } from '@/lib/actividades/types';
+import { getProjectSexLabel } from '@/lib/project-sex';
+import { normalizePhone } from '@/lib/project-phone';
 import { captureGeo, readDeviceId } from './geo-client';
 
 const fieldClass =
@@ -155,8 +157,8 @@ function ActividadesBody({ locale }: { locale: string }) {
               <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Campo</p>
               <h2 className="mt-1 text-xl font-bold text-[#071F5E]">Capacitaciones y visitas</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-[#1E1E1E]/70">
-                Quien ya está en Impulsa CR solo confirma presencia. Quien no está, entra por el convite y se inscribe.
-                La presencia queda registrada cuando la persona abre su enlace en su celular.
+                El convite abre un formulario estándar de inscripción (sexo, edad, localidad, documento…). Esa lista se
+                convierte en la lista de presencia. Cada persona valida en su celular con el enlace personal «Estoy aquí».
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -355,7 +357,7 @@ function ActivityDetail({
     photoLinks: activity.photoLinks.join('\n'),
     place: activity.place,
   });
-  const [manual, setManual] = useState({ name: '', phone: '', organization: '' });
+  const [manual, setManual] = useState<EnrollmentFormState>(emptyEnrollmentForm());
   const [people, setPeople] = useState<ImpulsaPerson[] | null>(null);
   const [peopleQuery, setPeopleQuery] = useState('');
   const [picked, setPicked] = useState<string[]>([]);
@@ -500,6 +502,32 @@ function ActivityDetail({
         ) : null}
         {notice ? <p className="mt-3 text-sm text-[#009179]">{notice}</p> : null}
 
+        <div className="mt-4 rounded-2xl border border-[#009179]/25 bg-[#E7F6EC] px-4 py-4 text-sm leading-6 text-[#1D6359]">
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Cómo validan las personas</p>
+          {activity.kind === 'capacitacion' ? (
+            <ol className="mt-2 list-decimal space-y-1.5 pl-4">
+              <li>
+                Comparte el <strong>convite de inscripción</strong>. Quien no está en el sistema completa el formulario
+                (sexo, edad, localidad, documento…). Quien ya está en Impulsa CR se agrega abajo y no se reinscribe.
+              </li>
+              <li>Esa tabla ya es la lista de presencia (inscrito / invitado).</li>
+              <li>
+                En el momento, cada persona abre su <strong>enlace personal</strong> en su celular y toca «Estoy aquí».
+                Usa Copiar o WhatsApp en cada fila. Inscripción ≠ presencia.
+              </li>
+            </ol>
+          ) : (
+            <ol className="mt-2 list-decimal space-y-1.5 pl-4">
+              <li>Agrega a la persona desde Impulsa CR o a mano (no hay convite abierto).</li>
+              <li>
+                Envíale por WhatsApp su <strong>enlace personal</strong>. Ella confirma «Estoy aquí» en su celular, con
+                geolocalización.
+              </li>
+              <li>Completa la ficha (notas y fotos de Drive) abajo.</li>
+            </ol>
+          )}
+        </div>
+
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
@@ -532,19 +560,28 @@ function ActivityDetail({
 
       {activity.kind === 'capacitacion' ? (
         <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-          <h3 className="font-bold text-[#071F5E]">Convite para quien no está en el sistema</h3>
+          <h3 className="font-bold text-[#071F5E]">Formulario de inscripción (convite)</h3>
           <p className="mt-1 text-sm leading-6 text-[#1E1E1E]/70">
-            Comparte este enlace. La persona se inscribe. Después confirma la presencia en su celular. Inscripción no es presencia.
+            Este enlace abre el formulario estándar: nombre, documento, sexo, edad, localidad, teléfono, empresa y
+            organización. Quien se inscribe entra a la lista. El día confirma presencia con su enlace personal.
             {activity.status === 'cerrada' ? ' Con la actividad cerrada el convite no acepta inscripciones.' : ''}
           </p>
           <input className={`${fieldClass} mt-3`} readOnly value={inviteUrl} onFocus={(event) => event.currentTarget.select()} />
           <div className="mt-2 flex flex-wrap gap-2">
             <button type="button" onClick={() => void copy(inviteUrl)} className="rounded-xl bg-[#009179] px-3 py-2 text-sm font-semibold text-white">
-              Copiar convite
+              Copiar formulario
             </button>
             <a
               className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]"
-              href={`https://wa.me/?text=${encodeURIComponent(`Hola, te comparto la inscripción para «${activity.title}»: ${inviteUrl}`)}`}
+              href={inviteUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Abrir formulario
+            </a>
+            <a
+              className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]"
+              href={`https://wa.me/?text=${encodeURIComponent(`Hola, inscríbete a «${activity.title}» aquí: ${inviteUrl}`)}`}
               target="_blank"
               rel="noreferrer"
             >
@@ -556,7 +593,8 @@ function ActivityDetail({
         <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
           <h3 className="font-bold text-[#071F5E]">Visita sin convite abierto</h3>
           <p className="mt-1 text-sm leading-6 text-[#1E1E1E]/70">
-            Agrega a la persona desde Impulsa CR o a mano. Ella confirma con el enlace personal, en su celular.
+            Agrega a la persona desde Impulsa CR o a mano. Luego envíale su enlace personal (WhatsApp en cada fila) para
+            que confirme que recibió la visita.
           </p>
         </div>
       )}
@@ -617,38 +655,54 @@ function ActivityDetail({
         )}
 
         <form
-          className="mt-5 grid gap-2 border-t border-[#071F5E]/10 pt-4 sm:grid-cols-3"
+          className="mt-5 grid gap-2 border-t border-[#071F5E]/10 pt-4 sm:grid-cols-2"
           onSubmit={(event) => {
             event.preventDefault();
             void patch({ action: 'manual', person: manual }).then((saved) => {
-              if (saved) setManual({ name: '', phone: '', organization: '' });
+              if (saved) setManual(emptyEnrollmentForm());
             });
           }}
         >
-          <p className="sm:col-span-3 text-sm font-semibold text-[#071F5E]">Agregar a mano</p>
-          <input className={fieldClass} placeholder="Nombre" value={manual.name} onChange={(e) => setManual((m) => ({ ...m, name: e.target.value }))} required />
-          <input className={fieldClass} placeholder="Teléfono" value={manual.phone} onChange={(e) => setManual((m) => ({ ...m, phone: e.target.value }))} />
+          <p className="sm:col-span-2 text-sm font-semibold text-[#071F5E]">Agregar a mano (mismo formulario)</p>
+          <input className={fieldClass} placeholder="Nombre *" value={manual.name} onChange={(e) => setManual((m) => ({ ...m, name: e.target.value }))} required />
+          <input className={fieldClass} placeholder="Documento" value={manual.documentId} onChange={(e) => setManual((m) => ({ ...m, documentId: e.target.value }))} />
+          <select className={fieldClass} value={manual.sex} onChange={(e) => setManual((m) => ({ ...m, sex: e.target.value as EnrollmentFormState['sex'] }))}>
+            <option value="">Sexo / género</option>
+            <option value="female">Femenino</option>
+            <option value="male">Masculino</option>
+            <option value="collective">Colectivo</option>
+          </select>
+          <input className={fieldClass} placeholder="Edad" value={manual.age} onChange={(e) => setManual((m) => ({ ...m, age: e.target.value }))} inputMode="numeric" />
+          <input className={fieldClass} placeholder="Localidad" value={manual.locality} onChange={(e) => setManual((m) => ({ ...m, locality: e.target.value }))} />
+          <input className={fieldClass} placeholder="Teléfono / WhatsApp" value={manual.phone} onChange={(e) => setManual((m) => ({ ...m, phone: e.target.value }))} />
+          <input className={fieldClass} placeholder="Empresa o finca" value={manual.companyName} onChange={(e) => setManual((m) => ({ ...m, companyName: e.target.value }))} />
           <input className={fieldClass} placeholder="Organización" value={manual.organization} onChange={(e) => setManual((m) => ({ ...m, organization: e.target.value }))} />
-          <button type="submit" disabled={busy || activity.status === 'cerrada'} className="rounded-xl bg-[#009179] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:col-span-3 sm:w-fit">
-            Agregar
+          <input className={fieldClass} placeholder="Correo" value={manual.email} onChange={(e) => setManual((m) => ({ ...m, email: e.target.value }))} type="email" />
+          <button type="submit" disabled={busy || activity.status === 'cerrada'} className="rounded-xl bg-[#009179] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:col-span-2 sm:w-fit">
+            Agregar a la lista
           </button>
         </form>
       </div>
 
       <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h3 className="font-bold text-[#071F5E]">Lista</h3>
+          <div>
+            <h3 className="font-bold text-[#071F5E]">Lista de inscripción / presencia</h3>
+            <p className="mt-1 text-xs text-[#1E1E1E]/60">
+              {activity.participants.filter((p) => p.state === 'presente').length} presentes ·{' '}
+              {activity.participants.filter((p) => p.state === 'inscrito' || p.state === 'invitado').length} por validar
+            </p>
+          </div>
           <button
             type="button"
             onClick={() => {
-              const lines = activity.participants
-                .filter((person) => person.state !== 'presente' && person.state !== 'ausente')
-                .map((person) => `${person.name}: ${confirmUrl(person.confirmToken)}`);
+              const pending = activity.participants.filter((person) => person.state !== 'presente' && person.state !== 'ausente');
+              const lines = pending.map((person) => `${person.name}: ${confirmUrl(person.confirmToken)}`);
               void copy(lines.join('\n') || 'Nadie pendiente');
             }}
             className="text-xs font-semibold uppercase tracking-wide text-[#009179]"
           >
-            Copiar enlaces pendientes
+            Copiar enlaces de validación
           </button>
         </div>
         {activity.participants.length === 0 ? <p className="mt-3 text-sm text-[#1E1E1E]/60">Todavía no hay personas.</p> : null}
@@ -754,8 +808,9 @@ function ParticipantRow({
   const phone = normalizePhone(person.phone);
   const digits = phone ? phone.replace(/\D/g, '') : '';
   const wa = `${digits ? `https://wa.me/${digits}` : 'https://wa.me/'}?text=${encodeURIComponent(
-    `Hola ${person.name}, confirma tu presencia aquí: ${url}`
+    `Hola ${person.name}, para validar tu participación abre este enlace en tu celular y toca «Estoy aquí»: ${url}`
   )}`;
+  const sexLabel = getProjectSexLabel(person.sex, 'es');
 
   return (
     <li className="rounded-2xl border border-[#071F5E]/10 p-3">
@@ -769,18 +824,30 @@ function ParticipantRow({
         {person.sameDevice && person.state === 'presente' ? <Badge tone="amber">Mismo celular</Badge> : null}
       </div>
       <p className="mt-1 text-xs text-[#1E1E1E]/55">
-        {[person.organization, person.phone, person.source === 'impulsa' ? 'Impulsa CR' : person.source === 'convite' ? 'Convite' : 'Manual']
+        {[
+          person.documentId ? `Doc. ${person.documentId}` : '',
+          sexLabel,
+          person.age != null ? `${person.age} años` : '',
+          person.locality,
+          person.companyName,
+          person.organization,
+          person.phone,
+          person.source === 'impulsa' ? 'Impulsa CR' : person.source === 'convite' ? 'Convite' : 'Manual',
+        ]
           .filter(Boolean)
           .join(' · ')}
         {person.confirmedAt ? ` · ${formatWhen(person.confirmedAt)}` : ''}
       </p>
-      <input className={`${fieldClass} mt-2`} readOnly value={url} onFocus={(event) => event.currentTarget.select()} />
+      {person.state !== 'presente' && person.state !== 'ausente' ? (
+        <p className="mt-2 text-xs font-semibold text-[#009179]">Enlace para que valide en su celular:</p>
+      ) : null}
+      <input className={`${fieldClass} mt-1`} readOnly value={url} onFocus={(event) => event.currentTarget.select()} />
       <div className="mt-2 flex flex-wrap gap-2">
         <button type="button" onClick={onCopy} className="rounded-lg bg-[#F4F7FA] px-2.5 py-1.5 text-xs font-semibold text-[#071F5E]">
-          Copiar
+          Copiar validación
         </button>
-        <a href={wa} target="_blank" rel="noreferrer" className="rounded-lg bg-[#F4F7FA] px-2.5 py-1.5 text-xs font-semibold text-[#071F5E]">
-          WhatsApp
+        <a href={wa} target="_blank" rel="noreferrer" className="rounded-lg bg-[#009179] px-2.5 py-1.5 text-xs font-semibold text-white">
+          WhatsApp validar
         </a>
         {person.state !== 'presente' && person.state !== 'ausente' ? (
           <button type="button" disabled={busy || closed} onClick={() => onMark('ausente')} className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#071F5E] disabled:opacity-40">

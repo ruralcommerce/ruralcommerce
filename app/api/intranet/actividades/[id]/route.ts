@@ -25,7 +25,17 @@ type Body = {
   notes?: string;
   photoLinks?: unknown;
   inscriptionIds?: string[];
-  person?: { name?: string; phone?: string; email?: string; organization?: string };
+  person?: {
+    name?: string;
+    phone?: string;
+    email?: string;
+    organization?: string;
+    sex?: string;
+    age?: string | number;
+    locality?: string;
+    companyName?: string;
+    documentId?: string;
+  };
   participantId?: string;
   mark?: 'ausente' | 'restaurar' | 'anular';
   reason?: string;
@@ -81,6 +91,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
           phone: person.phone,
           email: person.email,
           organization: person.organization,
+          locality: person.locality,
+          sex: person.sex,
         })),
         actor
       );

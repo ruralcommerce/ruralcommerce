@@ -1,3 +1,5 @@
+import type { ProjectSex } from '@/lib/project-sex';
+
 export type ActividadCopy = {
   brand: string;
   loading: string;
@@ -5,16 +7,24 @@ export type ActividadCopy = {
   closedInvite: string;
   visitNoInvite: string;
   inviteLead: string;
+  inviteSteps: string;
   name: string;
   phone: string;
   organization: string;
+  organizationHint: string;
+  companyName: string;
   email: string;
+  sex: string;
+  age: string;
+  locality: string;
+  documentId: string;
   enroll: string;
   sending: string;
   enrolledTitle: string;
   alreadyTitle: string;
   enrolledBody: string;
   confirmNow: string;
+  confirmLater: string;
   confirmHello: (name: string) => string;
   confirmLead: (title: string) => string;
   confirmButton: string;
@@ -28,6 +38,7 @@ export type ActividadCopy = {
   when: string;
   project: string;
   backHint: string;
+  sexOptions: Array<{ value: ProjectSex; label: string }>;
 };
 
 const es: ActividadCopy = {
@@ -36,17 +47,26 @@ const es: ActividadCopy = {
   notFound: 'No encontramos esta actividad. Pide el enlace de nuevo al equipo.',
   closedInvite: 'Esta actividad ya está cerrada. Ya no recibe inscripciones.',
   visitNoInvite: 'Las visitas no tienen convite abierto. El equipo te envía tu enlace personal para confirmar.',
-  inviteLead: 'Si todavía no estás en la lista, inscríbete. El día de la actividad confirmas la presencia desde tu celular.',
+  inviteLead: 'Completa este formulario para entrar a la lista. El día del curso o capacitación, abres tu enlace personal y confirmas con «Estoy aquí».',
+  inviteSteps: '1) Te inscribes aquí · 2) El día, confirmas presencia desde tu celular',
   name: 'Nombre completo',
   phone: 'Teléfono / WhatsApp',
-  organization: 'Organización o finca',
+  organization: 'Organización (si perteneces a una)',
+  organizationHint: 'Cooperativa, asociación, grupo. Déjalo vacío si no aplica.',
+  companyName: 'Nombre de la empresa o finca',
   email: 'Correo (opcional)',
+  sex: 'Sexo / género',
+  age: 'Edad',
+  locality: 'Localidad o cantón',
+  documentId: 'Número de documento',
   enroll: 'Inscribirme',
   sending: 'Guardando…',
-  enrolledTitle: 'Inscripción lista',
+  enrolledTitle: 'Ya estás en la lista de inscripción',
   alreadyTitle: 'Ya estabas en la lista',
-  enrolledBody: 'Guarda esta pantalla. La presencia se confirma el día, desde este mismo celular.',
+  enrolledBody:
+    'Esta inscripción ya es tu fila en la lista de presencia. El día de la actividad abre el enlace de abajo en tu celular y toca «Estoy aquí». Guarda el enlace o el mensaje de WhatsApp.',
   confirmNow: 'Confirmar presencia ahora',
+  confirmLater: 'Si todavía no estás en el lugar, guarda este enlace y confírmalo el día.',
   confirmHello: (name) => `Hola, ${name}`,
   confirmLead: (title) => `Confirma que estás en «${title}» en este momento.`,
   confirmButton: 'Estoy aquí',
@@ -60,6 +80,11 @@ const es: ActividadCopy = {
   when: 'Cuándo',
   project: 'Proyecto',
   backHint: 'Puedes cerrar esta página.',
+  sexOptions: [
+    { value: 'female', label: 'Femenino' },
+    { value: 'male', label: 'Masculino' },
+    { value: 'collective', label: 'Colectivo / organización' },
+  ],
 };
 
 const pt: ActividadCopy = {
@@ -68,17 +93,27 @@ const pt: ActividadCopy = {
   notFound: 'Não encontramos esta atividade. Peça o link de novo à equipe.',
   closedInvite: 'Esta atividade já está fechada. Não recebe mais inscrições.',
   visitNoInvite: 'Visitas não têm convite aberto. A equipe envia o seu link pessoal para confirmar.',
-  inviteLead: 'Se você ainda não está na lista, inscreva-se. No dia da atividade, confirme a presença neste celular.',
+  inviteLead:
+    'Preencha este formulário para entrar na lista. No dia do curso ou capacitação, abra o seu link pessoal e confirme com «Estou aqui».',
+  inviteSteps: '1) Você se inscreve aqui · 2) No dia, confirma presença no seu celular',
   name: 'Nome completo',
   phone: 'Telefone / WhatsApp',
-  organization: 'Organização ou sítio',
+  organization: 'Organização (se faz parte de uma)',
+  organizationHint: 'Cooperativa, associação, grupo. Deixe vazio se não se aplica.',
+  companyName: 'Nome da empresa ou sítio',
   email: 'E-mail (opcional)',
+  sex: 'Sexo / gênero',
+  age: 'Idade',
+  locality: 'Localidade ou cantão',
+  documentId: 'Número do documento',
   enroll: 'Inscrever-me',
   sending: 'Salvando…',
-  enrolledTitle: 'Inscrição feita',
+  enrolledTitle: 'Você já está na lista de inscrição',
   alreadyTitle: 'Você já estava na lista',
-  enrolledBody: 'Guarde esta tela. A presença se confirma no dia, neste mesmo celular.',
+  enrolledBody:
+    'Esta inscrição já é a sua linha na lista de presença. No dia da atividade, abra o link abaixo no seu celular e toque em «Estou aqui». Guarde o link ou a mensagem do WhatsApp.',
   confirmNow: 'Confirmar presença agora',
+  confirmLater: 'Se ainda não está no local, guarde este link e confirme no dia.',
   confirmHello: (name) => `Olá, ${name}`,
   confirmLead: (title) => `Confirme que você está em «${title}» neste momento.`,
   confirmButton: 'Estou aqui',
@@ -92,6 +127,11 @@ const pt: ActividadCopy = {
   when: 'Quando',
   project: 'Projeto',
   backHint: 'Pode fechar esta página.',
+  sexOptions: [
+    { value: 'female', label: 'Feminino' },
+    { value: 'male', label: 'Masculino' },
+    { value: 'collective', label: 'Coletivo / organização' },
+  ],
 };
 
 const en: ActividadCopy = {
@@ -100,17 +140,27 @@ const en: ActividadCopy = {
   notFound: 'We could not find this activity. Ask the team for the link again.',
   closedInvite: 'This activity is closed. It no longer accepts registration.',
   visitNoInvite: 'Field visits do not use an open invite. The team sends your personal link to confirm.',
-  inviteLead: 'If you are not on the list yet, register. On the day, confirm attendance from this phone.',
+  inviteLead:
+    'Complete this form to join the list. On the day of the course or training, open your personal link and confirm with “I am here”.',
+  inviteSteps: '1) You register here · 2) On the day, you confirm attendance from your phone',
   name: 'Full name',
   phone: 'Phone / WhatsApp',
-  organization: 'Organization or farm',
+  organization: 'Organization (if you belong to one)',
+  organizationHint: 'Cooperative, association, group. Leave blank if not applicable.',
+  companyName: 'Business or farm name',
   email: 'Email (optional)',
+  sex: 'Sex / gender',
+  age: 'Age',
+  locality: 'Locality or canton',
+  documentId: 'Document number',
   enroll: 'Register',
   sending: 'Saving…',
-  enrolledTitle: 'You are registered',
+  enrolledTitle: 'You are on the registration list',
   alreadyTitle: 'You were already on the list',
-  enrolledBody: 'Keep this screen. Attendance is confirmed on the day, from this same phone.',
+  enrolledBody:
+    'This registration is already your row on the attendance list. On the day, open the link below on your phone and tap “I am here”. Save the link or the WhatsApp message.',
   confirmNow: 'Confirm attendance now',
+  confirmLater: 'If you are not at the place yet, save this link and confirm on the day.',
   confirmHello: (name) => `Hello, ${name}`,
   confirmLead: (title) => `Confirm that you are at “${title}” right now.`,
   confirmButton: 'I am here',
@@ -124,6 +174,11 @@ const en: ActividadCopy = {
   when: 'When',
   project: 'Project',
   backHint: 'You can close this page.',
+  sexOptions: [
+    { value: 'female', label: 'Female' },
+    { value: 'male', label: 'Male' },
+    { value: 'collective', label: 'Collective / organization' },
+  ],
 };
 
 export function actividadCopy(locale: string): ActividadCopy {
