@@ -370,6 +370,12 @@ function ActivityDetail({
     if (!q) return true;
     return `${person.name} ${person.organization} ${person.phone}`.toLowerCase().includes(q);
   });
+  const visiblePeople = filteredPeople.slice(0, 80);
+  const selectableIds = visiblePeople
+    .filter((person) => !rosterIds.has(person.id))
+    .map((person) => person.id);
+  const allSelectablePicked =
+    selectableIds.length > 0 && selectableIds.every((id) => picked.includes(id));
   const roster = activity.participants.filter((person) => {
     if (rosterFilter === 'presentes' && person.state !== 'presente') return false;
     if (rosterFilter === 'pendientes' && person.state !== 'inscrito' && person.state !== 'invitado') return false;
@@ -749,8 +755,29 @@ function ActivityDetail({
               ) : (
                 <>
                   <input className={fieldClass} placeholder="Filtrar" value={peopleQuery} onChange={(e) => setPeopleQuery(e.target.value)} />
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <label className="inline-flex cursor-pointer items-center gap-2 text-xs font-semibold text-[#071F5E]">
+                      <input
+                        type="checkbox"
+                        disabled={selectableIds.length === 0 || activity.status === 'cerrada'}
+                        checked={allSelectablePicked}
+                        onChange={() => {
+                          if (allSelectablePicked) {
+                            setPicked((current) => current.filter((id) => !selectableIds.includes(id)));
+                          } else {
+                            setPicked((current) => [...new Set([...current, ...selectableIds])]);
+                          }
+                        }}
+                      />
+                      {allSelectablePicked ? 'Quitar selección' : 'Seleccionar todos'}
+                      {selectableIds.length > 0 ? (
+                        <span className="font-normal text-[#1E1E1E]/45">({selectableIds.length})</span>
+                      ) : null}
+                    </label>
+                    <span className="text-[11px] text-[#1E1E1E]/45">{picked.length} seleccionados</span>
+                  </div>
                   <ul className="max-h-56 space-y-1 overflow-auto rounded-lg border border-[#071F5E]/10 p-2">
-                    {filteredPeople.slice(0, 60).map((person) => {
+                    {visiblePeople.map((person) => {
                       const added = rosterIds.has(person.id);
                       return (
                         <li key={person.id}>
