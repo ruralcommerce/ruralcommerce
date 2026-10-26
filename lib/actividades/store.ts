@@ -1,6 +1,8 @@
 import { randomBytes } from 'crypto';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
+import { authenticateCandidate, inscriptionEmail, inscriptionProfile } from '@/lib/project-candidate-auth';
+import { normalizeProjectSex } from '@/lib/project-sex';
 import { classifyGeo, cleanDeviceId } from './geo';
 import {
   parseEnrollmentProfile,
@@ -404,6 +406,15 @@ export async function enrollByInvite(
   });
 }
 
+function markPresent(activity: Activity, participant: ActivityParticipant, geo: GeoFix | null, deviceId: string) {
+  participant.state = 'presente';
+  participant.confirmedAt = now();
+  participant.confirmGeo = geo;
+  participant.confirmDeviceId = cleanDeviceId(deviceId) || undefined;
+  participant.geoStatus = classifyGeo(activity.sessionGeo, geo);
+  audit(activity, participant.name, 'Presencia confirmada', participant.geoStatus);
+}
+
 export async function confirmByToken(
   token: string,
   geo: GeoFix | null,
@@ -423,12 +434,77 @@ export async function confirmByToken(
       return { activity, participant, already: true };
     }
 
-    participant.state = 'presente';
-    participant.confirmedAt = now();
-    participant.confirmGeo = geo;
-    participant.confirmDeviceId = cleanDeviceId(deviceId) || undefined;
-    participant.geoStatus = classifyGeo(activity.sessionGeo, geo);
-    audit(activity, participant.name, 'Presencia confirmada', participant.geoStatus);
+    markPresent(activity, participant, geo, deviceId);
+    touch(activity);
+    await writeAll(all);
+    return { activity, participant, already: false };
+  });
+}
+
+/** Room QR: person signs in with Impulsa CR credentials and confirms presence. */
+export async function checkInWithImpulsa(
+  code: string,
+  email: string,
+  password: string,
+  geo: GeoFix | null,
+  deviceId: string
+): Promise<{ activity: Activity; participant: ActivityParticipant; already: boolean }> {
+  const auth = await authenticateCandidate(email, password);
+  if (!auth.ok) throw new ActividadError(auth.status, auth.message);
+
+  const inviteCode = clean(code, 16).toUpperCase();
+  const record = auth.record;
+  const profileRaw = inscriptionProfile(record);
+  const recordEmail = inscriptionEmail(record);
+  const profile = parseEnrollmentProfile({
+    name: typeof profileRaw.name === 'string' ? profileRaw.name : '',
+    phone: typeof profileRaw.phone === 'string' ? profileRaw.phone : '',
+    email: recordEmail,
+    organization: typeof profileRaw.organization === 'string' ? profileRaw.organization : '',
+    locality: typeof profileRaw.city === 'string' ? profileRaw.city : '',
+    sex: normalizeProjectSex(profileRaw.sex),
+  });
+  if (profile.name.length < 2) {
+    throw new ActividadError(400, 'Tu perfil de Impulsa CR no tiene nombre. Pide ayuda al equipo.');
+  }
+
+  return withLock(async () => {
+    const all = await readAll();
+    const activity = all.find((item) => item.inviteCode.toUpperCase() === inviteCode);
+    if (!activity) throw new ActividadError(404, 'Actividad no encontrada');
+    if (activity.status !== 'abierta') {
+      throw new ActividadError(409, 'Esta actividad ya está cerrada');
+    }
+
+    const inscriptionId = clean(record.id, 80);
+    let participant =
+      activity.participants.find((person) => person.inscriptionId && person.inscriptionId === inscriptionId) ||
+      activity.participants.find((person) => person.email && person.email.toLowerCase() === recordEmail.toLowerCase()) ||
+      findDuplicate(activity, profile, inscriptionId);
+
+    if (!participant) {
+      if (activity.participants.length >= MAX_PEOPLE) {
+        throw new ActividadError(400, 'Esta actividad ya no acepta más personas');
+      }
+      participant = newParticipant('impulsa', profile, 'invitado', inscriptionId || undefined);
+      activity.participants.push(participant);
+      audit(activity, participant.name, 'Entró por QR / Impulsa CR', recordEmail);
+    }
+
+    if (participant.state === 'presente') {
+      touch(activity);
+      await writeAll(all);
+      return { activity, participant, already: true };
+    }
+
+    if (!participant.inscriptionId && inscriptionId) participant.inscriptionId = inscriptionId;
+    if (!participant.email && recordEmail) participant.email = recordEmail;
+    if (!participant.sex && profile.sex) participant.sex = profile.sex;
+    if (!participant.locality && profile.locality) participant.locality = profile.locality;
+    if (!participant.organization && profile.organization) participant.organization = profile.organization;
+    if (!participant.phone && profile.phone) participant.phone = profile.phone;
+
+    markPresent(activity, participant, geo, deviceId);
     touch(activity);
     await writeAll(all);
     return { activity, participant, already: false };

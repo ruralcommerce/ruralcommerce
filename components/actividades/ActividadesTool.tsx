@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { IntranetGate } from '@/components/intranet/IntranetGate';
 import { emptyEnrollmentForm, type EnrollmentFormState } from '@/lib/actividades/profile';
 import type {
@@ -13,9 +14,10 @@ import type {
 import { getProjectSexLabel } from '@/lib/project-sex';
 import { normalizePhone } from '@/lib/project-phone';
 import { captureGeo, readDeviceId } from './geo-client';
+import { RoomQr } from './RoomQr';
 
 const fieldClass =
-  'min-h-11 w-full rounded-xl border border-[#071F5E]/15 px-3 text-sm text-[#071F5E] outline-none focus:border-[#009179]';
+  'min-h-10 w-full rounded-lg border border-[#071F5E]/15 px-3 text-sm text-[#071F5E] outline-none focus:border-[#009179]';
 
 const KIND_LABEL: Record<ActivityKind, string> = {
   capacitacion: 'Capacitación',
@@ -34,14 +36,6 @@ function formatWhen(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return 'Sin fecha';
   return date.toLocaleString('es-CR', { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-function toLocalInput(iso: string) {
-  if (!iso) return '';
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  const pad = (value: number) => String(value).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function origin() {
@@ -151,22 +145,16 @@ function ActividadesBody({ locale }: { locale: string }) {
       ) : null}
 
       {mode === 'list' ? (
-        <section className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Campo</p>
-              <h2 className="mt-1 text-xl font-bold text-[#071F5E]">Capacitaciones y visitas</h2>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-[#1E1E1E]/70">
-                El convite abre un formulario estándar de inscripción (sexo, edad, localidad, documento…). Esa lista se
-                convierte en la lista de presencia. Cada persona valida en su celular con el enlace personal «Estoy aquí».
+              <h2 className="text-xl font-bold text-[#071F5E]">Capacitaciones y visitas</h2>
+              <p className="mt-1 max-w-xl text-sm leading-6 text-[#1E1E1E]/70">
+                Un QR en la sala. Cada persona entra con su cuenta Impulsa CR y valida. Sin enviar enlaces uno por uno.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => void downloadCsv()}
-                className="rounded-xl border border-[#071F5E]/15 px-4 py-2.5 text-sm font-semibold text-[#071F5E]"
-              >
+              <button type="button" onClick={() => void downloadCsv()} className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]">
                 Exportar
               </button>
               <button
@@ -175,7 +163,7 @@ function ActividadesBody({ locale }: { locale: string }) {
                   setError('');
                   setMode('create');
                 }}
-                className="rounded-xl bg-[#009179] px-4 py-2.5 text-sm font-semibold text-white"
+                className="rounded-xl bg-[#009179] px-3 py-2 text-sm font-semibold text-white"
               >
                 Nueva actividad
               </button>
@@ -205,16 +193,14 @@ function ActividadesBody({ locale }: { locale: string }) {
           </div>
           <input
             className={`${fieldClass} mt-3`}
-            placeholder="Buscar por título, proyecto o lugar"
+            placeholder="Buscar"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
 
           {loading ? <p className="mt-4 text-sm text-[#071F5E]/60">Cargando…</p> : null}
-          {!loading && visible.length === 0 ? (
-            <p className="mt-4 text-sm text-[#071F5E]/60">Todavía no hay actividades con este filtro.</p>
-          ) : null}
-          <ul className="mt-4 space-y-3">
+          {!loading && visible.length === 0 ? <p className="mt-4 text-sm text-[#071F5E]/60">Sin actividades.</p> : null}
+          <ul className="mt-3 divide-y divide-[#071F5E]/8">
             {visible.map((item) => {
               const presentes = item.participants.filter((person) => person.state === 'presente').length;
               return (
@@ -226,20 +212,22 @@ function ActividadesBody({ locale }: { locale: string }) {
                       setMode('detail');
                       setError('');
                     }}
-                    className="w-full rounded-2xl border border-[#071F5E]/10 px-4 py-3 text-left transition hover:border-[#009179]"
+                    className="flex w-full items-center justify-between gap-3 py-3 text-left hover:bg-[#F4F7FA]/80"
                   >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone={item.kind === 'visita' ? 'navy' : 'green'}>{KIND_LABEL[item.kind]}</Badge>
-                      <Badge tone={item.status === 'abierta' ? 'green' : 'slate'}>
-                        {item.status === 'abierta' ? 'Abierta' : 'Cerrada'}
-                      </Badge>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone={item.kind === 'visita' ? 'navy' : 'green'}>{KIND_LABEL[item.kind]}</Badge>
+                        <Badge tone={item.status === 'abierta' ? 'green' : 'slate'}>
+                          {item.status === 'abierta' ? 'Abierta' : 'Cerrada'}
+                        </Badge>
+                      </div>
+                      <p className="mt-1 truncate font-semibold text-[#071F5E]">{item.title}</p>
+                      <p className="truncate text-xs text-[#1E1E1E]/55">
+                        {[item.place, formatWhen(item.startsAt)].filter(Boolean).join(' · ')}
+                      </p>
                     </div>
-                    <p className="mt-2 font-bold text-[#071F5E]">{item.title}</p>
-                    <p className="mt-1 text-xs text-[#1E1E1E]/60">
-                      {[item.projectLabel, item.place, formatWhen(item.startsAt)].filter(Boolean).join(' · ')}
-                    </p>
-                    <p className="mt-2 text-xs font-semibold text-[#009179]">
-                      {presentes} presentes · {item.participants.length} en lista
+                    <p className="shrink-0 text-xs font-semibold text-[#009179]">
+                      {presentes}/{item.participants.length}
                     </p>
                   </button>
                 </li>
@@ -297,7 +285,7 @@ function CreateForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-2xl bg-white p-5 shadow-sm sm:p-6">
+    <form onSubmit={submit} className="space-y-3 rounded-2xl bg-white p-5 shadow-sm">
       <h2 className="text-lg font-bold text-[#071F5E]">Nueva actividad</h2>
       <div className="grid gap-2 sm:grid-cols-2">
         {(['capacitacion', 'visita'] as const).map((option) => (
@@ -314,17 +302,9 @@ function CreateForm({
         ))}
       </div>
       <input className={fieldClass} placeholder="Título" value={title} onChange={(e) => setTitle(e.target.value)} required />
-      <input
-        className={fieldClass}
-        placeholder="Proyecto o contexto (Impulsa CR, actividad suelta…)"
-        value={projectLabel}
-        onChange={(e) => setProjectLabel(e.target.value)}
-      />
+      <input className={fieldClass} placeholder="Proyecto o contexto" value={projectLabel} onChange={(e) => setProjectLabel(e.target.value)} />
       <input className={fieldClass} placeholder="Lugar" value={place} onChange={(e) => setPlace(e.target.value)} />
       <input className={fieldClass} type="datetime-local" value={startsAt} onChange={(e) => setStartsAt(e.target.value)} />
-      <p className="text-xs leading-5 text-[#1E1E1E]/55">
-        Al crear, este celular intenta guardar la ubicación de la sesión. Si el GPS falla, la actividad se abre igual.
-      </p>
       <div className="flex flex-wrap gap-2">
         <button type="submit" disabled={busy} className="rounded-xl bg-[#009179] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
           {busy ? 'Abriendo…' : 'Abrir actividad'}
@@ -365,8 +345,14 @@ function ActivityDetail({
   const [anularId, setAnularId] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [notice, setNotice] = useState('');
+  const [rosterFilter, setRosterFilter] = useState<'todas' | 'pendientes' | 'presentes'>('todas');
+  const [rosterQuery, setRosterQuery] = useState('');
+  const [openRow, setOpenRow] = useState<string | null>(null);
 
+  const salaUrl = `${origin()}/${locale}/actividad/${activity.inviteCode}/sala`;
   const inviteUrl = `${origin()}/${locale}/actividad/${activity.inviteCode}`;
+  const presentes = activity.participants.filter((p) => p.state === 'presente').length;
+  const pendientes = activity.participants.filter((p) => p.state === 'inscrito' || p.state === 'invitado').length;
   const warnings = {
     sameDevice: activity.participants.some((person) => person.state === 'presente' && person.sameDevice),
     lejos: activity.participants.filter((person) => person.geoStatus === 'lejos').length,
@@ -376,6 +362,13 @@ function ActivityDetail({
     const q = peopleQuery.trim().toLowerCase();
     if (!q) return true;
     return `${person.name} ${person.organization} ${person.phone}`.toLowerCase().includes(q);
+  });
+  const roster = activity.participants.filter((person) => {
+    if (rosterFilter === 'presentes' && person.state !== 'presente') return false;
+    if (rosterFilter === 'pendientes' && person.state !== 'inscrito' && person.state !== 'invitado') return false;
+    const q = rosterQuery.trim().toLowerCase();
+    if (!q) return true;
+    return `${person.name} ${person.phone} ${person.organization} ${person.locality}`.toLowerCase().includes(q);
   });
 
   async function patch(body: Record<string, unknown>) {
@@ -418,7 +411,7 @@ function ActivityDetail({
     try {
       const geo = await captureGeo();
       if (!geo) {
-        onError('Este celular no entregó la ubicación. La actividad sigue abierta.');
+        onError('Este celular no entregó la ubicación.');
         return;
       }
       const res = await fetch(`/api/intranet/actividades/${activity.id}`, {
@@ -450,175 +443,126 @@ function ActivityDetail({
     }
   }
 
-  function confirmUrl(token: string) {
-    return `${origin()}/${locale}/actividad/c/${token}`;
-  }
-
   async function copy(text: string) {
     try {
       await navigator.clipboard.writeText(text);
-      setNotice('Enlace copiado');
+      setNotice('Copiado');
     } catch {
-      setNotice('Selecciona el enlace y cópialo');
+      setNotice('Selecciona y copia el texto');
     }
   }
 
   return (
-    <section className="space-y-4">
-      <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
+    <section className="space-y-3">
+      <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-5">
         <button type="button" onClick={onBack} className="text-xs font-semibold uppercase tracking-wide text-[#009179]">
-          Volver a la lista
+          ← Lista
         </button>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-2 flex flex-wrap items-center gap-2">
           <Badge tone={activity.kind === 'visita' ? 'navy' : 'green'}>{KIND_LABEL[activity.kind]}</Badge>
           <Badge tone={activity.status === 'abierta' ? 'green' : 'slate'}>
             {activity.status === 'abierta' ? 'Abierta' : 'Cerrada'}
           </Badge>
+          <span className="text-xs font-semibold text-[#009179]">
+            {presentes} presentes · {pendientes} pendientes · {activity.participants.length} en lista
+          </span>
         </div>
-        <h2 className="mt-2 text-2xl font-bold text-[#071F5E]">{activity.title}</h2>
+        <h2 className="mt-2 text-xl font-bold text-[#071F5E] sm:text-2xl">{activity.title}</h2>
         <p className="mt-1 text-sm text-[#1E1E1E]/65">
-          {[activity.projectLabel || 'Sin proyecto', activity.place || 'Sin lugar', formatWhen(activity.startsAt)].join(' · ')}
+          {[activity.projectLabel, activity.place, formatWhen(activity.startsAt)].filter(Boolean).join(' · ')}
         </p>
-        <p className="mt-2 text-xs text-[#1E1E1E]/50">Abierta por {activity.openedBy.name}</p>
-
-        {activity.sessionGeo ? (
-          <p className="mt-3 text-xs text-[#071F5E]">
-            GPS de la sesión: {activity.sessionGeo.lat.toFixed(5)}, {activity.sessionGeo.lng.toFixed(5)}
-            {activity.sessionGeo.accuracy != null ? ` · ±${Math.round(activity.sessionGeo.accuracy)} m` : ''}
-          </p>
-        ) : (
-          <p className="mt-3 text-xs text-amber-800">La sesión todavía no tiene GPS del celular del técnico.</p>
-        )}
-
         {warnings.sameDevice ? (
-          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-950">
-            Hay confirmaciones hechas desde el mismo celular, o desde el celular con el que se abrió la sesión. Revísalas antes del reporte.
-          </p>
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-950">Hay validaciones del mismo celular.</p>
         ) : null}
         {warnings.lejos > 0 ? (
-          <p className="mt-3 rounded-xl bg-amber-50 px-3 py-2 text-sm text-amber-950">
-            {warnings.lejos} {warnings.lejos === 1 ? 'persona confirmó' : 'personas confirmaron'} lejos del punto de la sesión.
-          </p>
+          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-950">{warnings.lejos} lejos del punto de la sesión.</p>
         ) : null}
-        {notice ? <p className="mt-3 text-sm text-[#009179]">{notice}</p> : null}
-
-        <div className="mt-4 rounded-2xl border border-[#009179]/25 bg-[#E7F6EC] px-4 py-4 text-sm leading-6 text-[#1D6359]">
-          <p className="text-[11px] font-bold uppercase tracking-[0.14em]">Cómo validan las personas</p>
-          {activity.kind === 'capacitacion' ? (
-            <ol className="mt-2 list-decimal space-y-1.5 pl-4">
-              <li>
-                Comparte el <strong>convite de inscripción</strong>. Quien no está en el sistema completa el formulario
-                (sexo, edad, localidad, documento…). Quien ya está en Impulsa CR se agrega abajo y no se reinscribe.
-              </li>
-              <li>Esa tabla ya es la lista de presencia (inscrito / invitado).</li>
-              <li>
-                En el momento, cada persona abre su <strong>enlace personal</strong> en su celular y toca «Estoy aquí».
-                Usa Copiar o WhatsApp en cada fila. Inscripción ≠ presencia.
-              </li>
-            </ol>
-          ) : (
-            <ol className="mt-2 list-decimal space-y-1.5 pl-4">
-              <li>Agrega a la persona desde Impulsa CR o a mano (no hay convite abierto).</li>
-              <li>
-                Envíale por WhatsApp su <strong>enlace personal</strong>. Ella confirma «Estoy aquí» en su celular, con
-                geolocalización.
-              </li>
-              <li>Completa la ficha (notas y fotos de Drive) abajo.</li>
-            </ol>
-          )}
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <button
-            type="button"
-            disabled={busy || activity.status === 'cerrada'}
-            onClick={() => void saveSessionGeo()}
-            className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E] disabled:opacity-50"
-          >
-            Guardar mi ubicación
+        {notice ? <p className="mt-2 text-sm text-[#009179]">{notice}</p> : null}
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" disabled={busy || activity.status === 'cerrada'} onClick={() => void saveSessionGeo()} className="rounded-lg border border-[#071F5E]/15 px-3 py-2 text-xs font-semibold text-[#071F5E] disabled:opacity-50">
+            Guardar mi GPS
           </button>
           <button
             type="button"
             disabled={busy}
             onClick={() => void patch({ action: 'status', status: activity.status === 'abierta' ? 'cerrada' : 'abierta' })}
-            className="rounded-xl bg-[#071F5E] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="rounded-lg bg-[#071F5E] px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
           >
-            {activity.status === 'abierta' ? 'Cerrar actividad' : 'Reabrir'}
+            {activity.status === 'abierta' ? 'Cerrar' : 'Reabrir'}
           </button>
-          <button
-            type="button"
-            onClick={() => void downloadCsv(activity.id)}
-            className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]"
-          >
+          <button type="button" onClick={() => void downloadCsv(activity.id)} className="rounded-lg border border-[#071F5E]/15 px-3 py-2 text-xs font-semibold text-[#071F5E]">
             Exportar
           </button>
-          <button type="button" disabled={busy} onClick={() => void remove()} className="rounded-xl px-3 py-2 text-sm font-semibold text-red-700 disabled:opacity-50">
+          <button type="button" disabled={busy} onClick={() => void remove()} className="rounded-lg px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-50">
             Borrar
           </button>
         </div>
       </div>
 
-      {activity.kind === 'capacitacion' ? (
-        <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-          <h3 className="font-bold text-[#071F5E]">Formulario de inscripción (convite)</h3>
-          <p className="mt-1 text-sm leading-6 text-[#1E1E1E]/70">
-            Este enlace abre el formulario estándar: nombre, documento, sexo, edad, localidad, teléfono, empresa y
-            organización. Quien se inscribe entra a la lista. El día confirma presencia con su enlace personal.
-            {activity.status === 'cerrada' ? ' Con la actividad cerrada el convite no acepta inscripciones.' : ''}
-          </p>
-          <input className={`${fieldClass} mt-3`} readOnly value={inviteUrl} onFocus={(event) => event.currentTarget.select()} />
-          <div className="mt-2 flex flex-wrap gap-2">
-            <button type="button" onClick={() => void copy(inviteUrl)} className="rounded-xl bg-[#009179] px-3 py-2 text-sm font-semibold text-white">
-              Copiar formulario
-            </button>
-            <a
-              className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]"
-              href={inviteUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              Abrir formulario
-            </a>
-            <a
-              className="rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]"
-              href={`https://wa.me/?text=${encodeURIComponent(`Hola, inscríbete a «${activity.title}» aquí: ${inviteUrl}`)}`}
-              target="_blank"
-              rel="noreferrer"
-            >
-              WhatsApp
-            </a>
+      <div className="rounded-2xl bg-[#071F5E] p-4 text-white shadow-sm sm:p-5">
+        <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#52ADAD]">Validación en la sala</p>
+        <h3 className="mt-1 text-lg font-bold">QR de esta actividad</h3>
+        <p className="mt-1 max-w-xl text-sm leading-6 text-white/80">
+          Muéstralo en la pantalla o imprímelo. La persona escanea, entra con su correo y contraseña de Impulsa CR, y
+          confirma. No hay que mandar un WhatsApp por persona.
+        </p>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
+          <div className="rounded-2xl bg-white p-3">
+            {activity.status === 'abierta' ? <RoomQr url={salaUrl} size={220} /> : <p className="p-8 text-center text-sm text-[#071F5E]">Cerrada</p>}
+          </div>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/60">Enlace corto</p>
+            <input className="min-h-10 w-full rounded-lg border-0 bg-white/10 px-3 text-sm text-white" readOnly value={salaUrl} onFocus={(e) => e.currentTarget.select()} />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => void copy(salaUrl)} className="rounded-lg bg-[#009179] px-3 py-2 text-xs font-semibold text-white">
+                Copiar enlace del QR
+              </button>
+              <a href={salaUrl} target="_blank" rel="noreferrer" className="rounded-lg bg-white/10 px-3 py-2 text-xs font-semibold text-white">
+                Abrir pantalla de validación
+              </a>
+            </div>
           </div>
         </div>
-      ) : (
-        <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-          <h3 className="font-bold text-[#071F5E]">Visita sin convite abierto</h3>
-          <p className="mt-1 text-sm leading-6 text-[#1E1E1E]/70">
-            Agrega a la persona desde Impulsa CR o a mano. Luego envíale su enlace personal (WhatsApp en cada fila) para
-            que confirme que recibió la visita.
-          </p>
-        </div>
-      )}
+      </div>
 
-      <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-        <h3 className="font-bold text-[#071F5E]">Personas ya registradas en Impulsa CR</h3>
-        <p className="mt-1 text-sm leading-6 text-[#1E1E1E]/70">No se vuelven a inscribir. Solo confirman presencia.</p>
+      <Panel title="Inscripción previa (opcional)" defaultOpen={false} hint="Formulario para quien aún no está en Impulsa CR">
+        {activity.kind === 'capacitacion' ? (
+          <div className="space-y-2">
+            <p className="text-sm leading-6 text-[#1E1E1E]/70">
+              Comparte este formulario antes del evento. Quien se inscribe queda en la lista; el día valida con el QR y
+              su cuenta, o pide al equipo agregarlo desde Impulsa.
+            </p>
+            <input className={fieldClass} readOnly value={inviteUrl} onFocus={(e) => e.currentTarget.select()} />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => void copy(inviteUrl)} className="rounded-lg bg-[#009179] px-3 py-2 text-xs font-semibold text-white">
+                Copiar formulario
+              </button>
+              <a href={inviteUrl} target="_blank" rel="noreferrer" className="rounded-lg border border-[#071F5E]/15 px-3 py-2 text-xs font-semibold text-[#071F5E]">
+                Abrir
+              </a>
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-[#1E1E1E]/70">Las visitas no usan inscripción abierta. Agrega a la persona y que valide con el QR.</p>
+        )}
+      </Panel>
+
+      <Panel title="Agregar desde Impulsa CR" defaultOpen={activity.participants.length === 0} hint="Opcional: precargar lista antes de la sala">
         {people == null ? (
-          <button type="button" disabled={busy} onClick={() => void loadPeople()} className="mt-3 rounded-xl border border-[#071F5E]/15 px-3 py-2 text-sm font-semibold text-[#071F5E]">
-            Buscar en Impulsa CR
+          <button type="button" disabled={busy} onClick={() => void loadPeople()} className="rounded-lg border border-[#071F5E]/15 px-3 py-2 text-xs font-semibold text-[#071F5E]">
+            Cargar personas
           </button>
         ) : (
-          <div className="mt-3 space-y-2">
-            <input className={fieldClass} placeholder="Filtrar por nombre" value={peopleQuery} onChange={(e) => setPeopleQuery(e.target.value)} />
-            {people.length === 0 ? <p className="text-sm text-[#1E1E1E]/60">No hay personas aprobadas o pendientes en Impulsa CR.</p> : null}
-            <ul className="max-h-64 space-y-1 overflow-auto">
-              {filteredPeople.slice(0, 40).map((person) => {
+          <div className="space-y-2">
+            <input className={fieldClass} placeholder="Filtrar" value={peopleQuery} onChange={(e) => setPeopleQuery(e.target.value)} />
+            <ul className="max-h-40 space-y-1 overflow-auto rounded-lg border border-[#071F5E]/10 p-2">
+              {filteredPeople.slice(0, 50).map((person) => {
                 const added = rosterIds.has(person.id);
                 return (
                   <li key={person.id}>
-                    <label className="flex items-start gap-2 rounded-xl px-2 py-2 text-sm hover:bg-[#F4F7FA]">
+                    <label className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-[#F4F7FA]">
                       <input
                         type="checkbox"
-                        className="mt-1"
                         disabled={added}
                         checked={added || picked.includes(person.id)}
                         onChange={(event) => {
@@ -627,12 +571,9 @@ function ActivityDetail({
                           );
                         }}
                       />
-                      <span>
+                      <span className="min-w-0 truncate">
                         <span className="font-semibold text-[#071F5E]">{person.name}</span>
-                        <span className="block text-xs text-[#1E1E1E]/55">
-                          {[person.organization, person.phone, person.status === 'pending' ? 'pendiente' : ''].filter(Boolean).join(' · ')}
-                          {added ? ' · ya en la lista' : ''}
-                        </span>
+                        <span className="text-[#1E1E1E]/50">{added ? ' · ya' : ''}</span>
                       </span>
                     </label>
                   </li>
@@ -647,15 +588,17 @@ function ActivityDetail({
                   if (saved) setPicked([]);
                 })
               }
-              className="rounded-xl bg-[#071F5E] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+              className="rounded-lg bg-[#071F5E] px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"
             >
-              Agregar seleccionados
+              Agregar seleccionados ({picked.length})
             </button>
           </div>
         )}
+      </Panel>
 
+      <Panel title="Agregar a mano" defaultOpen={false}>
         <form
-          className="mt-5 grid gap-2 border-t border-[#071F5E]/10 pt-4 sm:grid-cols-2"
+          className="grid gap-2 sm:grid-cols-2"
           onSubmit={(event) => {
             event.preventDefault();
             void patch({ action: 'manual', person: manual }).then((saved) => {
@@ -663,220 +606,201 @@ function ActivityDetail({
             });
           }}
         >
-          <p className="sm:col-span-2 text-sm font-semibold text-[#071F5E]">Agregar a mano (mismo formulario)</p>
           <input className={fieldClass} placeholder="Nombre *" value={manual.name} onChange={(e) => setManual((m) => ({ ...m, name: e.target.value }))} required />
+          <input className={fieldClass} placeholder="Teléfono" value={manual.phone} onChange={(e) => setManual((m) => ({ ...m, phone: e.target.value }))} />
           <input className={fieldClass} placeholder="Documento" value={manual.documentId} onChange={(e) => setManual((m) => ({ ...m, documentId: e.target.value }))} />
+          <input className={fieldClass} placeholder="Localidad" value={manual.locality} onChange={(e) => setManual((m) => ({ ...m, locality: e.target.value }))} />
           <select className={fieldClass} value={manual.sex} onChange={(e) => setManual((m) => ({ ...m, sex: e.target.value as EnrollmentFormState['sex'] }))}>
-            <option value="">Sexo / género</option>
+            <option value="">Sexo</option>
             <option value="female">Femenino</option>
             <option value="male">Masculino</option>
             <option value="collective">Colectivo</option>
           </select>
-          <input className={fieldClass} placeholder="Edad" value={manual.age} onChange={(e) => setManual((m) => ({ ...m, age: e.target.value }))} inputMode="numeric" />
-          <input className={fieldClass} placeholder="Localidad" value={manual.locality} onChange={(e) => setManual((m) => ({ ...m, locality: e.target.value }))} />
-          <input className={fieldClass} placeholder="Teléfono / WhatsApp" value={manual.phone} onChange={(e) => setManual((m) => ({ ...m, phone: e.target.value }))} />
-          <input className={fieldClass} placeholder="Empresa o finca" value={manual.companyName} onChange={(e) => setManual((m) => ({ ...m, companyName: e.target.value }))} />
+          <input className={fieldClass} placeholder="Edad" value={manual.age} onChange={(e) => setManual((m) => ({ ...m, age: e.target.value }))} />
+          <input className={fieldClass} placeholder="Empresa" value={manual.companyName} onChange={(e) => setManual((m) => ({ ...m, companyName: e.target.value }))} />
           <input className={fieldClass} placeholder="Organización" value={manual.organization} onChange={(e) => setManual((m) => ({ ...m, organization: e.target.value }))} />
-          <input className={fieldClass} placeholder="Correo" value={manual.email} onChange={(e) => setManual((m) => ({ ...m, email: e.target.value }))} type="email" />
-          <button type="submit" disabled={busy || activity.status === 'cerrada'} className="rounded-xl bg-[#009179] px-3 py-2 text-sm font-semibold text-white disabled:opacity-50 sm:col-span-2 sm:w-fit">
-            Agregar a la lista
+          <button type="submit" disabled={busy || activity.status === 'cerrada'} className="rounded-lg bg-[#009179] px-3 py-2 text-xs font-semibold text-white disabled:opacity-50 sm:col-span-2 sm:w-fit">
+            Agregar
           </button>
         </form>
-      </div>
+      </Panel>
 
-      <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="rounded-2xl bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <h3 className="font-bold text-[#071F5E]">Lista de inscripción / presencia</h3>
-            <p className="mt-1 text-xs text-[#1E1E1E]/60">
-              {activity.participants.filter((p) => p.state === 'presente').length} presentes ·{' '}
-              {activity.participants.filter((p) => p.state === 'inscrito' || p.state === 'invitado').length} por validar
-            </p>
+            <h3 className="font-bold text-[#071F5E]">Lista ({roster.length})</h3>
+            <p className="text-xs text-[#1E1E1E]/55">Compacta. Toca una fila solo si necesitas marcar ausente o anular.</p>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              const pending = activity.participants.filter((person) => person.state !== 'presente' && person.state !== 'ausente');
-              const lines = pending.map((person) => `${person.name}: ${confirmUrl(person.confirmToken)}`);
-              void copy(lines.join('\n') || 'Nadie pendiente');
-            }}
-            className="text-xs font-semibold uppercase tracking-wide text-[#009179]"
-          >
-            Copiar enlaces de validación
-          </button>
+          <div className="flex flex-wrap gap-1">
+            {(
+              [
+                ['todas', 'Todas'],
+                ['pendientes', 'Pendientes'],
+                ['presentes', 'Presentes'],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setRosterFilter(id)}
+                className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                  rosterFilter === id ? 'bg-[#071F5E] text-white' : 'bg-[#F4F7FA] text-[#071F5E]'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-        {activity.participants.length === 0 ? <p className="mt-3 text-sm text-[#1E1E1E]/60">Todavía no hay personas.</p> : null}
-        <ul className="mt-3 space-y-3">
-          {activity.participants.map((person) => (
-            <ParticipantRow
-              key={person.id}
-              person={person}
-              url={confirmUrl(person.confirmToken)}
-              busy={busy}
-              closed={activity.status === 'cerrada'}
-              anularOpen={anularId === person.id}
-              reason={reason}
-              onReason={setReason}
-              onCopy={() => void copy(confirmUrl(person.confirmToken))}
-              onAnularOpen={() => {
-                setAnularId(person.id);
-                setReason('');
-              }}
-              onAnularClose={() => setAnularId(null)}
-              onMark={(mark) => void patch({ action: 'mark', participantId: person.id, mark, reason })}
-            />
-          ))}
+        <input className={`${fieldClass} mt-3`} placeholder="Buscar en la lista" value={rosterQuery} onChange={(e) => setRosterQuery(e.target.value)} />
+        {roster.length === 0 ? <p className="mt-3 text-sm text-[#1E1E1E]/55">Nadie en este filtro.</p> : null}
+        <ul className="mt-2 divide-y divide-[#071F5E]/8">
+          {roster.map((person) => {
+            const open = openRow === person.id;
+            const sexLabel = getProjectSexLabel(person.sex, 'es');
+            return (
+              <li key={person.id} className="py-2">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-2 text-left"
+                  onClick={() => setOpenRow(open ? null : person.id)}
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold text-[#071F5E]">{person.name}</span>
+                      <Badge tone={person.state === 'presente' ? 'green' : person.state === 'ausente' ? 'red' : 'slate'}>
+                        {STATE_LABEL[person.state]}
+                      </Badge>
+                      {person.sameDevice && person.state === 'presente' ? <Badge tone="amber">Mismo celular</Badge> : null}
+                      {person.geoStatus === 'lejos' ? <Badge tone="amber">Lejos</Badge> : null}
+                    </div>
+                    <p className="truncate text-xs text-[#1E1E1E]/55">
+                      {[sexLabel, person.age != null ? `${person.age} a` : '', person.locality, person.phone].filter(Boolean).join(' · ')}
+                    </p>
+                  </div>
+                  <ChevronDown className={`h-4 w-4 shrink-0 text-[#071F5E]/40 transition ${open ? 'rotate-180' : ''}`} />
+                </button>
+                {open ? (
+                  <div className="mt-2 space-y-2 rounded-xl bg-[#F4F7FA] p-3">
+                    <p className="text-xs text-[#1E1E1E]/60">
+                      {[
+                        person.documentId ? `Doc. ${person.documentId}` : '',
+                        person.companyName,
+                        person.organization,
+                        person.source === 'impulsa' ? 'Impulsa CR' : person.source === 'convite' ? 'Convite' : 'Manual',
+                        person.confirmedAt ? formatWhen(person.confirmedAt) : '',
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {person.state !== 'presente' && person.state !== 'ausente' ? (
+                        <button type="button" disabled={busy || activity.status === 'cerrada'} onClick={() => void patch({ action: 'mark', participantId: person.id, mark: 'ausente' })} className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-[#071F5E] disabled:opacity-40">
+                          Ausente
+                        </button>
+                      ) : null}
+                      {person.state === 'ausente' ? (
+                        <button type="button" disabled={busy || activity.status === 'cerrada'} onClick={() => void patch({ action: 'mark', participantId: person.id, mark: 'restaurar' })} className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-[#071F5E] disabled:opacity-40">
+                          Restaurar
+                        </button>
+                      ) : null}
+                      {person.state === 'presente' ? (
+                        <button
+                          type="button"
+                          disabled={busy || activity.status === 'cerrada'}
+                          onClick={() => {
+                            setAnularId(person.id);
+                            setReason('');
+                          }}
+                          className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-40"
+                        >
+                          Anular presencia
+                        </button>
+                      ) : null}
+                      {person.phone ? (
+                        <a
+                          href={`https://wa.me/${(normalizePhone(person.phone) || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${person.name}, valida tu presencia escaneando el QR de la sala o abriendo: ${salaUrl}`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="rounded-lg bg-white px-2.5 py-1.5 text-xs font-semibold text-[#071F5E]"
+                        >
+                          Recordar QR por WhatsApp
+                        </a>
+                      ) : null}
+                    </div>
+                    {anularId === person.id ? (
+                      <div className="flex flex-wrap gap-2">
+                        <input className={fieldClass} placeholder="Motivo" value={reason} onChange={(e) => setReason(e.target.value)} />
+                        <button type="button" disabled={busy} onClick={() => void patch({ action: 'mark', participantId: person.id, mark: 'anular', reason }).then(() => setAnularId(null))} className="rounded-lg bg-red-700 px-3 py-2 text-xs font-semibold text-white">
+                          Confirmar
+                        </button>
+                        <button type="button" onClick={() => setAnularId(null)} className="rounded-lg px-3 py-2 text-xs font-semibold text-[#071F5E]">
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </li>
+            );
+          })}
         </ul>
       </div>
 
-      <form
-        className="space-y-3 rounded-2xl bg-white p-5 shadow-sm sm:p-6"
-        onSubmit={(event) => {
-          event.preventDefault();
-          void patch({
-            action: 'meta',
-            place: draft.place,
-            notes: draft.notes,
-            photoLinks: draft.photoLinks,
-          });
-        }}
-      >
-        <h3 className="font-bold text-[#071F5E]">Ficha de la visita o capacitación</h3>
-        <p className="text-sm leading-6 text-[#1E1E1E]/70">
-          Notas del técnico y enlaces de fotos en Drive. Se pueden completar después de cerrar. La lista de presencia no se reescribe en silencio.
-        </p>
-        <input className={fieldClass} placeholder="Lugar" value={draft.place} onChange={(e) => setDraft((d) => ({ ...d, place: e.target.value }))} />
-        <textarea
-          className={`${fieldClass} min-h-28 py-3`}
-          placeholder="Qué se vio, acuerdos, próximo paso"
-          value={draft.notes}
-          onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))}
-        />
-        <textarea
-          className={`${fieldClass} min-h-24 py-3`}
-          placeholder="Un enlace de Drive por línea"
-          value={draft.photoLinks}
-          onChange={(e) => setDraft((d) => ({ ...d, photoLinks: e.target.value }))}
-        />
-        <button type="submit" disabled={busy} className="rounded-xl bg-[#009179] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50">
-          Guardar ficha
-        </button>
-      </form>
+      <Panel title="Ficha (notas y fotos)" defaultOpen={false}>
+        <form
+          className="space-y-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            void patch({ action: 'meta', place: draft.place, notes: draft.notes, photoLinks: draft.photoLinks });
+          }}
+        >
+          <input className={fieldClass} placeholder="Lugar" value={draft.place} onChange={(e) => setDraft((d) => ({ ...d, place: e.target.value }))} />
+          <textarea className={`${fieldClass} min-h-24 py-2`} placeholder="Notas" value={draft.notes} onChange={(e) => setDraft((d) => ({ ...d, notes: e.target.value }))} />
+          <textarea className={`${fieldClass} min-h-20 py-2`} placeholder="Enlaces Drive (uno por línea)" value={draft.photoLinks} onChange={(e) => setDraft((d) => ({ ...d, photoLinks: e.target.value }))} />
+          <button type="submit" disabled={busy} className="rounded-lg bg-[#009179] px-3 py-2 text-xs font-semibold text-white disabled:opacity-50">
+            Guardar ficha
+          </button>
+        </form>
+      </Panel>
 
-      {activity.audit.length > 0 ? (
-        <div className="rounded-2xl bg-white p-5 shadow-sm sm:p-6">
-          <h3 className="font-bold text-[#071F5E]">Historial</h3>
-          <ul className="mt-3 space-y-2 text-xs text-[#1E1E1E]/70">
-            {activity.audit.slice(0, 12).map((entry, index) => (
-              <li key={`${entry.at}-${index}`}>
-                {formatWhen(entry.at)} · {entry.action}
-                {entry.detail ? ` · ${entry.detail}` : ''} · {entry.actor}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
+      <Panel title="Historial" defaultOpen={false}>
+        <ul className="space-y-1.5 text-xs text-[#1E1E1E]/70">
+          {activity.audit.slice(0, 15).map((entry, index) => (
+            <li key={`${entry.at}-${index}`}>
+              {formatWhen(entry.at)} · {entry.action}
+              {entry.detail ? ` · ${entry.detail}` : ''}
+            </li>
+          ))}
+        </ul>
+      </Panel>
     </section>
   );
 }
 
-function ParticipantRow({
-  person,
-  url,
-  busy,
-  closed,
-  anularOpen,
-  reason,
-  onReason,
-  onCopy,
-  onAnularOpen,
-  onAnularClose,
-  onMark,
+function Panel({
+  title,
+  hint,
+  defaultOpen,
+  children,
 }: {
-  person: ActivityParticipant;
-  url: string;
-  busy: boolean;
-  closed: boolean;
-  anularOpen: boolean;
-  reason: string;
-  onReason: (value: string) => void;
-  onCopy: () => void;
-  onAnularOpen: () => void;
-  onAnularClose: () => void;
-  onMark: (mark: 'ausente' | 'restaurar' | 'anular') => void;
+  title: string;
+  hint?: string;
+  defaultOpen: boolean;
+  children: ReactNode;
 }) {
-  const phone = normalizePhone(person.phone);
-  const digits = phone ? phone.replace(/\D/g, '') : '';
-  const wa = `${digits ? `https://wa.me/${digits}` : 'https://wa.me/'}?text=${encodeURIComponent(
-    `Hola ${person.name}, para validar tu participación abre este enlace en tu celular y toca «Estoy aquí»: ${url}`
-  )}`;
-  const sexLabel = getProjectSexLabel(person.sex, 'es');
-
+  const [open, setOpen] = useState(defaultOpen);
   return (
-    <li className="rounded-2xl border border-[#071F5E]/10 p-3">
-      <div className="flex flex-wrap items-center gap-2">
-        <p className="font-semibold text-[#071F5E]">{person.name}</p>
-        <Badge tone={person.state === 'presente' ? 'green' : person.state === 'ausente' ? 'red' : 'slate'}>
-          {STATE_LABEL[person.state]}
-        </Badge>
-        {person.geoStatus === 'sin_gps' && person.state === 'presente' ? <Badge tone="amber">Sin GPS</Badge> : null}
-        {person.geoStatus === 'lejos' ? <Badge tone="amber">Ubicación distinta</Badge> : null}
-        {person.sameDevice && person.state === 'presente' ? <Badge tone="amber">Mismo celular</Badge> : null}
-      </div>
-      <p className="mt-1 text-xs text-[#1E1E1E]/55">
-        {[
-          person.documentId ? `Doc. ${person.documentId}` : '',
-          sexLabel,
-          person.age != null ? `${person.age} años` : '',
-          person.locality,
-          person.companyName,
-          person.organization,
-          person.phone,
-          person.source === 'impulsa' ? 'Impulsa CR' : person.source === 'convite' ? 'Convite' : 'Manual',
-        ]
-          .filter(Boolean)
-          .join(' · ')}
-        {person.confirmedAt ? ` · ${formatWhen(person.confirmedAt)}` : ''}
-      </p>
-      {person.state !== 'presente' && person.state !== 'ausente' ? (
-        <p className="mt-2 text-xs font-semibold text-[#009179]">Enlace para que valide en su celular:</p>
-      ) : null}
-      <input className={`${fieldClass} mt-1`} readOnly value={url} onFocus={(event) => event.currentTarget.select()} />
-      <div className="mt-2 flex flex-wrap gap-2">
-        <button type="button" onClick={onCopy} className="rounded-lg bg-[#F4F7FA] px-2.5 py-1.5 text-xs font-semibold text-[#071F5E]">
-          Copiar validación
-        </button>
-        <a href={wa} target="_blank" rel="noreferrer" className="rounded-lg bg-[#009179] px-2.5 py-1.5 text-xs font-semibold text-white">
-          WhatsApp validar
-        </a>
-        {person.state !== 'presente' && person.state !== 'ausente' ? (
-          <button type="button" disabled={busy || closed} onClick={() => onMark('ausente')} className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#071F5E] disabled:opacity-40">
-            Ausente
-          </button>
-        ) : null}
-        {person.state === 'ausente' ? (
-          <button type="button" disabled={busy || closed} onClick={() => onMark('restaurar')} className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-[#071F5E] disabled:opacity-40">
-            Volver a la lista
-          </button>
-        ) : null}
-        {person.state === 'presente' ? (
-          <button type="button" disabled={busy || closed} onClick={onAnularOpen} className="rounded-lg px-2.5 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-40">
-            Anular presencia
-          </button>
-        ) : null}
-      </div>
-      {anularOpen ? (
-        <div className="mt-2 flex flex-wrap gap-2">
-          <input className={fieldClass} placeholder="Motivo de la anulación" value={reason} onChange={(e) => onReason(e.target.value)} />
-          <button type="button" disabled={busy} onClick={() => onMark('anular')} className="rounded-xl bg-red-700 px-3 py-2 text-xs font-semibold text-white">
-            Confirmar anulación
-          </button>
-          <button type="button" onClick={onAnularClose} className="rounded-xl px-3 py-2 text-xs font-semibold text-[#071F5E]">
-            Cancelar
-          </button>
+    <div className="rounded-2xl bg-white shadow-sm">
+      <button type="button" onClick={() => setOpen((value) => !value)} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left sm:px-5">
+        <div>
+          <p className="font-bold text-[#071F5E]">{title}</p>
+          {hint ? <p className="text-xs text-[#1E1E1E]/55">{hint}</p> : null}
         </div>
-      ) : null}
-    </li>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-[#071F5E]/45 transition ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open ? <div className="border-t border-[#071F5E]/8 px-4 py-3 sm:px-5">{children}</div> : null}
+    </div>
   );
 }
 
@@ -888,7 +812,7 @@ function Badge({ children, tone }: { children: string; tone: 'green' | 'navy' | 
     amber: 'bg-amber-100 text-amber-950',
     red: 'bg-red-50 text-red-800',
   }[tone];
-  return <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${toneClass}`}>{children}</span>;
+  return <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${toneClass}`}>{children}</span>;
 }
 
 async function downloadCsv(id?: string) {
