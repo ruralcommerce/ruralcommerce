@@ -1,7 +1,14 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import type { MarcaContract, MarcaImage, MarcaVisualProfile } from '@/lib/marca/types';
+import type {
+  MarcaContract,
+  MarcaImage,
+  MarcaParticipant,
+  MarcaPublicImage,
+  MarcaVisualProfile,
+} from '@/lib/marca/types';
+import { MARCA_TONES } from '@/lib/marca/types';
 import { normalizeToneLabel } from '@/lib/marca/labels';
 import { buildOnePageCopy } from '@/lib/marca/profile';
 import {
@@ -10,6 +17,7 @@ import {
 } from '@/lib/marca/moodboard';
 import { MarcaButton, MarcaPanel } from './MarcaShell';
 import { FinalWorkshopMoodboardView } from './FinalWorkshopMoodboard';
+import { ParticipantMoodboard } from './ParticipantMoodboard';
 import { IDENTITY_WORDS, PERCEPTION_PHRASES, phraseLabel } from '@/lib/marca/workshop-copy';
 
 function TagList({ label, items, tone }: { label: string; items: string[]; tone: 'strong' | 'mid' | 'low' | 'no' }) {
@@ -37,6 +45,38 @@ function TagList({ label, items, tone }: { label: string; items: string[]; tone:
   );
 }
 
+function participantStyleImages(
+  participant: MarcaParticipant,
+  imageById: Record<string, MarcaImage>
+): MarcaPublicImage[] {
+  const ids = [
+    ...(participant.styleImageIds || []),
+    ...Object.values(participant.sectionPicks || {}).filter(Boolean),
+  ].filter((v, i, a) => a.indexOf(v) === i) as string[];
+
+  return ids
+    .map((id) => imageById[id])
+    .filter(Boolean)
+    .map((img) => ({
+      id: img.id,
+      src: img.src,
+      alt: img.alt,
+      moodColor: img.moodColor,
+      tone: img.tone,
+      section: typeof img.section === 'string' ? img.section : undefined,
+    }));
+}
+
+function paletteImagesFromCatalog(catalog: MarcaImage[]) {
+  const map: Partial<Record<string, string>> = {};
+  for (const tone of MARCA_TONES) {
+    map[tone] = `/images/marca/ui/palette-${tone}.jpg`;
+    const fromCatalog = catalog.find((i) => i.section === 'palette' && i.tone === tone);
+    if (fromCatalog?.src) map[tone] = fromCatalog.src;
+  }
+  return map;
+}
+
 function ParticipantMoodCard({
   name,
   picks,
@@ -44,7 +84,9 @@ function ParticipantMoodCard({
   words,
   perception,
   freeText,
+  completed,
   imageById,
+  onOpenBook,
 }: {
   name: string;
   picks: string[];
@@ -52,15 +94,30 @@ function ParticipantMoodCard({
   words: string[];
   perception?: string[];
   freeText?: string;
+  completed?: boolean;
   imageById: Record<string, MarcaImage>;
+  onOpenBook: () => void;
 }) {
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--rc-primary)]/10 bg-white">
       <div className="border-b border-[var(--rc-primary)]/8 px-3 py-2">
-        <p className="text-sm font-bold text-[var(--rc-primary)]">{name}</p>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-accent)]">
-          Moodboard individual
-        </p>
+        <div className="flex items-start justify-between gap-2">
+          <div>
+            <p className="text-sm font-bold text-[var(--rc-primary)]">{name}</p>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-accent)]">
+              Libro individual
+            </p>
+          </div>
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+              completed
+                ? 'bg-[var(--rc-accent)]/15 text-[var(--rc-accent)]'
+                : 'bg-[#EEF3F7] text-[var(--rc-text)]/60'
+            }`}
+          >
+            {completed ? 'Completo' : 'En curso'}
+          </span>
+        </div>
         {tones?.length ? (
           <p className="mt-1 text-[11px] text-[var(--rc-text)]/65">Paletas: {tones.join(', ')}</p>
         ) : null}
@@ -103,6 +160,15 @@ function ParticipantMoodCard({
           {freeText}
         </p>
       ) : null}
+      <div className="border-t border-[var(--rc-primary)]/8 px-3 py-2">
+        <button
+          type="button"
+          onClick={onOpenBook}
+          className="inline-flex min-h-[40px] w-full items-center justify-center rounded-[12px] bg-[#071F5E] px-3 text-xs font-bold text-white"
+        >
+          Ver libro completo
+        </button>
+      </div>
     </div>
   );
 }
@@ -122,8 +188,10 @@ export function MarcaProfileReport({
   const [generating, setGenerating] = useState(false);
   const [aiError, setAiError] = useState('');
   const [finalBoard, setFinalBoard] = useState<FinalWorkshopMoodboard | null>(null);
+  const [bookParticipant, setBookParticipant] = useState<MarcaParticipant | null>(null);
   const finalRef = useRef<HTMLDivElement>(null);
   const imageById = useMemo(() => Object.fromEntries(catalog.map((img) => [img.id, img])), [catalog]);
+  const bookLocale = contract.locale === 'pt-BR' ? 'pt-BR' : 'es';
 
   const onePage = buildOnePageCopy({
     clientName: contract.clientName || 'Marca',
@@ -177,8 +245,8 @@ export function MarcaProfileReport({
               {profile.completedCount} de {profile.participantCount} participantes con respuestas
             </p>
             <p className="mt-2 max-w-xl text-xs leading-5 text-[var(--rc-text)]/60">
-              Abajo: moodboard de cada persona. El moodboard final se genera con Gemini a partir de votos,
-              palabras e historias — no es solo un recuento automático.
+              Abajo: el libro completo de cada persona (paletas, estilos, palabras y textos). El moodboard
+              final del taller es el resultado agregado del grupo — no sustituye el libro individual.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -221,10 +289,11 @@ export function MarcaProfileReport({
         ) : (
           <MarcaPanel>
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
-              Moodboard final de la oficina
+              Moodboard final del taller (grupo)
             </p>
             <p className="mt-2 text-sm text-[var(--rc-text)]/70">
-              Todavía no generado. Usa Gemini para sistematizar textos, paleta y dirección visual del taller.
+              Resultado agregado de toda la oficina — distinto del libro de cada persona. Todavía no
+              generado. Usa Gemini para sistematizar textos, paleta y dirección visual del taller.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <MarcaButton onClick={() => void generateFinal(true)} disabled={generating}>
@@ -241,10 +310,11 @@ export function MarcaProfileReport({
 
       <MarcaPanel>
         <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
-          Moodboards por persona
+          Libros por persona
         </p>
         <p className="mt-1 text-xs text-[var(--rc-text)]/60">
-          Cada tarjeta muestra solo las elecciones de esa persona (no es el resultado del grupo).
+          Cada tarjeta resume las elecciones de esa persona. Abre el libro completo para ver y descargar
+          el mismo multipágina que vio el participante (no es el moodboard final del taller).
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {contract.participants.length === 0 ? (
@@ -259,15 +329,51 @@ export function MarcaProfileReport({
                   ...(p.styleImageIds || []),
                 ].filter((v, i, a) => a.indexOf(v) === i) as string[]}
                 tones={p.paletteTones || []}
-                words={(p.words?.selected || []).map((id) => phraseLabel(IDENTITY_WORDS, id, false))}
-                perception={(p.perceptionPicks || []).map((id) => phraseLabel(PERCEPTION_PHRASES, id, false))}
+                words={(p.words?.selected || []).map((id) => phraseLabel(IDENTITY_WORDS, id, bookLocale === 'pt-BR'))}
+                perception={(p.perceptionPicks || []).map((id) =>
+                  phraseLabel(PERCEPTION_PHRASES, id, bookLocale === 'pt-BR')
+                )}
                 freeText={p.freeText}
+                completed={Boolean(p.completedAt)}
                 imageById={imageById}
+                onOpenBook={() => setBookParticipant(p)}
               />
             ))
           )}
         </div>
       </MarcaPanel>
+
+      {bookParticipant ? (
+        <div className="fixed inset-0 z-50 flex flex-col bg-[#FBFAF8]">
+          <div className="flex shrink-0 items-center justify-between gap-3 border-b border-[#071F5E]/10 bg-white px-4 py-3 sm:px-6">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--rc-accent)]">
+                Libro completo · persona
+              </p>
+              <p className="text-sm font-bold text-[#071F5E]">{bookParticipant.name}</p>
+              <p className="text-[11px] text-[var(--rc-text)]/60">
+                Distinto del moodboard final del taller. Muestra solo lo que eligió esta persona.
+              </p>
+            </div>
+            <MarcaButton variant="ghost" onClick={() => setBookParticipant(null)}>
+              Cerrar
+            </MarcaButton>
+          </div>
+          <div className="min-h-0 flex-1 overflow-hidden px-3 py-3 sm:px-6 sm:py-4">
+            <ParticipantMoodboard
+              participantName={bookParticipant.name}
+              paletteTones={bookParticipant.paletteTones || []}
+              styleImages={participantStyleImages(bookParticipant, imageById)}
+              paletteImages={paletteImagesFromCatalog(catalog)}
+              identityWords={bookParticipant.words?.selected || []}
+              perceptionPicks={bookParticipant.perceptionPicks || []}
+              freeText={bookParticipant.freeText || ''}
+              locale={bookLocale}
+              onBack={() => setBookParticipant(null)}
+            />
+          </div>
+        </div>
+      ) : null}
 
       {profile.wordFrequency?.length ? (
         <MarcaPanel>
