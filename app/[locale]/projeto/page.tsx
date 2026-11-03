@@ -376,10 +376,6 @@ export default async function ProjetoPage({
                 </span>
               </a>
             </ProjectLandingReveal>
-
-            <ProjectLandingReveal className="projeto-hero-meta" delayMs={90}>
-              <p className="projeto-hero-note">{current.heroNote}</p>
-            </ProjectLandingReveal>
           </div>
         </section>
 
