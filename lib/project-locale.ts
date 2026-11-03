@@ -185,6 +185,7 @@ export const defaultProjectHeaderNav: Record<
     { label: 'Aliados y Inversores', href: '/aliados' },
     { label: 'Blog', href: '/blog' },
     { label: 'Contacto', href: '/contacto' },
+    { label: 'Intranet', href: '/intranet' },
   ],
   'pt-BR': [
     { label: 'Sobre', href: '/sobre' },
@@ -192,6 +193,7 @@ export const defaultProjectHeaderNav: Record<
     { label: 'Aliados e Inversores', href: '/aliados' },
     { label: 'Blog', href: '/blog' },
     { label: 'Contato', href: '/contacto' },
+    { label: 'Intranet', href: '/intranet' },
   ],
   en: [
     { label: 'About', href: '/sobre' },
@@ -199,5 +201,6 @@ export const defaultProjectHeaderNav: Record<
     { label: 'Partners & Investors', href: '/aliados' },
     { label: 'Blog', href: '/blog' },
     { label: 'Contact', href: '/contacto' },
+    { label: 'Intranet', href: '/intranet' },
   ],
 };

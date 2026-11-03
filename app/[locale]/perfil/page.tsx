@@ -1,22 +1,16 @@
-import { ProjectPageShell } from '@/components/ProjectPageShell';
-import { ProjectProfileDashboard } from '@/components/ProjectProfileDashboard';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { getSessionFromCookies, sessionHas } from '@/lib/intranet/auth';
+import { intranetHomePath } from '@/lib/intranet/home';
 
-export default function PerfilPage({
-  params,
-  searchParams,
-}: {
-  params: { locale: string };
-  searchParams?: { email?: string };
-}) {
-  const email = typeof searchParams?.email === 'string' ? searchParams.email : '';
-
-  return (
-    <ProjectPageShell
-      locale={params.locale}
-      currentPage="perfil"
-      contentClassName="mx-auto flex w-full max-w-6xl flex-col px-3 sm:px-6 lg:px-8"
-    >
-      <ProjectProfileDashboard locale={params.locale} initialEmail={email} />
-    </ProjectPageShell>
-  );
+/** Compat: /perfil → unified intranet (mi-recorrido or login). */
+export default function PerfilPage({ params }: { params: { locale: string } }) {
+  const session = getSessionFromCookies(cookies());
+  if (session && sessionHas(session, 'benef.access')) {
+    redirect(`/${params.locale}/intranet/mi-recorrido`);
+  }
+  if (session) {
+    redirect(intranetHomePath(params.locale, session));
+  }
+  redirect(`/${params.locale}/intranet`);
 }

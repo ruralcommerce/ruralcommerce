@@ -1,15 +1,16 @@
-import { ProjectAdminDashboard } from '@/components/ProjectAdminDashboard';
-import { ProjectPageShell } from '@/components/ProjectPageShell';
+import { redirect } from 'next/navigation';
+import { cookies } from 'next/headers';
+import { getSessionFromCookies, sessionHas } from '@/lib/intranet/auth';
+import { intranetHomePath } from '@/lib/intranet/home';
 
+/** Compat: /admin → unified intranet (proyecto module or login). */
 export default function AdminPage({ params }: { params: { locale: string } }) {
-  return (
-    <ProjectPageShell
-      locale={params.locale}
-      currentPage="admin"
-      showPageTitle={false}
-      contentClassName="mx-auto flex w-full max-w-7xl flex-col px-3 sm:px-6 lg:px-8"
-    >
-      <ProjectAdminDashboard locale={params.locale} />
-    </ProjectPageShell>
-  );
+  const session = getSessionFromCookies(cookies());
+  if (session && sessionHas(session, 'projeto.access')) {
+    redirect(`/${params.locale}/intranet/proyecto`);
+  }
+  if (session) {
+    redirect(intranetHomePath(params.locale, session));
+  }
+  redirect(`/${params.locale}/intranet`);
 }

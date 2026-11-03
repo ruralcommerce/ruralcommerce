@@ -1,6 +1,13 @@
 import { createHmac, timingSafeEqual } from 'crypto';
 import { cookies } from 'next/headers';
-import type { IntranetPermission, IntranetRole, IntranetSession } from './types';
+import {
+  ROLE_DEFAULT_PERMISSIONS,
+  type IntranetPermission,
+  type IntranetProfile,
+  type IntranetRole,
+  type IntranetScope,
+  type IntranetSession,
+} from './types';
 
 export const INTRANET_COOKIE = 'rc-intranet';
 /** legacy cookie from marca v1 */
@@ -27,6 +34,19 @@ export function createSessionToken(session: IntranetSession): string {
   return Buffer.from(`${payload}.${sig}`).toString('base64url');
 }
 
+function normalizeSession(data: Partial<IntranetSession> & { email?: string; permissions?: IntranetPermission[] }): IntranetSession | null {
+  if (!data.email || !data.permissions) return null;
+  return {
+    userId: data.userId || '',
+    name: data.name || data.email,
+    email: data.email,
+    role: (data.role || 'viewer') as IntranetRole,
+    profile: (data.profile || 'staff_interno') as IntranetProfile,
+    permissions: data.permissions,
+    scope: (data.scope || {}) as IntranetScope,
+  };
+}
+
 export function verifySessionToken(token: string | undefined | null): IntranetSession | null {
   if (!token) return null;
   try {
@@ -40,14 +60,7 @@ export function verifySessionToken(token: string | undefined | null): IntranetSe
     const b = Buffer.from(expected);
     if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
     const data = JSON.parse(payload) as IntranetSession & { t?: number };
-    if (!data.email || !data.permissions) return null;
-    return {
-      userId: data.userId,
-      name: data.name,
-      email: data.email,
-      role: data.role,
-      permissions: data.permissions,
-    };
+    return normalizeSession(data);
   } catch {
     return null;
   }
@@ -69,16 +82,9 @@ function verifyLegacyToken(token: string | undefined | null): IntranetSession | 
       name: 'Equipo Rural Commerce',
       email: 'equipo@ruralcommerceglobal.com',
       role: 'admin' as IntranetRole,
-      permissions: [
-        'dashboard',
-        'users.manage',
-        'collaborators.manage',
-        'permissions.manage',
-        'tools.access',
-        'tools.marca',
-        'tools.sementes',
-        'tools.actividades',
-      ],
+      profile: 'staff_interno',
+      permissions: [...ROLE_DEFAULT_PERMISSIONS.admin],
+      scope: {},
     };
   } catch {
     return null;
@@ -95,6 +101,23 @@ export function getSessionFromCookies(
   );
 }
 
+/** Read intranet session from a Request Cookie header (API routes). */
+export function getSessionFromRequest(request: Request): IntranetSession | null {
+  const header = request.headers.get('cookie') || '';
+  const parts = header.split(';').map((p) => p.trim());
+  const map = new Map<string, string>();
+  for (const part of parts) {
+    const eq = part.indexOf('=');
+    if (eq < 0) continue;
+    map.set(part.slice(0, eq), decodeURIComponent(part.slice(eq + 1)));
+  }
+  return (
+    verifySessionToken(map.get(INTRANET_COOKIE)) ||
+    verifyLegacyToken(map.get(LEGACY_MARCA_COOKIE)) ||
+    verifyLegacyToken(map.get(INTRANET_COOKIE))
+  );
+}
+
 export function requireStaff(): boolean {
   return Boolean(getSessionFromCookies(cookies()));
 }
@@ -105,6 +128,39 @@ export function requireSession(): IntranetSession | null {
 
 export function sessionHas(session: IntranetSession | null, permission: IntranetPermission): boolean {
   if (!session) return false;
-  if (session.role === 'admin') return true;
+  // Full bypass only for staff_interno admins
+  if (session.role === 'admin' && session.profile === 'staff_interno') return true;
+  // Legacy sessions without profile still treat admin as full access
+  if (session.role === 'admin' && !session.profile) return true;
   return session.permissions.includes(permission);
+}
+
+export function sessionHasAny(
+  session: IntranetSession | null,
+  permissions: IntranetPermission[]
+): boolean {
+  return permissions.some((p) => sessionHas(session, p));
+}
+
+export function requirePermission(permission: IntranetPermission): IntranetSession | null {
+  const session = requireSession();
+  if (!sessionHas(session, permission)) return null;
+  return session;
+}
+
+export function requireAnyPermission(permissions: IntranetPermission[]): IntranetSession | null {
+  const session = requireSession();
+  if (!sessionHasAny(session, permissions)) return null;
+  return session;
+}
+
+export function scopeAllowsInscription(session: IntranetSession, inscriptionId: string): boolean {
+  if (session.profile === 'beneficiario') {
+    const allowed = session.scope?.inscriptionId || session.userId;
+    return Boolean(allowed && (session.scope.inscriptionId === inscriptionId));
+  }
+  if (sessionHas(session, 'projeto.inscripciones') || sessionHas(session, 'projeto.access')) {
+    return true;
+  }
+  return false;
 }

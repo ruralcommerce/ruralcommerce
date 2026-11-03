@@ -1,12 +1,29 @@
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { readSementes, setSementeFlipAt, setSementeStatus } from '@/lib/sementes-store';
-import { readBearer, signTeamToken, toTeamView, verifyTeamPassword, verifyTeamToken } from '@/lib/sementes-auth';
+import {
+  readBearer,
+  signTeamToken,
+  toTeamView,
+  verifyTeamPassword,
+  verifyTeamToken,
+} from '@/lib/sementes-auth';
 import { getSementesVideoUrl, isSementesR2Ready } from '@/lib/sementes-r2';
+import { getSessionFromCookies, getSessionFromRequest, sessionHas } from '@/lib/intranet/auth';
 
 export const runtime = 'nodejs';
 
 function unauthorized() {
   return NextResponse.json({ ok: false, message: 'Equipe não autenticada.' }, { status: 401 });
+}
+
+function hasSementesTeamAccess(request: Request) {
+  const fromRequest = getSessionFromRequest(request);
+  if (sessionHas(fromRequest, 'tools.sementes')) return true;
+  const fromCookies = getSessionFromCookies(cookies());
+  if (sessionHas(fromCookies, 'tools.sementes')) return true;
+  const token = readBearer(request);
+  return Boolean(token && verifyTeamToken(token));
 }
 
 export async function POST(request: Request) {
@@ -20,6 +37,11 @@ export async function POST(request: Request) {
   const action = typeof body.action === 'string' ? body.action : 'login';
 
   if (action === 'login') {
+    // Prefer unified intranet session
+    const intranet = getSessionFromRequest(request) || getSessionFromCookies(cookies());
+    if (sessionHas(intranet, 'tools.sementes')) {
+      return NextResponse.json({ ok: true, token: signTeamToken(), via: 'intranet' });
+    }
     const password = String(body.password || '');
     if (!verifyTeamPassword(password)) {
       return NextResponse.json({ ok: false, message: 'Senha não bate.' }, { status: 401 });
@@ -27,8 +49,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true, token: signTeamToken() });
   }
 
-  const token = readBearer(request);
-  if (!token || !verifyTeamToken(token)) return unauthorized();
+  if (!hasSementesTeamAccess(request)) return unauthorized();
 
   if (action === 'flip') {
     const when = new Date(Date.now() + 8000).toISOString();
@@ -48,8 +69,7 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-  const token = readBearer(request);
-  if (!token || !verifyTeamToken(token)) return unauthorized();
+  if (!hasSementesTeamAccess(request)) return unauthorized();
 
   const data = await readSementes();
   const seeds = [...data.seeds]

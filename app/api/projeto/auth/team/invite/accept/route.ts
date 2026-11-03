@@ -53,6 +53,27 @@ export async function POST(request: Request) {
     metadata: { email: result.member.email },
   });
 
+  // Keep unified intranet identity in sync
+  try {
+    const { upsertUser } = await import('@/lib/intranet/users-store');
+    const { defaultPermissionsFor } = await import('@/lib/intranet/types');
+    const memberRole = result.member.role || 'technician';
+    await upsertUser({
+      id: `usr_team_${result.member.id}`,
+      name: result.member.name,
+      email: result.member.email,
+      password,
+      role: memberRole === 'technician' ? 'viewer' : 'editor',
+      profile: 'equipe_projeto',
+      permissions: defaultPermissionsFor('equipe_projeto', 'editor', memberRole),
+      scope: { memberRole },
+      kind: 'user',
+      linkedTeamMemberId: result.member.id,
+    });
+  } catch {
+    // non-fatal — login can still link on the fly
+  }
+
   return NextResponse.json({
     ok: true,
     member: sanitizeTeamMember(result.member),

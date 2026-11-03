@@ -21,7 +21,9 @@ export function IntranetToolsPage({ locale }: { locale: string }) {
 
 function ToolsBody({ locale, session }: { locale: string; session: IntranetSession }) {
   const tools = intranetTools(locale).filter(
-    (t) => session.role === 'admin' || session.permissions.includes(t.permission)
+    (t) =>
+      (session.role === 'admin' && session.profile === 'staff_interno') ||
+      session.permissions.includes(t.permission)
   );
 
   return (

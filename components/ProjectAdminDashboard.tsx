@@ -714,7 +714,14 @@ function needsDiagnosisReminder(record: EnrollmentRecord) {
   );
 }
 
-export function ProjectAdminDashboard({ locale }: { locale: string }) {
+export function ProjectAdminDashboard({
+  locale,
+  unifiedAuth = false,
+}: {
+  locale: string;
+  /** When true, uses unified intranet cookie (no separate team login form). */
+  unifiedAuth?: boolean;
+}) {
   const localeKey = getProjectLocaleKey(locale);
   const t = uiCopy[localeKey];
   const intranetLabel = getProjectPageTitle(locale, 'admin');
@@ -808,6 +815,52 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   }
 
   useEffect(() => {
+    if (unifiedAuth) {
+      let cancelled = false;
+      void (async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const response = await fetch('/api/projeto/auth/team/from-intranet', {
+            method: 'POST',
+            credentials: 'include',
+          });
+          const payload = await response.json();
+          if (cancelled) return;
+          if (!response.ok || !payload.ok) {
+            setError(mapProjectApiMessage(payload.message, localeKey, t.errorAuth));
+            setAuthenticated(false);
+            return;
+          }
+          setRecords(payload.records || []);
+          setTeamToken(payload.token || '');
+          setTeamMemberName(payload.member?.name || '');
+          setTeamRole(payload.member?.role || '');
+          setTeamEmail(payload.member?.email || '');
+          if (payload.token && payload.member) {
+            writeTeamSession({
+              token: payload.token,
+              memberId: payload.member.id,
+              name: payload.member.name,
+              email: payload.member.email,
+              role: payload.member.role,
+            });
+          }
+          setAuthenticated(true);
+        } catch {
+          if (!cancelled) {
+            setError(t.errorAuthGeneric);
+            setAuthenticated(false);
+          }
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const session = readTeamSession();
     if (!session?.token) return;
     setTeamToken(session.token);
@@ -815,7 +868,7 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
     setTeamMemberName(session.name);
     setTeamRole(session.role);
     setAuthenticated(true);
-  }, []);
+  }, [unifiedAuth, localeKey, t.errorAuth, t.errorAuthGeneric]);
 
   const loadRecords = async () => {
     if (!authenticated) return;
@@ -1422,6 +1475,13 @@ export function ProjectAdminDashboard({ locale }: { locale: string }) {
   }
 
   if (!authenticated) {
+    if (unifiedAuth) {
+      return (
+        <div className="space-y-3 p-2">
+          <p className="text-sm text-[#071F5E]/70">{loading ? '…' : error || t.errorAuth}</p>
+        </div>
+      );
+    }
     return (
       <div className="space-y-6">
         <div>

@@ -10,7 +10,7 @@ export function ImpulsaAccessDoors({ locale }: { locale: string }) {
   const t = accessDoorsCopy[key];
   const doors = [
     {
-      href: `/${locale}/perfil`,
+      href: `/${locale}/intranet`,
       title: t.beneficiariosTitle,
       body: t.beneficiariosBody,
       cta: t.beneficiariosCta,
@@ -18,7 +18,7 @@ export function ImpulsaAccessDoors({ locale }: { locale: string }) {
       restricted: false,
     },
     {
-      href: `/${locale}/admin`,
+      href: `/${locale}/intranet`,
       title: t.intranetTitle,
       body: t.intranetBody,
       cta: t.intranetCta,
@@ -47,7 +47,7 @@ export function ImpulsaAccessDoors({ locale }: { locale: string }) {
         </ProjectLandingReveal>
         <div className="planta-doors-grid mt-8">
           {doors.map((door, index) => (
-            <ProjectLandingReveal key={door.href} delayMs={index * 60}>
+            <ProjectLandingReveal key={door.index} delayMs={index * 60}>
               <Link href={door.href} className={`planta-door${door.restricted ? ' is-restricted' : ''}`}>
                 <p className="planta-door-index">{door.index}</p>
                 <h3>{door.title}</h3>

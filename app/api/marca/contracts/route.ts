@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
-import { requireStaff } from '@/lib/marca/auth';
+import { requireMarcaStaff } from '@/lib/marca/auth';
 import { createContract, listContracts } from '@/lib/marca/store';
 import type { MarcaLocale } from '@/lib/marca/types';
 
 export const runtime = 'nodejs';
 
 export async function GET() {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const contracts = await listContracts();
@@ -14,7 +14,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

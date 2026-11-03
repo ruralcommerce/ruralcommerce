@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireStaff } from '@/lib/marca/auth';
+import { requireMarcaStaff } from '@/lib/marca/auth';
 import { deleteCatalogImage, listCatalogImages, upsertCatalogImage } from '@/lib/marca/catalog-store';
 
 export const runtime = 'nodejs';
@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 type Params = { params: { id: string } };
 
 export async function PATCH(request: Request, { params }: Params) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -36,7 +36,7 @@ export async function PATCH(request: Request, { params }: Params) {
 }
 
 export async function DELETE(_request: Request, { params }: Params) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const ok = await deleteCatalogImage(params.id);

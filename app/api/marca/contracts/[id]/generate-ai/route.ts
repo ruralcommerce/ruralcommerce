@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireStaff } from '@/lib/marca/auth';
+import { requireMarcaStaff } from '@/lib/marca/auth';
 import { getCatalogByIds } from '@/lib/marca/catalog-store';
 import { isGeminiConfigured, synthesizeWorkshopWithGemini } from '@/lib/marca/gemini-moodboard';
 import { getContractById } from '@/lib/marca/store';
@@ -10,7 +10,7 @@ export const maxDuration = 60;
 type Params = { params: { id: string } };
 
 export async function POST(_request: Request, { params }: Params) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   if (!isGeminiConfigured()) {

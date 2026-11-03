@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { requireStaff } from '@/lib/marca/auth';
+import { requireMarcaStaff } from '@/lib/marca/auth';
 import { getCatalogByIds } from '@/lib/marca/catalog-store';
 import { computeVisualProfile } from '@/lib/marca/profile';
 import { getContractById, updateContract } from '@/lib/marca/store';
@@ -10,7 +10,7 @@ export const runtime = 'nodejs';
 type Params = { params: { id: string } };
 
 export async function GET(_request: Request, { params }: Params) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const contract = await getContractById(params.id);
@@ -21,7 +21,7 @@ export async function GET(_request: Request, { params }: Params) {
 }
 
 export async function PATCH(request: Request, { params }: Params) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

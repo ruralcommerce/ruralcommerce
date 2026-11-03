@@ -17,40 +17,40 @@ export function IntranetLogin({ locale }: { locale: string }) {
     locale === 'pt-BR'
       ? {
           welcome: 'Bem-vindo!',
-          lead: 'Entre na intranet Rural Commerce para gerir usuários, permissões e ferramentas internas.',
-          title: 'Acesso da equipe',
+          lead: 'Um único acesso para equipe interna, equipe de projeto e beneficiários — cada um vê só o que pode.',
+          title: 'Entrar na intranet',
           email: 'Email',
           emailPh: 'seu@email.com',
           password: 'Senha',
           passwordPh: 'Sua senha',
           remember: 'Lembrar-me',
           submit: 'Entrar',
-          hint: 'Acesso restrito à equipe Rural Commerce.',
+          hint: 'Use o e-mail e a senha da sua conta Rural Commerce.',
         }
       : locale === 'en'
         ? {
             welcome: 'Welcome!',
-            lead: 'Sign in to the Rural Commerce intranet to manage users, permissions and internal tools.',
-            title: 'Team access',
+            lead: 'One sign-in for internal staff, project team and beneficiaries — each person only sees what they can access.',
+            title: 'Sign in to the intranet',
             email: 'Email',
             emailPh: 'you@email.com',
             password: 'Password',
             passwordPh: 'Your password',
             remember: 'Remember me',
             submit: 'Sign in',
-            hint: 'Restricted to the Rural Commerce team.',
+            hint: 'Use your Rural Commerce account email and password.',
           }
         : {
             welcome: '¡Bienvenido!',
-            lead: 'Entra a la intranet Rural Commerce para gestionar usuarios, permisos y herramientas internas.',
-            title: 'Acceso del equipo',
+            lead: 'Un solo acceso para equipo interno, equipo de proyecto y beneficiarios — cada persona ve solo lo que puede.',
+            title: 'Entrar a la intranet',
             email: 'Correo',
             emailPh: 'tu@email.com',
             password: 'Contraseña',
             passwordPh: 'Tu contraseña',
             remember: 'Recordarme',
             submit: 'Entrar',
-            hint: 'Acceso restringido al equipo Rural Commerce.',
+            hint: 'Usa el correo y la contraseña de tu cuenta Rural Commerce.',
           };
 
   async function onSubmit(e: React.FormEvent) {
@@ -61,14 +61,14 @@ export function IntranetLogin({ locale }: { locale: string }) {
       const res = await fetch('/api/intranet/staff', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, remember }),
+        body: JSON.stringify({ email, password, remember, locale }),
       });
+      const data = (await res.json().catch(() => ({}))) as { error?: string; home?: string };
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
         setError(data.error || 'No se pudo entrar');
         return;
       }
-      router.replace(`/${locale}/intranet/dashboard`);
+      router.replace(data.home || `/${locale}/intranet/dashboard`);
     } finally {
       setBusy(false);
     }

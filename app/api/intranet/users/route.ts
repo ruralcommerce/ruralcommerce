@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import { requireSession, sessionHas } from '@/lib/intranet/auth';
 import { deleteUser, listUsers, upsertUser } from '@/lib/intranet/users-store';
-import type { IntranetPermission, IntranetRole } from '@/lib/intranet/types';
+import type {
+  IntranetPermission,
+  IntranetProfile,
+  IntranetRole,
+  IntranetScope,
+} from '@/lib/intranet/types';
 
 export const runtime = 'nodejs';
 
@@ -24,7 +29,9 @@ export async function POST(request: Request) {
     email?: string;
     password?: string;
     role?: IntranetRole;
+    profile?: IntranetProfile;
     permissions?: IntranetPermission[];
+    scope?: IntranetScope;
     kind?: 'user' | 'collaborator';
     active?: boolean;
   };
@@ -44,7 +51,9 @@ export async function POST(request: Request) {
     email: body.email,
     password: body.password,
     role: body.role || 'viewer',
+    profile: body.profile || 'staff_interno',
     permissions: body.permissions,
+    scope: body.scope,
     kind,
     active: body.active,
   });

@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from 'fs/promises';
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { requireStaff } from '@/lib/marca/auth';
+import { requireMarcaStaff } from '@/lib/marca/auth';
 import { MARCA_SUGGESTED_TAGS } from '@/lib/marca/catalog';
 import { listCatalogImages, upsertCatalogImage } from '@/lib/marca/catalog-store';
 
@@ -29,7 +29,7 @@ function parseTags(raw: FormDataEntryValue | null): string[] {
 }
 
 export async function GET() {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
   const images = await listCatalogImages({ includeInactive: true });
@@ -37,7 +37,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!requireStaff()) {
+  if (!requireMarcaStaff()) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

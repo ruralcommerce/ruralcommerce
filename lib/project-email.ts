@@ -9,6 +9,16 @@ import {
   projectSiteBaseUrl,
 } from '@/lib/project-brand';
 
+export type ProjectEmailTopic = {
+  title: string;
+  body: string;
+};
+
+export type ProjectEmailDetail = {
+  label: string;
+  value: string;
+};
+
 export type ProjectEmailContent = {
   locale?: string;
   recipientName?: string;
@@ -17,6 +27,11 @@ export type ProjectEmailContent = {
   headline: string;
   /** Body paragraphs (plain strings) */
   paragraphs: string[];
+  /** Optional topic cards (title + body) — preferred for workshop agendas */
+  topicsTitle?: string;
+  topics?: ProjectEmailTopic[];
+  /** Optional activity details (fecha, hora, lugar, …) */
+  details?: ProjectEmailDetail[];
   /** Optional numbered steps */
   steps?: string[];
   ctaLabel: string;
@@ -78,6 +93,59 @@ function paragraphsToHtml(paragraphs: string[]) {
     .join('');
 }
 
+function sectionHeading(title: string) {
+  return `
+    <p style="margin:32px 0 10px;font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#061f5b;">${escapeHtml(title)}</p>
+    <div style="width:34px;height:2px;background:#23b8b5;margin:0 0 22px;"></div>`;
+}
+
+function topicsToHtml(topics: ProjectEmailTopic[], topicsTitle?: string) {
+  const items = topics
+    .map(
+      (topic, index) => `
+        <tr>
+          <td style="padding:0 0 ${index === topics.length - 1 ? '8' : '18'}px;">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4fbfb;border-radius:12px;">
+              <tr>
+                <td width="6" style="background:#23b8b5;border-radius:12px 0 0 12px;font-size:0;line-height:0;">&nbsp;</td>
+                <td style="padding:18px 20px 18px 16px;">
+                  <p style="margin:0 0 8px;font-size:16px;line-height:1.3;font-weight:800;color:#061f5b;">${escapeHtml(topic.title)}</p>
+                  <p style="margin:0;font-size:15px;line-height:1.55;color:#444444;">${escapeHtml(topic.body)}</p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>`
+    )
+    .join('');
+
+  return `
+    ${sectionHeading(topicsTitle || 'Temas')}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${items}</table>`;
+}
+
+function detailsToHtml(details: ProjectEmailDetail[], locale?: string) {
+  const key = localeKey(locale);
+  const title =
+    key === 'en' ? 'Activity details' : key === 'pt-BR' ? 'Detalhes da atividade' : 'Detalles de la actividad';
+
+  const items = details
+    .map(
+      (row, index) => `
+        <tr>
+          <td style="padding:${index === 0 ? '16px' : '10px'} 20px ${index === details.length - 1 ? '16px' : '10px'} 20px;${index < details.length - 1 ? 'border-bottom:1px solid #e4ebef;' : ''}">
+            <p style="margin:0 0 4px;font-size:12px;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:#23b8b5;">${escapeHtml(row.label)}</p>
+            <p style="margin:0;font-size:15px;line-height:1.45;color:#061f5b;font-weight:700;">${escapeHtml(row.value)}</p>
+          </td>
+        </tr>`
+    )
+    .join('');
+
+  return `
+    ${sectionHeading(title)}
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f7f9fb;border-radius:12px;">${items}</table>`;
+}
+
 function stepsToHtml(steps: string[], locale?: string) {
   const items = steps
     .map(
@@ -92,7 +160,7 @@ function stepsToHtml(steps: string[], locale?: string) {
     .join('');
 
   return `
-    <p style="margin:28px 0 14px;font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#061f5b;">${escapeHtml(stepsTitle(locale))}</p>
+    <p style="margin:36px 0 14px;font-size:13px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:#061f5b;">${escapeHtml(stepsTitle(locale))}</p>
     <div style="width:34px;height:2px;background:#23b8b5;margin:0 0 18px;"></div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${items}</table>`;
 }
@@ -106,6 +174,12 @@ export function buildProjectEmailHtml(content: ProjectEmailContent) {
   const projectLogo = absoluteProjectAsset(PROJECT_LOGO_PATH);
   const siteUrl = projectSiteBaseUrl();
   const { lead, accent } = splitHeadline(content.headline);
+  const topicsBlock = content.topics?.length
+    ? topicsToHtml(content.topics, content.topicsTitle)
+    : '';
+  const detailsBlock = content.details?.length
+    ? detailsToHtml(content.details, content.locale)
+    : '';
   const stepsBlock = content.steps?.length ? stepsToHtml(content.steps, content.locale) : '';
   const footnote = content.footnote
     ? `<p style="margin:20px 0 0;font-size:13px;line-height:1.5;color:#666666;">${escapeHtml(content.footnote)}</p>`
@@ -167,6 +241,8 @@ export function buildProjectEmailHtml(content: ProjectEmailContent) {
     <td style="padding:44px 48px 20px;background:#ffffff;">
       <div style="width:34px;height:2px;background:#23b8b5;margin:0 0 24px;"></div>
       ${paragraphsToHtml(content.paragraphs)}
+      ${topicsBlock}
+      ${detailsBlock}
       ${stepsBlock}
       ${footnote}
     </td>
@@ -250,6 +326,19 @@ export function buildProjectEmailText(content: ProjectEmailContent) {
     '',
     ...content.paragraphs,
   ];
+  if (content.topics?.length) {
+    lines.push('', content.topicsTitle || 'Temas', '');
+    content.topics.forEach((topic) => {
+      lines.push(`• ${topic.title}`, `  ${topic.body}`, '');
+    });
+  }
+  if (content.details?.length) {
+    const key = localeKey(content.locale);
+    const title =
+      key === 'en' ? 'Activity details' : key === 'pt-BR' ? 'Detalhes da atividade' : 'Detalles de la actividad';
+    lines.push(title + ':');
+    content.details.forEach((row) => lines.push(`${row.label}: ${row.value}`));
+  }
   if (content.steps?.length) {
     lines.push('', stepsTitle(content.locale) + ':');
     content.steps.forEach((step, index) => lines.push(`${index + 1}. ${step}`));

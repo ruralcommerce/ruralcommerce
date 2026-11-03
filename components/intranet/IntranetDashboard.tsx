@@ -14,11 +14,16 @@ export function IntranetDashboard({ locale }: { locale: string }) {
   );
 }
 
+function can(session: IntranetSession, permission: string) {
+  if (session.role === 'admin' && session.profile === 'staff_interno') return true;
+  return session.permissions.includes(permission as IntranetSession['permissions'][number]);
+}
+
 function DashboardBody({ locale, session }: { locale: string; session: IntranetSession }) {
-  const tools = intranetTools(locale).filter(
-    (t) => session.role === 'admin' || session.permissions.includes(t.permission)
-  );
-  const canManageUsers = session.role === 'admin' || session.permissions.includes('users.manage');
+  const tools = intranetTools(locale).filter((t) => can(session, t.permission));
+  const canManageUsers = can(session, 'users.manage');
+  const canTools = can(session, 'tools.access');
+  const canProyecto = can(session, 'projeto.access');
 
   return (
     <div className="space-y-5">
@@ -26,6 +31,8 @@ function DashboardBody({ locale, session }: { locale: string; session: IntranetS
         <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Resumen</p>
         <h2 className="mt-2 text-xl font-bold text-[#071F5E]">Hola, {session.name.split(' ')[0]}</h2>
         <p className="mt-1 text-sm text-[#1E1E1E]/60">
+          Perfil: <span className="font-semibold text-[#071F5E]">{session.profile}</span>
+          {' · '}
           Rol: <span className="font-semibold text-[#071F5E]">{session.role}</span>
           {tools.length > 0 ? (
             <>
@@ -36,12 +43,22 @@ function DashboardBody({ locale, session }: { locale: string; session: IntranetS
           ) : null}
         </p>
         <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-          <Link
-            href={`/${locale}/intranet/herramientas`}
-            className="inline-flex items-center justify-center rounded-xl bg-[#009179] px-4 py-2.5 text-sm font-semibold text-white"
-          >
-            Ir a herramientas
-          </Link>
+          {canTools ? (
+            <Link
+              href={`/${locale}/intranet/herramientas`}
+              className="inline-flex items-center justify-center rounded-xl bg-[#009179] px-4 py-2.5 text-sm font-semibold text-white"
+            >
+              Ir a herramientas
+            </Link>
+          ) : null}
+          {canProyecto ? (
+            <Link
+              href={`/${locale}/intranet/proyecto`}
+              className="inline-flex items-center justify-center rounded-xl bg-[#071F5E] px-4 py-2.5 text-sm font-semibold text-white"
+            >
+              Proyecto
+            </Link>
+          ) : null}
           {canManageUsers ? (
             <Link
               href={`/${locale}/intranet/usuarios`}

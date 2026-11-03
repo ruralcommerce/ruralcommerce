@@ -12,31 +12,21 @@ import {
   Wrench,
   LogOut,
   BookOpen,
+  FolderKanban,
+  Route,
 } from 'lucide-react';
-import type { IntranetPermission, IntranetSession } from '@/lib/intranet/types';
+import type { IntranetSession } from '@/lib/intranet/types';
+import { navModulesForSession } from '@/lib/intranet/modules';
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: typeof LayoutDashboard;
-  permission: IntranetPermission;
+const ICONS: Record<string, typeof LayoutDashboard> = {
+  dashboard: LayoutDashboard,
+  usuarios: Users,
+  colaboradores: UserCog,
+  permisos: Shield,
+  herramientas: Wrench,
+  proyecto: FolderKanban,
+  'mi-recorrido': Route,
 };
-
-function navItems(locale: string): NavItem[] {
-  const base = `/${locale}/intranet`;
-  return [
-    { href: `${base}/dashboard`, label: 'Dashboard', icon: LayoutDashboard, permission: 'dashboard' },
-    { href: `${base}/usuarios`, label: 'Usuarios', icon: Users, permission: 'users.manage' },
-    { href: `${base}/colaboradores`, label: 'Colaboradores', icon: UserCog, permission: 'collaborators.manage' },
-    { href: `${base}/permisos`, label: 'Permisos', icon: Shield, permission: 'permissions.manage' },
-    { href: `${base}/herramientas`, label: 'Herramientas', icon: Wrench, permission: 'tools.access' },
-  ];
-}
-
-function can(session: IntranetSession, permission: IntranetPermission) {
-  if (session.role === 'admin') return true;
-  return session.permissions.includes(permission);
-}
 
 export function IntranetShell({
   locale,
@@ -53,7 +43,7 @@ export function IntranetShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const items = navItems(locale).filter((item) => can(session, item.permission));
+  const items = navModulesForSession(locale, session);
 
   async function logout() {
     await fetch('/api/intranet/staff', {
@@ -63,6 +53,8 @@ export function IntranetShell({
     });
     router.replace(`/${locale}/intranet`);
   }
+
+  const showToolsChip = session.permissions.includes('tools.access') || session.role === 'admin';
 
   return (
     <div className="min-h-screen bg-[#F4F7FA] text-[#1E1E1E]">
@@ -74,7 +66,7 @@ export function IntranetShell({
           <nav className="flex flex-1 flex-col gap-1">
             {items.map((item) => {
               const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              const Icon = item.icon;
+              const Icon = ICONS[item.id] || LayoutDashboard;
               return (
                 <Link
                   key={item.href}
@@ -156,18 +148,22 @@ export function IntranetShell({
               </div>
               <div className="flex flex-wrap gap-2">
                 <span className="rounded-full bg-[#071F5E] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-white">
+                  {session.profile}
+                </span>
+                <span className="rounded-full bg-[#071F5E]/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-[#071F5E]">
                   {session.role}
                 </span>
-                <Link
-                  href={`/${locale}/intranet/herramientas`}
-                  className="rounded-full bg-[#009179] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-white"
-                >
-                  Herramientas
-                </Link>
+                {showToolsChip ? (
+                  <Link
+                    href={`/${locale}/intranet/herramientas`}
+                    className="rounded-full bg-[#009179] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wide text-white"
+                  >
+                    Herramientas
+                  </Link>
+                ) : null}
               </div>
             </div>
 
-            {/* mobile nav — wrap instead of horizontal scroll that clips tabs */}
             <nav className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:hidden">
               {items.map((item) => {
                 const active = pathname === item.href || pathname.startsWith(`${item.href}/`);

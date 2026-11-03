@@ -59,40 +59,56 @@ export async function POST(request: Request) {
   const password = trimField(body.password, 128);
   const action = trimField(body.action, 20);
 
-  if (!email || !password) {
-    return NextResponse.json({ ok: false, message: 'E-mail e senha são obrigatórios.' }, { status: 400 });
-  }
-  if (!isValidEmail(email)) {
-    return NextResponse.json({ ok: false, message: 'E-mail inválido.' }, { status: 400 });
-  }
   if (action !== 'revoke' && action !== 'grant') {
     return NextResponse.json({ ok: false, message: 'Ação inválida.' }, { status: 400 });
   }
 
-  const records = (await readRecords()) as Array<Record<string, unknown>>;
-  const index = records.findIndex((item) => {
-    const user = (item.user as Record<string, unknown>) || {};
-    const userEmail = typeof user.email === 'string' ? user.email : '';
-    return userEmail.toLowerCase() === email.toLowerCase();
-  });
+  const { resolveBeneficiaryRecord } = await import('@/lib/intranet/candidate-access');
+  const viaIntranet = await resolveBeneficiaryRecord(request, { email, password });
+
+  let records = (await readRecords()) as Array<Record<string, unknown>>;
+  let index = -1;
+
+  if (viaIntranet.ok) {
+    index = records.findIndex((item) => item.id === viaIntranet.record.id);
+  } else {
+    if (!email || !password) {
+      return NextResponse.json({ ok: false, message: 'E-mail e senha são obrigatórios.' }, { status: 400 });
+    }
+    if (!isValidEmail(email)) {
+      return NextResponse.json({ ok: false, message: 'E-mail inválido.' }, { status: 400 });
+    }
+    index = records.findIndex((item) => {
+      const user = (item.user as Record<string, unknown>) || {};
+      const userEmail = typeof user.email === 'string' ? user.email : '';
+      return userEmail.toLowerCase() === email.toLowerCase();
+    });
+    if (index === -1) {
+      return NextResponse.json({ ok: false, message: 'Nenhuma inscrição encontrada com este e-mail.' }, { status: 404 });
+    }
+    const record = records[index];
+    const user = ((record.user as Record<string, unknown>) || {}) as Record<string, unknown>;
+    const passwordHash = typeof user.passwordHash === 'string' ? user.passwordHash : '';
+    if (!passwordHash || !verifyPassword(password, passwordHash)) {
+      return NextResponse.json({ ok: false, message: 'Senha inválida.' }, { status: 401 });
+    }
+  }
 
   if (index === -1) {
     return NextResponse.json({ ok: false, message: 'Nenhuma inscrição encontrada com este e-mail.' }, { status: 404 });
   }
 
   const record = records[index];
-  const user = ((record.user as Record<string, unknown>) || {}) as Record<string, unknown>;
-  const passwordHash = typeof user.passwordHash === 'string' ? user.passwordHash : '';
-
-  if (!passwordHash || !verifyPassword(password, passwordHash)) {
-    return NextResponse.json({ ok: false, message: 'Senha inválida.' }, { status: 401 });
-  }
-
   const profile = ((record.profile as Record<string, unknown>) || {}) as Record<string, unknown>;
   const now = new Date().toISOString();
+  const consentEmail =
+    email ||
+    (typeof ((record.user as Record<string, unknown>) || {}).email === 'string'
+      ? String((record.user as Record<string, unknown>).email)
+      : '');
 
   if (action === 'revoke') {
-    await removePushSubscription(email);
+    if (consentEmail) await removePushSubscription(consentEmail);
     records[index] = {
       ...record,
       profile: {

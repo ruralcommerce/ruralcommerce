@@ -6,6 +6,12 @@ import type { IntranetPermission, IntranetSession } from '@/lib/intranet/types';
 import { IntranetLogin } from './IntranetLogin';
 import { IntranetShell } from './IntranetShell';
 
+function canAccess(session: IntranetSession, permission?: IntranetPermission) {
+  if (!permission) return true;
+  if (session.role === 'admin' && session.profile === 'staff_interno') return true;
+  return session.permissions.includes(permission);
+}
+
 export function IntranetGate({
   locale,
   title,
@@ -25,7 +31,7 @@ export function IntranetGate({
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const res = await fetch('/api/intranet/staff');
+      const res = await fetch(`/api/intranet/staff?locale=${encodeURIComponent(locale)}`);
       const data = (await res.json()) as { ok?: boolean; session?: IntranetSession };
       if (cancelled) return;
       if (!data.ok || !data.session) {
@@ -37,7 +43,7 @@ export function IntranetGate({
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [locale]);
 
   if (session === undefined) {
     return (
@@ -51,10 +57,13 @@ export function IntranetGate({
     return <IntranetLogin locale={locale} />;
   }
 
-  const allowed =
-    !permission || session.role === 'admin' || session.permissions.includes(permission);
-
-  if (!allowed) {
+  if (!canAccess(session, permission)) {
+    const fallback =
+      session.profile === 'beneficiario'
+        ? `/${locale}/intranet/mi-recorrido`
+        : session.profile === 'equipe_projeto'
+          ? `/${locale}/intranet/proyecto`
+          : `/${locale}/intranet/dashboard`;
     return (
       <IntranetShell locale={locale} session={session} title="Sin acceso" breadcrumb="Páginas / Acceso">
         <div className="rounded-2xl bg-white p-6 shadow-sm">
@@ -62,9 +71,9 @@ export function IntranetGate({
           <button
             type="button"
             className="mt-4 rounded-xl bg-[#009179] px-4 py-2 text-sm font-semibold text-white"
-            onClick={() => router.push(`/${locale}/intranet/dashboard`)}
+            onClick={() => router.push(fallback)}
           >
-            Volver al dashboard
+            Volver
           </button>
         </div>
       </IntranetShell>

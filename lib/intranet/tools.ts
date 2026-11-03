@@ -32,5 +32,15 @@ export function intranetTools(locale: string): IntranetTool[] {
       image: '/images/intranet/actividades.png',
       accent: '#009179',
     },
+    {
+      id: 'mns',
+      title: 'MNS Internacional',
+      description:
+        'Mapa de Negocio en 4 fichas: propuesta B2B, requisitos, precio y trazabilidad. Dinámicas autoexplicativas desde el celular.',
+      href: `/${locale}/intranet/herramientas/mns`,
+      permission: 'tools.mns',
+      image: '/images/intranet/mns.png',
+      accent: '#071F5E',
+    },
   ];
 }

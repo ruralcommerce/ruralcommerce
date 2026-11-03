@@ -312,9 +312,12 @@ function getAnswerLabel(key: string, locale?: string) {
 export function ProjectProfileDashboard({
   locale,
   initialEmail = '',
+  unifiedAuth = false,
 }: {
   locale: string;
   initialEmail?: string;
+  /** When true, loads inscription from unified intranet cookie. */
+  unifiedAuth?: boolean;
 }) {
   const localeKey = getProjectLocaleKey(locale);
   const t = uiCopy[localeKey];
@@ -368,6 +371,44 @@ export function ProjectProfileDashboard({
   };
 
   useEffect(() => {
+    if (unifiedAuth) {
+      let cancelled = false;
+      void (async () => {
+        setLoading(true);
+        setError('');
+        try {
+          const response = await fetch('/api/intranet/me/inscription', { credentials: 'include' });
+          const payload = await response.json();
+          if (cancelled) return;
+          if (!response.ok || !payload.ok) {
+            setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
+            return;
+          }
+          const loadedRecord = payload.record || null;
+          setRecord(loadedRecord);
+          if (loadedRecord) {
+            setEmail(loadedRecord.user?.email || '');
+            writeCandidateSession({
+              id: loadedRecord.id,
+              email: loadedRecord.user?.email || '',
+              password: '',
+              status: loadedRecord.status,
+              locale: loadedRecord.profile?.locale || localeKey,
+              name: loadedRecord.profile?.name || '',
+              agreementSigned: loadedRecord.profile?.agreement?.signed === true,
+            });
+          }
+        } catch {
+          if (!cancelled) setError(t.errorLoadGeneric);
+        } finally {
+          if (!cancelled) setLoading(false);
+        }
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const session = readCandidateSession();
     if (session?.email) setEmail(session.email);
     if (session?.password) setPassword(session.password);
@@ -375,7 +416,7 @@ export function ProjectProfileDashboard({
       void loadRecord(session.email, session.password);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [unifiedAuth]);
 
   const displayLocale = record?.profile?.locale || localeKey;
 
@@ -456,9 +497,16 @@ export function ProjectProfileDashboard({
 
   return (
     <div className="space-y-5">
-      <ProjectPortalHero eyebrow={t.eyebrow} title={t.title} />
+      {!unifiedAuth ? <ProjectPortalHero eyebrow={t.eyebrow} title={t.title} /> : null}
 
       {!record ? (
+        unifiedAuth ? (
+          <ProjectPortalPanel title={t.eyebrow}>
+            <p className="text-sm text-[#071F5E]/70">
+              {loading ? '…' : error || t.errorLoad}
+            </p>
+          </ProjectPortalPanel>
+        ) : (
         <ProjectPortalPanel title={t.loginCta}>
           <div className="grid gap-3 sm:grid-cols-2">
             <input
@@ -490,6 +538,7 @@ export function ProjectProfileDashboard({
             </a>
           </div>
         </ProjectPortalPanel>
+        )
       ) : null}
 
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}

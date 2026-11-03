@@ -8,7 +8,7 @@
       "id": "block-1778723332533-a5rz8dcsw",
       "type": "site-header",
       "props": {
-        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluciones\",\"href\":\"/solucoes\"},{\"label\":\"Aliados\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contacto\",\"href\":\"/contacto\"}]",
+        "navItemsJson": "[{\"label\":\"Sobre\",\"href\":\"/sobre\"},{\"label\":\"Soluciones\",\"href\":\"/solucoes\"},{\"label\":\"Aliados\",\"href\":\"/aliados\"},{\"label\":\"Blog\",\"href\":\"/blog\"},{\"label\":\"Contacto\",\"href\":\"/contacto\"},{\"label\":\"Intranet\",\"href\":\"/intranet\"}]",
         "logoAlt": "Rural Commerce Logo"
       }
     },

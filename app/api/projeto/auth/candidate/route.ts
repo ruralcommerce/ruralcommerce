@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { readFile } from 'fs/promises';
 import { scryptSync, timingSafeEqual } from 'crypto';
 import path from 'path';
+import { resolveBeneficiaryRecord, publicBeneficiaryPayload } from '@/lib/intranet/candidate-access';
 
 const DATA_FILE = path.join(process.cwd(), 'data', 'project-inscriptions.json');
 
@@ -43,6 +44,12 @@ function sanitizeRecord(record: Record<string, unknown>) {
 }
 
 export async function POST(request: Request) {
+  // Unified intranet cookie (beneficiário)
+  const viaIntranet = await resolveBeneficiaryRecord(request);
+  if (viaIntranet.ok && viaIntranet.session) {
+    return NextResponse.json({ ok: true, record: publicBeneficiaryPayload(viaIntranet.record) });
+  }
+
   let payload: unknown;
 
   try {

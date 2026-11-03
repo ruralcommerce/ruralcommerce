@@ -20,6 +20,7 @@ type RuralCommerceHeaderProps = {
 };
 
 const IMPULSA_CR_ITEM: HeaderNavItem = { href: '/impulsacr', label: 'Impulsa CR' };
+const INTRANET_ITEM: HeaderNavItem = { href: '/intranet', label: 'Intranet' };
 
 const defaultNav = [
   { href: '/sobre', label: 'Sobre' },
@@ -27,6 +28,7 @@ const defaultNav = [
   { href: '/aliados', label: 'Aliados y Inversores' },
   { href: '/blog', label: 'Blog' },
   { href: '/contacto', label: 'Contacto' },
+  { href: '/intranet', label: 'Intranet' },
 ] as const;
 
 /** Só mostra o header com scroll no topo da página */
@@ -94,6 +96,16 @@ function ensureImpulsaCrNav(items: HeaderNavItem[]): HeaderNavItem[] {
   return [...items.slice(0, contactIndex), IMPULSA_CR_ITEM, ...items.slice(contactIndex)];
 }
 
+function ensureIntranetNav(items: HeaderNavItem[]): HeaderNavItem[] {
+  const hasIntranet = items.some((item) => {
+    const href = String(item.href || '').toLowerCase();
+    const label = String(item.label || '').toLowerCase();
+    return href.includes('/intranet') || label === 'intranet';
+  });
+  if (hasIntranet) return items;
+  return [...items, INTRANET_ITEM];
+}
+
 /** Item ativo: mesma rota ou sub-rota (ex.: /blog/slug → Blog). */
 function isNavItemActive(strippedPath: string, itemHref: string): boolean {
   if (!itemHref || itemHref === '/') {
@@ -126,7 +138,7 @@ export function RuralCommerceHeader({ navItems = [...defaultNav], logoAlt = 'Rur
   const strippedPath = stripLocalePrefix(pathname);
   const isSobrePage = strippedPath === '/sobre';
   const localizedHomeHref = `/${locale}`;
-  const navItemsWithImpulsa = ensureImpulsaCrNav(navItems);
+  const navItemsWithImpulsa = ensureIntranetNav(ensureImpulsaCrNav(navItems));
 
   useEffect(() => {
     const hero = document.getElementById('hero');
