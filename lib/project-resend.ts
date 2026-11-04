@@ -7,6 +7,8 @@ export type ProjectEmailSendInput = {
   html?: string;
   text?: string;
   replyTo?: string | string[];
+  /** Override display name in From (default: RESEND_FROM_NAME / Rural Commerce). */
+  fromName?: string;
   /** Prefer List-Unsubscribe for broadcasts / reminders. */
   kind?: 'transactional' | 'broadcast';
   locale?: string;
@@ -38,11 +40,16 @@ export function getResendReplyTo() {
  * "Rural Commerce <info@domain.com>" — improves trust vs bare address.
  * If RESEND_FROM_EMAIL already includes <>, return as-is.
  */
-export function formatResendFromAddress() {
+export function formatResendFromAddress(fromNameOverride?: string) {
   const email = getResendFromEmail();
   if (!email) return '';
-  if (email.includes('<') && email.includes('>')) return email;
-  const name = getResendFromName().replace(/"/g, '');
+  if (email.includes('<') && email.includes('>')) {
+    if (!fromNameOverride?.trim()) return email;
+    const mailbox = extractMailbox(email);
+    const name = fromNameOverride.replace(/"/g, '').trim();
+    return `"${name}" <${mailbox}>`;
+  }
+  const name = (fromNameOverride?.trim() || getResendFromName()).replace(/"/g, '');
   return `"${name}" <${email}>`;
 }
 
@@ -94,7 +101,7 @@ export async function sendProjectResendEmail(
   input: ProjectEmailSendInput
 ): Promise<ProjectEmailSendResult> {
   const apiKey = trimEnv('RESEND_API_KEY');
-  const from = formatResendFromAddress();
+  const from = formatResendFromAddress(input.fromName);
   if (!apiKey || !from) {
     return { ok: false, skipped: true, error: 'Resend not configured' };
   }

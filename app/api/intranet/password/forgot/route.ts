@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PROJECT_NAME, PROJECT_NAME_SHORT, projectSiteBaseUrl } from '@/lib/project-brand';
+import { PROJECT_EXECUTOR, projectSiteBaseUrl } from '@/lib/project-brand';
 import { buildProjectEmailHtml, buildProjectEmailText } from '@/lib/project-email';
 import { isResendConfigured, sendProjectResendEmail } from '@/lib/project-resend';
 import { createPasswordResetToken, passwordResetExpiresAt } from '@/lib/project-password';
@@ -25,7 +25,7 @@ const copy = {
     subject: 'Restablece tu contraseña de la intranet',
     headline: 'Restablece tu contraseña',
     paragraphs: [
-      `Recibimos una solicitud para restablecer la contraseña de tu acceso a la intranet de ${PROJECT_NAME}.`,
+      `Recibimos una solicitud para restablecer la contraseña de tu acceso a la intranet de ${PROJECT_EXECUTOR}.`,
       'El enlace es válido por 2 horas. Si no pediste este cambio, ignora este correo.',
     ],
     ctaLabel: 'Crear nueva contraseña',
@@ -34,7 +34,7 @@ const copy = {
     subject: 'Redefina sua senha da intranet',
     headline: 'Redefina sua senha',
     paragraphs: [
-      `Recebemos um pedido para redefinir a senha do seu acesso à intranet de ${PROJECT_NAME}.`,
+      `Recebemos um pedido para redefinir a senha do seu acesso à intranet de ${PROJECT_EXECUTOR}.`,
       'O link é válido por 2 horas. Se você não pediu essa alteração, ignore este e-mail.',
     ],
     ctaLabel: 'Criar nova senha',
@@ -43,7 +43,7 @@ const copy = {
     subject: 'Reset your intranet password',
     headline: 'Reset your password',
     paragraphs: [
-      `We received a request to reset your intranet password for ${PROJECT_NAME}.`,
+      `We received a request to reset your intranet password for ${PROJECT_EXECUTOR}.`,
       'This link is valid for 2 hours. If you did not request this change, ignore this email.',
     ],
     ctaLabel: 'Create a new password',
@@ -99,11 +99,12 @@ export async function POST(request: Request) {
   try {
     const sendResult = await sendProjectResendEmail({
       to: [email],
-      subject: `${PROJECT_NAME_SHORT} · ${t.subject}`,
+      subject: `${PROJECT_EXECUTOR} · ${t.subject}`,
       text: buildProjectEmailText(content),
       html: buildProjectEmailHtml(content),
       kind: 'transactional',
       locale,
+      fromName: PROJECT_EXECUTOR,
       tags: [{ name: 'category', value: 'intranet_password_reset' }],
     });
     if (!sendResult.ok && !sendResult.skipped) {
