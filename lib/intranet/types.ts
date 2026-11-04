@@ -30,6 +30,11 @@ export type IntranetScope = {
   assignedOnly?: boolean;
 };
 
+export type IntranetPasswordReset = {
+  token: string;
+  expiresAt: string;
+};
+
 export type IntranetUser = {
   id: string;
   name: string;
@@ -38,6 +43,7 @@ export type IntranetUser = {
   password: string;
   /** true when password is already scrypt-hashed */
   passwordHashed?: boolean;
+  passwordReset?: IntranetPasswordReset;
   role: IntranetRole;
   profile: IntranetProfile;
   permissions: IntranetPermission[];

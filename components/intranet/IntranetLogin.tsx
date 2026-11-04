@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { RuralCommerceHeader } from '@/components/RuralCommerceHeader';
@@ -17,7 +18,6 @@ export function IntranetLogin({ locale }: { locale: string }) {
     locale === 'pt-BR'
       ? {
           welcome: 'Bem-vindo!',
-          lead: 'Um único acesso para equipe interna, equipe de projeto e beneficiários — cada um vê só o que pode.',
           title: 'Entrar na intranet',
           email: 'Email',
           emailPh: 'seu@email.com',
@@ -26,11 +26,11 @@ export function IntranetLogin({ locale }: { locale: string }) {
           remember: 'Lembrar-me',
           submit: 'Entrar',
           hint: 'Use o e-mail e a senha da sua conta Rural Commerce.',
+          forgot: 'Esqueceu sua senha?',
         }
       : locale === 'en'
         ? {
             welcome: 'Welcome!',
-            lead: 'One sign-in for internal staff, project team and beneficiaries — each person only sees what they can access.',
             title: 'Sign in to the intranet',
             email: 'Email',
             emailPh: 'you@email.com',
@@ -39,10 +39,10 @@ export function IntranetLogin({ locale }: { locale: string }) {
             remember: 'Remember me',
             submit: 'Sign in',
             hint: 'Use your Rural Commerce account email and password.',
+            forgot: 'Forgot your password?',
           }
         : {
             welcome: '¡Bienvenido!',
-            lead: 'Un solo acceso para equipo interno, equipo de proyecto y beneficiarios — cada persona ve solo lo que puede.',
             title: 'Entrar a la intranet',
             email: 'Correo',
             emailPh: 'tu@email.com',
@@ -51,6 +51,7 @@ export function IntranetLogin({ locale }: { locale: string }) {
             remember: 'Recordarme',
             submit: 'Entrar',
             hint: 'Usa el correo y la contraseña de tu cuenta Rural Commerce.',
+            forgot: '¿Olvidaste tu contraseña?',
           };
 
   async function onSubmit(e: React.FormEvent) {
@@ -74,6 +75,10 @@ export function IntranetLogin({ locale }: { locale: string }) {
     }
   }
 
+  const forgotHref = `/${locale}/intranet/recuperar-senha${
+    email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ''
+  }`;
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <RuralCommerceHeader />
@@ -92,7 +97,6 @@ export function IntranetLogin({ locale }: { locale: string }) {
           </svg>
           <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">{copy.welcome}</h1>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-6 text-white/80 sm:text-base">{copy.lead}</p>
           </div>
         </section>
 
@@ -130,21 +134,26 @@ export function IntranetLogin({ locale }: { locale: string }) {
               />
             </label>
 
-            <div className="mt-4 flex items-center gap-3">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={remember}
-                onClick={() => setRemember((v) => !v)}
-                className={`relative h-6 w-11 rounded-full transition ${remember ? 'bg-[#071F5E]' : 'bg-[#D9E3EC]'}`}
-              >
-                <span
-                  className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
-                    remember ? 'left-5' : 'left-0.5'
-                  }`}
-                />
-              </button>
-              <span className="text-sm text-[#071F5E]/80">{copy.remember}</span>
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={remember}
+                  onClick={() => setRemember((v) => !v)}
+                  className={`relative h-6 w-11 rounded-full transition ${remember ? 'bg-[#071F5E]' : 'bg-[#D9E3EC]'}`}
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition ${
+                      remember ? 'left-5' : 'left-0.5'
+                    }`}
+                  />
+                </button>
+                <span className="text-sm text-[#071F5E]/80">{copy.remember}</span>
+              </div>
+              <Link href={forgotHref} className="text-sm font-semibold text-[#009179] underline-offset-2 hover:underline">
+                {copy.forgot}
+              </Link>
             </div>
 
             {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}

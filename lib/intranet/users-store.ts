@@ -42,6 +42,7 @@ function normalizeUser(raw: Partial<IntranetUser> & { email: string }): Intranet
     email: raw.email.trim().toLowerCase(),
     password,
     passwordHashed: raw.passwordHashed ?? isHashedPassword(password),
+    passwordReset: raw.passwordReset,
     role,
     profile,
     permissions,
@@ -450,4 +451,170 @@ export async function deleteUser(id: string): Promise<boolean> {
   file.users = next;
   await save(file);
   return true;
+}
+
+async function syncPasswordToLinkedStores(email: string, passwordHash: string, user: IntranetUser) {
+  const normalized = email.trim().toLowerCase();
+
+  try {
+    const team = await readJsonFile<
+      Array<{ id: string; email: string; passwordHash?: string; updatedAt?: string }>
+    >(TEAM_FILE, []);
+    let changed = false;
+    for (const member of team) {
+      if (member.email?.toLowerCase() !== normalized) continue;
+      if (user.linkedTeamMemberId && member.id !== user.linkedTeamMemberId) continue;
+      member.passwordHash = passwordHash;
+      member.updatedAt = now();
+      changed = true;
+    }
+    if (changed) {
+      await mkdir(DATA_DIR, { recursive: true });
+      await writeFile(TEAM_FILE, JSON.stringify(team, null, 2), 'utf8');
+    }
+  } catch {
+    // ignore
+  }
+
+  try {
+    const inscriptions = await readJsonFile<Array<Record<string, unknown>>>(INSCRIPTIONS_FILE, []);
+    let changed = false;
+    for (const record of inscriptions) {
+      const userObj = ((record.user as Record<string, unknown>) || {}) as Record<string, unknown>;
+      const userEmail = typeof userObj.email === 'string' ? userObj.email.toLowerCase() : '';
+      const recordId = typeof record.id === 'string' ? record.id : '';
+      if (userEmail !== normalized) continue;
+      if (user.linkedInscriptionId && recordId && recordId !== user.linkedInscriptionId) continue;
+      const { passwordReset: _pr, ...restUser } = userObj;
+      record.user = { ...restUser, passwordHash };
+      record.updatedAt = now();
+      changed = true;
+    }
+    if (changed) {
+      await mkdir(DATA_DIR, { recursive: true });
+      await writeFile(INSCRIPTIONS_FILE, JSON.stringify(inscriptions, null, 2), 'utf8');
+    }
+  } catch {
+    // ignore
+  }
+}
+
+/** Ensure an intranet user exists for password reset (from team / inscription if needed). */
+export async function ensureUserForPasswordReset(email: string): Promise<IntranetUser | null> {
+  const normalized = email.trim().toLowerCase();
+  const existing = await findUserByEmail(normalized);
+  if (existing) return existing;
+
+  const team = await readJsonFile<
+    Array<{
+      id: string;
+      name: string;
+      email: string;
+      role?: 'master' | 'technician' | 'admin';
+      passwordHash?: string;
+      active?: boolean;
+    }>
+  >(TEAM_FILE, []);
+  const member = team.find((m) => m.email?.toLowerCase() === normalized && m.active !== false);
+  if (member) {
+    return upsertUser({
+      id: `usr_team_${member.id}`,
+      name: member.name,
+      email: normalized,
+      password: 'temp-reset-pending',
+      role: member.role === 'technician' ? 'viewer' : 'editor',
+      profile: 'equipe_projeto',
+      permissions: defaultPermissionsFor('equipe_projeto', 'editor', member.role || 'technician'),
+      scope: { memberRole: member.role || 'technician' },
+      kind: 'user',
+      linkedTeamMemberId: member.id,
+    });
+  }
+
+  const inscriptions = await readJsonFile<
+    Array<{
+      id?: string;
+      user?: { email?: string; passwordHash?: string };
+      profile?: { name?: string };
+    }>
+  >(INSCRIPTIONS_FILE, []);
+  const record = inscriptions.find((r) => r.user?.email?.toLowerCase() === normalized);
+  const inscriptionId = typeof record?.id === 'string' ? record.id : '';
+  if (record && inscriptionId) {
+    return upsertUser({
+      id: `usr_benef_${inscriptionId}`,
+      name: record.profile?.name || normalized.split('@')[0],
+      email: normalized,
+      password: 'temp-reset-pending',
+      role: 'viewer',
+      profile: 'beneficiario',
+      permissions: defaultPermissionsFor('beneficiario', 'viewer'),
+      scope: { inscriptionId },
+      kind: 'user',
+      linkedInscriptionId: inscriptionId,
+    });
+  }
+
+  return null;
+}
+
+export async function setUserPasswordReset(
+  email: string,
+  token: string,
+  expiresAt: string
+): Promise<IntranetUser | null> {
+  const file = await readOrSeed();
+  const normalized = email.trim().toLowerCase();
+  let idx = file.users.findIndex((u) => u.email.toLowerCase() === normalized && u.active);
+  if (idx < 0) {
+    const ensured = await ensureUserForPasswordReset(normalized);
+    if (!ensured) return null;
+    const refreshed = await readOrSeed();
+    idx = refreshed.users.findIndex((u) => u.email.toLowerCase() === normalized && u.active);
+    if (idx < 0) return null;
+    refreshed.users[idx] = {
+      ...refreshed.users[idx],
+      passwordReset: { token, expiresAt },
+      updatedAt: now(),
+    };
+    await save(refreshed);
+    return publicUser(refreshed.users[idx]);
+  }
+
+  file.users[idx] = {
+    ...file.users[idx],
+    passwordReset: { token, expiresAt },
+    updatedAt: now(),
+  };
+  await save(file);
+  return publicUser(file.users[idx]);
+}
+
+export async function completeUserPasswordReset(
+  email: string,
+  token: string,
+  newPassword: string
+): Promise<{ ok: true } | { ok: false; reason: 'invalid' | 'expired' }> {
+  const file = await readOrSeed();
+  const normalized = email.trim().toLowerCase();
+  const idx = file.users.findIndex((u) => u.email.toLowerCase() === normalized && u.active);
+  if (idx < 0) return { ok: false, reason: 'invalid' };
+
+  const user = file.users[idx];
+  const reset = user.passwordReset;
+  if (!reset?.token || reset.token !== token) return { ok: false, reason: 'invalid' };
+  if (Date.parse(reset.expiresAt) < Date.now()) return { ok: false, reason: 'expired' };
+
+  const passwordHash = hashPassword(newPassword);
+  const { passwordReset: _pr, ...rest } = user;
+  const next: IntranetUser = {
+    ...rest,
+    password: passwordHash,
+    passwordHashed: true,
+    updatedAt: now(),
+  };
+  file.users[idx] = next;
+  await save(file);
+  await syncPasswordToLinkedStores(normalized, passwordHash, next);
+  return { ok: true };
 }
