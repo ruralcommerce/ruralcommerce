@@ -373,36 +373,36 @@ function RosaCalc({
   const steps = [
     {
       key: 'costoOriginal',
-      title: '1. Costo original',
-      formula: '1.800 + 800',
+      title: '1. ¿Cuánto cuesta producir aquí?',
+      formula: 'Variables 1.800 + fijos 800',
       result: String(costoOriginal),
       unit: 'u. m.',
     },
     {
       key: 'costoIntl',
-      title: '2. Con adicional internacional',
-      formula: `${costoOriginal} + 600`,
+      title: '2. ¿Cuánto cuesta si exportás?',
+      formula: `${costoOriginal} + adicional 600`,
       result: String(costoIntl),
       unit: 'u. m.',
     },
     {
       key: 'ingresoNec',
-      title: '3. Ingreso para conservar 400',
-      formula: `${costoIntl} + 400`,
+      title: '3. ¿Qué ingreso necesitás para no perder y dejar margen?',
+      formula: `${costoIntl} + margen 400`,
       result: String(ingresoNec),
       unit: 'u. m.',
     },
     {
       key: 'precioNecesario',
-      title: '4. Precio por frasco',
-      formula: `${ingresoNec} ÷ 300`,
+      title: '4. ¿Qué precio por frasco sale?',
+      formula: `${ingresoNec} ÷ ${qty} frascos`,
       result: String(precioNec),
       unit: 'u. m.',
     },
     {
       key: 'resultado10',
-      title: '5. Si mantiene 10',
-      formula: '300 × 10 − 3.200',
+      title: '5. ¿Y si dejás el precio local (10)?',
+      formula: `${qty} × 10 − ${costoIntl}`,
       result: String(resultado10),
       unit: 'u. m.',
     },
@@ -411,14 +411,17 @@ function RosaCalc({
   return (
     <div className="space-y-3">
       <div className="rounded-[16px] bg-[#071F5E] p-4 text-white">
-        <p className="text-[11px] font-light uppercase tracking-[0.14em] text-white/70">Datos de Rosa</p>
+        <p className="text-[11px] font-light uppercase tracking-[0.14em] text-white/70">Práctica · ajustar el precio</p>
+        <p className="mt-2 text-sm leading-5 text-white/90">
+          Exportar suma costos. El precio local no se copia: se recalcula para cubrir el total y dejar margen.
+        </p>
         <div className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
           <Stat label="Frascos" value="300" />
-          <Stat label="Variables" value="1.800" />
-          <Stat label="Fijos" value="800" />
-          <Stat label="Adicional" value="600" />
+          <Stat label="Producir" value="2.600" />
+          <Stat label="Exportar +" value="600" />
+          <Stat label="Costo total" value="3.200" />
           <Stat label="Precio local" value="10" />
-          <Stat label="Diferencia" value="400" />
+          <Stat label="Margen meta" value="400" />
         </div>
       </div>
 
@@ -451,7 +454,9 @@ function RosaCalc({
           </button>
         );
       })}
-      <p className="text-center text-xs text-[#071F5E]/55">Las 12 u. m. no son 12 USD. Toca cada paso para revelar.</p>
+      <p className="text-center text-xs text-[#071F5E]/55">
+        Unidades de práctica (u. m.), no dólares. Toca cada paso.
+      </p>
     </div>
   );
 }

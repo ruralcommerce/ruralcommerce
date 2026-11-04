@@ -670,18 +670,33 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
                   <p className="text-sm font-light tracking-[0.02em] sm:text-base lg:text-[23px]">
                     DINÁMICA {screen.ficha.number} · DÍA {screen.ficha.day}
                   </p>
-                  <h2 className="mt-1 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[40px] lg:leading-[1.15]">
-                    {screen.ficha.title}
-                  </h2>
-                  <p className="mx-auto mt-2 max-w-2xl text-sm leading-5 sm:text-[15px] lg:text-[17px] lg:leading-[23px]">
-                    {screen.ficha.proposito}
-                  </p>
+                  <div className="mt-1 flex items-start justify-center gap-2">
+                    <h2 className="text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[40px] lg:leading-[1.15]">
+                      {screen.ficha.title}
+                    </h2>
+                    <button
+                      type="button"
+                      aria-label="Ver propósito y tip"
+                      onClick={() =>
+                        setTip({
+                          title: screen.ficha.title,
+                          help: {
+                            paraQue: screen.ficha.proposito,
+                            como: 'Trabajá la consigna con el mismo producto y oportunidad del mapa.',
+                            ejemplo: screen.ficha.tipRevision,
+                          },
+                        })
+                      }
+                      className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#071F5E]/25 bg-white text-sm font-bold text-[#071F5E] hover:border-[#52ADAD] hover:text-[#009179]"
+                    >
+                      !
+                    </button>
+                  </div>
                 </div>
 
                 <div className="mt-5 rounded-[18px] bg-white p-4 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:mt-6 sm:p-5">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Consigna</p>
                   <p className="mt-2 text-[15px] leading-6 text-[#071F5E]">{screen.ficha.consigna}</p>
-                  <p className="mt-3 text-sm leading-5 text-[#071F5E]/65">{screen.ficha.tipRevision}</p>
                 </div>
 
                 <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -705,19 +720,19 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
                   <p className="text-sm font-light tracking-[0.02em] sm:text-base lg:text-[23px]">
                     PASO {screen.fieldOrdinal + 1} DE {screen.fieldsInFicha}
                   </p>
-                  <h2 className="mt-1 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[34px] lg:leading-[1.15]">
-                    {screen.field.label}
-                  </h2>
-                  <p className="mx-auto mt-2 max-w-2xl text-sm leading-5 sm:text-[15px] lg:text-[17px] lg:leading-[23px]">
-                    {screen.field.help.paraQue}
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setTip({ title: screen.field.label, help: screen.field.help })}
-                    className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#52ADAD]/40 bg-white px-3 py-1.5 text-xs font-bold text-[#009179]"
-                  >
-                    Ver cómo + ejemplo
-                  </button>
+                  <div className="mt-1 flex items-start justify-center gap-2">
+                    <h2 className="text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[34px] lg:leading-[1.15]">
+                      {screen.field.label}
+                    </h2>
+                    <button
+                      type="button"
+                      aria-label="Ver cómo y ejemplo"
+                      onClick={() => setTip({ title: screen.field.label, help: screen.field.help })}
+                      className="mt-1 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#071F5E]/25 bg-white text-sm font-bold text-[#071F5E] hover:border-[#52ADAD] hover:text-[#009179]"
+                    >
+                      !
+                    </button>
+                  </div>
                 </div>
 
                 <div className="mt-4 sm:mt-5">

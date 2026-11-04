@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   MNS_CHECK_QUESTIONS,
   scoreCheck,
@@ -13,6 +13,61 @@ function ArrowIcon() {
   return (
     // eslint-disable-next-line @next/next/no-img-element
     <img src="/images/marca/ui/arrow-up-right.svg" alt="" width={18} height={18} className="brightness-0 invert" />
+  );
+}
+
+function ContextTip({ title, body }: { title: string; body: string }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onDoc(e: MouseEvent | TouchEvent) {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false);
+    }
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('touchstart', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('touchstart', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  return (
+    <div
+      ref={rootRef}
+      className="relative inline-flex"
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        type="button"
+        aria-label="Ver contexto"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-sm font-bold transition ${
+          open
+            ? 'border-[#52ADAD] bg-[#52ADAD] text-white'
+            : 'border-[#071F5E]/25 bg-white text-[#071F5E] hover:border-[#52ADAD] hover:text-[#009179]'
+        }`}
+      >
+        !
+      </button>
+      {open ? (
+        <div
+          role="dialog"
+          className="absolute left-0 top-[calc(100%+0.4rem)] z-30 w-[min(92vw,22rem)] rounded-[14px] border border-[#071F5E]/10 bg-white p-3.5 text-left shadow-[0_12px_32px_rgba(7,31,94,0.18)] sm:left-auto sm:right-0"
+        >
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-[#009179]">{title}</p>
+          <p className="mt-2 whitespace-pre-line text-[13px] leading-5 text-[#071F5E]/85">{body}</p>
+        </div>
+      ) : null}
+    </div>
   );
 }
 
@@ -37,10 +92,6 @@ export function MnsCheck({
 
   const isPre = moment === 'pre';
   const eyebrow = isPre ? 'PUNTO DE PARTIDA' : 'COMPROBACIÓN FINAL';
-  const title = isPre ? '¿Qué criterio traes hoy?' : '¿Qué cambió después del mapa?';
-  const lead = isPre
-    ? 'Cuatro situaciones rápidas. No es un examen: solo medimos el punto de partida antes de las dinámicas.'
-    : 'Las mismas cuatro situaciones del inicio. Así vemos la mejora de criterio.';
 
   async function finish() {
     if (!answered) return;
@@ -55,23 +106,19 @@ export function MnsCheck({
 
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-3xl flex-col overflow-hidden px-4 pt-4 sm:px-8 sm:pt-5">
-      <div className="shrink-0 text-center">
-        <p className="text-sm font-light tracking-[0.02em] sm:text-base lg:text-[23px]">
+      <div className="flex shrink-0 items-center justify-between gap-3">
+        <p className="text-sm font-light tracking-[0.02em] text-[#071F5E] sm:text-base">
           {eyebrow} · {qIndex + 1}/{MNS_CHECK_QUESTIONS.length}
         </p>
-        <h2 className="mt-1 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[40px] lg:leading-[1.15]">
-          {title}
-        </h2>
-        <p className="mx-auto mt-2 max-w-2xl text-sm leading-5 sm:text-[15px] lg:text-[17px] lg:leading-[23px]">
-          {lead}
-        </p>
+        <ContextTip title={q.tipTitle} body={q.tip} />
       </div>
 
       <div className="mt-4 min-h-0 flex-1 overflow-y-auto overscroll-contain sm:mt-5">
-        <div className="rounded-[18px] bg-white p-4 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:p-5">
-          {q.context ? <p className="text-sm leading-5 text-[#071F5E]/60">{q.context}</p> : null}
-          <h3 className="mt-1 text-lg font-bold leading-snug text-[#071F5E] sm:text-xl lg:text-2xl">{q.prompt}</h3>
-          <div className="mt-4 grid gap-2.5">
+        <div className="rounded-[18px] bg-white p-4 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:p-6">
+          <h2 className="text-xl font-bold leading-snug text-[#071F5E] sm:text-2xl lg:text-[28px] lg:leading-[1.25]">
+            {q.prompt}
+          </h2>
+          <div className="mt-5 grid gap-2.5">
             {q.options.map((opt) => {
               const on = answers[q.id] === opt.value;
               return (
@@ -169,11 +216,6 @@ export function MnsCheckDoneSummary({
           accent
         />
       </div>
-
-      <p className="mt-5 max-w-md text-sm leading-5 text-[#071F5E]/65">
-        Lo importante es saber qué puedes demostrar y cuál es el siguiente paso. Una ficha completa no sustituye la
-        validación técnica de una operación real.
-      </p>
 
       <button
         type="button"
