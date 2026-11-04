@@ -9,6 +9,7 @@ type Params = { params: { code: string } };
 export async function POST(request: Request, { params }: Params) {
   const body = (await request.json().catch(() => ({}))) as {
     name?: string;
+    companyName?: string;
     forceNew?: boolean;
     participantId?: string;
     workRoute?: MnsWorkRoute;
@@ -22,6 +23,7 @@ export async function POST(request: Request, { params }: Params) {
     forceNew: Boolean(body.forceNew),
     participantId: body.participantId,
     workRoute: body.workRoute,
+    companyName: body.companyName,
   });
 
   if (!result) {
@@ -32,6 +34,7 @@ export async function POST(request: Request, { params }: Params) {
   return NextResponse.json({
     participantId: p.id,
     name: p.name,
+    companyName: p.companyName || '',
     code: result.session.code,
     resumed: result.resumed,
     answers: p.answers,

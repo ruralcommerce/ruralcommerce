@@ -20,6 +20,7 @@ type Gate = 'intro' | 'name' | 'pre' | 'play' | 'post' | 'done';
 type LocalSession = {
   participantId: string;
   name: string;
+  companyName: string;
   workRoute: MnsWorkRoute;
   productLabel: string;
   answers: MnsAnswers;
@@ -42,6 +43,7 @@ function loadLocal(code: string): LocalSession | null {
     if (!raw) return null;
     const data = JSON.parse(raw) as LocalSession & { fichaIndex?: number; stepIndex?: number; phase?: string };
     if (!data?.participantId || !data?.name) return null;
+    if (typeof data.companyName !== 'string') data.companyName = '';
     // migrate old shape
     if (typeof data.playIndex !== 'number') {
       data.playIndex = inferPlayIndex({ answers: data.answers || {}, savedIndex: 0 });
@@ -194,6 +196,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
   const normalized = code.trim().toUpperCase();
   const [gate, setGate] = useState<Gate>('intro');
   const [name, setName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [workRoute, setWorkRoute] = useState<MnsWorkRoute>('negocio');
   const [participantId, setParticipantId] = useState('');
   const [sessionTitle, setSessionTitle] = useState(MNS_COURSE.shortName);
@@ -237,6 +240,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
     (patch?: Partial<LocalSession>): LocalSession => ({
       participantId,
       name,
+      companyName,
       workRoute,
       productLabel: asString(answers.ficha1?.producto) || '',
       answers,
@@ -248,7 +252,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
       gate,
       ...patch,
     }),
-    [answers, gate, name, participantId, playIndex, postCheck, preCheck, workRoute]
+    [answers, companyName, gate, name, participantId, playIndex, postCheck, preCheck, workRoute]
   );
 
   const persist = useCallback(
@@ -268,6 +272,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
             currentFicha: next.currentFicha,
             workRoute: next.workRoute,
             productLabel: next.productLabel,
+            companyName: next.companyName,
             preCheck: next.preCheck,
             postCheck: next.postCheck,
             complete: Boolean(patch?.complete),
@@ -315,6 +320,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
   function applyJoined(data: {
     participantId: string;
     name: string;
+    companyName?: string;
     answers?: MnsAnswers;
     workRoute?: MnsWorkRoute;
     preCheck?: MnsCheckSnapshot | null;
@@ -324,6 +330,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
   }, fresh: boolean) {
     setParticipantId(data.participantId);
     setName(data.name);
+    setCompanyName(data.companyName || '');
     const nextAnswers = fresh ? {} : data.answers || {};
     setAnswers(nextAnswers);
     setWorkRoute(fresh ? workRoute : data.workRoute || workRoute);
@@ -352,7 +359,12 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
   async function joinAndContinue(opts?: { forceNew?: boolean; fromSession?: LocalSession }) {
     const session = opts?.fromSession;
     const joinName = (session?.name || name).trim();
+    const joinCompany = (session?.companyName || companyName).trim();
     if (!joinName && !session?.participantId) return;
+    if (!session && (!joinName || !joinCompany)) {
+      setLoadError('Escribe el nombre del representante y el de la empresa.');
+      return;
+    }
     const shouldForceNew = Boolean(opts?.forceNew || (!session && forceNew));
     setJoining(true);
     setLoadError('');
@@ -362,6 +374,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: joinName,
+          companyName: joinCompany,
           forceNew: shouldForceNew,
           participantId: shouldForceNew ? undefined : session?.participantId,
           workRoute: shouldForceNew ? workRoute : session?.workRoute || workRoute,
@@ -375,6 +388,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
       const data = (await res.json()) as {
         participantId: string;
         name: string;
+        companyName?: string;
         answers?: MnsAnswers;
         workRoute?: MnsWorkRoute;
         preCheck?: MnsCheckSnapshot | null;
@@ -387,6 +401,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
         {
           participantId: data.participantId,
           name: data.name || joinName,
+          companyName: data.companyName || joinCompany,
           answers: shouldForceNew ? {} : hasServerAnswers ? serverAnswers : session?.answers || {},
           workRoute: shouldForceNew ? workRoute : data.workRoute || session?.workRoute,
           preCheck: shouldForceNew ? null : data.preCheck || session?.preCheck || null,
@@ -412,6 +427,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
     setPostCheck(null);
     setPlayIndex(0);
     setName('');
+    setCompanyName('');
     setForceNew(true);
     setGate('name');
   }
@@ -486,20 +502,25 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
 
       {gate === 'intro' ? (
         <div className="relative min-h-0 flex-1 overflow-y-auto">
-          <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_-10%,rgba(0,145,121,0.18),transparent_55%),radial-gradient(90%_70%_at_-10%_110%,rgba(7,31,94,0.16),transparent_50%),#FBFAF8]" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/marca/ui/oficina-hero.jpg"
+            alt=""
+            className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-white/88 via-white/62 to-transparent" />
           <div className="relative z-10 flex min-h-full w-full items-center px-6 py-10 sm:px-10 lg:px-16">
             <div className="w-full max-w-xl">
               <p className="text-base font-normal tracking-[0.02em] text-[#071F5E] sm:text-[23px]">
                 {groupName || MNS_COURSE.edition}
               </p>
               <h1 className="mt-2 text-3xl font-bold leading-tight tracking-[0.01em] text-[#071F5E] sm:text-[42px] sm:leading-[1.15] lg:text-[46px] lg:leading-[48px]">
-                {sessionTitle || MNS_COURSE.name}
+                {sessionTitle || 'Mapa de Negocio Sostenible'}
               </h1>
               <p className="mt-5 max-w-md text-[15px] leading-6 text-[#071F5E] sm:text-[17px] sm:leading-[23px]">
-                Construye tu Mapa de Negocio en cuatro dinámicas. Un paso a la vez, con ayuda cuando la necesites.
-                Mismo producto, misma oportunidad.
+                Organiza tu propuesta internacional, requisitos, precio y recorrido. Trabaja siempre el mismo
+                producto y la misma oportunidad.
               </p>
-              {saving ? <p className="mt-2 text-xs text-[#071F5E]/50">Guardando…</p> : null}
 
               {savedSession ? (
                 <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
@@ -518,7 +539,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
                     onClick={startFresh}
                     className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-[#071F5E]/30 bg-white/80 px-5 text-sm font-bold text-[#071F5E]"
                   >
-                    Empezar de cero
+                    Empezar de nuevo
                   </button>
                 </div>
               ) : (
@@ -539,22 +560,36 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
       {gate === 'name' ? (
         <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-8 text-center">
           <p className="text-base font-light tracking-[0.02em] text-[#071F5E] sm:text-[23px]">ANTES DE EMPEZAR</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-[46px] sm:leading-[48px]">
-            ¿Cómo te llamas?
+          <h2 className="mt-2 text-3xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-[40px] sm:leading-[1.15]">
+            Representante y empresa
           </h2>
           <p className="mt-3 text-[15px] text-[#071F5E] sm:text-[17px]">
-            Usaremos tu nombre para guardar tu avance. Si ya empezaste, usa el mismo nombre para continuar.
+            Usaremos estos datos para guardar tu avance. Si ya empezaste, usa los mismos nombres para continuar.
           </p>
-          <input
-            className="mt-8 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm text-[#071F5E] placeholder:text-[#72777A]/50"
-            placeholder="Escribe tu nombre"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') void joinAndContinue();
-            }}
-          />
+
+          <label className="mt-8 w-full text-left text-xs font-bold uppercase tracking-[0.12em] text-[#071F5E]/55">
+            Nombre del representante
+            <input
+              className="mt-2 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm font-normal normal-case tracking-normal text-[#071F5E] placeholder:text-[#72777A]/50"
+              placeholder="Tu nombre"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              autoFocus
+            />
+          </label>
+
+          <label className="mt-4 w-full text-left text-xs font-bold uppercase tracking-[0.12em] text-[#071F5E]/55">
+            Nombre de la empresa
+            <input
+              className="mt-2 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm font-normal normal-case tracking-normal text-[#071F5E] placeholder:text-[#72777A]/50"
+              placeholder="Empresa o emprendimiento"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') void joinAndContinue();
+              }}
+            />
+          </label>
 
           <div className="mt-5 w-full text-left">
             <p className="mb-2 text-center text-sm font-semibold text-[#071F5E]/70">Ruta de trabajo</p>
@@ -588,7 +623,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
 
           <button
             type="button"
-            disabled={!name.trim() || joining}
+            disabled={!name.trim() || !companyName.trim() || joining}
             onClick={() => void joinAndContinue()}
             className="mt-4 inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-40"
           >

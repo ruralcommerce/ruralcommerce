@@ -122,7 +122,12 @@ export async function updateSession(
 export async function joinSession(
   code: string,
   name: string,
-  opts?: { forceNew?: boolean; participantId?: string; workRoute?: MnsWorkRoute }
+  opts?: {
+    forceNew?: boolean;
+    participantId?: string;
+    workRoute?: MnsWorkRoute;
+    companyName?: string;
+  }
 ): Promise<{ session: MnsSession; participant: MnsParticipant; resumed: boolean } | null> {
   const store = await ensureStore();
   const normalized = code.trim().toUpperCase();
@@ -133,6 +138,7 @@ export async function joinSession(
   if (session.status === 'closed') return null;
 
   const now = new Date().toISOString();
+  const companyName = (opts?.companyName || '').trim();
   let participant: MnsParticipant | undefined;
   let resumed = false;
 
@@ -142,9 +148,13 @@ export async function joinSession(
   }
 
   if (!participant && !opts?.forceNew) {
-    const byName = session.participants.find(
-      (p) => p.name.trim().toLowerCase() === name.trim().toLowerCase() && !p.completedAt
-    );
+    const byName = session.participants.find((p) => {
+      if (p.completedAt) return false;
+      const sameName = p.name.trim().toLowerCase() === name.trim().toLowerCase();
+      if (!sameName) return false;
+      if (!companyName) return true;
+      return (p.companyName || '').trim().toLowerCase() === companyName.toLowerCase();
+    });
     if (byName) {
       participant = byName;
       resumed = true;
@@ -155,6 +165,7 @@ export async function joinSession(
     participant = {
       id: newId('part'),
       name: name.trim() || 'Participante',
+      companyName: companyName || '',
       joinedAt: now,
       updatedAt: now,
       completedAt: null,
@@ -168,6 +179,8 @@ export async function joinSession(
     session.participants.push(participant);
   } else {
     participant.name = name.trim() || participant.name;
+    if (companyName) participant.companyName = companyName;
+    if (!participant.companyName) participant.companyName = '';
     participant.updatedAt = now;
     if (opts?.workRoute) participant.workRoute = opts.workRoute;
   }
@@ -186,6 +199,7 @@ export async function saveParticipantAnswers(
     currentFicha?: MnsFichaId;
     workRoute?: MnsWorkRoute;
     productLabel?: string;
+    companyName?: string;
     preCheck?: MnsCheckSnapshot | null;
     postCheck?: MnsCheckSnapshot | null;
     complete?: boolean;
@@ -220,6 +234,8 @@ export async function saveParticipantAnswers(
     workRoute: patch.workRoute || current.workRoute,
     productLabel:
       patch.productLabel !== undefined ? patch.productLabel.trim() : current.productLabel,
+    companyName:
+      patch.companyName !== undefined ? patch.companyName.trim() : current.companyName || '',
     preCheck: patch.preCheck !== undefined ? patch.preCheck : current.preCheck ?? null,
     postCheck: patch.postCheck !== undefined ? patch.postCheck : current.postCheck ?? null,
     completedAt: patch.complete ? now : current.completedAt,

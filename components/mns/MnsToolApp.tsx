@@ -3,10 +3,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { IntranetGate } from '@/components/intranet/IntranetGate';
+import {
+  MarcaButton,
+  MarcaInput,
+  MarcaPanel,
+  MarcaTextarea,
+  marcaGhostLinkClass,
+} from '@/components/marca/MarcaShell';
 import { deltaLabel } from '@/lib/mns/assessment';
 import { MNS_COURSE, MNS_FICHAS } from '@/lib/mns/content';
-import type { MnsSession } from '@/lib/mns/types';
-import './mns.css';
+import type { MnsParticipant, MnsSession } from '@/lib/mns/types';
 
 export function MnsToolApp({ locale }: { locale: string }) {
   return (
@@ -30,12 +36,20 @@ function formatDate(iso?: string) {
   }
 }
 
+function participantStatus(p: MnsParticipant) {
+  if (p.completedAt || p.postCheck?.completedAt) return 'Completó';
+  if (p.preCheck?.completedAt) return `En mapa · ${p.currentFicha.replace('ficha', 'Ficha ')}`;
+  return 'En punto de partida';
+}
+
 function MnsToolBody({ locale }: { locale: string }) {
   const [sessions, setSessions] = useState<MnsSession[]>([]);
   const [view, setView] = useState<'list' | 'create' | 'detail'>('list');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
+  const [loadingDetail, setLoadingDetail] = useState(false);
   const [form, setForm] = useState({ groupName: '', title: '', notes: '' });
+  const [copied, setCopied] = useState(false);
 
   const selected = useMemo(
     () => sessions.find((s) => s.id === selectedId) || null,
@@ -79,15 +93,20 @@ function MnsToolBody({ locale }: { locale: string }) {
   }
 
   async function openDetail(id: string) {
-    const res = await fetch(`/api/mns/sessions/${id}`);
-    if (!res.ok) return;
-    const data = (await res.json()) as { session: MnsSession };
-    setSessions((prev) => {
-      const exists = prev.some((s) => s.id === id);
-      return exists ? prev.map((s) => (s.id === id ? data.session : s)) : [data.session, ...prev];
-    });
-    setSelectedId(id);
-    setView('detail');
+    setLoadingDetail(true);
+    try {
+      const res = await fetch(`/api/mns/sessions/${id}`);
+      if (!res.ok) return;
+      const data = (await res.json()) as { session: MnsSession };
+      setSessions((prev) => {
+        const exists = prev.some((s) => s.id === id);
+        return exists ? prev.map((s) => (s.id === id ? data.session : s)) : [data.session, ...prev];
+      });
+      setSelectedId(id);
+      setView('detail');
+    } finally {
+      setLoadingDetail(false);
+    }
   }
 
   async function setStatus(status: 'active' | 'closed') {
@@ -102,277 +121,349 @@ function MnsToolBody({ locale }: { locale: string }) {
     setSessions((prev) => prev.map((s) => (s.id === data.session.id ? data.session : s)));
   }
 
+  function backToList() {
+    setSelectedId(null);
+    setView('list');
+    void loadSessions();
+  }
+
   const joinPath = selected ? `/${locale}/mns/${selected.code}` : '';
+  const joinUrl =
+    typeof window !== 'undefined' && joinPath ? `${window.location.origin}${joinPath}` : joinPath;
+
+  const stats = useMemo(() => {
+    if (!selected) return null;
+    const parts = selected.participants;
+    const withPre = parts.filter((p) => p.preCheck).length;
+    const withPost = parts.filter((p) => p.postCheck).length;
+    const completed = parts.filter((p) => p.completedAt || p.postCheck).length;
+    const withBoth = parts.filter((p) => p.preCheck && p.postCheck);
+    const avgDelta =
+      withBoth.length > 0
+        ? withBoth.reduce((acc, p) => acc + ((p.postCheck?.score || 0) - (p.preCheck?.score || 0)), 0) /
+          withBoth.length
+        : null;
+    const byFicha: Record<string, number> = { ficha1: 0, ficha2: 0, ficha3: 0, ficha4: 0, done: 0 };
+    for (const p of parts) {
+      if (p.completedAt || p.postCheck) byFicha.done += 1;
+      else byFicha[p.currentFicha] = (byFicha[p.currentFicha] || 0) + 1;
+    }
+    return { withPre, withPost, completed, avgDelta, byFicha, total: parts.length };
+  }, [selected]);
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-5 shadow-[0_12px_40px_rgba(7,31,94,0.06)] sm:p-6">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--rc-accent)]">
-          {MNS_COURSE.edition}
-        </p>
-        <h2 className="mt-2 text-2xl font-bold text-[var(--rc-primary)]">{MNS_COURSE.name}</h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--rc-text)]/75">
-          Crea salas para que cada participante complete las 4 fichas desde el celular, con asistente
-          autoexplicativo (para qué, cómo y ejemplos).
-        </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {MNS_FICHAS.map((f) => (
-            <span
-              key={f.id}
-              className="rounded-full bg-[var(--rc-primary)]/5 px-3 py-1 text-xs font-semibold text-[var(--rc-primary)]"
-            >
-              {f.number}. {f.title}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={() => setView('list')}
-          className={`rounded-full px-4 py-2 text-sm font-semibold ${
-            view === 'list' ? 'bg-[var(--rc-primary)] text-white' : 'bg-white text-[var(--rc-primary)] border border-[var(--rc-primary)]/15'
-          }`}
-        >
-          Salas
-        </button>
-        <button
-          type="button"
-          onClick={() => setView('create')}
-          className={`rounded-full px-4 py-2 text-sm font-semibold ${
-            view === 'create' ? 'bg-[var(--rc-accent)] text-white' : 'bg-white text-[var(--rc-primary)] border border-[var(--rc-primary)]/15'
-          }`}
-        >
-          Nueva sala
-        </button>
-        {selected && view === 'detail' ? (
-          <span className="rounded-full bg-[var(--rc-accent)]/10 px-4 py-2 text-sm font-semibold text-[var(--rc-accent)]">
-            Código {selected.code}
-          </span>
-        ) : null}
-      </div>
-
-      {view === 'create' ? (
-        <form
-          onSubmit={createSession}
-          className="space-y-4 rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-5 sm:p-6"
-        >
-          <div>
-            <label className="text-sm font-semibold text-[var(--rc-primary)]">Grupo / cohorte</label>
-            <input
-              className="mt-1 w-full rounded-xl border border-[var(--rc-primary)]/15 bg-[#fafafa] px-3 py-2.5 text-sm outline-none focus:border-[var(--rc-accent)]"
-              value={form.groupName}
-              onChange={(e) => setForm((f) => ({ ...f, groupName: e.target.value }))}
-              placeholder="Ej. Impulsa Los Santos · abril 2026"
-              required
-            />
-          </div>
-          <div>
-            <label className="text-sm font-semibold text-[var(--rc-primary)]">Título (opcional)</label>
-            <input
-              className="mt-1 w-full rounded-xl border border-[var(--rc-primary)]/15 bg-[#fafafa] px-3 py-2.5 text-sm outline-none focus:border-[var(--rc-accent)]"
-              value={form.title}
-              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-              placeholder="MNS Internacional · sesión 1"
-            />
-          </div>
-          <div>
-            <label className="text-sm font-semibold text-[var(--rc-primary)]">Notas</label>
-            <textarea
-              className="mt-1 w-full rounded-xl border border-[var(--rc-primary)]/15 bg-[#fafafa] px-3 py-2.5 text-sm outline-none focus:border-[var(--rc-accent)]"
-              rows={3}
-              value={form.notes}
-              onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={creating}
-            className="rounded-full bg-[var(--rc-accent)] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-50"
+    <div>
+      {view !== 'detail' ? (
+        <div className="mb-5 flex flex-wrap gap-2">
+          <MarcaButton
+            variant={view === 'list' ? 'primary' : 'ghost'}
+            onClick={() => setView('list')}
           >
-            {creating ? 'Creando…' : 'Crear sala y código'}
-          </button>
-        </form>
+            Salas
+          </MarcaButton>
+          <MarcaButton variant={view === 'create' ? 'primary' : 'ghost'} onClick={() => setView('create')}>
+            Nueva sala
+          </MarcaButton>
+          <Link href={`/${locale}/intranet/herramientas`} className={marcaGhostLinkClass}>
+            ← Herramientas
+          </Link>
+        </div>
       ) : null}
 
       {view === 'list' ? (
-        <div className="overflow-hidden rounded-2xl border border-[var(--rc-primary)]/10 bg-white">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-[var(--rc-primary)] text-white">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Código</th>
-                <th className="px-4 py-3 font-semibold">Grupo</th>
-                <th className="px-4 py-3 font-semibold">Participantes</th>
-                <th className="px-4 py-3 font-semibold">Estado</th>
-                <th className="px-4 py-3 font-semibold">Actualizado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sessions.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-[var(--rc-text)]/60">
-                    Aún no hay salas. Crea la primera para el encuentro.
-                  </td>
-                </tr>
-              ) : (
-                sessions.map((s) => (
-                  <tr
-                    key={s.id}
-                    className="cursor-pointer border-t border-[var(--rc-primary)]/8 hover:bg-[var(--rc-accent)]/5"
-                    onClick={() => void openDetail(s.id)}
-                  >
-                    <td className="px-4 py-3 font-mono font-bold text-[var(--rc-primary)]">{s.code}</td>
-                    <td className="px-4 py-3">{s.groupName}</td>
-                    <td className="px-4 py-3">{s.participants.length}</td>
-                    <td className="px-4 py-3 capitalize">{s.status}</td>
-                    <td className="px-4 py-3">{formatDate(s.updatedAt)}</td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
-
-      {view === 'detail' && selected ? (
         <div className="space-y-4">
-          <div className="rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-5 sm:p-6">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--rc-accent)]">
-                  Sala activa
-                </p>
-                <h3 className="mt-1 text-xl font-bold text-[var(--rc-primary)]">{selected.title}</h3>
-                <p className="mt-1 text-sm text-[var(--rc-text)]/70">{selected.groupName}</p>
-                <p className="mt-3 font-mono text-3xl font-bold tracking-[0.18em] text-[var(--rc-primary)]">
-                  {selected.code}
-                </p>
-                <p className="mt-2 text-sm text-[var(--rc-text)]/70">
-                  Participantes: abre{' '}
-                  <Link className="font-semibold text-[var(--rc-accent)] underline" href={joinPath}>
-                    {joinPath}
-                  </Link>{' '}
-                  o entra en <code>/{locale}/mns</code> con el código.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => void navigator.clipboard.writeText(`${window.location.origin}${joinPath}`)}
-                  className="rounded-full border border-[var(--rc-primary)]/15 bg-white px-4 py-2 text-sm font-semibold text-[var(--rc-primary)]"
-                >
-                  Copiar enlace
-                </button>
-                {selected.status === 'active' ? (
-                  <button
-                    type="button"
-                    onClick={() => void setStatus('closed')}
-                    className="rounded-full bg-[var(--rc-primary)] px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    Cerrar sala
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => void setStatus('active')}
-                    className="rounded-full bg-[var(--rc-accent)] px-4 py-2 text-sm font-semibold text-white"
-                  >
-                    Reabrir sala
-                  </button>
-                )}
-              </div>
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold text-[var(--rc-primary)]">Salas MNS</h2>
+              <p className="mt-1 text-sm text-[var(--rc-text)]/60">
+                Abre una sala para ver el link, resultados y avance por participante.
+              </p>
             </div>
+            <MarcaButton onClick={() => setView('create')}>Nueva sala</MarcaButton>
           </div>
 
-          {(() => {
-            const withBoth = selected.participants.filter((p) => p.preCheck && p.postCheck);
-            const avgDelta =
-              withBoth.length > 0
-                ? withBoth.reduce((acc, p) => acc + ((p.postCheck?.score || 0) - (p.preCheck?.score || 0)), 0) /
-                  withBoth.length
-                : null;
-            return (
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-text)]/50">
-                    Con pre
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-[var(--rc-primary)]">
-                    {selected.participants.filter((p) => p.preCheck).length}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-text)]/50">
-                    Con post
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-[var(--rc-primary)]">
-                    {selected.participants.filter((p) => p.postCheck).length}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-[var(--rc-accent)]/20 bg-[var(--rc-accent)]/5 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-accent)]">
-                    Mejora media
-                  </p>
-                  <p className="mt-1 text-2xl font-bold text-[var(--rc-accent)]">
-                    {avgDelta == null ? '—' : `${avgDelta > 0 ? '+' : ''}${avgDelta.toFixed(1)}`}
-                  </p>
-                </div>
-              </div>
-            );
-          })()}
-
-          <div className="overflow-hidden rounded-2xl border border-[var(--rc-primary)]/10 bg-white">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-[#f7f8fb] text-[var(--rc-primary)]">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Participante</th>
-                  <th className="px-4 py-3 font-semibold">Ficha</th>
-                  <th className="px-4 py-3 font-semibold">Pre</th>
-                  <th className="px-4 py-3 font-semibold">Post</th>
-                  <th className="px-4 py-3 font-semibold">Mejora</th>
-                  <th className="px-4 py-3 font-semibold">Estado</th>
+          <div className="overflow-hidden rounded-xl border border-[var(--rc-primary)]/10 bg-white">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-[var(--rc-primary)]/10 text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--rc-text)]/45">
+                  <th className="px-4 py-3">Grupo</th>
+                  <th className="hidden px-4 py-3 sm:table-cell">Código</th>
+                  <th className="hidden px-4 py-3 md:table-cell">Participantes</th>
+                  <th className="hidden px-4 py-3 sm:table-cell">Estado</th>
+                  <th className="hidden px-4 py-3 lg:table-cell">Actualizado</th>
+                  <th className="px-4 py-3 text-right"> </th>
                 </tr>
               </thead>
               <tbody>
-                {selected.participants.length === 0 ? (
+                {sessions.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-[var(--rc-text)]/60">
-                      Nadie ha entrado todavía. Comparte el código en la sesión.
+                    <td colSpan={6} className="px-4 py-10 text-center text-sm text-[var(--rc-text)]/55">
+                      Aún no hay salas. Crea la primera para generar un link de oficina.
                     </td>
                   </tr>
                 ) : (
-                  selected.participants.map((p) => {
-                    const pre = p.preCheck;
-                    const post = p.postCheck;
-                    const delta = deltaLabel(pre?.score, post?.score);
-                    return (
-                      <tr key={p.id} className="border-t border-[var(--rc-primary)]/8">
-                        <td className="px-4 py-3 font-medium">{p.name}</td>
-                        <td className="px-4 py-3">{p.currentFicha.replace('ficha', 'Ficha ')}</td>
-                        <td className="px-4 py-3">{pre ? `${pre.score}/${pre.max}` : '—'}</td>
-                        <td className="px-4 py-3">{post ? `${post.score}/${post.max}` : '—'}</td>
-                        <td
-                          className={`px-4 py-3 font-semibold ${
-                            delta.startsWith('+')
-                              ? 'text-[var(--rc-accent)]'
-                              : delta === '0'
-                                ? 'text-[var(--rc-text)]/60'
-                                : delta === '—'
-                                  ? 'text-[var(--rc-text)]/40'
-                                  : 'text-[#b42318]'
-                          }`}
+                  sessions.map((s) => (
+                    <tr
+                      key={s.id}
+                      className="border-b border-[var(--rc-primary)]/8 last:border-b-0 transition hover:bg-[var(--rc-bg)]/80"
+                    >
+                      <td className="px-4 py-3">
+                        <button
+                          type="button"
+                          onClick={() => void openDetail(s.id)}
+                          className="text-left font-semibold text-[var(--rc-primary)] hover:text-[var(--rc-accent)]"
                         >
-                          {delta}
-                        </td>
-                        <td className="px-4 py-3">{p.completedAt ? 'Completó' : 'En curso'}</td>
-                      </tr>
-                    );
-                  })
+                          {s.groupName}
+                          <span className="mt-0.5 block text-xs font-normal text-[var(--rc-text)]/55 sm:hidden">
+                            {s.code} · {s.participants.length} · {s.status}
+                          </span>
+                        </button>
+                      </td>
+                      <td className="hidden px-4 py-3 font-mono text-xs text-[var(--rc-text)]/70 sm:table-cell">
+                        {s.code}
+                      </td>
+                      <td className="hidden px-4 py-3 text-[var(--rc-text)]/70 md:table-cell">
+                        {s.participants.length}
+                      </td>
+                      <td className="hidden px-4 py-3 sm:table-cell">
+                        <span className="rounded border border-[var(--rc-primary)]/12 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-[var(--rc-primary)]">
+                          {s.status}
+                        </span>
+                      </td>
+                      <td className="hidden px-4 py-3 text-[var(--rc-text)]/55 lg:table-cell">
+                        {formatDate(s.updatedAt)}
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <button
+                          type="button"
+                          onClick={() => void openDetail(s.id)}
+                          className="text-xs font-semibold text-[var(--rc-accent)] hover:underline"
+                        >
+                          Abrir →
+                        </button>
+                      </td>
+                    </tr>
+                  ))
                 )}
               </tbody>
             </table>
           </div>
+        </div>
+      ) : null}
+
+      {view === 'create' ? (
+        <div className="mx-auto max-w-xl space-y-4">
+          <button
+            type="button"
+            onClick={() => setView('list')}
+            className="text-sm font-semibold text-[var(--rc-accent)] hover:underline"
+          >
+            ← Volver a salas
+          </button>
+          <MarcaPanel>
+            <h2 className="text-lg font-bold text-[var(--rc-primary)]">Nueva sala</h2>
+            <p className="mt-1 text-sm text-[var(--rc-text)]/65">{MNS_COURSE.edition}</p>
+            <form onSubmit={createSession} className="mt-4 space-y-3">
+              <MarcaInput
+                placeholder="Nombre del grupo / cohorte"
+                value={form.groupName}
+                onChange={(e) => setForm((f) => ({ ...f, groupName: e.target.value }))}
+                required
+                autoFocus
+              />
+              <MarcaInput
+                placeholder="Título de la oficina (opcional)"
+                value={form.title}
+                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+              />
+              <MarcaTextarea
+                placeholder="Notas internas"
+                rows={3}
+                value={form.notes}
+                onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
+              />
+              <div className="flex flex-wrap gap-2">
+                <MarcaButton type="submit" disabled={creating}>
+                  {creating ? 'Creando…' : 'Crear sala + link'}
+                </MarcaButton>
+                <MarcaButton type="button" variant="ghost" onClick={() => setView('list')}>
+                  Cancelar
+                </MarcaButton>
+              </div>
+            </form>
+          </MarcaPanel>
+        </div>
+      ) : null}
+
+      {view === 'detail' ? (
+        <div className="space-y-5">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <button
+              type="button"
+              onClick={backToList}
+              className="text-sm font-semibold text-[var(--rc-accent)] hover:underline"
+            >
+              ← Volver a salas
+            </button>
+            <Link href={`/${locale}/intranet/herramientas`} className={marcaGhostLinkClass}>
+              Herramientas
+            </Link>
+          </div>
+
+          {loadingDetail && !selected ? (
+            <MarcaPanel>
+              <p className="text-sm text-[var(--rc-text)]/65">Cargando sala…</p>
+            </MarcaPanel>
+          ) : null}
+
+          {selected ? (
+            <>
+              <MarcaPanel>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
+                  Oficina · {selected.code}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-[var(--rc-primary)]">{selected.title}</h2>
+                <p className="mt-1 text-sm text-[var(--rc-text)]/70">
+                  {selected.groupName} · {selected.participants.length} participantes · {selected.status}
+                </p>
+
+                <div className="mt-4 rounded-xl bg-[var(--rc-bg)] p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[var(--rc-text)]/45">
+                    Link de oficina
+                  </p>
+                  <p className="mt-2 break-all text-sm font-medium text-[var(--rc-primary)]">{joinUrl}</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    <MarcaButton
+                      variant="primary"
+                      onClick={() => {
+                        void navigator.clipboard.writeText(joinUrl);
+                        setCopied(true);
+                        window.setTimeout(() => setCopied(false), 1800);
+                      }}
+                    >
+                      {copied ? 'Copiado' : 'Copiar link'}
+                    </MarcaButton>
+                    <Link href={joinPath} target="_blank" className={marcaGhostLinkClass}>
+                      Abrir oficina
+                    </Link>
+                    <MarcaButton variant="ghost" onClick={() => void openDetail(selected.id)}>
+                      Actualizar resultados
+                    </MarcaButton>
+                    {selected.status === 'active' ? (
+                      <MarcaButton variant="ghost" onClick={() => void setStatus('closed')}>
+                        Cerrar sala
+                      </MarcaButton>
+                    ) : (
+                      <MarcaButton variant="ghost" onClick={() => void setStatus('active')}>
+                        Reabrir sala
+                      </MarcaButton>
+                    )}
+                  </div>
+                </div>
+              </MarcaPanel>
+
+              {stats ? (
+                <MarcaPanel>
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--rc-accent)]">
+                    Resultados del taller
+                  </p>
+                  <h3 className="mt-2 text-lg font-bold text-[var(--rc-primary)]">
+                    {stats.completed} de {stats.total} participantes con mapa cerrado
+                  </h3>
+                  <p className="mt-1 text-sm text-[var(--rc-text)]/65">
+                    Pre: {stats.withPre} · Post: {stats.withPost} · Mejora media:{' '}
+                    {stats.avgDelta == null
+                      ? '—'
+                      : `${stats.avgDelta > 0 ? '+' : ''}${stats.avgDelta.toFixed(1)}`}
+                  </p>
+
+                  <div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+                    {MNS_FICHAS.map((f) => (
+                      <div key={f.id} className="rounded-xl bg-[var(--rc-bg)] px-3 py-3">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--rc-text)]/45">
+                          Ficha {f.number}
+                        </p>
+                        <p className="mt-1 text-xl font-bold text-[var(--rc-primary)]">
+                          {stats.byFicha[f.id] || 0}
+                        </p>
+                        <p className="text-xs text-[var(--rc-text)]/55">en esta ficha</p>
+                      </div>
+                    ))}
+                    <div className="rounded-xl bg-[var(--rc-accent)]/10 px-3 py-3">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[var(--rc-accent)]">
+                        Completos
+                      </p>
+                      <p className="mt-1 text-xl font-bold text-[var(--rc-accent)]">{stats.byFicha.done}</p>
+                      <p className="text-xs text-[var(--rc-text)]/55">con post</p>
+                    </div>
+                  </div>
+                </MarcaPanel>
+              ) : null}
+
+              <MarcaPanel>
+                <h3 className="text-lg font-bold text-[var(--rc-primary)]">Participantes</h3>
+                <p className="mt-1 text-sm text-[var(--rc-text)]/65">
+                  Resumen por representante y empresa. Actualiza para ver el avance en vivo.
+                </p>
+
+                <div className="mt-4 overflow-hidden rounded-xl border border-[var(--rc-primary)]/10">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-[var(--rc-bg)] text-[var(--rc-primary)]">
+                      <tr>
+                        <th className="px-3 py-3 font-semibold">Representante</th>
+                        <th className="px-3 py-3 font-semibold">Empresa</th>
+                        <th className="hidden px-3 py-3 font-semibold sm:table-cell">Pre</th>
+                        <th className="hidden px-3 py-3 font-semibold sm:table-cell">Post</th>
+                        <th className="px-3 py-3 font-semibold">Mejora</th>
+                        <th className="px-3 py-3 font-semibold">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {selected.participants.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-3 py-8 text-center text-[var(--rc-text)]/60">
+                            Nadie ha entrado todavía. Comparte el link de oficina.
+                          </td>
+                        </tr>
+                      ) : (
+                        selected.participants.map((p) => {
+                          const pre = p.preCheck;
+                          const post = p.postCheck;
+                          const delta = deltaLabel(pre?.score, post?.score);
+                          return (
+                            <tr key={p.id} className="border-t border-[var(--rc-primary)]/8">
+                              <td className="px-3 py-3 font-medium text-[var(--rc-primary)]">{p.name}</td>
+                              <td className="px-3 py-3 text-[var(--rc-text)]/75">{p.companyName || '—'}</td>
+                              <td className="hidden px-3 py-3 sm:table-cell">
+                                {pre ? `${pre.score}/${pre.max}` : '—'}
+                              </td>
+                              <td className="hidden px-3 py-3 sm:table-cell">
+                                {post ? `${post.score}/${post.max}` : '—'}
+                              </td>
+                              <td
+                                className={`px-3 py-3 font-semibold ${
+                                  delta.startsWith('+')
+                                    ? 'text-[var(--rc-accent)]'
+                                    : delta === '0'
+                                      ? 'text-[var(--rc-text)]/60'
+                                      : delta === '—'
+                                        ? 'text-[var(--rc-text)]/40'
+                                        : 'text-[#b42318]'
+                                }`}
+                              >
+                                {delta}
+                              </td>
+                              <td className="px-3 py-3 text-[var(--rc-text)]/70">{participantStatus(p)}</td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </MarcaPanel>
+            </>
+          ) : null}
         </div>
       ) : null}
     </div>

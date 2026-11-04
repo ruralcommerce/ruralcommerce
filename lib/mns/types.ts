@@ -22,6 +22,8 @@ export type MnsCheckSnapshot = {
 export type MnsParticipant = {
   id: string;
   name: string;
+  /** Nombre de la empresa / emprendimiento */
+  companyName: string;
   joinedAt: string;
   updatedAt: string;
   completedAt?: string | null;

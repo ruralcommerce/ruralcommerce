@@ -13,6 +13,7 @@ export async function POST(request: Request, { params }: Params) {
     currentFicha?: MnsFichaId;
     workRoute?: MnsWorkRoute;
     productLabel?: string;
+    companyName?: string;
     preCheck?: MnsCheckSnapshot | null;
     postCheck?: MnsCheckSnapshot | null;
     complete?: boolean;
@@ -27,6 +28,7 @@ export async function POST(request: Request, { params }: Params) {
     currentFicha: body.currentFicha,
     workRoute: body.workRoute,
     productLabel: body.productLabel,
+    companyName: body.companyName,
     preCheck: body.preCheck,
     postCheck: body.postCheck,
     complete: body.complete,
