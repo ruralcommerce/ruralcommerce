@@ -57,7 +57,12 @@ export function inferPlayIndex(opts: {
   phase?: string;
 }): number {
   if (typeof opts.savedIndex === 'number' && opts.savedIndex >= 0) {
-    return Math.min(opts.savedIndex, MNS_PLAY_SCREENS.length - 1);
+    // Si el índice guardado viene de una versión más larga del mapa, reubicamos por respuestas.
+    if (opts.savedIndex >= MNS_PLAY_SCREENS.length) {
+      // fall through to answer-based inference
+    } else {
+      return opts.savedIndex;
+    }
   }
   for (let i = 0; i < MNS_PLAY_SCREENS.length; i += 1) {
     const screen = MNS_PLAY_SCREENS[i];

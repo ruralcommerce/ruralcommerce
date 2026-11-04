@@ -50,7 +50,8 @@ export function fieldPlayFilled(field: MnsFieldDef, value: MnsFieldValue | undef
   }
   if (field.kind === 'rosa-calc') {
     const rec = asRecord(value);
-    return Boolean(rec.precioNecesario?.trim() || rec.resultado10?.trim());
+    // Pedimos el último paso: ver qué pasa si no ajustás el precio.
+    return Boolean(rec.resultado10?.trim());
   }
   if (field.kind === 'tagged-text') {
     const rec = asRecord(value);

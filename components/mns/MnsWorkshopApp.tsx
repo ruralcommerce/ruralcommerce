@@ -532,8 +532,8 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
                 {sessionTitle || 'Mapa de Negocio Sostenible'}
               </h1>
               <p className="mt-5 max-w-md text-[15px] leading-6 text-[#071F5E] sm:text-[17px] sm:leading-[23px]">
-                Organiza tu propuesta internacional, requisitos, precio y recorrido. Trabaja siempre el mismo
-                producto y la misma oportunidad.
+                Cuatro dinámicas cortas: se explica, se ve un ejemplo y hacés una cosa concreta. Mismo producto
+                en todo el mapa. El detalle está en el (!).
               </p>
 
               {savedSession ? (
@@ -697,17 +697,29 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
                 <div className="mt-5 rounded-[18px] bg-white p-4 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:mt-6 sm:p-5">
                   <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Consigna</p>
                   <p className="mt-2 text-[15px] leading-6 text-[#071F5E]">{screen.ficha.consigna}</p>
+                  <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                    {[
+                      { t: 'Explicar', d: screen.ficha.proposito },
+                      { t: 'Ejemplo', d: 'Tocá el (!) para ver el caso de práctica.' },
+                      { t: 'Hacer', d: 'Tres pantallas cortas. Una decisión por pantalla.' },
+                    ].map((row) => (
+                      <div key={row.t} className="rounded-[12px] bg-[#FBFAF8] px-3 py-2.5">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#009179]">{row.t}</p>
+                        <p className="mt-1 text-xs leading-4 text-[#071F5E]/75 line-clamp-3">{row.d}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div className="mt-4 grid grid-cols-4 gap-2">
                   {MNS_FICHAS.map((f) => (
                     <div
                       key={f.id}
-                      className={`rounded-[14px] px-3 py-2.5 text-center text-xs font-semibold ${
+                      className={`rounded-[14px] px-2 py-2.5 text-center text-[11px] font-semibold sm:text-xs ${
                         f.id === screen.ficha.id ? 'bg-[#071F5E] text-white' : 'bg-white text-[#071F5E]/55'
                       }`}
                     >
-                      {f.number}. {f.title.split(' ').slice(0, 2).join(' ')}
+                      {f.number}
                     </div>
                   ))}
                 </div>
