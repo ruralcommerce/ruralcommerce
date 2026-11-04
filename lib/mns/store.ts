@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import type {
   MnsAnswers,
+  MnsCheckSnapshot,
   MnsFichaId,
   MnsLocale,
   MnsParticipant,
@@ -161,6 +162,8 @@ export async function joinSession(
       productLabel: '',
       answers: {},
       currentFicha: 'ficha1',
+      preCheck: null,
+      postCheck: null,
     };
     session.participants.push(participant);
   } else {
@@ -183,6 +186,8 @@ export async function saveParticipantAnswers(
     currentFicha?: MnsFichaId;
     workRoute?: MnsWorkRoute;
     productLabel?: string;
+    preCheck?: MnsCheckSnapshot | null;
+    postCheck?: MnsCheckSnapshot | null;
     complete?: boolean;
   }
 ): Promise<MnsParticipant | null> {
@@ -215,6 +220,8 @@ export async function saveParticipantAnswers(
     workRoute: patch.workRoute || current.workRoute,
     productLabel:
       patch.productLabel !== undefined ? patch.productLabel.trim() : current.productLabel,
+    preCheck: patch.preCheck !== undefined ? patch.preCheck : current.preCheck ?? null,
+    postCheck: patch.postCheck !== undefined ? patch.postCheck : current.postCheck ?? null,
     completedAt: patch.complete ? now : current.completedAt,
   };
 

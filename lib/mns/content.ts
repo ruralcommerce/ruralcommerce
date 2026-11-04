@@ -33,41 +33,56 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           {
             id: 'producto',
             label: 'Producto, presentación y país de origen',
-            kind: 'textarea',
-            rows: 3,
+            kind: 'tagged-text',
             required: true,
             placeholder: 'Ej.: mermelada de mora en frasco de 250 g, Costa Rica',
             help: {
               paraQue:
                 'Anclar el Mapa de Negocio a un producto concreto. Las cuatro fichas deben hablar del mismo producto.',
-              como: 'Nombra el producto, cómo se presenta (envase, formato) y de dónde sale. Si aún no está definido, escribe una hipótesis y márcala.',
+              como: 'Nombra el producto, cómo se presenta (envase, formato) y de dónde sale. Marca si está confirmado, es hipótesis o queda pendiente.',
               ejemplo:
                 'Rosa: mermeladas de mora en frasco de vidrio, elaboradas en Costa Rica. Todavía no confirma capacidad exportable adicional.',
             },
           },
           {
             id: 'comprador',
-            label: 'Tipo de comprador y uso previsto',
-            kind: 'textarea',
-            rows: 3,
+            label: 'Tipo de comprador',
+            kind: 'chips',
             required: true,
-            placeholder: 'Ej.: distribuidora specialty en EE. UU. para reventa a tiendas',
+            options: [
+              { value: 'distribuidora', label: 'Distribuidora' },
+              { value: 'importadora', label: 'Importadora' },
+              { value: 'foodservice', label: 'Foodservice' },
+              { value: 'retail', label: 'Retail / tienda' },
+              { value: 'otro_b2b', label: 'Otro B2B' },
+            ],
             help: {
               paraQue: 'Una propuesta B2B se dirige a una empresa, no a un consumidor final genérico.',
-              como: 'Describe el tipo de empresa (distribuidora, importadora, foodservice…) y para qué usaría tu producto. Si no está confirmado, marca hipótesis.',
+              como: 'Elige el tipo de empresa. Luego podrás precisar el uso previsto.',
+              ejemplo: 'Distribuidora specialty en EE. UU. para reventa a tiendas.',
+            },
+          },
+          {
+            id: 'usoComprador',
+            label: 'Uso previsto del comprador',
+            kind: 'tagged-text',
+            required: true,
+            placeholder: 'Ej.: reventa a tiendas specialty · pedido aún no confirmado',
+            help: {
+              paraQue: 'Aclarar para qué usaría tu producto y si ya hay pedido.',
+              como: 'Describe el uso y marca confirmado / hipótesis / pendiente.',
               ejemplo:
-                'Una distribuidora desea evaluar las mermeladas de Rosa. Solicita ficha técnica, cantidad, plazo, precio, pago y documentos. Todavía no ha confirmado un pedido.',
+                'Una distribuidora desea evaluar las mermeladas. Solicita ficha técnica, cantidad, plazo, precio, pago y documentos. Todavía no ha confirmado un pedido.',
             },
           },
           {
             id: 'beneficio',
             label: 'Beneficio que se propone',
-            kind: 'textarea',
-            rows: 3,
+            kind: 'tagged-text',
             required: true,
             help: {
               paraQue: 'El comprador necesita entender qué gana o resuelve con tu oferta.',
-              como: 'Escribe un beneficio concreto y verificable. Evita promesas de cantidad, certificación o fecha sin base.',
+              como: 'Escribe un beneficio concreto y verificable. Evita promesas sin base.',
               ejemplo:
                 'Ofrecer un producto con origen identificable y presentación lista para evaluación comercial, sin afirmar aún volúmenes exportables.',
             },
@@ -75,11 +90,10 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           {
             id: 'diferenciacion',
             label: 'Diferenciación y evidencia disponible',
-            kind: 'textarea',
-            rows: 3,
+            kind: 'tagged-text',
             help: {
               paraQue: 'Separar lo que te distingue de lo que puedes demostrar hoy.',
-              como: 'Indica la diferenciación y, al lado o debajo, qué registro o hecho la respalda. Si no hay evidencia, marca pendiente.',
+              como: 'Indica la diferenciación y qué registro la respalda. Si no hay evidencia, marca pendiente.',
               ejemplo: 'Diferenciación: origen y proceso artesanal. Evidencia: ficha técnica (pendiente de elaborar).',
               alerta: 'Pregúntate: ¿qué registro o hecho te permite afirmarlo?',
             },
@@ -291,6 +305,22 @@ export const MNS_FICHAS: MnsFichaDef[] = [
             },
           },
           {
+            id: 'requisitoClase',
+            label: 'Tipo de requisito',
+            kind: 'chips',
+            required: true,
+            options: [
+              { value: 'legal', label: 'Legal' },
+              { value: 'comercial', label: 'Comercial' },
+              { value: 'diferencial', label: 'Diferencial' },
+            ],
+            help: {
+              paraQue: 'No todo lo que pide el comprador es una obligación legal universal.',
+              como: 'Elige una clasificación. Puedes afinar el nombre del requisito en el paso anterior.',
+              ejemplo: 'Prior Notice = legal · Ficha técnica pedida por comprador = comercial · Sello voluntario = diferencial.',
+            },
+          },
+          {
             id: 'aplica',
             label: '¿Aplica a este producto y operación?',
             kind: 'choice',
@@ -464,30 +494,41 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           },
           {
             id: 'condicionEntrega',
-            label: 'Condición de entrega y lugar (acordado o propuesto)',
-            kind: 'textarea',
-            rows: 2,
+            label: 'Condición de entrega y lugar',
+            kind: 'incoterm',
             required: true,
             help: {
               paraQue: 'FCA, DAP u otra condición cambia quién asume costos y riesgos.',
-              como: 'Indica Incoterm o condición y lugar. Si es hipótesis, márcalo.',
+              como: 'Elige Incoterm o condición, indica lugar y marca si está acordado o es propuesta.',
               ejemplo: 'Escenario propuesto tipo FCA o DAP según demostración del curso (acordar con el comprador).',
             },
           },
           {
             id: 'monedaCalculo',
             label: 'Moneda de cálculo',
-            kind: 'text',
+            kind: 'chips',
+            options: [
+              { value: 'um', label: 'u. m. (caso)' },
+              { value: 'crc', label: 'CRC' },
+              { value: 'usd', label: 'USD' },
+              { value: 'otra', label: 'Otra' },
+            ],
             help: {
               paraQue: 'Mantener visibles las unidades monetarias sin inventar tipos de cambio.',
-              como: 'Escribe la moneda en la que sumas costos. Si usas u. m. del caso, déjalo explícito.',
+              como: 'Elige la moneda en la que sumas costos. Si usas u. m. del caso, déjalo explícito.',
               ejemplo: 'u. m. (unidades monetarias del caso ficticio) — no son USD.',
             },
           },
           {
             id: 'monedaVenta',
             label: 'Moneda de venta',
-            kind: 'text',
+            kind: 'chips',
+            options: [
+              { value: 'um', label: 'u. m. (caso)' },
+              { value: 'crc', label: 'CRC' },
+              { value: 'usd', label: 'USD' },
+              { value: 'otra', label: 'Otra' },
+            ],
             help: {
               paraQue: 'Puede diferir de la moneda de costo; entonces la conversión debe documentarse.',
               como: 'Moneda en la que cotizarías al comprador.',
@@ -578,12 +619,12 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           },
           {
             id: 'operacionResultado',
-            label: 'Operación que puedo realizar y resultado',
-            kind: 'textarea',
-            rows: 3,
+            label: 'Operación y resultado (práctica Rosa)',
+            kind: 'rosa-calc',
+            required: true,
             help: {
               paraQue: 'Mostrar el cálculo, no solo el número final.',
-              como: 'Escribe la operación paso a paso.',
+              como: 'Toca cada paso para revelar la operación. Si usas tu negocio, anota después tus propios pendientes.',
               ejemplo:
                 'Ingreso necesario para conservar 400: 3.200 + 400 = 3.600. Precio/frasco: 3.600 ÷ 300 = 12 u. m. Si mantiene 10: 300×10 − 3.200 = −200.',
             },
@@ -685,24 +726,22 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           },
           {
             id: 'recorridoTexto',
-            label: 'Recorrido (inicio → entrega) y registros',
-            kind: 'textarea',
-            rows: 4,
+            label: 'Arma el recorrido de registros',
+            kind: 'trace-builder',
             required: true,
-            placeholder: 'Ej.: Proveedor P-01/F-02 → recepción RF-01 → lote L-05 → expedición EX-03 → comprador C-01',
             help: {
               paraQue: 'Ver la cadena hacia adelante con vínculos documentados.',
-              como: 'Escribe etapas o códigos y las flechas entre ellos. Separa conocido vs pendiente.',
+              como: 'Toca los registros y ordénalos. Un código propuesto debe quedar marcado como propuesta en tus notas.',
               ejemplo: 'Hacia adelante: P-01/F-02 → RF-01 → L-05 → EX-03 → C-01.',
             },
           },
           {
             id: 'vinculos',
-            label: 'Tabla de vínculos',
-            kind: 'trace-links',
+            label: 'Notas de vínculos o pendientes',
+            kind: 'tagged-text',
             help: {
               paraQue: 'Dejar explícito registro ↔ registro conectado ↔ responsable.',
-              como: 'Completa al menos 3–5 filas del recorrido.',
+              como: 'Añade un vínculo incompleto o un responsable pendiente.',
               ejemplo: 'L-05 conecta con RF-01 (origen) y EX-03 (destino); QC-05 es el control asociado.',
             },
           },

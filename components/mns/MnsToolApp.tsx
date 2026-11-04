@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { IntranetGate } from '@/components/intranet/IntranetGate';
+import { deltaLabel } from '@/lib/mns/assessment';
 import { MNS_COURSE, MNS_FICHAS } from '@/lib/mns/content';
 import type { MnsSession } from '@/lib/mns/types';
 import './mns.css';
@@ -284,34 +285,90 @@ function MnsToolBody({ locale }: { locale: string }) {
             </div>
           </div>
 
+          {(() => {
+            const withBoth = selected.participants.filter((p) => p.preCheck && p.postCheck);
+            const avgDelta =
+              withBoth.length > 0
+                ? withBoth.reduce((acc, p) => acc + ((p.postCheck?.score || 0) - (p.preCheck?.score || 0)), 0) /
+                  withBoth.length
+                : null;
+            return (
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-text)]/50">
+                    Con pre
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-[var(--rc-primary)]">
+                    {selected.participants.filter((p) => p.preCheck).length}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--rc-primary)]/10 bg-white p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-text)]/50">
+                    Con post
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-[var(--rc-primary)]">
+                    {selected.participants.filter((p) => p.postCheck).length}
+                  </p>
+                </div>
+                <div className="rounded-2xl border border-[var(--rc-accent)]/20 bg-[var(--rc-accent)]/5 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--rc-accent)]">
+                    Mejora media
+                  </p>
+                  <p className="mt-1 text-2xl font-bold text-[var(--rc-accent)]">
+                    {avgDelta == null ? '—' : `${avgDelta > 0 ? '+' : ''}${avgDelta.toFixed(1)}`}
+                  </p>
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="overflow-hidden rounded-2xl border border-[var(--rc-primary)]/10 bg-white">
             <table className="w-full text-left text-sm">
               <thead className="bg-[#f7f8fb] text-[var(--rc-primary)]">
                 <tr>
                   <th className="px-4 py-3 font-semibold">Participante</th>
                   <th className="px-4 py-3 font-semibold">Ficha</th>
-                  <th className="px-4 py-3 font-semibold">Producto</th>
+                  <th className="px-4 py-3 font-semibold">Pre</th>
+                  <th className="px-4 py-3 font-semibold">Post</th>
+                  <th className="px-4 py-3 font-semibold">Mejora</th>
                   <th className="px-4 py-3 font-semibold">Estado</th>
-                  <th className="px-4 py-3 font-semibold">Actualizado</th>
                 </tr>
               </thead>
               <tbody>
                 {selected.participants.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-8 text-center text-[var(--rc-text)]/60">
+                    <td colSpan={6} className="px-4 py-8 text-center text-[var(--rc-text)]/60">
                       Nadie ha entrado todavía. Comparte el código en la sesión.
                     </td>
                   </tr>
                 ) : (
-                  selected.participants.map((p) => (
-                    <tr key={p.id} className="border-t border-[var(--rc-primary)]/8">
-                      <td className="px-4 py-3 font-medium">{p.name}</td>
-                      <td className="px-4 py-3">{p.currentFicha.replace('ficha', 'Ficha ')}</td>
-                      <td className="px-4 py-3 max-w-[14rem] truncate">{p.productLabel || '—'}</td>
-                      <td className="px-4 py-3">{p.completedAt ? 'Completó' : 'En curso'}</td>
-                      <td className="px-4 py-3">{formatDate(p.updatedAt)}</td>
-                    </tr>
-                  ))
+                  selected.participants.map((p) => {
+                    const pre = p.preCheck;
+                    const post = p.postCheck;
+                    const delta = deltaLabel(pre?.score, post?.score);
+                    return (
+                      <tr key={p.id} className="border-t border-[var(--rc-primary)]/8">
+                        <td className="px-4 py-3 font-medium">{p.name}</td>
+                        <td className="px-4 py-3">{p.currentFicha.replace('ficha', 'Ficha ')}</td>
+                        <td className="px-4 py-3">{pre ? `${pre.score}/${pre.max}` : '—'}</td>
+                        <td className="px-4 py-3">{post ? `${post.score}/${post.max}` : '—'}</td>
+                        <td
+                          className={`px-4 py-3 font-semibold ${
+                            delta.startsWith('+')
+                              ? 'text-[var(--rc-accent)]'
+                              : delta === '0'
+                                ? 'text-[var(--rc-text)]/60'
+                                : delta === '—'
+                                  ? 'text-[var(--rc-text)]/40'
+                                  : 'text-[#b42318]'
+                          }`}
+                        >
+                          {delta}
+                        </td>
+                        <td className="px-4 py-3">{p.completedAt ? 'Completó' : 'En curso'}</td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

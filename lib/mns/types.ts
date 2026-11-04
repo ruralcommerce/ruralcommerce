@@ -10,6 +10,15 @@ export type MnsFieldValue = string | string[] | Record<string, string>;
 
 export type MnsAnswers = Partial<Record<MnsFichaId, Record<string, MnsFieldValue>>>;
 
+export type MnsCheckAnswers = Record<string, string>;
+
+export type MnsCheckSnapshot = {
+  answers: MnsCheckAnswers;
+  score: number;
+  max: number;
+  completedAt: string;
+};
+
 export type MnsParticipant = {
   id: string;
   name: string;
@@ -20,6 +29,8 @@ export type MnsParticipant = {
   productLabel: string;
   answers: MnsAnswers;
   currentFicha: MnsFichaId;
+  preCheck?: MnsCheckSnapshot | null;
+  postCheck?: MnsCheckSnapshot | null;
 };
 
 export type MnsSession = {
@@ -45,6 +56,11 @@ export type MnsFieldKind =
   | 'textarea'
   | 'select'
   | 'choice'
+  | 'chips'
+  | 'incoterm'
+  | 'rosa-calc'
+  | 'trace-builder'
+  | 'tagged-text'
   | 'cost-table'
   | 'trace-links'
   | 'presentation';

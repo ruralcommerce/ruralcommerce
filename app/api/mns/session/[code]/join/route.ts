@@ -39,5 +39,7 @@ export async function POST(request: Request, { params }: Params) {
     workRoute: p.workRoute,
     productLabel: p.productLabel,
     completedAt: p.completedAt || null,
+    preCheck: p.preCheck || null,
+    postCheck: p.postCheck || null,
   });
 }

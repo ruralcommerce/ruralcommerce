@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { saveParticipantAnswers } from '@/lib/mns/store';
-import type { MnsAnswers, MnsFichaId, MnsWorkRoute } from '@/lib/mns/types';
+import type { MnsAnswers, MnsCheckSnapshot, MnsFichaId, MnsWorkRoute } from '@/lib/mns/types';
 
 export const runtime = 'nodejs';
 
@@ -13,6 +13,8 @@ export async function POST(request: Request, { params }: Params) {
     currentFicha?: MnsFichaId;
     workRoute?: MnsWorkRoute;
     productLabel?: string;
+    preCheck?: MnsCheckSnapshot | null;
+    postCheck?: MnsCheckSnapshot | null;
     complete?: boolean;
   };
 
@@ -25,6 +27,8 @@ export async function POST(request: Request, { params }: Params) {
     currentFicha: body.currentFicha,
     workRoute: body.workRoute,
     productLabel: body.productLabel,
+    preCheck: body.preCheck,
+    postCheck: body.postCheck,
     complete: body.complete,
   });
 
@@ -37,5 +41,7 @@ export async function POST(request: Request, { params }: Params) {
     participantId: participant.id,
     completedAt: participant.completedAt,
     currentFicha: participant.currentFicha,
+    preCheck: participant.preCheck || null,
+    postCheck: participant.postCheck || null,
   });
 }

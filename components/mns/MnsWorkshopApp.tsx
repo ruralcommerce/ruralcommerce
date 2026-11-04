@@ -1,20 +1,21 @@
 'use client';
 
-import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { MNS_COURSE, MNS_FICHAS, getFicha } from '@/lib/mns/content';
+import { MNS_COURSE, MNS_FICHAS } from '@/lib/mns/content';
+import { fichaIdAtScreen, inferPlayIndex, MNS_PLAY_SCREENS } from '@/lib/mns/play';
 import type {
   MnsAnswers,
+  MnsCheckSnapshot,
   MnsFieldDef,
   MnsFieldHelp,
   MnsFieldValue,
   MnsFichaId,
   MnsWorkRoute,
 } from '@/lib/mns/types';
-import { MnsAssistantPanel, MnsFab } from './MnsAssistant';
-import './mns.css';
+import { MnsCheck, MnsCheckDoneSummary } from './MnsCheck';
+import { fieldPlayFilled, MnsFieldPlay } from './MnsFieldPlay';
 
-type Phase = 'gate' | 'welcome' | 'ficha' | 'done';
+type Gate = 'intro' | 'name' | 'pre' | 'play' | 'post' | 'done';
 
 type LocalSession = {
   participantId: string;
@@ -23,9 +24,11 @@ type LocalSession = {
   productLabel: string;
   answers: MnsAnswers;
   currentFicha: MnsFichaId;
-  fichaIndex: number;
-  stepIndex: number;
+  playIndex: number;
   completedAt?: string | null;
+  preCheck?: MnsCheckSnapshot | null;
+  postCheck?: MnsCheckSnapshot | null;
+  gate?: Gate;
 };
 
 function storageKey(code: string) {
@@ -37,7 +40,13 @@ function loadLocal(code: string): LocalSession | null {
   try {
     const raw = localStorage.getItem(storageKey(code));
     if (!raw) return null;
-    return JSON.parse(raw) as LocalSession;
+    const data = JSON.parse(raw) as LocalSession & { fichaIndex?: number; stepIndex?: number; phase?: string };
+    if (!data?.participantId || !data?.name) return null;
+    // migrate old shape
+    if (typeof data.playIndex !== 'number') {
+      data.playIndex = inferPlayIndex({ answers: data.answers || {}, savedIndex: 0 });
+    }
+    return data;
   } catch {
     return null;
   }
@@ -52,681 +61,671 @@ function saveLocal(code: string, data: LocalSession) {
   }
 }
 
+function clearLocal(code: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.removeItem(storageKey(code));
+  } catch {
+    // ignore
+  }
+}
+
 function asString(v: MnsFieldValue | undefined): string {
   if (typeof v === 'string') return v;
+  if (v && typeof v === 'object' && !Array.isArray(v)) {
+    const rec = v as Record<string, string>;
+    return (rec.text || rec.somos || Object.values(rec).find((x) => Boolean(x?.trim())) || '').trim();
+  }
+  if (Array.isArray(v)) return v.join(', ');
   return '';
 }
 
-function asRecord(v: MnsFieldValue | undefined): Record<string, string> {
-  if (v && typeof v === 'object' && !Array.isArray(v)) return v as Record<string, string>;
-  return {};
+function fieldFilled(field: MnsFieldDef, value: MnsFieldValue | undefined): boolean {
+  return fieldPlayFilled(field, value);
+}
+
+function ArrowIcon() {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src="/images/marca/ui/arrow-up-right.svg" alt="" width={18} height={18} className="brightness-0 invert" />
+  );
+}
+
+function WorkshopHeader({ locale }: { locale: string }) {
+  return (
+    <header className="relative z-20 flex h-16 shrink-0 items-center justify-between bg-[#071F5E] px-6 text-white sm:h-20 sm:px-10 lg:px-16">
+      <a href={`/${locale}`} className="inline-flex items-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/images/logo-branco.png" alt="Rural Commerce" className="h-8 w-auto sm:h-10" />
+      </a>
+      <span className="absolute left-1/2 -translate-x-1/2 text-[13px] font-extralight tracking-[0.02em] sm:text-[15px]">
+        MNS Internacional
+      </span>
+      <a href={`/${locale}`} className="text-[13px] font-extralight tracking-[0.02em] hover:opacity-80 sm:text-[15px]">
+        Sitio
+      </a>
+    </header>
+  );
+}
+
+function NavRow({
+  onBack,
+  onNext,
+  nextLabel,
+  nextDisabled,
+  primaryTeal,
+}: {
+  onBack?: () => void;
+  onNext: () => void;
+  nextLabel: string;
+  nextDisabled?: boolean;
+  primaryTeal?: boolean;
+}) {
+  return (
+    <div className="mt-6 flex shrink-0 flex-col gap-2 sm:flex-row sm:gap-4">
+      {onBack ? (
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-[14px] border border-[#8D99AE] bg-transparent px-5 text-sm font-bold text-[#071F5E]"
+        >
+          Volver
+        </button>
+      ) : null}
+      <button
+        type="button"
+        disabled={nextDisabled}
+        onClick={onNext}
+        className={`inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-sm font-bold text-[#F2F2F2] disabled:opacity-40 ${
+          primaryTeal ? 'bg-[#52ADAD]' : 'bg-[#071F5E]'
+        }`}
+      >
+        {nextLabel}
+        <ArrowIcon />
+      </button>
+    </div>
+  );
+}
+
+function TipSheet({
+  title,
+  help,
+  onClose,
+}: {
+  title: string;
+  help: MnsFieldHelp;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#071F5E]/35 p-3 sm:items-center">
+      <div className="max-h-[80dvh] w-full max-w-lg overflow-hidden rounded-[18px] bg-white shadow-2xl">
+        <div className="flex items-start justify-between gap-3 bg-[#071F5E] px-5 py-4 text-white">
+          <div>
+            <p className="text-[11px] font-light uppercase tracking-[0.16em] text-white/70">Asistente</p>
+            <p className="mt-1 text-base font-bold leading-snug">{title}</p>
+          </div>
+          <button type="button" onClick={onClose} className="rounded-full bg-white/15 px-3 py-1 text-sm font-semibold">
+            Cerrar
+          </button>
+        </div>
+        <div className="space-y-4 overflow-y-auto px-5 py-4 text-sm leading-6 text-[#071F5E]">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Para qué sirve</p>
+            <p className="mt-1">{help.paraQue}</p>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Cómo completarlo</p>
+            <p className="mt-1">{help.como}</p>
+          </div>
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Ejemplo</p>
+            <p className="mt-1">{help.ejemplo}</p>
+          </div>
+          {help.alerta ? (
+            <div className="rounded-[12px] bg-[#071F5E]/6 px-3 py-2 text-[13px]">{help.alerta}</div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function MnsWorkshopApp({ locale, code }: { locale: string; code: string }) {
   const normalized = code.trim().toUpperCase();
-  const [phase, setPhase] = useState<Phase>('gate');
+  const [gate, setGate] = useState<Gate>('intro');
   const [name, setName] = useState('');
   const [workRoute, setWorkRoute] = useState<MnsWorkRoute>('negocio');
   const [participantId, setParticipantId] = useState('');
   const [sessionTitle, setSessionTitle] = useState(MNS_COURSE.shortName);
+  const [groupName, setGroupName] = useState('');
   const [answers, setAnswers] = useState<MnsAnswers>({});
-  const [fichaIndex, setFichaIndex] = useState(0);
-  const [stepIndex, setStepIndex] = useState(0);
-  const [helpField, setHelpField] = useState<{ title: string; help: MnsFieldHelp } | null>(null);
-  const [assistOpen, setAssistOpen] = useState(false);
+  const [playIndex, setPlayIndex] = useState(0);
+  const [preCheck, setPreCheck] = useState<MnsCheckSnapshot | null>(null);
+  const [postCheck, setPostCheck] = useState<MnsCheckSnapshot | null>(null);
+  const [savedSession, setSavedSession] = useState<LocalSession | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+  const [joining, setJoining] = useState(false);
+  const [forceNew, setForceNew] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
-  const [booting, setBooting] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [tip, setTip] = useState<{ title: string; help: MnsFieldHelp } | null>(null);
 
-  const ficha = MNS_FICHAS[fichaIndex];
-  const step = ficha?.steps[stepIndex];
-
-  const progress = useMemo(() => {
-    return MNS_FICHAS.map((f, i) => {
-      if (phase === 'done') return 'done';
-      if (i < fichaIndex) return 'done';
-      if (i === fichaIndex && phase === 'ficha') return 'current';
-      return 'todo';
-    });
-  }, [fichaIndex, phase]);
+  const screen = MNS_PLAY_SCREENS[playIndex];
 
   useEffect(() => {
-    let cancelled = false;
-    async function boot() {
-      const local = loadLocal(normalized);
-      try {
-        const res = await fetch(`/api/mns/session/${encodeURIComponent(normalized)}`);
-        if (res.ok) {
-          const data = (await res.json()) as { session: { title: string; status: string } };
-          if (!cancelled) setSessionTitle(data.session.title || MNS_COURSE.shortName);
-          if (data.session.status === 'closed' && !local) {
-            if (!cancelled) {
-              setError('Esta sala está cerrada.');
-              setBooting(false);
-            }
-            return;
-          }
-        } else if (res.status === 404) {
-          if (!cancelled) setError('Código no encontrado. Pide el código al facilitador.');
-        }
-      } catch {
-        // offline-friendly: still allow local
-      }
-
-      if (local?.participantId) {
-        if (!cancelled) {
-          setParticipantId(local.participantId);
-          setName(local.name);
-          setWorkRoute(local.workRoute || 'negocio');
-          setAnswers(local.answers || {});
-          setFichaIndex(local.fichaIndex || 0);
-          setStepIndex(local.stepIndex || 0);
-          setPhase(local.completedAt ? 'done' : 'ficha');
-        }
-      }
-      if (!cancelled) setBooting(false);
-    }
-    void boot();
-    return () => {
-      cancelled = true;
-    };
+    setSavedSession(loadLocal(normalized));
+    setHydrated(true);
   }, [normalized]);
 
-  const persist = useCallback(
-    async (next: Partial<LocalSession> & { sync?: boolean; complete?: boolean }) => {
-      const snapshot: LocalSession = {
-        participantId,
-        name,
-        workRoute,
-        productLabel: asString(answers.ficha1?.producto) || '',
-        answers,
-        currentFicha: (MNS_FICHAS[fichaIndex]?.id || 'ficha1') as MnsFichaId,
-        fichaIndex,
-        stepIndex,
-        completedAt: null,
-        ...next,
-      };
-      saveLocal(normalized, snapshot);
+  useEffect(() => {
+    void (async () => {
+      const res = await fetch(`/api/mns/session/${encodeURIComponent(normalized)}`);
+      if (!res.ok) {
+        setLoadError(res.status === 404 ? 'Código no encontrado. Pide el código al facilitador.' : 'Sala no disponible.');
+        return;
+      }
+      const data = (await res.json()) as { session: { title: string; groupName?: string; status: string } };
+      setSessionTitle(data.session.title || MNS_COURSE.shortName);
+      setGroupName(data.session.groupName || '');
+      if (data.session.status === 'closed' && !loadLocal(normalized)) {
+        setLoadError('Esta sala está cerrada.');
+      }
+    })();
+  }, [normalized]);
 
-      if (!participantId || next.sync === false) return;
+  const snapshot = useCallback(
+    (patch?: Partial<LocalSession>): LocalSession => ({
+      participantId,
+      name,
+      workRoute,
+      productLabel: asString(answers.ficha1?.producto) || '',
+      answers,
+      currentFicha: fichaIdAtScreen(playIndex),
+      playIndex,
+      completedAt: null,
+      preCheck,
+      postCheck,
+      gate,
+      ...patch,
+    }),
+    [answers, gate, name, participantId, playIndex, postCheck, preCheck, workRoute]
+  );
+
+  const persist = useCallback(
+    async (patch?: Partial<LocalSession> & { complete?: boolean; sync?: boolean }) => {
+      const next = snapshot(patch);
+      saveLocal(normalized, next);
+      setSavedSession(next);
+      if (!next.participantId || patch?.sync === false) return;
       setSaving(true);
       try {
         await fetch(`/api/mns/session/${encodeURIComponent(normalized)}/save`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            participantId: snapshot.participantId,
-            answers: snapshot.answers,
-            currentFicha: snapshot.currentFicha,
-            workRoute: snapshot.workRoute,
-            productLabel: snapshot.productLabel,
-            complete: Boolean(next.complete),
+            participantId: next.participantId,
+            answers: next.answers,
+            currentFicha: next.currentFicha,
+            workRoute: next.workRoute,
+            productLabel: next.productLabel,
+            preCheck: next.preCheck,
+            postCheck: next.postCheck,
+            complete: Boolean(patch?.complete),
           }),
         });
       } catch {
-        // keep local
+        // local keeps working
       } finally {
         setSaving(false);
       }
     },
-    [answers, fichaIndex, name, normalized, participantId, stepIndex, workRoute]
+    [normalized, snapshot]
   );
 
-  async function join() {
-    setError('');
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setError('Escribe tu nombre para continuar.');
+  useEffect(() => {
+    if (!participantId || !name) return;
+    if (gate === 'intro' || gate === 'name') return;
+    saveLocal(
+      normalized,
+      snapshot({
+        gate,
+        playIndex,
+        answers,
+        preCheck,
+        postCheck,
+        completedAt: gate === 'done' ? new Date().toISOString() : null,
+      })
+    );
+  }, [answers, gate, name, normalized, participantId, playIndex, postCheck, preCheck, snapshot]);
+
+  function getFieldValue(fichaId: MnsFichaId, fieldId: string): MnsFieldValue | undefined {
+    return answers[fichaId]?.[fieldId];
+  }
+
+  function setFieldValue(fichaId: MnsFichaId, fieldId: string, value: MnsFieldValue) {
+    setAnswers((prev) => ({
+      ...prev,
+      [fichaId]: {
+        ...(prev[fichaId] || {}),
+        [fieldId]: value,
+      },
+    }));
+  }
+
+  function applyJoined(data: {
+    participantId: string;
+    name: string;
+    answers?: MnsAnswers;
+    workRoute?: MnsWorkRoute;
+    preCheck?: MnsCheckSnapshot | null;
+    postCheck?: MnsCheckSnapshot | null;
+    completedAt?: string | null;
+    playIndex?: number;
+  }, fresh: boolean) {
+    setParticipantId(data.participantId);
+    setName(data.name);
+    const nextAnswers = fresh ? {} : data.answers || {};
+    setAnswers(nextAnswers);
+    setWorkRoute(fresh ? workRoute : data.workRoute || workRoute);
+    setPreCheck(fresh ? null : data.preCheck || null);
+    setPostCheck(fresh ? null : data.postCheck || null);
+    const idx = fresh
+      ? 0
+      : inferPlayIndex({ answers: nextAnswers, savedIndex: data.playIndex });
+    setPlayIndex(idx);
+
+    if (fresh) {
+      setGate('pre');
       return;
     }
-    setSaving(true);
+    if (data.completedAt || data.postCheck?.completedAt) {
+      setGate('done');
+      return;
+    }
+    if (!data.preCheck?.completedAt) {
+      setGate('pre');
+      return;
+    }
+    setGate('play');
+  }
+
+  async function joinAndContinue(opts?: { forceNew?: boolean; fromSession?: LocalSession }) {
+    const session = opts?.fromSession;
+    const joinName = (session?.name || name).trim();
+    if (!joinName && !session?.participantId) return;
+    const shouldForceNew = Boolean(opts?.forceNew || (!session && forceNew));
+    setJoining(true);
+    setLoadError('');
     try {
       const res = await fetch(`/api/mns/session/${encodeURIComponent(normalized)}/join`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: trimmed, workRoute }),
+        body: JSON.stringify({
+          name: joinName,
+          forceNew: shouldForceNew,
+          participantId: shouldForceNew ? undefined : session?.participantId,
+          workRoute: shouldForceNew ? workRoute : session?.workRoute || workRoute,
+        }),
       });
       if (!res.ok) {
-        const data = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(data.error || 'No se pudo entrar a la sala.');
-        setSaving(false);
+        const err = (await res.json().catch(() => ({}))) as { error?: string };
+        setLoadError(err.error || 'No se pudo entrar a la sala.');
         return;
       }
       const data = (await res.json()) as {
         participantId: string;
         name: string;
         answers?: MnsAnswers;
-        currentFicha?: MnsFichaId;
         workRoute?: MnsWorkRoute;
+        preCheck?: MnsCheckSnapshot | null;
+        postCheck?: MnsCheckSnapshot | null;
         completedAt?: string | null;
       };
-      setParticipantId(data.participantId);
-      setName(data.name);
-      setWorkRoute(data.workRoute || workRoute);
-      const nextAnswers = data.answers || {};
-      setAnswers(nextAnswers);
-      const idx = Math.max(
-        0,
-        MNS_FICHAS.findIndex((f) => f.id === data.currentFicha)
-      );
-      setFichaIndex(idx < 0 ? 0 : idx);
-      setStepIndex(0);
-      const local: LocalSession = {
-        participantId: data.participantId,
-        name: data.name,
-        workRoute: data.workRoute || workRoute,
-        productLabel: '',
-        answers: nextAnswers,
-        currentFicha: data.currentFicha || 'ficha1',
-        fichaIndex: idx < 0 ? 0 : idx,
-        stepIndex: 0,
-        completedAt: data.completedAt || null,
-      };
-      saveLocal(normalized, local);
-      setPhase(data.completedAt ? 'done' : 'welcome');
-    } catch {
-      setError('Error de conexión. Reintenta.');
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function getFieldValue(fieldId: string): MnsFieldValue | undefined {
-    return answers[ficha.id]?.[fieldId];
-  }
-
-  function setFieldValue(fieldId: string, value: MnsFieldValue) {
-    setAnswers((prev) => {
-      const next: MnsAnswers = {
-        ...prev,
-        [ficha.id]: {
-          ...(prev[ficha.id] || {}),
-          [fieldId]: value,
+      const serverAnswers = data.answers || {};
+      const hasServerAnswers = Object.keys(serverAnswers).length > 0;
+      applyJoined(
+        {
+          participantId: data.participantId,
+          name: data.name || joinName,
+          answers: shouldForceNew ? {} : hasServerAnswers ? serverAnswers : session?.answers || {},
+          workRoute: shouldForceNew ? workRoute : data.workRoute || session?.workRoute,
+          preCheck: shouldForceNew ? null : data.preCheck || session?.preCheck || null,
+          postCheck: shouldForceNew ? null : data.postCheck || session?.postCheck || null,
+          completedAt: shouldForceNew ? null : data.completedAt || session?.completedAt,
+          playIndex: shouldForceNew ? 0 : session?.playIndex,
         },
-      };
-      return next;
-    });
+        shouldForceNew
+      );
+      setForceNew(false);
+      setSavedSession(null);
+    } finally {
+      setJoining(false);
+    }
   }
 
-  useEffect(() => {
-    if (phase !== 'ficha' || !participantId) return;
-    const t = window.setTimeout(() => {
-      void persist({ answers, fichaIndex, stepIndex });
-    }, 600);
-    return () => window.clearTimeout(t);
-  }, [answers, fichaIndex, phase, participantId, persist, stepIndex]);
-
-  function openFieldHelp(field: MnsFieldDef) {
-    setHelpField({ title: field.label, help: field.help });
-    setAssistOpen(true);
+  function startFresh() {
+    clearLocal(normalized);
+    setSavedSession(null);
+    setParticipantId('');
+    setAnswers({});
+    setPreCheck(null);
+    setPostCheck(null);
+    setPlayIndex(0);
+    setName('');
+    setForceNew(true);
+    setGate('name');
   }
 
-  function openStepHelp() {
-    if (!ficha || !step) return;
-    setHelpField({
-      title: `${ficha.title} · ${step.title}`,
-      help: {
-        paraQue: ficha.proposito,
-        como: step.intro,
-        ejemplo: ficha.consigna,
-        alerta: ficha.tipRevision,
-      },
-    });
-    setAssistOpen(true);
+  async function continueSaved() {
+    if (!savedSession) return;
+    await joinAndContinue({ fromSession: savedSession });
   }
 
-  async function goNext() {
-    if (!ficha) return;
-    if (stepIndex < ficha.steps.length - 1) {
-      setStepIndex((s) => s + 1);
-      setAssistOpen(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+  async function submitPre(result: MnsCheckSnapshot) {
+    setPreCheck(result);
+    setPlayIndex(0);
+    setGate('play');
+    await persist({ preCheck: result, gate: 'play', playIndex: 0, currentFicha: 'ficha1' });
+  }
+
+  async function submitPost(result: MnsCheckSnapshot) {
+    setPostCheck(result);
+    setGate('done');
+    await persist({ postCheck: result, gate: 'done', complete: true });
+  }
+
+  async function goNextPlay() {
+    if (!screen) return;
+    if (screen.kind === 'field' && !fieldFilled(screen.field, getFieldValue(screen.ficha.id, screen.field.id))) {
       return;
     }
-    if (fichaIndex < MNS_FICHAS.length - 1) {
-      const nextIdx = fichaIndex + 1;
-      setFichaIndex(nextIdx);
-      setStepIndex(0);
-      setAssistOpen(false);
-      await persist({
-        fichaIndex: nextIdx,
-        stepIndex: 0,
-        currentFicha: MNS_FICHAS[nextIdx].id,
-        answers,
-      });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (playIndex >= MNS_PLAY_SCREENS.length - 1) {
+      setGate('post');
+      await persist({ gate: 'post', playIndex, answers });
       return;
     }
-    await persist({ complete: true, answers, fichaIndex, stepIndex });
-    setPhase('done');
+    const next = playIndex + 1;
+    setPlayIndex(next);
+    await persist({ playIndex: next, answers, currentFicha: fichaIdAtScreen(next), gate: 'play' });
   }
 
-  function goBack() {
-    if (stepIndex > 0) {
-      setStepIndex((s) => s - 1);
+  function goBackPlay() {
+    if (playIndex <= 0) {
+      setGate('pre');
       return;
     }
-    if (fichaIndex > 0) {
-      const prev = fichaIndex - 1;
-      const prevFicha = getFicha(MNS_FICHAS[prev].id)!;
-      setFichaIndex(prev);
-      setStepIndex(prevFicha.steps.length - 1);
-      return;
-    }
-    setPhase('welcome');
+    setPlayIndex((i) => i - 1);
   }
 
-  if (booting) {
+  const progressLabel = useMemo(() => {
+    if (gate !== 'play' || !screen) return '';
+    return `Ficha ${screen.ficha.number} · ${screen.ficha.title}`;
+  }, [gate, screen]);
+
+  if (loadError && !savedSession) {
     return (
-      <div className="mns-app">
-        <header className="mns-header">
-          <Link href={`/${locale}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/logo-branco.png" alt="Rural Commerce" />
-          </Link>
-          <span className="mns-chip">Cargando…</span>
-        </header>
+      <div className="flex h-[100dvh] flex-col bg-[#FBFAF8]">
+        <WorkshopHeader locale={locale} />
+        <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-[#071F5E]">{loadError}</div>
+      </div>
+    );
+  }
+
+  if (!hydrated) {
+    return (
+      <div className="flex h-[100dvh] flex-col bg-[#FBFAF8]">
+        <WorkshopHeader locale={locale} />
+        <div className="flex flex-1 items-center justify-center text-sm text-[#071F5E]/70">Cargando sala…</div>
       </div>
     );
   }
 
   return (
-    <div className="mns-app">
-      <header className="mns-header">
-        <Link href={`/${locale}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/logo-branco.png" alt="Rural Commerce" />
-        </Link>
-        <span className="mns-chip">
-          {normalized}
-          {saving ? ' · guardando' : ''}
-        </span>
-      </header>
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-[#FBFAF8] text-[#071F5E]">
+      <WorkshopHeader locale={locale} />
 
-      {phase === 'ficha' || phase === 'done' ? (
-        <div className="mns-progress" aria-hidden>
-          {progress.map((state, i) => (
-            <div key={MNS_FICHAS[i].id} className={`mns-progress-dot is-${state}`}>
-              <span />
+      {gate === 'intro' ? (
+        <div className="relative min-h-0 flex-1 overflow-y-auto">
+          <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_100%_-10%,rgba(0,145,121,0.18),transparent_55%),radial-gradient(90%_70%_at_-10%_110%,rgba(7,31,94,0.16),transparent_50%),#FBFAF8]" />
+          <div className="relative z-10 flex min-h-full w-full items-center px-6 py-10 sm:px-10 lg:px-16">
+            <div className="w-full max-w-xl">
+              <p className="text-base font-normal tracking-[0.02em] text-[#071F5E] sm:text-[23px]">
+                {groupName || MNS_COURSE.edition}
+              </p>
+              <h1 className="mt-2 text-3xl font-bold leading-tight tracking-[0.01em] text-[#071F5E] sm:text-[42px] sm:leading-[1.15] lg:text-[46px] lg:leading-[48px]">
+                {sessionTitle || MNS_COURSE.name}
+              </h1>
+              <p className="mt-5 max-w-md text-[15px] leading-6 text-[#071F5E] sm:text-[17px] sm:leading-[23px]">
+                Construye tu Mapa de Negocio en cuatro dinámicas. Un paso a la vez, con ayuda cuando la necesites.
+                Mismo producto, misma oportunidad.
+              </p>
+              {saving ? <p className="mt-2 text-xs text-[#071F5E]/50">Guardando…</p> : null}
+
+              {savedSession ? (
+                <div className="mt-8 flex w-full max-w-sm flex-col gap-3">
+                  <button
+                    type="button"
+                    disabled={joining}
+                    onClick={() => void continueSaved()}
+                    className="inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-50"
+                  >
+                    {`Continuar como ${savedSession.name}`}
+                    <ArrowIcon />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={joining}
+                    onClick={startFresh}
+                    className="inline-flex min-h-[52px] w-full items-center justify-center rounded-[14px] border border-[#071F5E]/30 bg-white/80 px-5 text-sm font-bold text-[#071F5E]"
+                  >
+                    Empezar de cero
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setGate('name')}
+                  className="mt-8 inline-flex min-h-[66px] w-full max-w-sm items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2]"
+                >
+                  Comenzar la dinámica
+                  <ArrowIcon />
+                </button>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       ) : null}
 
-      {phase === 'gate' ? (
-        <div className="mns-welcome">
-          <p className="mns-eyebrow">{MNS_COURSE.edition}</p>
-          <h1>{MNS_COURSE.name}</h1>
-          <p className="mns-lead">{sessionTitle}</p>
-          <p className="mns-map-note">{MNS_COURSE.mapNote}</p>
+      {gate === 'name' ? (
+        <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-8 text-center">
+          <p className="text-base font-light tracking-[0.02em] text-[#071F5E] sm:text-[23px]">ANTES DE EMPEZAR</p>
+          <h2 className="mt-2 text-3xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-[46px] sm:leading-[48px]">
+            ¿Cómo te llamas?
+          </h2>
+          <p className="mt-3 text-[15px] text-[#071F5E] sm:text-[17px]">
+            Usaremos tu nombre para guardar tu avance. Si ya empezaste, usa el mismo nombre para continuar.
+          </p>
+          <input
+            className="mt-8 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm text-[#071F5E] placeholder:text-[#72777A]/50"
+            placeholder="Escribe tu nombre"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            autoFocus
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') void joinAndContinue();
+            }}
+          />
 
-          <div className="mns-card" style={{ marginTop: '1.25rem' }}>
-            <label className="mns-label" htmlFor="mns-name">
-              Tu nombre
-            </label>
-            <input
-              id="mns-name"
-              className="mns-input"
-              style={{ marginTop: '0.4rem' }}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Como quieres que te identifiquen"
-              autoComplete="name"
-            />
-
-            <p className="mns-label" style={{ marginTop: '1rem' }}>
-              Ruta de trabajo inicial
-            </p>
-            <div className="mns-choices" style={{ marginTop: '0.4rem' }}>
+          <div className="mt-5 w-full text-left">
+            <p className="mb-2 text-center text-sm font-semibold text-[#071F5E]/70">Ruta de trabajo</p>
+            <div className="grid gap-2">
               {(
                 [
                   ['negocio', 'Negocio propio'],
-                  ['ficticio', 'Caso ficticio / Rosa'],
+                  ['rosa', 'Caso ficticio / Rosa'],
                 ] as const
-              ).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  className={`mns-choice ${workRoute === value || (value === 'ficticio' && workRoute === 'rosa') ? 'is-on' : ''}`}
-                  onClick={() => setWorkRoute(value === 'ficticio' ? 'rosa' : 'negocio')}
-                >
-                  <span className="mns-choice-dot" />
-                  {label}
-                </button>
-              ))}
+              ).map(([value, label]) => {
+                const on = workRoute === value || (value === 'rosa' && workRoute === 'ficticio');
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setWorkRoute(value)}
+                    className={`rounded-[14px] border px-4 py-3 text-left text-sm font-semibold transition ${
+                      on
+                        ? 'border-[#52ADAD] bg-[#52ADAD]/15 text-[#071F5E]'
+                        : 'border-[#8D99AE]/50 bg-white text-[#071F5E]'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
-
-            {error ? (
-              <p style={{ marginTop: '0.85rem', color: '#b42318', fontSize: '0.88rem' }}>{error}</p>
-            ) : null}
-
-            <button
-              type="button"
-              className="mns-btn mns-btn-primary"
-              style={{ width: '100%', marginTop: '1.1rem' }}
-              onClick={() => void join()}
-              disabled={saving}
-            >
-              Entrar a mi mapa
-            </button>
           </div>
-        </div>
-      ) : null}
 
-      {phase === 'welcome' ? (
-        <div className="mns-welcome">
-          <p className="mns-eyebrow">Hola, {name.split(' ')[0]}</p>
-          <h1>Tu Mapa de Negocio</h1>
-          <p className="mns-lead">
-            Cuatro dinámicas en el celular. En cada campo toca <strong>?</strong> para ver para qué sirve, cómo
-            completarlo y un ejemplo.
-          </p>
-          <div className="mns-ficha-list">
-            {MNS_FICHAS.map((f) => (
-              <div key={f.id} className="mns-ficha-item">
-                <div className="mns-ficha-num">{f.number}</div>
-                <div>
-                  <strong>{f.title}</strong>
-                  <small>
-                    Día {f.day} · ~{f.durationMin} min · {f.subtitle.split('·')[0].trim()}
-                  </small>
-                </div>
-              </div>
-            ))}
-          </div>
+          {loadError ? <p className="mt-3 text-sm text-[#b42318]">{loadError}</p> : null}
+
           <button
             type="button"
-            className="mns-btn mns-btn-primary"
-            style={{ width: '100%', marginTop: '1.35rem' }}
-            onClick={() => {
-              setFichaIndex(0);
-              setStepIndex(0);
-              setPhase('ficha');
-              const first = MNS_FICHAS[0];
-              setHelpField({
-                title: `${first.title} · ${first.steps[0].title}`,
-                help: {
-                  paraQue: first.proposito,
-                  como: first.steps[0].intro,
-                  ejemplo: first.consigna,
-                  alerta: first.tipRevision,
-                },
-              });
-              setAssistOpen(true);
-            }}
+            disabled={!name.trim() || joining}
+            onClick={() => void joinAndContinue()}
+            className="mt-4 inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-40"
           >
-            Empezar Ficha 1
+            {joining ? 'Entrando…' : 'Continuar'}
+            <ArrowIcon />
+          </button>
+          <button
+            type="button"
+            className="mt-3 text-sm font-semibold text-[#071F5E]/60 underline-offset-2 hover:underline"
+            onClick={() => setGate('intro')}
+          >
+            Volver
           </button>
         </div>
       ) : null}
 
-      {phase === 'ficha' && ficha && step ? (
-        <main className="mns-main">
-          <div className="mns-card">
-            <p className="mns-eyebrow">
-              Ficha {ficha.number} de 4 · Paso {stepIndex + 1}/{ficha.steps.length}
-            </p>
-            <h1 className="mns-title">{step.title}</h1>
-            <p className="mns-lead">{step.intro}</p>
-            {stepIndex === 0 ? <div className="mns-consigna">{ficha.consigna}</div> : null}
-
-            {step.fields.map((field) => (
-              <FieldBlock
-                key={field.id}
-                field={field}
-                value={getFieldValue(field.id)}
-                onChange={(v) => setFieldValue(field.id, v)}
-                onHelp={() => openFieldHelp(field)}
-                helpActive={assistOpen && helpField?.title === field.label}
-              />
-            ))}
-          </div>
-
-          <div className="mns-nav">
-            <div className="mns-nav-inner">
-              <button type="button" className="mns-btn mns-btn-ghost" onClick={goBack}>
-                Atrás
-              </button>
-              <button
-                type="button"
-                className="mns-btn mns-btn-primary"
-                onClick={() => void goNext()}
-                disabled={!stepContinueOk(step.fields, (id) => getFieldValue(id))}
-              >
-                {fichaIndex === MNS_FICHAS.length - 1 && stepIndex === ficha.steps.length - 1
-                  ? 'Cerrar mapa'
-                  : stepIndex === ficha.steps.length - 1
-                    ? `Ir a Ficha ${ficha.number + 1}`
-                    : 'Continuar'}
-              </button>
-            </div>
-          </div>
-        </main>
+      {gate === 'pre' ? (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <MnsCheck moment="pre" initial={preCheck?.answers} onSubmit={submitPre} submitting={joining || saving} />
+        </div>
       ) : null}
 
-      {phase === 'done' ? (
-        <main className="mns-main">
-          <div className="mns-card mns-done">
-            <p className="mns-eyebrow">Mapa completo</p>
-            <h2>Organizaste propuesta, verificación, precio y recorrido</h2>
-            <p className="mns-lead">
-              Lo importante es saber qué puedes demostrar y cuál es el siguiente paso. Una ficha completa no
-              sustituye la validación técnica de una operación real.
-            </p>
-            <button
-              type="button"
-              className="mns-btn mns-btn-ghost"
-              style={{ marginTop: '1rem' }}
-              onClick={() => {
-                setPhase('ficha');
-                setFichaIndex(0);
-                setStepIndex(0);
-              }}
-            >
-              Revisar mis fichas
-            </button>
-          </div>
-        </main>
+      {gate === 'post' ? (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <MnsCheck moment="post" initial={postCheck?.answers} onSubmit={submitPost} submitting={saving} />
+        </div>
       ) : null}
 
-      {phase === 'ficha' ? (
-        <>
-          <MnsFab
-            open={assistOpen}
-            onClick={() => {
-              if (helpField) setAssistOpen(true);
-              else openStepHelp();
+      {gate === 'done' ? (
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <MnsCheckDoneSummary
+            pre={preCheck}
+            post={postCheck}
+            onReview={() => {
+              setPlayIndex(0);
+              setGate('play');
             }}
           />
-          {assistOpen && helpField ? (
-            <MnsAssistantPanel
-              title={helpField.title}
-              help={helpField.help}
-              onClose={() => setAssistOpen(false)}
-            />
+        </div>
+      ) : null}
+
+      {gate === 'play' && screen ? (
+        <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col overflow-y-auto px-4 py-6 sm:px-8">
+          <div className="mb-4 flex items-center justify-between gap-3 text-xs text-[#071F5E]/55">
+            <span>{progressLabel}</span>
+            <span>
+              {playIndex + 1}/{MNS_PLAY_SCREENS.length}
+              {saving ? ' · guardando' : ''}
+            </span>
+          </div>
+
+          {screen.kind === 'chapter' ? (
+            <>
+              <div className="shrink-0 text-center">
+                <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">
+                  DINÁMICA {screen.ficha.number} · DÍA {screen.ficha.day}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-[42px] sm:leading-[1.15]">
+                  {screen.ficha.title}
+                </h2>
+                <p className="mx-auto mt-3 max-w-2xl text-sm leading-5 sm:text-[17px] sm:leading-[23px]">
+                  {screen.ficha.proposito}
+                </p>
+              </div>
+
+              <div className="mt-8 rounded-[18px] bg-white p-5 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:p-6">
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Consigna</p>
+                <p className="mt-2 text-[15px] leading-6 text-[#071F5E]">{screen.ficha.consigna}</p>
+                <p className="mt-4 text-sm leading-5 text-[#071F5E]/65">{screen.ficha.tipRevision}</p>
+              </div>
+
+              <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {MNS_FICHAS.map((f) => (
+                  <div
+                    key={f.id}
+                    className={`rounded-[14px] px-3 py-3 text-center text-xs font-semibold ${
+                      f.id === screen.ficha.id ? 'bg-[#071F5E] text-white' : 'bg-white text-[#071F5E]/55'
+                    }`}
+                  >
+                    {f.number}. {f.title.split(' ').slice(0, 2).join(' ')}
+                  </div>
+                ))}
+              </div>
+
+              <NavRow
+                onBack={playIndex > 0 ? goBackPlay : undefined}
+                onNext={() => void goNextPlay()}
+                nextLabel="Empezar esta dinámica"
+                primaryTeal
+              />
+            </>
           ) : null}
-        </>
-      ) : null}
-    </div>
-  );
-}
 
-function stepContinueOk(
-  fields: MnsFieldDef[],
-  getValue: (id: string) => MnsFieldValue | undefined
-): boolean {
-  return fields.every((field) => {
-    if (!field.required) return true;
-    const v = getValue(field.id);
-    if (field.kind === 'cost-table' || field.kind === 'trace-links') return true;
-    if (field.kind === 'presentation') {
-      const rec = asRecord(v);
-      return Boolean(rec.somos?.trim() && rec.ofrecemos?.trim());
-    }
-    return Boolean(asString(v).trim());
-  });
-}
+          {screen.kind === 'field' ? (
+            <>
+              <div className="shrink-0 text-center">
+                <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">
+                  PASO {screen.fieldOrdinal + 1} DE {screen.fieldsInFicha}
+                </p>
+                <h2 className="mt-2 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-[36px] sm:leading-[1.15]">
+                  {screen.field.label}
+                </h2>
+                <p className="mx-auto mt-3 max-w-2xl text-sm leading-5 sm:text-[17px] sm:leading-[23px]">
+                  {screen.field.help.paraQue}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setTip({ title: screen.field.label, help: screen.field.help })}
+                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#52ADAD]/40 bg-white px-3 py-1.5 text-xs font-bold text-[#009179]"
+                >
+                  Ver cómo + ejemplo
+                </button>
+              </div>
 
-function FieldBlock({
-  field,
-  value,
-  onChange,
-  onHelp,
-  helpActive,
-}: {
-  field: MnsFieldDef;
-  value: MnsFieldValue | undefined;
-  onChange: (v: MnsFieldValue) => void;
-  onHelp: () => void;
-  helpActive: boolean;
-}) {
-  return (
-    <div className="mns-field">
-      <div className="mns-label-row">
-        <label className="mns-label">{field.label}</label>
-        <button
-          type="button"
-          className={`mns-help-btn ${helpActive ? 'is-active' : ''}`}
-          onClick={onHelp}
-          aria-label={`Ayuda: ${field.label}`}
-        >
-          ?
-        </button>
-      </div>
-
-      {field.kind === 'text' ? (
-        <input
-          className="mns-input"
-          value={asString(value)}
-          placeholder={field.placeholder}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      ) : null}
-
-      {field.kind === 'textarea' ? (
-        <textarea
-          className="mns-textarea"
-          rows={field.rows || 3}
-          value={asString(value)}
-          placeholder={field.placeholder}
-          onChange={(e) => onChange(e.target.value)}
-        />
-      ) : null}
-
-      {field.kind === 'choice' ? (
-        <div className="mns-choices">
-          {(field.options || []).map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={`mns-choice ${asString(value) === opt.value ? 'is-on' : ''}`}
-              onClick={() => onChange(opt.value)}
-            >
-              <span className="mns-choice-dot" />
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      ) : null}
-
-      {field.kind === 'presentation' ? (
-        <PresentationFields value={asRecord(value)} onChange={onChange} />
-      ) : null}
-
-      {field.kind === 'cost-table' ? (
-        <CostTable field={field} value={asRecord(value)} onChange={onChange} />
-      ) : null}
-
-      {field.kind === 'trace-links' ? (
-        <TraceLinks value={asString(value)} onChange={onChange} />
-      ) : null}
-    </div>
-  );
-}
-
-function PresentationFields({
-  value,
-  onChange,
-}: {
-  value: Record<string, string>;
-  onChange: (v: MnsFieldValue) => void;
-}) {
-  function set(key: string, text: string) {
-    onChange({ ...value, [key]: text });
-  }
-  const slots: { key: string; label: string }[] = [
-    { key: 'somos', label: 'Somos' },
-    { key: 'ofrecemos', label: 'Ofrecemos' },
-    { key: 'para', label: 'para' },
-    { key: 'diferenciamos', label: 'Nos diferenciamos por' },
-    { key: 'evidencia', label: 'Podemos presentar como evidencia' },
-    { key: 'confirmar', label: 'Necesitamos confirmar' },
-  ];
-  return (
-    <div className="mns-grid-2" style={{ gridTemplateColumns: '1fr' }}>
-      {slots.map((s) => (
-        <div key={s.key}>
-          <div style={{ fontSize: '0.75rem', color: 'var(--mns-muted)', marginBottom: 4 }}>{s.label}</div>
-          <textarea
-            className="mns-textarea"
-            rows={2}
-            value={value[s.key] || ''}
-            onChange={(e) => set(s.key, e.target.value)}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function CostTable({
-  field,
-  value,
-  onChange,
-}: {
-  field: MnsFieldDef;
-  value: Record<string, string>;
-  onChange: (v: MnsFieldValue) => void;
-}) {
-  const cols = field.columns || [];
-  const rows = field.rowLabels || [];
-  function cell(rowId: string, colId: string) {
-    return value[`${rowId}__${colId}`] || '';
-  }
-  function setCell(rowId: string, colId: string, text: string) {
-    onChange({ ...value, [`${rowId}__${colId}`]: text });
-  }
-  return (
-    <div>
-      {rows.map((row) => (
-        <div key={row.id} className="mns-cost-row">
-          <strong>{row.label}</strong>
-          <div className="mns-grid-2">
-            {cols.map((col) => (
-              <div key={col.id}>
-                <div style={{ fontSize: '0.7rem', color: 'var(--mns-muted)', marginBottom: 4 }}>{col.label}</div>
-                <input
-                  className="mns-input"
-                  value={cell(row.id, col.id)}
-                  onChange={(e) => setCell(row.id, col.id, e.target.value)}
+              <div className="mt-6 flex-1">
+                <MnsFieldPlay
+                  field={screen.field}
+                  value={getFieldValue(screen.ficha.id, screen.field.id)}
+                  onChange={(v) => setFieldValue(screen.ficha.id, screen.field.id, v)}
                 />
               </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
 
-function TraceLinks({ value, onChange }: { value: string; onChange: (v: MnsFieldValue) => void }) {
-  return (
-    <textarea
-      className="mns-textarea"
-      rows={5}
-      placeholder={'Punto · Registro · Se conecta con · Responsable\nEj.: Lote · L-05 · RF-01 y EX-03 · Calidad'}
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-    />
+              <NavRow
+                onBack={goBackPlay}
+                onNext={() => void goNextPlay()}
+                nextLabel={
+                  playIndex >= MNS_PLAY_SCREENS.length - 1 ? 'Ir a comprobación final' : 'Continuar'
+                }
+                nextDisabled={!fieldFilled(screen.field, getFieldValue(screen.ficha.id, screen.field.id))}
+                primaryTeal
+              />
+            </>
+          ) : null}
+        </div>
+      ) : null}
+
+      {tip ? <TipSheet title={tip.title} help={tip.help} onClose={() => setTip(null)} /> : null}
+    </div>
   );
 }
