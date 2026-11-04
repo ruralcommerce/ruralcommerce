@@ -101,35 +101,55 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           {
             id: 'suministroOk',
             label: 'Información de suministro que puedo confirmar',
-            kind: 'textarea',
-            rows: 2,
+            kind: 'chips',
+            options: [
+              { value: 'presentacion', label: 'Presentación' },
+              { value: 'volumen', label: 'Volumen' },
+              { value: 'frecuencia', label: 'Frecuencia' },
+              { value: 'lugar', label: 'Lugar de entrega' },
+              { value: 'plazo', label: 'Plazo' },
+              { value: 'ninguna', label: 'Todavía ninguna' },
+            ],
             help: {
               paraQue: 'Antes de cotizar, conviene saber qué ya puedes confirmar (presentación, volumen, frecuencia, lugar).',
-              como: 'Lista solo lo que está disponible hoy. No inventes capacidad.',
-              ejemplo: 'Presentación: frasco 250 g. Volumen: 300 frascos del escenario local (no equivale a capacidad exportable adicional).',
+              como: 'Marca solo lo que está disponible hoy. No inventes capacidad.',
+              ejemplo: 'Presentación y plazo confirmados; volumen exportable pendiente.',
             },
           },
           {
             id: 'suministroPendiente',
             label: 'Información que necesito consultar',
-            kind: 'textarea',
-            rows: 2,
+            kind: 'chips',
+            options: [
+              { value: 'ficha_tecnica', label: 'Ficha técnica' },
+              { value: 'volumen', label: 'Volumen' },
+              { value: 'precio', label: 'Precio / pago' },
+              { value: 'documentos', label: 'Documentos' },
+              { value: 'entrega', label: 'Entrega' },
+              { value: 'otra', label: 'Otra consulta' },
+            ],
             help: {
               paraQue: 'Los pendientes son un resultado válido de aprendizaje, no un fracaso.',
-              como: 'Escribe qué falta y a quién o qué fuente consultarías.',
-              ejemplo: 'Confirmar presentación exportable, volumen, frecuencia y lugar de entrega antes de una cotización.',
+              como: 'Marca qué falta consultar. Luego puedes precisar en la presentación breve.',
+              ejemplo: 'Ficha técnica y volumen antes de una cotización.',
             },
           },
           {
             id: 'canal',
             label: 'Canal elegido y siguiente contacto',
-            kind: 'textarea',
-            rows: 2,
+            kind: 'chips',
             required: true,
+            options: [
+              { value: 'correo', label: 'Correo' },
+              { value: 'feria', label: 'Feria / evento' },
+              { value: 'intermediario', label: 'Intermediario' },
+              { value: 'llamada', label: 'Llamada / reunión' },
+              { value: 'otro', label: 'Otro canal' },
+            ],
             help: {
               paraQue: 'Cerrar con una acción concreta, no con una intención vaga.',
-              como: 'Indica el canal (correo, feria, intermediario…) y el siguiente contacto o consulta.',
-              ejemplo: 'Canal: contacto B2B por correo. Siguiente paso: compartir lo disponible e identificar lo pendiente.',
+              como: 'Elige el canal principal. En la revisión podrás precisar el contacto.',
+              ejemplo: 'Canal: correo B2B. Siguiente paso: compartir lo disponible e identificar lo pendiente.',
             },
           },
         ],
@@ -465,26 +485,9 @@ export const MNS_FICHAS: MnsFichaDef[] = [
         intro: 'Marca si usas registros del negocio, una propuesta identificada o la práctica ficticia de Rosa.',
         fields: [
           {
-            id: 'rutaPrecio',
-            label: 'Ruta de trabajo',
-            kind: 'choice',
-            options: [
-              { value: 'negocio', label: 'Registros del negocio' },
-              { value: 'propuesta', label: 'Propuesta identificada' },
-              { value: 'rosa', label: 'Práctica ficticia de Rosa' },
-            ],
-            required: true,
-            help: {
-              paraQue: 'Separar tu negocio real del ejercicio didáctico.',
-              como: 'Elige una ruta. Si practicas con Rosa, no atribuyas sus cifras a tu empresa.',
-              ejemplo: 'Rosa: 300 frascos · costos 1.800 + 800 · precio local 10 · adicional internacional 600 · diferencia deseada 400.',
-            },
-          },
-          {
             id: 'productoCantidad',
             label: 'Producto y cantidad',
-            kind: 'textarea',
-            rows: 2,
+            kind: 'tagged-text',
             required: true,
             help: {
               paraQue: 'El precio unitario depende de la cantidad del escenario.',
@@ -561,10 +564,16 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           {
             id: 'vigencia',
             label: 'Vigencia propuesta de la cotización',
-            kind: 'text',
+            kind: 'chips',
+            options: [
+              { value: '7d', label: '7 días' },
+              { value: '15d', label: '15 días' },
+              { value: '30d', label: '30 días' },
+              { value: 'pendiente', label: 'Pendiente' },
+            ],
             help: {
               paraQue: 'Un precio sin vigencia puede quedar obsoleto por costos o tipo de cambio.',
-              como: 'Propón días o una fecha. Si no sabes, pendiente.',
+              como: 'Elige un plazo propuesto. Si no sabes, marca pendiente.',
               ejemplo: '15 días desde la cotización (propuesta).',
             },
           },
@@ -709,22 +718,6 @@ export const MNS_FICHAS: MnsFichaDef[] = [
             },
           },
           {
-            id: 'rutaTrazabilidad',
-            label: 'Ruta de trabajo',
-            kind: 'choice',
-            options: [
-              { value: 'negocio', label: 'Registros del negocio' },
-              { value: 'propuesta', label: 'Propuesta identificada' },
-              { value: 'rosa', label: 'Práctica ficticia de Rosa' },
-            ],
-            required: true,
-            help: {
-              paraQue: 'Si el negocio no posee registros, se ensaya con Rosa sin presentarlo como trazabilidad implementada.',
-              como: 'Elige la ruta y marca códigos propuestos como “propuesta”.',
-              ejemplo: 'Rosa: P-01/F-02 → RF-01 → L-05 → EX-03 → C-01 · control L-05 → QC-05.',
-            },
-          },
-          {
             id: 'recorridoTexto',
             label: 'Arma el recorrido de registros',
             kind: 'trace-builder',
@@ -748,8 +741,7 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           {
             id: 'control',
             label: 'Un control: qué compruebo y dónde queda registrado',
-            kind: 'textarea',
-            rows: 3,
+            kind: 'tagged-text',
             required: true,
             help: {
               paraQue: 'Un punto de control con registro evita “controles” que no existen en papel.',
@@ -865,10 +857,17 @@ export const MNS_FICHAS: MnsFichaDef[] = [
           {
             id: 'fechaPropuesta',
             label: 'Fecha propuesta',
-            kind: 'text',
+            kind: 'chips',
+            options: [
+              { value: '7d', label: 'En 7 días' },
+              { value: '15d', label: 'En 15 días' },
+              { value: '30d', label: 'En 30 días' },
+              { value: 'proximo', label: 'Antes del próximo encuentro' },
+              { value: 'hipotesis', label: 'Hipótesis' },
+            ],
             help: {
               paraQue: 'Dar horizonte temporal sin prometer lo imposible.',
-              como: 'Fecha o plazo. Si es hipótesis, indícalo.',
+              como: 'Elige un plazo. Si es hipótesis, márcalo.',
               ejemplo: 'Antes del próximo encuentro / en 15 días.',
             },
           },

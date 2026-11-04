@@ -377,7 +377,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
           companyName: joinCompany,
           forceNew: shouldForceNew,
           participantId: shouldForceNew ? undefined : session?.participantId,
-          workRoute: shouldForceNew ? workRoute : session?.workRoute || workRoute,
+          workRoute: shouldForceNew ? 'negocio' : session?.workRoute || 'negocio',
         }),
       });
       if (!res.ok) {
@@ -590,34 +590,6 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
               }}
             />
           </label>
-
-          <div className="mt-5 w-full text-left">
-            <p className="mb-2 text-center text-sm font-semibold text-[#071F5E]/70">Ruta de trabajo</p>
-            <div className="grid gap-2">
-              {(
-                [
-                  ['negocio', 'Negocio propio'],
-                  ['rosa', 'Caso ficticio / Rosa'],
-                ] as const
-              ).map(([value, label]) => {
-                const on = workRoute === value || (value === 'rosa' && workRoute === 'ficticio');
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setWorkRoute(value)}
-                    className={`rounded-[14px] border px-4 py-3 text-left text-sm font-semibold transition ${
-                      on
-                        ? 'border-[#52ADAD] bg-[#52ADAD]/15 text-[#071F5E]'
-                        : 'border-[#8D99AE]/50 bg-white text-[#071F5E]'
-                    }`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {loadError ? <p className="mt-3 text-sm text-[#b42318]">{loadError}</p> : null}
 
