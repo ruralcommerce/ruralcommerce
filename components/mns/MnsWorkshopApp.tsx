@@ -124,12 +124,12 @@ function NavRow({
   primaryTeal?: boolean;
 }) {
   return (
-    <div className="mt-6 flex shrink-0 flex-col gap-2 sm:flex-row sm:gap-4">
+    <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:gap-4">
       {onBack ? (
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex min-h-[52px] flex-1 items-center justify-center rounded-[14px] border border-[#8D99AE] bg-transparent px-5 text-sm font-bold text-[#071F5E]"
+          className="inline-flex min-h-[48px] flex-1 items-center justify-center rounded-[14px] border border-[#8D99AE] bg-transparent px-5 text-sm font-bold text-[#071F5E] sm:min-h-[52px]"
         >
           Volver
         </button>
@@ -138,7 +138,7 @@ function NavRow({
         type="button"
         disabled={nextDisabled}
         onClick={onNext}
-        className={`inline-flex min-h-[52px] flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-sm font-bold text-[#F2F2F2] disabled:opacity-40 ${
+        className={`inline-flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-[14px] px-5 text-sm font-bold text-[#F2F2F2] disabled:opacity-40 sm:min-h-[52px] ${
           primaryTeal ? 'bg-[#52ADAD]' : 'bg-[#071F5E]'
         }`}
       >
@@ -219,6 +219,20 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
     setSavedSession(loadLocal(normalized));
     setHydrated(true);
   }, [normalized]);
+
+  // Lock the document so widescreen never gets a page scrollbar under the fixed shell.
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtmlOverflow = html.style.overflow;
+    const prevBodyOverflow = body.style.overflow;
+    html.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    return () => {
+      html.style.overflow = prevHtmlOverflow;
+      body.style.overflow = prevBodyOverflow;
+    };
+  }, []);
 
   useEffect(() => {
     void (async () => {
@@ -480,7 +494,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
 
   if (loadError && !savedSession) {
     return (
-      <div className="flex h-[100dvh] flex-col bg-[#FBFAF8]">
+      <div className="fixed inset-0 z-40 flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden bg-[#FBFAF8]">
         <WorkshopHeader locale={locale} />
         <div className="flex flex-1 items-center justify-center p-6 text-center text-sm text-[#071F5E]">{loadError}</div>
       </div>
@@ -489,7 +503,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
 
   if (!hydrated) {
     return (
-      <div className="flex h-[100dvh] flex-col bg-[#FBFAF8]">
+      <div className="fixed inset-0 z-40 flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden bg-[#FBFAF8]">
         <WorkshopHeader locale={locale} />
         <div className="flex flex-1 items-center justify-center text-sm text-[#071F5E]/70">Cargando sala…</div>
       </div>
@@ -497,11 +511,11 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col overflow-hidden bg-[#FBFAF8] text-[#071F5E]">
+    <div className="fixed inset-0 z-40 flex h-[100dvh] max-h-[100dvh] flex-col overflow-hidden bg-[#FBFAF8] text-[#071F5E]">
       <WorkshopHeader locale={locale} />
 
       {gate === 'intro' ? (
-        <div className="relative min-h-0 flex-1 overflow-y-auto">
+        <div className="relative min-h-0 flex-1 overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/marca/ui/oficina-hero.jpg"
@@ -509,7 +523,7 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
             className="absolute inset-0 h-full w-full object-cover object-[center_30%]"
           />
           <div className="absolute inset-0 bg-gradient-to-r from-white/88 via-white/62 to-transparent" />
-          <div className="relative z-10 flex min-h-full w-full items-center px-6 py-10 sm:px-10 lg:px-16">
+          <div className="relative z-10 flex h-full w-full items-center px-6 py-6 sm:px-10 sm:py-8 lg:px-16">
             <div className="w-full max-w-xl">
               <p className="text-base font-normal tracking-[0.02em] text-[#071F5E] sm:text-[23px]">
                 {groupName || MNS_COURSE.edition}
@@ -558,19 +572,21 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
       ) : null}
 
       {gate === 'name' ? (
-        <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col items-center justify-center overflow-y-auto px-6 py-8 text-center">
-          <p className="text-base font-light tracking-[0.02em] text-[#071F5E] sm:text-[23px]">ANTES DE EMPEZAR</p>
-          <h2 className="mt-2 text-3xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-[40px] sm:leading-[1.15]">
+        <div className="mx-auto flex min-h-0 w-full max-w-xl flex-1 flex-col items-center justify-center overflow-y-auto overscroll-contain px-6 py-4 text-center sm:py-6">
+          <p className="text-sm font-light tracking-[0.02em] text-[#071F5E] sm:text-base lg:text-[23px]">
+            ANTES DE EMPEZAR
+          </p>
+          <h2 className="mt-1 text-2xl font-bold tracking-[0.01em] text-[#071F5E] sm:text-3xl lg:text-[40px] lg:leading-[1.15]">
             Representante y empresa
           </h2>
-          <p className="mt-3 text-[15px] text-[#071F5E] sm:text-[17px]">
+          <p className="mt-2 max-w-md text-sm text-[#071F5E] sm:text-[15px] lg:text-[17px]">
             Usaremos estos datos para guardar tu avance. Si ya empezaste, usa los mismos nombres para continuar.
           </p>
 
-          <label className="mt-8 w-full text-left text-xs font-bold uppercase tracking-[0.12em] text-[#071F5E]/55">
+          <label className="mt-5 w-full text-left text-xs font-bold uppercase tracking-[0.12em] text-[#071F5E]/55 sm:mt-6">
             Nombre del representante
             <input
-              className="mt-2 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm font-normal normal-case tracking-normal text-[#071F5E] placeholder:text-[#72777A]/50"
+              className="mt-2 w-full min-h-[52px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm font-normal normal-case tracking-normal text-[#071F5E] placeholder:text-[#72777A]/50 sm:min-h-[60px]"
               placeholder="Tu nombre"
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -578,10 +594,10 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
             />
           </label>
 
-          <label className="mt-4 w-full text-left text-xs font-bold uppercase tracking-[0.12em] text-[#071F5E]/55">
+          <label className="mt-3 w-full text-left text-xs font-bold uppercase tracking-[0.12em] text-[#071F5E]/55">
             Nombre de la empresa
             <input
-              className="mt-2 w-full min-h-[66px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm font-normal normal-case tracking-normal text-[#071F5E] placeholder:text-[#72777A]/50"
+              className="mt-2 w-full min-h-[52px] rounded-[14px] border border-[#8D99AE] bg-white px-4 text-center text-sm font-normal normal-case tracking-normal text-[#071F5E] placeholder:text-[#72777A]/50 sm:min-h-[60px]"
               placeholder="Empresa o emprendimiento"
               value={companyName}
               onChange={(e) => setCompanyName(e.target.value)}
@@ -597,14 +613,14 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
             type="button"
             disabled={!name.trim() || !companyName.trim() || joining}
             onClick={() => void joinAndContinue()}
-            className="mt-4 inline-flex min-h-[66px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-40"
+            className="mt-4 inline-flex min-h-[56px] w-full items-center justify-center gap-2 rounded-[14px] bg-[#071F5E] px-5 text-base font-bold text-[#F2F2F2] disabled:opacity-40 sm:min-h-[60px]"
           >
             {joining ? 'Entrando…' : 'Continuar'}
             <ArrowIcon />
           </button>
           <button
             type="button"
-            className="mt-3 text-sm font-semibold text-[#071F5E]/60 underline-offset-2 hover:underline"
+            className="mt-2 text-sm font-semibold text-[#071F5E]/60 underline-offset-2 hover:underline"
             onClick={() => setGate('intro')}
           >
             Volver
@@ -613,19 +629,19 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
       ) : null}
 
       {gate === 'pre' ? (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <MnsCheck moment="pre" initial={preCheck?.answers} onSubmit={submitPre} submitting={joining || saving} />
         </div>
       ) : null}
 
       {gate === 'post' ? (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <MnsCheck moment="post" initial={postCheck?.answers} onSubmit={submitPost} submitting={saving} />
         </div>
       ) : null}
 
       {gate === 'done' ? (
-        <div className="min-h-0 flex-1 overflow-y-auto">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           <MnsCheckDoneSummary
             pre={preCheck}
             post={postCheck}
@@ -638,8 +654,8 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
       ) : null}
 
       {gate === 'play' && screen ? (
-        <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col overflow-y-auto px-4 py-6 sm:px-8">
-          <div className="mb-4 flex items-center justify-between gap-3 text-xs text-[#071F5E]/55">
+        <div className="mx-auto flex min-h-0 w-full max-w-3xl flex-1 flex-col overflow-hidden px-4 pt-3 sm:px-8 sm:pt-4">
+          <div className="mb-2 flex shrink-0 items-center justify-between gap-3 text-xs text-[#071F5E]/55 sm:mb-3">
             <span>{progressLabel}</span>
             <span>
               {playIndex + 1}/{MNS_PLAY_SCREENS.length}
@@ -647,77 +663,83 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
             </span>
           </div>
 
-          {screen.kind === 'chapter' ? (
-            <>
-              <div className="shrink-0 text-center">
-                <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">
-                  DINÁMICA {screen.ficha.number} · DÍA {screen.ficha.day}
-                </p>
-                <h2 className="mt-2 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-[42px] sm:leading-[1.15]">
-                  {screen.ficha.title}
-                </h2>
-                <p className="mx-auto mt-3 max-w-2xl text-sm leading-5 sm:text-[17px] sm:leading-[23px]">
-                  {screen.ficha.proposito}
-                </p>
-              </div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pb-1">
+            {screen.kind === 'chapter' ? (
+              <>
+                <div className="text-center">
+                  <p className="text-sm font-light tracking-[0.02em] sm:text-base lg:text-[23px]">
+                    DINÁMICA {screen.ficha.number} · DÍA {screen.ficha.day}
+                  </p>
+                  <h2 className="mt-1 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[40px] lg:leading-[1.15]">
+                    {screen.ficha.title}
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-2xl text-sm leading-5 sm:text-[15px] lg:text-[17px] lg:leading-[23px]">
+                    {screen.ficha.proposito}
+                  </p>
+                </div>
 
-              <div className="mt-8 rounded-[18px] bg-white p-5 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:p-6">
-                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Consigna</p>
-                <p className="mt-2 text-[15px] leading-6 text-[#071F5E]">{screen.ficha.consigna}</p>
-                <p className="mt-4 text-sm leading-5 text-[#071F5E]/65">{screen.ficha.tipRevision}</p>
-              </div>
+                <div className="mt-5 rounded-[18px] bg-white p-4 shadow-[-7px_5px_13px_-5px_rgba(0,0,0,0.12)] sm:mt-6 sm:p-5">
+                  <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#009179]">Consigna</p>
+                  <p className="mt-2 text-[15px] leading-6 text-[#071F5E]">{screen.ficha.consigna}</p>
+                  <p className="mt-3 text-sm leading-5 text-[#071F5E]/65">{screen.ficha.tipRevision}</p>
+                </div>
 
-              <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                {MNS_FICHAS.map((f) => (
-                  <div
-                    key={f.id}
-                    className={`rounded-[14px] px-3 py-3 text-center text-xs font-semibold ${
-                      f.id === screen.ficha.id ? 'bg-[#071F5E] text-white' : 'bg-white text-[#071F5E]/55'
-                    }`}
+                <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                  {MNS_FICHAS.map((f) => (
+                    <div
+                      key={f.id}
+                      className={`rounded-[14px] px-3 py-2.5 text-center text-xs font-semibold ${
+                        f.id === screen.ficha.id ? 'bg-[#071F5E] text-white' : 'bg-white text-[#071F5E]/55'
+                      }`}
+                    >
+                      {f.number}. {f.title.split(' ').slice(0, 2).join(' ')}
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : null}
+
+            {screen.kind === 'field' ? (
+              <>
+                <div className="text-center">
+                  <p className="text-sm font-light tracking-[0.02em] sm:text-base lg:text-[23px]">
+                    PASO {screen.fieldOrdinal + 1} DE {screen.fieldsInFicha}
+                  </p>
+                  <h2 className="mt-1 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-3xl lg:text-[34px] lg:leading-[1.15]">
+                    {screen.field.label}
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-2xl text-sm leading-5 sm:text-[15px] lg:text-[17px] lg:leading-[23px]">
+                    {screen.field.help.paraQue}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setTip({ title: screen.field.label, help: screen.field.help })}
+                    className="mt-2 inline-flex items-center gap-2 rounded-full border border-[#52ADAD]/40 bg-white px-3 py-1.5 text-xs font-bold text-[#009179]"
                   >
-                    {f.number}. {f.title.split(' ').slice(0, 2).join(' ')}
-                  </div>
-                ))}
-              </div>
+                    Ver cómo + ejemplo
+                  </button>
+                </div>
 
+                <div className="mt-4 sm:mt-5">
+                  <MnsFieldPlay
+                    field={screen.field}
+                    value={getFieldValue(screen.ficha.id, screen.field.id)}
+                    onChange={(v) => setFieldValue(screen.ficha.id, screen.field.id, v)}
+                  />
+                </div>
+              </>
+            ) : null}
+          </div>
+
+          <div className="shrink-0 border-t border-[#071F5E]/6 bg-[#FBFAF8] pb-4 pt-2 sm:pb-5">
+            {screen.kind === 'chapter' ? (
               <NavRow
                 onBack={playIndex > 0 ? goBackPlay : undefined}
                 onNext={() => void goNextPlay()}
                 nextLabel="Empezar esta dinámica"
                 primaryTeal
               />
-            </>
-          ) : null}
-
-          {screen.kind === 'field' ? (
-            <>
-              <div className="shrink-0 text-center">
-                <p className="text-base font-light tracking-[0.02em] sm:text-[23px]">
-                  PASO {screen.fieldOrdinal + 1} DE {screen.fieldsInFicha}
-                </p>
-                <h2 className="mt-2 text-2xl font-bold leading-tight tracking-[0.01em] sm:text-[36px] sm:leading-[1.15]">
-                  {screen.field.label}
-                </h2>
-                <p className="mx-auto mt-3 max-w-2xl text-sm leading-5 sm:text-[17px] sm:leading-[23px]">
-                  {screen.field.help.paraQue}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setTip({ title: screen.field.label, help: screen.field.help })}
-                  className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#52ADAD]/40 bg-white px-3 py-1.5 text-xs font-bold text-[#009179]"
-                >
-                  Ver cómo + ejemplo
-                </button>
-              </div>
-
-              <div className="mt-6 flex-1">
-                <MnsFieldPlay
-                  field={screen.field}
-                  value={getFieldValue(screen.ficha.id, screen.field.id)}
-                  onChange={(v) => setFieldValue(screen.ficha.id, screen.field.id, v)}
-                />
-              </div>
-
+            ) : (
               <NavRow
                 onBack={goBackPlay}
                 onNext={() => void goNextPlay()}
@@ -727,8 +749,8 @@ export function MnsWorkshopApp({ locale, code }: { locale: string; code: string 
                 nextDisabled={!fieldFilled(screen.field, getFieldValue(screen.ficha.id, screen.field.id))}
                 primaryTeal
               />
-            </>
-          ) : null}
+            )}
+          </div>
         </div>
       ) : null}
 
