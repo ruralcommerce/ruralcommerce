@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { actividadCopy, formatActividadWhen } from '@/lib/actividades/copy';
 import type { ActivityKind, ActivityStatus, GeoStatus, ParticipantState } from '@/lib/actividades/types';
@@ -39,6 +40,7 @@ export function ActividadSala({ locale, code }: { locale: string; code: string }
           lead: 'Entre com o e-mail e a senha do Impulsa CR / Rural Commerce. Não precisa digitar link longo.',
           email: 'E-mail da conta',
           password: 'Senha',
+          forgot: 'Esqueceu a senha?',
           submit: 'Validar presença',
           closed: 'Esta atividade já está fechada.',
           ok: 'Presença registrada',
@@ -50,6 +52,7 @@ export function ActividadSala({ locale, code }: { locale: string; code: string }
             lead: 'Sign in with your Impulsa CR / Rural Commerce email and password. No long links to type.',
             email: 'Account email',
             password: 'Password',
+            forgot: 'Forgot your password?',
             submit: 'Confirm attendance',
             closed: 'This activity is already closed.',
             ok: 'Attendance recorded',
@@ -60,6 +63,7 @@ export function ActividadSala({ locale, code }: { locale: string; code: string }
             lead: 'Entra con el correo y la contraseña de Impulsa CR / Rural Commerce. No hace falta copiar un enlace largo.',
             email: 'Correo de tu cuenta',
             password: 'Contraseña',
+            forgot: '¿Olvidaste tu contraseña?',
             submit: 'Validar presencia',
             closed: 'Esta actividad ya está cerrada.',
             ok: 'Presencia registrada',
@@ -186,6 +190,14 @@ export function ActividadSala({ locale, code }: { locale: string; code: string }
               onChange={(event) => setPassword(event.target.value)}
             />
           </label>
+          <p className="text-sm">
+            <Link
+              href={`/${locale}/projeto/recuperar-senha${email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ''}`}
+              className="font-semibold text-[#009179] underline-offset-2 hover:underline"
+            >
+              {copy.forgot}
+            </Link>
+          </p>
           {error ? <p className="text-sm text-red-700">{error}</p> : null}
           <button
             type="submit"
