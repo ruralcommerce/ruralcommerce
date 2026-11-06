@@ -28,6 +28,7 @@ import {
   buildLegacyVerificationCode,
 } from '@/lib/project-agreement-document';
 import { PROJECT_NAME } from '@/lib/project-brand';
+import { getProjectSexOptions, type ProjectSex } from '@/lib/project-sex';
 
 type EnrollmentRecord = {
   id: string;
@@ -49,6 +50,7 @@ type EnrollmentRecord = {
     role?: string;
     interest?: string;
     message?: string;
+    sex?: ProjectSex | string;
     email?: string;
     emailPending?: boolean;
     nationalId?: string;
@@ -66,6 +68,17 @@ type EnrollmentRecord = {
       ip?: string;
     };
   };
+};
+
+type ProfileEditForm = {
+  name: string;
+  phone: string;
+  organization: string;
+  cooperative: string;
+  city: string;
+  interest: string;
+  message: string;
+  sex: string;
 };
 
 const questionLabels: Record<ProjectLocaleKey, Record<string, string>> = {
@@ -149,6 +162,15 @@ const uiCopy = {
     city: 'Ciudad',
     profile: 'Función',
     interest: 'Actividad / producto',
+    representativeName: 'Nombre de la persona representante',
+    phone: 'Teléfono / WhatsApp',
+    sexLabel: 'Sexo / tipo',
+    sexOptional: 'Sin indicar',
+    editProfile: 'Editar perfil de registro',
+    cancelEdit: 'Cancelar',
+    saveProfile: 'Guardar cambios',
+    savingProfile: 'Guardando...',
+    profileSaved: 'Perfil actualizado.',
     noMessage: 'Sin mensaje adicional.',
     formAnswers: 'Respuestas del formulario',
     diagnosticCta: 'Ir al diagnóstico',
@@ -205,6 +227,15 @@ const uiCopy = {
     city: 'Cidade',
     profile: 'Função',
     interest: 'Atividade / produto',
+    representativeName: 'Nome da pessoa representante',
+    phone: 'Telefone / WhatsApp',
+    sexLabel: 'Sexo / tipo',
+    sexOptional: 'Não informado',
+    editProfile: 'Editar perfil de inscrição',
+    cancelEdit: 'Cancelar',
+    saveProfile: 'Salvar alterações',
+    savingProfile: 'Salvando...',
+    profileSaved: 'Perfil atualizado.',
     noMessage: 'Sem mensagem adicional.',
     formAnswers: 'Respostas do formulário',
     diagnosticCta: 'Ir para o diagnóstico',
@@ -261,6 +292,15 @@ const uiCopy = {
     city: 'City',
     profile: 'Role',
     interest: 'Activity / product',
+    representativeName: 'Representative full name',
+    phone: 'Phone / WhatsApp',
+    sexLabel: 'Sex / type',
+    sexOptional: 'Not specified',
+    editProfile: 'Edit registration profile',
+    cancelEdit: 'Cancel',
+    saveProfile: 'Save changes',
+    savingProfile: 'Saving...',
+    profileSaved: 'Profile updated.',
     noMessage: 'No additional message.',
     formAnswers: 'Form answers',
     diagnosticCta: 'Go to diagnosis',
@@ -331,7 +371,38 @@ export function ProjectProfileDashboard({
   const [newEmail, setNewEmail] = useState('');
   const [emailSaving, setEmailSaving] = useState(false);
   const [emailMessage, setEmailMessage] = useState('');
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMessage, setProfileMessage] = useState('');
+  const [editForm, setEditForm] = useState<ProfileEditForm>({
+    name: '',
+    phone: '',
+    organization: '',
+    cooperative: '',
+    city: '',
+    interest: '',
+    message: '',
+    sex: '',
+  });
   const answerEntries = record ? getOrderedAnswerEntries(record.profile.answers) : [];
+  const sexOptions = getProjectSexOptions(localeKey);
+
+  const startEditProfile = () => {
+    if (!record) return;
+    setProfileMessage('');
+    setError('');
+    setEditForm({
+      name: record.profile.name || '',
+      phone: record.profile.phone || '',
+      organization: record.profile.organization || '',
+      cooperative: record.profile.cooperative || '',
+      city: record.profile.city || '',
+      interest: record.profile.interest || '',
+      message: record.profile.message || '',
+      sex: typeof record.profile.sex === 'string' ? record.profile.sex : '',
+    });
+    setEditingProfile(true);
+  };
 
   const loadRecord = async (targetEmail: string, targetPassword?: string) => {
     const authPassword = targetPassword ?? password;
@@ -491,6 +562,54 @@ export function ProjectProfileDashboard({
     }
   };
 
+  const saveProfile = async () => {
+    if (!record || !editForm.name.trim()) return;
+    setProfileSaving(true);
+    setError('');
+    setProfileMessage('');
+    try {
+      const response = await fetch('/api/projeto/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: record.user.email || email,
+          password,
+          name: editForm.name.trim(),
+          phone: editForm.phone.trim(),
+          organization: editForm.organization.trim(),
+          cooperative: editForm.cooperative.trim(),
+          city: editForm.city.trim(),
+          interest: editForm.interest.trim(),
+          message: editForm.message.trim(),
+          sex: editForm.sex || undefined,
+        }),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.ok) {
+        setError(mapProjectApiMessage(payload.message, localeKey, t.errorLoad));
+        return;
+      }
+      const loadedRecord = payload.record as EnrollmentRecord;
+      setRecord(loadedRecord);
+      setEditingProfile(false);
+      setProfileMessage(t.profileSaved);
+      writeCandidateSession({
+        id: loadedRecord.id,
+        email: loadedRecord.user.email,
+        password,
+        status: loadedRecord.status,
+        locale: loadedRecord.profile?.locale || localeKey,
+        name: loadedRecord.profile?.name || '',
+        agreementSigned: loadedRecord.profile?.agreement?.signed === true,
+      });
+    } catch {
+      setError(t.errorLoadGeneric);
+    } finally {
+      setProfileSaving(false);
+    }
+  };
+
   const needsEmail =
     Boolean(record?.profile?.emailPending) ||
     /@acceso\.ruralcommerceglobal\.com$/i.test(record?.user?.email || '');
@@ -544,6 +663,7 @@ export function ProjectProfileDashboard({
       {error ? <p className="rounded-2xl bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
       {loading ? <p className="text-sm text-[#2F3336]/70">{t.loading}</p> : null}
       {emailMessage ? <p className="rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">{emailMessage}</p> : null}
+      {profileMessage ? <p className="rounded-2xl bg-[#EEF7F7] p-3 text-sm text-[#1D6359]">{profileMessage}</p> : null}
 
       {record && needsEmail ? (
         <ProjectPortalPanel title={t.addEmailTitle} tone="accent">
@@ -696,24 +816,134 @@ export function ProjectProfileDashboard({
           }
         >
           <ProjectPortalPanel title={t.projectInfo}>
-            <ProjectPortalStatGrid>
-              <ProjectPortalStat label={t.organization} value={record.profile.organization || '—'} />
-              {record.profile.cooperative ? (
-                <ProjectPortalStat label={t.cooperative} value={record.profile.cooperative} />
-              ) : null}
-              <ProjectPortalStat label={t.city} value={record.profile.city || '—'} />
-              <ProjectPortalStat
-                label={t.profile}
-                value={
-                  record.profile.role?.trim() ||
-                  (localeKey === 'en' ? 'Legal representative' : 'Representante legal')
-                }
-              />
-              <ProjectPortalStat label={t.interest} value={record.profile.interest || '—'} />
-            </ProjectPortalStatGrid>
-            <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm leading-6 text-[#2F3336]/80">
-              {record.profile.message || t.noMessage}
-            </p>
+            {editingProfile ? (
+              <div className="space-y-3">
+                <label className="block text-sm text-[#071F5E]/80">
+                  <span className="mb-1 block font-semibold">{t.representativeName}</span>
+                  <input
+                    value={editForm.name}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, name: e.target.value }))}
+                    className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                  />
+                </label>
+                <label className="block text-sm text-[#071F5E]/80">
+                  <span className="mb-1 block font-semibold">{t.organization}</span>
+                  <input
+                    value={editForm.organization}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, organization: e.target.value }))}
+                    className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                  />
+                </label>
+                <label className="block text-sm text-[#071F5E]/80">
+                  <span className="mb-1 block font-semibold">{t.cooperative}</span>
+                  <input
+                    value={editForm.cooperative}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, cooperative: e.target.value }))}
+                    className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                  />
+                </label>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm text-[#071F5E]/80">
+                    <span className="mb-1 block font-semibold">{t.phone}</span>
+                    <input
+                      value={editForm.phone}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, phone: e.target.value }))}
+                      className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                    />
+                  </label>
+                  <label className="block text-sm text-[#071F5E]/80">
+                    <span className="mb-1 block font-semibold">{t.city}</span>
+                    <input
+                      value={editForm.city}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, city: e.target.value }))}
+                      className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                    />
+                  </label>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <label className="block text-sm text-[#071F5E]/80">
+                    <span className="mb-1 block font-semibold">{t.interest}</span>
+                    <input
+                      value={editForm.interest}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, interest: e.target.value }))}
+                      className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                    />
+                  </label>
+                  <label className="block text-sm text-[#071F5E]/80">
+                    <span className="mb-1 block font-semibold">{t.sexLabel}</span>
+                    <select
+                      value={editForm.sex}
+                      onChange={(e) => setEditForm((prev) => ({ ...prev, sex: e.target.value }))}
+                      className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                    >
+                      <option value="">{t.sexOptional}</option>
+                      {sexOptions.map((opt) => (
+                        <option key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <label className="block text-sm text-[#071F5E]/80">
+                  <span className="mb-1 block font-semibold">{getAnswerLabel('q15', displayLocale)}</span>
+                  <textarea
+                    value={editForm.message}
+                    onChange={(e) => setEditForm((prev) => ({ ...prev, message: e.target.value }))}
+                    rows={4}
+                    className="w-full rounded-2xl border border-[#D9E3EC] px-4 py-3"
+                  />
+                </label>
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={() => void saveProfile()}
+                    disabled={profileSaving || !editForm.name.trim()}
+                    className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#52ADAD] px-5 py-3 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+                  >
+                    {profileSaving ? t.savingProfile : t.saveProfile}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingProfile(false)}
+                    disabled={profileSaving}
+                    className="inline-flex min-h-11 items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-5 py-3 text-sm font-semibold text-[#071F5E] disabled:opacity-60"
+                  >
+                    {t.cancelEdit}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <>
+                <ProjectPortalStatGrid>
+                  <ProjectPortalStat label={t.representativeName} value={record.profile.name || '—'} />
+                  <ProjectPortalStat label={t.organization} value={record.profile.organization || '—'} />
+                  {record.profile.cooperative ? (
+                    <ProjectPortalStat label={t.cooperative} value={record.profile.cooperative} />
+                  ) : null}
+                  <ProjectPortalStat label={t.phone} value={record.profile.phone || '—'} />
+                  <ProjectPortalStat label={t.city} value={record.profile.city || '—'} />
+                  <ProjectPortalStat
+                    label={t.profile}
+                    value={
+                      record.profile.role?.trim() ||
+                      (localeKey === 'en' ? 'Legal representative' : 'Representante legal')
+                    }
+                  />
+                  <ProjectPortalStat label={t.interest} value={record.profile.interest || '—'} />
+                </ProjectPortalStatGrid>
+                <p className="mt-4 rounded-2xl bg-[#F7FAFB] p-4 text-sm leading-6 text-[#2F3336]/80">
+                  {record.profile.message || t.noMessage}
+                </p>
+                <button
+                  type="button"
+                  onClick={startEditProfile}
+                  className="mt-4 inline-flex min-h-11 items-center justify-center rounded-full border border-[#D9E3EC] bg-white px-5 py-3 text-sm font-semibold text-[#071F5E]"
+                >
+                  {t.editProfile}
+                </button>
+              </>
+            )}
           </ProjectPortalPanel>
 
           {answerEntries.length ? (
